@@ -1,22 +1,31 @@
 const FA = '۰۱۲۳۴۵۶۷۸۹';
 const AR = '٠١٢٣٤٥٦٧٨٩';
 
+/** تبدیل ارقام انگلیسی به فارسی */
 export const toFa = (v: string | number) =>
   String(v).replace(/\d/g, (d) => FA[+d]!);
 
+/** تبدیل ارقام فارسی و عربی به انگلیسی قبل از ارسال به API یا اعتبارسنجی */
 export const toEn = (v: string) =>
   v
     .replace(/[۰-۹]/g, (d) => String(FA.indexOf(d)))
     .replace(/[٠-٩]/g, (d) => String(AR.indexOf(d)));
 
-// قیمت‌ها ریال‌اند؛ نمایش تومان. هیچ‌جا مستقیم /10 ننویس.
-export const rialToToman = (rial: number) => Math.round(rial / 10);
-export const formatToman = (rial: number) =>
-  `${new Intl.NumberFormat('fa-IR').format(rialToToman(rial))} تومان`;
+/**
+ * فرمت قیمت به تومان
+ * ورودی مستقیماً به تومان است
+ */
+export const formatToman = (toman: number) =>
+  `${new Intl.NumberFormat('fa-IR').format(Math.round(toman))} تومان`;
 
-export const formatDate = (iso: string) =>
-  new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'medium' }).format(
-    new Date(iso),
-  );
+/** تبدیل تاریخ میلادی/ISO به تقویم شمسی */
+export const formatDate = (iso: string) => {
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+    dateStyle: 'medium',
+  }).format(date);
+};
 
-export const isIranMobile = (v: string) => /^09\d{9}$/.test(toEn(v));
+/** اعتبارسنجی فرمت شماره موبایل ایران */
+export const isIranMobile = (v: string) => /^09\d{9}$/.test(toEn(v).trim());
