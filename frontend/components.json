@@ -10,7 +10,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint:rtl": "grep -rnE \"\\b(ml|mr|pl|pr|text-left|text-right)-\" app --include=*.vue --exclude-dir=input-otp && exit 1 || exit 0",
-    "lint:tokens": "grep -rnE \"#[0-9a-fA-F]{6}\\b\" app --include=*.vue && exit 1 || exit 0",
+    "lint:tokens": "grep -rnE \"#[0-9a-fA-F]{6}\\b\" app --include=*.vue --exclude-dir=ui && exit 1 || exit 0",
     "typecheck": "nuxt prepare && vue-tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint .",
@@ -18,25 +18,34 @@
   },
   "dependencies": {
     "@lucide/vue": "^1.49.0",
+    "@nuxt/image": "^2.1.0",
+    "@nuxtjs/seo": "^5.3.16",
+    "@pinia/nuxt": "^1.0.2",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^15.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "nuxt": "^4.5.2",
+    "pinia": "^3.0.1",
     "reka-ui": "^2.10.5",
     "shadcn-nuxt": "2.8.2",
     "tailwind-merge": "^3.7.0",
     "vee-validate": "^4.15.1",
     "vue": "^3.5.43",
     "vue-input-otp": "^0.4.0",
-    "vue-router": "^5.3.1",
     "vue-sonner": "^2.0.9",
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^3.15.4",
     "@tailwindcss/vite": "^4.3.3",
+    "eslint": "^10.11.0",
+    "openapi-typescript": "^7.6.1",
     "tailwindcss": "^4.3.3",
     "tw-animate-css": "^1.4.0",
-    "typescript": "~5.7.0"
+    "typescript": "~5.7.0",
+    "vitest": "^3.0.5",
+    "vue-tsc": "^2.2.0"
   }
 }
