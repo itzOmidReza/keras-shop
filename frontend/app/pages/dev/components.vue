@@ -1,13 +1,20 @@
 <!-- frontend/app/pages/dev/components.vue -->
 <script setup lang="ts">
+import type { Product } from '~/types/domain'
 import ProductCard from '~/components/product/ProductCard.vue'
+// import ProductGallery from '~/components/product/ProductGallery.vue'
+import SizeSelector from '~/components/product/SizeSelector.vue'
+import FabricMeters from '~/components/product/FabricMeters.vue'
+import PriceTag from '~/components/product/PriceTag.vue'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import { useProducts } from '~/composables/useProducts'
 import { Sparkles, ShoppingBag, ArrowLeft } from '@lucide/vue'
 
+const selectedSize = ref<string | null>('M')
+
 const { getProducts, loading } = useProducts()
-const products = ref([])
+const products = ref<Product[]>([])
 
 onMounted(async () => {
   products.value = await getProducts()
@@ -93,6 +100,27 @@ onMounted(async () => {
           </div>
         </div>
       </section>
+
+      <!-- بخش ۴: انتخابگر سایز (SizeSelector) -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-ink">۴. انتخابگر سایز (SizeSelector)</h2>
+        <div class="max-w-md p-6 rounded-card border border-sand bg-white/50">
+          <SizeSelector v-if="products.length > 0" v-model="selectedSize" :variants="products[0].variants"
+            @open-size-guide="() => alert('باز شدن راهنمای سایز (S-02)')" />
+        </div>
+      </section>
+
+      <!-- بخش ۵: گالری محصول (ProductGallery) -->
+      <!-- <section class="space-y-4">
+        <h2 class="text-lg font-bold text-ink">۵. گالری تصاویر محصول (ProductGallery)</h2>
+        <div class="max-w-md p-6 rounded-card border border-sand bg-white/50">
+          <ProductGallery
+            v-if="products.length > 0"
+            :images="products[0].images"
+            :title="products[0].title"
+          />
+        </div>
+      </section> -->
     </div>
   </div>
 </template>
