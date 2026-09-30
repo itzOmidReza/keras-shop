@@ -10,7 +10,11 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint:rtl": "grep -rnE \"\\b(ml|mr|pl|pr|text-left|text-right)-\" app --include=*.vue --exclude-dir=input-otp && exit 1 || exit 0",
-    "lint:tokens": "grep -rnE \"#[0-9a-fA-F]{6}\\b\" app --include=*.vue && exit 1 || exit 0"
+    "lint:tokens": "grep -rnE \"#[0-9a-fA-F]{6}\\b\" app --include=*.vue && exit 1 || exit 0",
+    "typecheck": "nuxt prepare && vue-tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@lucide/vue": "^1.49.0",

@@ -1,9 +1,11 @@
+<!-- frontend/app/error.vue -->
 <script setup lang="ts">
 import type { NuxtError } from '#app'
 
-const props = defineProps<{ error: NuxtError }>()
+defineProps<{
+  error: NuxtError
+}>()
 </script>
-
 <template>
   <div>
     <h1>{{ error.status }}</h1>
