@@ -47,9 +47,13 @@ export default defineNuxtConfig({
   },
 
   image: {
-    quality: 80,
-    format: ['avif', 'webp'],
     domains: ['images.unsplash.com'],
+    // در محیط توسعه نیازی به پردازش از طریق سرور پروکسی Nitro نیست
+    provider: 'ipx',
+  },
+  // خاموش کردن چک آنلاین فونت یا رندرهای خارجی سئو در محیط لوکال
+  seo: {
+    redirectToCanonicalSiteUrl: false,
   },
 
   // ۶. قوانین رندرینگ و کش صفحات (SWR / CSR)
