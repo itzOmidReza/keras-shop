@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @import 'tailwindcss';
@@ -26,29 +25,28 @@
   font-display: swap;
 }
 
-/* ---------- رنگ‌های برند (کلاس‌هایی مثل bg-sand, text-ink, bg-sage) ---------- */
+/* ---------- رنگ‌های برند کراس ---------- */
 @theme {
-  /* رنگ‌های برند */
-  --color-ink: #1f2a44;
-  --color-sand: #f3ede4;
-  --color-paper: #faf8f5;
-  --color-coral: #ff6b4a;
-  --color-sage: #a8bba2;
+  --color-ink: #3b2f2c;
+  --color-sand: #f1e7dc;
+  --color-paper: #fbf6f1;
+  --color-rose: #b8475f;
+  --color-coral: #b8475f;
+  --color-sage: #56705b;
+  --color-sage-soft: #dde5da;
   --color-clay: #c98f78;
   --color-success: #2e7d5b;
 
-  /* فونت تیتر: تا اضافه‌شدن Estedad به Vazirmatn برمی‌گردد */
   --font-display: 'Estedad', 'Vazirmatn', sans-serif;
 
-  /* مقیاس تایپوگرافی (موبایل)؛ برای دسکتاپ با md: بزرگ‌تر کن */
-  --text-title-lg: 1.75rem; /* H1: 28px */
+  --text-title-lg: 1.75rem;
   --text-title-lg--line-height: 1.2;
-  --text-title-md: 1.375rem; /* H2: 22px */
+  --text-title-md: 1.375rem;
   --text-title-md--line-height: 1.3;
-  --text-title-sm: 1.125rem; /* H3: 18px */
+  --text-title-sm: 1.125rem;
   --text-title-sm--line-height: 1.3;
 
-  --shadow-soft: 0 2px 12px rgb(31 42 68 / 0.08);
+  --shadow-soft: 0 2px 12px rgb(59 47 44 / 0.08);
 }
 
 /* ---------- نگاشت به توکن‌های shadcn ---------- */
@@ -94,43 +92,51 @@
 }
 
 :root {
-  --radius: 0.625rem; /* 12px */ /* paper */ /* ink */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --radius: 0.625rem;
 
-  --primary: oklch(0.205 0 0); /* coral: فقط دکمه‌ی اصلی */
-  --primary-foreground: oklch(0.985 0 0); /* ink روی مرجانی: کنتراست ≈ ۴٫۹ (سفید فقط ≈ ۲٫۹) */
-  --secondary: oklch(0.97 0 0); /* sand */
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0); /* hover ملایم */
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* پس‌زمینه #FBF6F1 و متن اصلی موکا #3B2F2C */
+  --background: #fbf6f1;
+  --foreground: #3b2f2c;
 
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --card: #ffffff;
+  --card-foreground: #3b2f2c;
+  --popover: #ffffff;
+  --popover-foreground: #3b2f2c;
 
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  /* دکمه اصلی رز #B8475F با متن سفید #FFFFFF */
+  --primary: #b8475f;
+  --primary-foreground: #ffffff;
 
-  /* پنل ادمین */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --secondary: #f1e7dc;
+  --secondary-foreground: #3b2f2c;
+
+  /* زمینه ملایم و متن ثانویه استاندارد #74675F */
+  --muted: #f1e7dc;
+  --muted-foreground: #74675f;
+
+  --accent: #f1e7dc;
+  --accent-foreground: #3b2f2c;
+  --destructive: #b8475f;
+
+  --border: #f1e7dc;
+  --input: #f1e7dc;
+  --ring: #b8475f;
+
+  --chart-1: #b8475f;
+  --chart-2: #56705b;
+  --chart-3: #c98f78;
+  --chart-4: #2e7d5b;
+  --chart-5: #3b2f2c;
+
+  /* پنل سایدبار */
+  --sidebar: #fbf6f1;
+  --sidebar-foreground: #3b2f2c;
+  --sidebar-primary: #b8475f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1e7dc;
+  --sidebar-accent-foreground: #3b2f2c;
+  --sidebar-border: #f1e7dc;
+  --sidebar-ring: #b8475f;
 }
 
 @layer base {
@@ -148,35 +154,35 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #2b2220;
+  --foreground: #fbf6f1;
+  --card: #342a27;
+  --card-foreground: #fbf6f1;
+  --popover: #342a27;
+  --popover-foreground: #fbf6f1;
+  --primary: #b8475f;
+  --primary-foreground: #ffffff;
+  --secondary: #3b2f2c;
+  --secondary-foreground: #fbf6f1;
+  --muted: #3b2f2c;
+  --muted-foreground: #c2b5ad;
+  --accent: #3b2f2c;
+  --accent-foreground: #fbf6f1;
+  --destructive: #b8475f;
+  --border: rgb(241 231 220 / 0.15);
+  --input: rgb(241 231 220 / 0.2);
+  --ring: #b8475f;
+  --chart-1: #b8475f;
+  --chart-2: #56705b;
+  --chart-3: #c98f78;
+  --chart-4: #2e7d5b;
+  --chart-5: #fbf6f1;
+  --sidebar: #2b2220;
+  --sidebar-foreground: #fbf6f1;
+  --sidebar-primary: #b8475f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #3b2f2c;
+  --sidebar-accent-foreground: #fbf6f1;
+  --sidebar-border: rgb(241 231 220 / 0.15);
+  --sidebar-ring: #b8475f;
 }

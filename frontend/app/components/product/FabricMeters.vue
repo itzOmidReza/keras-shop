@@ -3,11 +3,11 @@
 import { Info } from '@lucide/vue'
 
 defineProps<{
-  stretch?: number // 1 تا 5
-  softness?: number // 1 تا 5
-  opacity?: number // 1 تا 5
-  composition?: string // جنس پارچه
-  gsm?: number // گرماژ پارچه
+  stretch?: number
+  softness?: number
+  opacity?: number
+  composition?: string
+  gsm?: number
 }>()
 
 const stretchLabels: Record<number, string> = {
@@ -47,13 +47,12 @@ const softnessLabels: Record<number, string> = {
     </div>
 
     <!-- متریال تشکیل‌دهنده -->
-    <div v-if="composition" class="text-xs text-ink/80 flex items-center gap-1.5">
+    <div v-if="composition" class="text-xs text-ink flex items-center gap-1.5">
       <span class="font-medium text-muted">ترکیب الیاف:</span>
       <span>{{ composition }}</span>
     </div>
 
     <div class="space-y-3 pt-1">
-      <!-- سنجه کشسانی -->
       <div v-if="stretch" class="space-y-1">
         <div class="flex justify-between text-xs">
           <span class="font-medium text-ink">میزان کشسانی</span>
@@ -64,11 +63,10 @@ role="meter" :aria-valuenow="stretch" aria-valuemin="1" aria-valuemax="5" aria-l
           class="flex h-2 w-full gap-1.5 overflow-hidden rounded-full">
           <div
 v-for="i in 5" :key="i" class="h-full flex-1 rounded-full transition-colors"
-            :class="i <= stretch ? 'bg-coral' : 'bg-sand'" />
+            :class="i <= stretch ? 'bg-rose' : 'bg-sand'" />
         </div>
       </div>
 
-      <!-- سنجه عدم شفافیت و پوشانندگی -->
       <div v-if="opacity" class="space-y-1">
         <div class="flex justify-between text-xs">
           <span class="font-medium text-ink flex items-center gap-1">
@@ -85,7 +83,6 @@ v-for="i in 5" :key="i" class="h-full flex-1 rounded-full transition-colors"
         </div>
       </div>
 
-      <!-- سنجه لطافت و نرمی -->
       <div v-if="softness" class="space-y-1">
         <div class="flex justify-between text-xs">
           <span class="font-medium text-ink">میزان نرمی و لطافت</span>
@@ -103,8 +100,8 @@ v-for="i in 5" :key="i" class="h-full flex-1 rounded-full transition-colors"
 
     <!-- یادداشت تست شفافیت -->
     <div class="flex items-center gap-1.5 rounded-lg bg-sand/40 p-2.5 text-[11px] text-muted">
-      <Info class="w-4 h-4 shrink-0 text-coral" />
-      <span>تمام پارچه‌ها در حرکات کششی عمیق و زوایای مختلف نوری تست شده‌اند[cite: 3].</span>
+      <Info class="w-4 h-4 shrink-0 text-rose" />
+      <span>تمام پارچه‌ها در حرکات کششی عمیق و زوایای مختلف نوری تست شده‌اند.</span>
     </div>
   </div>
 </template>

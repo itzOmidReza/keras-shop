@@ -13,7 +13,6 @@ const emit = defineEmits<{
   'open-size-guide': []
 }>()
 
-// استخراج سایزهای یکتا به همراه وضعیت موجودی
 const sizes = computed(() => {
   const sizeMap = new Map<string, { size: string; inStock: boolean; stock: number }>()
 
@@ -26,7 +25,8 @@ const sizes = computed(() => {
         inStock: hasStock,
         stock: Math.max(0, v.stock - v.reserved),
       })
-    } else {
+    }
+    else {
       existing.inStock = existing.inStock || hasStock
       existing.stock += Math.max(0, v.stock - v.reserved)
     }
@@ -43,25 +43,26 @@ const selectSize = (item: { size: string; inStock: boolean }) => {
 
 <template>
   <div class="space-y-3">
-    <!-- هدر بخش سایز: عنوان + دکمه راهنمای سایز -->
+    <!-- هدر بخش سایز -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-sm font-bold text-ink">انتخاب سایز</span>
-        <span v-if="modelValue" class="text-xs font-medium text-coral bg-coral/10 px-2 py-0.5 rounded-full">
+        <span v-if="modelValue" class="text-xs font-bold text-rose bg-rose/10 px-2.5 py-0.5 rounded-full">
           {{ modelValue }}
         </span>
       </div>
 
+      <!-- دکمه راهنمای اندازه‌گیری -->
       <button
 type="button"
-        class="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors cursor-pointer"
+        class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-ink transition-colors cursor-pointer"
         @click="emit('open-size-guide')">
-        <Ruler class="w-3.5 h-3.5 text-coral" />
+        <Ruler class="w-3.5 h-3.5 text-rose" />
         <span>راهنمای اندازه‌گیری</span>
       </button>
     </div>
 
-    <!-- شبکه دکمه‌های سایز -->
+    <!-- دکمه‌های سایز -->
     <div role="radiogroup" aria-label="انتخاب سایز محصول" class="grid grid-cols-4 sm:grid-cols-6 gap-2">
       <button
 v-for="item in sizes" :key="item.size" type="button" role="radio" :aria-checked="modelValue === item.size"
@@ -69,22 +70,21 @@ v-for="item in sizes" :key="item.size" type="button" role="radio" :aria-checked=
         class="relative flex h-11 items-center justify-center rounded-btn border text-sm font-bold transition-all"
         :class="[
           !item.inStock
-            ? 'border-sand/60 bg-sand/20 text-muted/50 cursor-not-allowed line-through'
+            ? 'border-sand bg-sand/30 text-muted-foreground/40 cursor-not-allowed line-through'
             : modelValue === item.size
               ? 'border-ink bg-ink text-paper shadow-sm'
-              : 'border-sand bg-paper text-ink hover:border-ink/60 hover:bg-sand/30 cursor-pointer'
+              : 'border-sand bg-white text-ink hover:border-ink hover:bg-sand/30 cursor-pointer'
         ]" @click="selectSize(item)">
         <span>{{ item.size }}</span>
 
-        <!-- نشانگر کمبود موجودی اگر فقط ۱ یا ۲ عدد مانده باشد -->
         <span v-if="item.inStock && item.stock <= 2" class="absolute -top-1 -end-1 flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-coral opacity-75" />
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-coral" />
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose opacity-75" />
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-rose" />
         </span>
       </button>
     </div>
 
-    <p v-if="!modelValue" class="text-[11px] text-muted">
+    <p v-if="!modelValue" class="text-[11px] text-muted-foreground font-medium">
       لطفاً پیش از افزودن به سبد، سایز خود را مشخص کنید.
     </p>
   </div>
