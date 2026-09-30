@@ -1,6 +1,11 @@
+<script setup lang="ts">
+import { ConfigProvider } from 'reka-ui'
+</script>
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <Button>Click me</Button>
-  </div>
+  <ConfigProvider dir="rtl">
+    <NuxtLayout>
+      <NuxtRouteAnnouncer />
+      <NuxtPage />
+    </NuxtLayout>
+  </ConfigProvider>
 </template>

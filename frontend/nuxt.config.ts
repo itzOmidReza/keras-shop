@@ -15,4 +15,27 @@ export default defineNuxtConfig({
     prefix: '',
     componentDir: '@/components/ui',
   },
+
+  app: {
+    head: {
+      htmlAttrs: { lang: 'fa', dir: 'rtl' },
+      meta: [{ name: 'theme-color', content: '#1F2A44' }],
+      link: [
+        {
+          rel: 'preload',
+          href: '/fonts/Vazirmatn-Regular.woff2',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          href: '/fonts/Vazirmatn-Bold.woff2',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: 'anonymous',
+        },
+      ],
+    },
+  },
 });
