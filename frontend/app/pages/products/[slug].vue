@@ -3,6 +3,7 @@
 import { ShoppingBag, Heart, Check } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { useCartStore } from '~/stores/cart'
+import { useWishlistStore } from '~/stores/wishlist'
 
 const route = useRoute()
 const { getProductBySlug, getProductReviews, getRelatedProducts } = useProducts()
@@ -38,7 +39,17 @@ const { data: relatedProducts } = await useAsyncData(
 )
 
 const selectedSize = ref<string | null>(null)
-const isWishlisted = ref(false)
+const wishlistStore = useWishlistStore()
+
+const isWishlisted = computed(() => {
+  return product.value ? wishlistStore.isInWishlist(product.value.id) : false
+})
+
+const handleToggleWishlist = () => {
+  if (product.value) {
+    wishlistStore.toggleWishlist(product.value)
+  }
+}
 
 const displayPrice = computed(() => product.value?.base_price ?? 0)
 const displayCompareAtPrice = computed(() => product.value?.compare_at_price)
@@ -177,10 +188,11 @@ const handleSizeSelectedFromGuide = (size: string) => {
           <Button
             variant="outline"
             size="lg"
-            class="h-12 w-12 rounded-xl border-sand hover:bg-sand/30 shrink-0 text-ink cursor-pointer"
-            @click="isWishlisted = !isWishlisted"
+            class="h-12 w-12 rounded-xl border-sand hover:bg-sand/30 shrink-0 text-ink cursor-pointer transition-all active:scale-90"
+            :aria-label="isWishlisted ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'"
+            @click="handleToggleWishlist"
           >
-            <Heart class="w-5 h-5" :class="isWishlisted ? 'fill-rose text-rose' : 'text-ink'" />
+            <Heart class="w-5 h-5 transition-colors" :class="isWishlisted ? 'fill-rose text-rose' : 'text-ink'" />
           </Button>
         </div>
 

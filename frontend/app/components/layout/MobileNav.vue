@@ -10,6 +10,7 @@ import {
   Phone,
 } from '@lucide/vue'
 import { mobileNavItems, siteConfig } from '~/data'
+import { useWishlistStore } from '~/stores/wishlist'
 
 defineProps<{
   isOpen: boolean
@@ -18,6 +19,8 @@ defineProps<{
 const emit = defineEmits<{
   close: []
 }>()
+
+const wishlistStore = useWishlistStore()
 
 const quickLinks = [
   { label: 'علاقه‌مندی‌ها', href: '/wishlist', icon: Heart },
@@ -102,13 +105,21 @@ const quickLinks = [
               v-for="link in quickLinks"
               :key="link.href"
               :to="link.href"
-              class="flex flex-col items-center gap-1 rounded-xl p-2 text-[11px] font-bold text-ink transition-colors hover:bg-sand/40"
+              class="relative flex flex-col items-center gap-1 rounded-xl p-2 text-[11px] font-bold text-ink transition-colors hover:bg-sand/40"
               @click="emit('close')"
             >
-              <component
-                :is="link.icon"
-                class="h-4 w-4 text-rose"
-              />
+              <div class="relative">
+                <component
+                  :is="link.icon"
+                  class="h-4 w-4 text-rose"
+                />
+                <span
+                  v-if="link.href === '/wishlist' && wishlistStore.itemCount > 0"
+                  class="absolute -top-1.5 -end-2 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose text-white text-[9px] font-bold flex items-center justify-center"
+                >
+                  {{ wishlistStore.itemCount }}
+                </span>
+              </div>
               <span>{{ link.label }}</span>
             </NuxtLink>
           </div>

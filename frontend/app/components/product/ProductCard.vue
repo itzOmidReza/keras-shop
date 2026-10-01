@@ -1,7 +1,9 @@
 <!-- frontend/app/components/product/ProductCard.vue -->
 <script setup lang="ts">
 import type { ProductListItem } from '~/types/domain'
+import { Heart } from '@lucide/vue'
 import { productLines } from '~/data'
+import { useWishlistStore } from '~/stores/wishlist'
 
 interface Props {
   product: ProductListItem
@@ -11,6 +13,9 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   priority: false,
 })
+
+const wishlistStore = useWishlistStore()
+const isFavorite = computed(() => wishlistStore.isInWishlist(props.product.id))
 
 // استخراج تصویر اول و دوم برای هاور موشن مینیمال
 const primaryImage = computed(() => {
@@ -53,6 +58,19 @@ class="rounded-full px-2.5 py-1 text-[10px] font-bold shadow-xs backdrop-blur-md
           {{ currentLine.badge }}
         </span>
       </div>
+
+      <!-- دکمه علاقه‌مندی شناور روی تصویر -->
+      <button
+        type="button"
+        class="absolute inset-e-3 top-3 z-10 w-8 h-8 rounded-full bg-white/85 backdrop-blur-xs flex items-center justify-center text-ink hover:text-rose hover:bg-white shadow-2xs transition-all active:scale-90 cursor-pointer"
+        :aria-label="isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'"
+        @click.stop.prevent="wishlistStore.toggleWishlist(product)"
+      >
+        <Heart
+          class="w-4 h-4 transition-colors"
+          :class="isFavorite ? 'fill-rose text-rose' : 'text-ink/80'"
+        />
+      </button>
     </NuxtLink>
 
     <!-- اطلاعات متنی محصول -->

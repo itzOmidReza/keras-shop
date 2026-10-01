@@ -9,6 +9,7 @@ import {
 } from '@lucide/vue'
 import { headerNav, announcementBar, siteConfig } from '~/data'
 import { useCartStore } from '~/stores/cart'
+import { useWishlistStore } from '~/stores/wishlist'
 
 defineEmits<{
   openMobileMenu: []
@@ -21,7 +22,7 @@ const searchQuery = ref('')
 const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
-const wishlistCount = ref(0)
+const wishlistStore = useWishlistStore()
 
 const isLinkActive = (href: string) => {
   if (href.includes('?')) {
@@ -126,7 +127,12 @@ type="button"
             aria-label="علاقه‌مندی‌ها"
           >
             <Heart class="w-5 h-5" />
-            <span v-if="wishlistCount > 0" class="absolute top-2 inset-e-2 w-2 h-2 rounded-full bg-rose" />
+            <span
+              v-if="wishlistStore.itemCount > 0"
+              class="absolute top-1 inset-e-1 min-w-4 h-4 px-1 rounded-full bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+            >
+              {{ wishlistStore.itemCount }}
+            </span>
           </NuxtLink>
 
           <NuxtLink

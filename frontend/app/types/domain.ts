@@ -183,3 +183,15 @@ export interface FitRecommendation {
   fitNote: string;
 }
 
+export interface WishlistItem {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  compare_at_price?: number;
+  primary_image: string;
+  line: 'move' | 'calm';
+  category: string;
+  addedAt: string;
+}
+
