@@ -11,7 +11,7 @@ export const useCartStore = defineStore('cart', () => {
 
   // ۱. بازیابی و ذخیره‌سازی امن در localStorage برای جلوگیری از عدم تطابق هیدریشن SSR
   if (import.meta.client) {
-    onMounted(() => {
+    onNuxtReady(() => {
       try {
         const saved = localStorage.getItem('keras_cart_items')
         if (saved) {
@@ -201,3 +201,6 @@ export const useCartStore = defineStore('cart', () => {
     clearCart,
   }
 })
+
+export default useCartStore
+

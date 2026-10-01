@@ -8,6 +8,7 @@ import {
   Menu,
 } from '@lucide/vue'
 import { headerNav, announcementBar, siteConfig } from '~/data'
+import { useCartStore } from '~/stores/cart'
 
 defineEmits<{
   openMobileMenu: []

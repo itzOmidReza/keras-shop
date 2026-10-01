@@ -25,6 +25,10 @@ export default defineNuxtConfig({
     '@nuxtjs/seo',
   ],
 
+  pinia: {
+    storesDirs: ['~/stores/**', './app/stores/**'],
+  },
+
   // ۳. استایل و پیکربندی Vite
   css: ['~/assets/css/tailwind.css'],
 
@@ -68,6 +72,7 @@ export default defineNuxtConfig({
     '/': { swr: 300 },
     '/shop/**': { swr: 300 },
     '/products/**': { swr: 300 }, // تغییر از /p/** به مسیر جدید سئو
+    '/products': { redirect: { to: '/shop', statusCode: 301 } },
 
     '/cart': { ssr: false, robots: false },
     '/checkout/**': { ssr: false, robots: false },

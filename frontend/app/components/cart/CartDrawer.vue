@@ -8,6 +8,7 @@ import {
 } from '@lucide/vue'
 import { formatToman } from '~/utils/format'
 import { toast } from 'vue-sonner'
+import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
 const router = useRouter()

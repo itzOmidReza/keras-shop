@@ -2,10 +2,12 @@
 <script setup lang="ts">
 import { ShoppingBag, Heart, Check } from '@lucide/vue'
 import { toast } from 'vue-sonner'
+import { useCartStore } from '~/stores/cart'
 
 const route = useRoute()
 const router = useRouter()
 const { getProductBySlug, getProductReviews, getRelatedProducts } = useProducts()
+const cartStore = useCartStore()
 
 const slug = computed(() => String(route.params.slug))
 
@@ -36,7 +38,6 @@ const { data: relatedProducts } = await useAsyncData(
   { watch: [slug] },
 )
 
-const cartStore = useCartStore()
 const selectedSize = ref<string | null>(null)
 const isWishlisted = ref(false)
 
