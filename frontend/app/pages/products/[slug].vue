@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const router = useRouter()
-const { getProductBySlug } = useProducts()
+const { getProductBySlug, getProductReviews, getRelatedProducts } = useProducts()
 
 const slug = computed(() => String(route.params.slug))
 
@@ -22,6 +22,19 @@ if (!product.value) {
     fatal: true,
   })
 }
+
+// واکشی موازی دیدگاه‌ها و محصولات مرتبط
+const { data: reviewsData } = await useAsyncData(
+  `product-reviews-${slug.value}`,
+  () => getProductReviews(slug.value),
+  { watch: [slug] },
+)
+
+const { data: relatedProducts } = await useAsyncData(
+  `product-related-${slug.value}`,
+  () => getRelatedProducts(slug.value),
+  { watch: [slug] },
+)
 
 const selectedSize = ref<string | null>(null)
 const isWishlisted = ref(false)
@@ -149,6 +162,21 @@ const openSizeGuide = () => {
       :title="product.title"
       :description="product.description"
       :fabric="fabricData"
+    />
+
+    <!-- ۴. دیدگاه‌ها و ارزیابی کیفی خریداران -->
+    <ProductReviews
+      v-if="reviewsData"
+      :reviews="reviewsData.reviews"
+      :summary="reviewsData.summary"
+      :product-title="product.title"
+    />
+
+    <!-- ۵. محصولات مکمل و تکمیل استایل -->
+    <RelatedProducts
+      v-if="relatedProducts && relatedProducts.length > 0"
+      :products="relatedProducts"
+      :title="product.line === 'calm' ? 'تکمیل استایل با آیتم‌های آرامش' : 'محصولات مکمل برای عملکرد ورزشی'"
     />
 
     <!-- نوار شناور موبایل -->

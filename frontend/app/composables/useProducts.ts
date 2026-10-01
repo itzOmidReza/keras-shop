@@ -1,5 +1,9 @@
 // app/composables/useProducts.ts
-import type { ProductDetail, ProductListItem } from '~/types/domain';
+import type {
+  ProductDetail,
+  ProductListItem,
+  ProductReviewsResponse,
+} from '~/types/domain';
 
 export interface ProductFilters {
   line?: 'move' | 'calm';
@@ -57,10 +61,44 @@ export function useProducts() {
     }
   }
 
+  /**
+   * دریافت دیدگاه‌ها و خلاصه امتیازات محصول
+   */
+  async function getProductReviews(
+    slug: string,
+  ): Promise<ProductReviewsResponse | null> {
+    try {
+      const data = await $fetch<ProductReviewsResponse>(
+        `/api/products/${slug}/reviews`,
+      );
+      return data;
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err));
+      return null;
+    }
+  }
+
+  /**
+   * دریافت محصولات مرتبط و پیشنهادی
+   */
+  async function getRelatedProducts(slug: string): Promise<ProductListItem[]> {
+    try {
+      const data = await $fetch<ProductListItem[]>(
+        `/api/products/${slug}/related`,
+      );
+      return data || [];
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err));
+      return [];
+    }
+  }
+
   return {
     loading: readonly(loading),
     error: readonly(error),
     getProducts,
     getProductBySlug,
+    getProductReviews,
+    getRelatedProducts,
   };
 }

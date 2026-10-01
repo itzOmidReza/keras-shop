@@ -59,3 +59,33 @@ export interface ProductDetail extends ProductListItem {
   fit_note: string;
   variants: Variant[];
 }
+
+export type FitFeedback = 'small' | 'true_to_size' | 'large';
+
+export interface Review {
+  id: number;
+  author: string;
+  rating: number;
+  created_at: string;
+  comment: string;
+  verified_purchase: boolean;
+  size_purchased?: string;
+  fit_feedback: FitFeedback;
+}
+
+export interface ProductReviewSummary {
+  average_rating: number;
+  total_reviews: number;
+  rating_distribution: Record<1 | 2 | 3 | 4 | 5, number>;
+  fit_breakdown: {
+    small: number;
+    true_to_size: number;
+    large: number;
+  };
+}
+
+export interface ProductReviewsResponse {
+  summary: ProductReviewSummary;
+  reviews: Review[];
+}
+
