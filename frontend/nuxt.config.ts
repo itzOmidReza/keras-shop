@@ -41,6 +41,7 @@ export default defineNuxtConfig({
     { path: '~/components/layout', pathPrefix: false },
     { path: '~/components/product', pathPrefix: false },
     { path: '~/components/cart', pathPrefix: false },
+    { path: '~/components/checkout', pathPrefix: false },
     '~/components',
   ],
 
@@ -75,6 +76,7 @@ export default defineNuxtConfig({
     '/products': { redirect: { to: '/shop', statusCode: 301 } },
 
     '/cart': { ssr: false, robots: false },
+    '/checkout': { ssr: false, robots: false },
     '/checkout/**': { ssr: false, robots: false },
     '/account/**': { ssr: false, robots: false },
     '/dev/**': { ssr: false, robots: false },

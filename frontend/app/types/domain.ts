@@ -117,3 +117,42 @@ export interface CartState {
   isOpen: boolean;
 }
 
+export interface ShippingAddress {
+  fullName: string;
+  phoneNumber: string; // 09xxxxxxxxx
+  province: string;
+  city: string;
+  postalCode: string; // 10 digits
+  exactAddress: string;
+  buildingNumber?: string;
+  unit?: string;
+  notes?: string;
+}
+
+export type PaymentMethod = 'online_gateway' | 'card_to_card';
+
+export type ShippingMethod = 'standard' | 'express';
+
+export interface OrderReceipt {
+  orderNumber: string;
+  items: CartItem[];
+  shippingAddress: ShippingAddress;
+  shippingMethod: ShippingMethod;
+  paymentMethod: PaymentMethod;
+  subtotal: number;
+  discount: number;
+  shippingCost: number;
+  finalTotal: number;
+  paymentStatus: 'pending' | 'completed' | 'failed';
+  createdAt: string;
+  estimatedDelivery?: string;
+}
+
+export interface CouponValidationResponse {
+  valid: boolean;
+  code: string;
+  discountAmount: number;
+  discountPercent?: number;
+  message: string;
+}
+

@@ -1,21 +1,43 @@
 // app/stores/cart.ts
 import { defineStore } from 'pinia'
-import type { CartItem, CartSummary } from '~/types/domain'
+import type {
+  CartItem,
+  CartSummary,
+  OrderReceipt,
+  ShippingMethod,
+} from '~/types/domain'
 import { FREE_SHIPPING_THRESHOLD } from '~/data/value-props'
 import { toast } from 'vue-sonner'
+
+export interface AppliedCoupon {
+  code: string
+  discountAmount: number
+  discountPercent?: number
+}
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([])
   const isOpen = ref(false)
   const isHydrated = ref(false)
+  const appliedCoupon = ref<AppliedCoupon | null>(null)
+  const selectedShippingMethod = ref<ShippingMethod>('standard')
+  const lastOrderReceipt = ref<OrderReceipt | null>(null)
 
-  // ۱. بازیابی و ذخیره‌سازی امن در localStorage برای جلوگیری از عدم تطابق هیدریشن SSR
+  // ۱. بازیابی و ذخیره‌سازی امن در localStorage/sessionStorage برای جلوگیری از عدم تطابق هیدریشن SSR
   if (import.meta.client) {
     onNuxtReady(() => {
       try {
-        const saved = localStorage.getItem('keras_cart_items')
-        if (saved) {
-          items.value = JSON.parse(saved)
+        const savedItems = localStorage.getItem('keras_cart_items')
+        if (savedItems) {
+          items.value = JSON.parse(savedItems)
+        }
+        const savedCoupon = localStorage.getItem('keras_cart_coupon')
+        if (savedCoupon) {
+          appliedCoupon.value = JSON.parse(savedCoupon)
+        }
+        const savedReceipt = sessionStorage.getItem('keras_last_order')
+        if (savedReceipt) {
+          lastOrderReceipt.value = JSON.parse(savedReceipt)
         }
       } catch {
         // نادیده گرفتن خطای پارس در صورت دستکاری دیتای لوکال
@@ -31,6 +53,24 @@ export const useCartStore = defineStore('cart', () => {
             localStorage.setItem('keras_cart_items', JSON.stringify(newItems))
           } catch {
             // نادیده گرفتن محدودیت‌های لوکال‌استوریج
+          }
+        }
+      },
+      { deep: true },
+    )
+
+    watch(
+      appliedCoupon,
+      (newCoupon) => {
+        if (isHydrated.value) {
+          try {
+            if (newCoupon) {
+              localStorage.setItem('keras_cart_coupon', JSON.stringify(newCoupon))
+            } else {
+              localStorage.removeItem('keras_cart_coupon')
+            }
+          } catch {
+            // نادیده گرفتن محدودیت‌های استوریج
           }
         }
       },
@@ -59,6 +99,10 @@ export const useCartStore = defineStore('cart', () => {
     }, 0)
   })
 
+  const couponDiscount = computed(() => appliedCoupon.value?.discountAmount ?? 0)
+
+  const combinedDiscountTotal = computed(() => discountTotal.value + couponDiscount.value)
+
   const amountNeededForFreeShipping = computed(() => {
     return Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal.value)
   })
@@ -77,17 +121,20 @@ export const useCartStore = defineStore('cart', () => {
 
   const shippingEstimate = computed(() => {
     if (subtotal.value <= 0) return 0
+    if (selectedShippingMethod.value === 'express') {
+      return 120000 // ۱۲۰,۰۰۰ تومان پیک فوری
+    }
     return isFreeShipping.value ? 0 : 65000 // ۶۵,۰۰۰ تومان هزینه ارسال استاندارد کشوری
   })
 
   const finalTotal = computed(() => {
-    return subtotal.value + shippingEstimate.value
+    return Math.max(0, subtotal.value - couponDiscount.value + shippingEstimate.value)
   })
 
   const summary = computed((): CartSummary => {
     return {
       subtotal: subtotal.value,
-      discountTotal: discountTotal.value,
+      discountTotal: combinedDiscountTotal.value,
       shippingEstimate: shippingEstimate.value,
       finalTotal: finalTotal.value,
       freeShippingRemaining: amountNeededForFreeShipping.value,
@@ -174,8 +221,50 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  function applyCoupon(coupon: AppliedCoupon) {
+    appliedCoupon.value = coupon
+    toast.success(`کد تخفیف «${coupon.code}» اعمال شد.`)
+  }
+
+  function removeCoupon() {
+    appliedCoupon.value = null
+    toast.info('کد تخفیف حذف شد.')
+  }
+
+  function setShippingMethod(method: ShippingMethod) {
+    selectedShippingMethod.value = method
+  }
+
+  function setLastOrderReceipt(receipt: OrderReceipt) {
+    lastOrderReceipt.value = receipt
+    if (import.meta.client) {
+      try {
+        sessionStorage.setItem('keras_last_order', JSON.stringify(receipt))
+      } catch {
+        // نادیده گرفتن خطا
+      }
+    }
+  }
+
+  function getLastOrderReceipt(): OrderReceipt | null {
+    if (lastOrderReceipt.value) return lastOrderReceipt.value
+    if (import.meta.client) {
+      try {
+        const saved = sessionStorage.getItem('keras_last_order')
+        if (saved) {
+          lastOrderReceipt.value = JSON.parse(saved)
+          return lastOrderReceipt.value
+        }
+      } catch {
+        // نادیده گرفتن خطا
+      }
+    }
+    return null
+  }
+
   function clearCart() {
     items.value = []
+    appliedCoupon.value = null
     toast.info('سبد خرید شما خالی شد.')
   }
 
@@ -186,6 +275,11 @@ export const useCartStore = defineStore('cart', () => {
     itemCount,
     subtotal,
     discountTotal,
+    couponDiscount,
+    combinedDiscountTotal,
+    appliedCoupon,
+    selectedShippingMethod,
+    lastOrderReceipt,
     amountNeededForFreeShipping,
     isFreeShipping,
     freeShippingProgress,
@@ -198,9 +292,13 @@ export const useCartStore = defineStore('cart', () => {
     addItem,
     updateQuantity,
     removeItem,
+    applyCoupon,
+    removeCoupon,
+    setShippingMethod,
+    setLastOrderReceipt,
+    getLastOrderReceipt,
     clearCart,
   }
 })
 
 export default useCartStore
-
