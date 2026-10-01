@@ -121,17 +121,23 @@ Progress: [███████████████░░░░░] 75%
 
 ## 5. Technical Debt & Architecture Watchlist
 
-1. **Mock Data Separation**:
-   - Currently, dynamic data resides in `server/mock/` and `server/api/`. When real backend API/database is introduced, `useProducts` and store services should switch base URLs via runtime config (`NUXT_PUBLIC_API_BASE`).
-2. **Local Storage Synchronization**:
-   - Cart and wishlist hydration are safeguarded with `import.meta.client` and fallback handlers. Consider syncing guest cart items to the user account once authentication is established.
-3. **SSR Route Rules**:
-   - Non-cacheable user-specific routes (`/cart`, `/checkout/**`, `/account/**`) are explicitly marked as `ssr: false` in `nuxt.config.ts`. Once `/account` is implemented, maintain `ssr: false` or implement server session cookies.
+1. **Server Order Persistence**:
+   - Currently, orders generated in `server/api/orders/create.post.ts` return a receipt to the client and store it solely in client `sessionStorage`. There is no Nitro server-side registry or mock repository, meaning orders cannot currently be queried by ID from another session or from `/tracking`.
+2. **Account Page Current State**:
+   - `app/pages/account.vue` is currently an unauthenticated static navigation menu linking to informational pages with a banner noting that SMS OTP is coming soon.
+3. **Tracking Page Current State**:
+   - `app/pages/tracking.vue` is a 16-line placeholder stub, despite `/checkout/success.vue` and `AppFooter.vue` actively linking to it.
+4. **Guest vs. Member Identity**:
+   - Cart and wishlist hydration are safeguarded with `import.meta.client` in `localStorage` for guests. Once authentication is introduced, a guest-to-member cart/wishlist merge strategy is needed.
+5. **SSR Route Rules**:
+   - Non-cacheable user-specific routes (`/cart`, `/checkout/**`, `/account/**`) are explicitly marked as `ssr: false` in `nuxt.config.ts`. Once `/account` and `/tracking` are completed, maintain `ssr: false` or implement server session cookies.
 
 ---
 
 ## 6. Changelog & Activity Log
 
+- **2026-10-01 (`ce4114c`)**: `docs: establish living project progress tracker and roadmap dashboard`
+  - Created centralized living tracker at `docs/progress-tracker.md`.
 - **2026-10-01 (`3700d69`)**: `fix(layout): restore AppHeader mounting, explicit imports, and harden store hydration`
   - Explicitly imported layout components in `default.vue`.
   - Added safe optional-chaining guards for store item counts in `AppHeader.vue` and `MobileNav.vue`.
@@ -158,3 +164,86 @@ Progress: [███████████████░░░░░] 75%
   - Implemented `ProductReviews.vue` and `RelatedProducts.vue` on PDP.
 - **2026-10-01 (`aee455a`)**: `refactor(frontend): decouple mock layer to Nitro server API and enforce strict domain typing`
   - Cleaned up mock data from `app/data` to Nitro server routes.
+
+---
+
+## 7. Proposed Next Strategic Steps (Awaiting Lead Approval)
+
+Following our comprehensive repository inspection and dependency analysis, three concrete architectural paths have been formulated for the upcoming sprint. Each option addresses a distinct layer of the product journey.
+
+---
+
+### Option A [Priority: P0 — Critical Core]: Complete Customer Authentication (SMS OTP) & Account Dashboard
+
+- **Core Focus**: User Identity, Customer Retention & Personalization
+- **Architectural Rationale**: 
+  Currently, clicking the User icon in `AppHeader.vue` or navigating to `/account` presents a placeholder screen. E-commerce platforms rely on user identity for customer lifetime value (LTV). Implementing SMS OTP authentication provides the missing identity layer that unlocks saved addresses for 1-click checkout autofill, personalized order histories, and seamless guest-to-member transitions.
+- **Scope & Affected Files**:
+  1. **Domain & Typing**:
+     - `app/types/domain.ts`: Extend with `UserProfile`, `UserAddress`, `AuthSession`, `OtpRequest`, `OtpVerify`.
+  2. **Pinia Store**:
+     - `app/stores/auth.ts`: `useAuthStore` with token persistence, user state, address book actions, and login/logout methods.
+  3. **Nitro Server Routes**:
+     - `server/api/auth/otp/send.post.ts`: Validates Iranian mobile regex (`09\d{9}`) and dispatches simulated 5-digit OTP with 120s cooldown.
+     - `server/api/auth/otp/verify.post.ts`: Verifies OTP token and returns authenticated session with mock user profile.
+     - `server/api/auth/me.get.ts` & `server/api/auth/me.put.ts`: User profile retrieval and modification.
+     - `server/api/auth/addresses.get.ts` & `server/api/auth/addresses.post.ts`: Address management.
+  4. **UI Components**:
+     - `app/components/auth/AuthModal.vue`: Slide-over/dialog featuring phone input step and 5-digit `InputOTP` step with timer.
+     - `app/components/account/AddressCard.vue` & `AddressModal.vue`: Address book management.
+     - `app/components/account/OrderHistoryItem.vue`: Expandable past order cards.
+  5. **Page Overhaul**:
+     - `app/pages/account.vue`: Full authenticated dashboard with tabs for Overview, Orders, Saved Addresses, and Profile Settings (with unauthenticated fallback to inline OTP prompt).
+- **Dependencies Unlocked**: 
+  - Autofill addresses in `/checkout.vue`.
+  - Merging guest cart/wishlist into member accounts.
+- **Estimated Impact on Completion**: **+12%** (Brings total project progress to **87%**).
+
+---
+
+### Option B [Priority: P0/P1 — High Flow]: Order Lifecycle, Server Persistence & Live Tracking Subsystem
+
+- **Core Focus**: Post-Purchase Journey & Fulfillment Trust
+- **Architectural Rationale**: 
+  Right now, when a customer places an order, the receipt is stored purely in client-side `sessionStorage` within `cartStore`. If the user opens a new tab or refreshes after the session expires, the order is lost. Crucially, `/checkout/success.vue` provides a prominent CTA button to `/tracking`, but `app/pages/tracking.vue` is an empty 16-line stub. Closing this gap ensures every order generated has persistent server-side lookup and delivers a best-in-class tracking experience.
+- **Scope & Affected Files**:
+  1. **Server Repository**:
+     - `server/mock/orders.ts`: In-memory persistent order store seeded with realistic past orders and dynamic runtime order appending.
+  2. **Nitro Server Routes**:
+     - `server/api/orders/create.post.ts`: Update to persist the created order in `server/mock/orders.ts`.
+     - `server/api/orders/[orderNumber].get.ts`: Lookup order details by order ID (`KRS-XXXXXX`).
+     - `server/api/orders/track.post.ts`: Query orders by order ID + customer phone number with detailed fulfillment timeline events.
+  3. **Domain & Typing**:
+     - `app/types/domain.ts`: Extend with `TrackingTimelineEvent`, `OrderStatus` (`registered` -> `processing` -> `dispatched` -> `delivered`), `PostalTrackingInfo`.
+  4. **Page & Component Implementation**:
+     - `app/pages/tracking.vue`: Full rebuild featuring tracking code search bar, phone verification, active status stepper, simulated Iran Post tracking code (`18-digit`), and parcel items breakdown.
+     - `app/components/tracking/TrackingTimeline.vue`: Visual milestone timeline with timestamps and fulfillment statuses.
+- **Dependencies Unlocked**:
+  - Seamless redirection from `/checkout/success.vue` to `/tracking?code=KRS-XXXXXX`.
+  - Reusable order lookup component for both guest tracking and member account order history.
+- **Estimated Impact on Completion**: **+8%** (Brings total project progress to **83%**).
+
+---
+
+### Option C [Priority: P1 — Commercial Polish]: Instant Search Autocomplete, IPG Gateway Simulation & Brand Pages
+
+- **Core Focus**: Conversion Optimization, Payment Realism & Brand Completeness
+- **Architectural Rationale**: 
+  The core buying funnel is functional, but lacks key commercial polish that creates luxury store credibility:
+  1. The header search bar currently only triggers on full Enter submission to `/shop?q=...` without instant live suggestions.
+  2. The checkout flow immediately creates a completed order without simulating the actual Iranian online payment gateway (Shaparak) redirect, callback verification, and potential payment failure recovery.
+  3. Informational footer pages (`/about`, `/contact`, `/faq`, `/returns`, `/terms`, `/privacy`) have placeholder copy.
+- **Scope & Affected Files**:
+  1. **Search Autocomplete**:
+     - `server/api/search/suggestions.get.ts`: Fast prefix/fuzzy matching returning top product cards, matching categories, and price tags.
+     - `app/components/layout/AppHeader.vue`: Integration of debounced live dropdown with thumbnail previews and arrow-key navigation.
+  2. **IPG Gateway Simulation**:
+     - `app/pages/checkout/gateway.vue`: Dedicated Shaparak simulated banking gateway interface with card number inputs, CVV2, captcha, dynamic OTP request, and success/cancel action buttons.
+     - `server/api/checkout/payment/callback.post.ts`: Transaction verification endpoint that receives gateway callback and marks order as paid or failed.
+     - `app/pages/checkout.vue`: Redirecting to gateway on 'online_gateway' selection, with handling for returned error callbacks.
+  3. **Editorial Brand Pages**:
+     - `app/pages/about.vue`, `app/pages/contact.vue`, `app/pages/faq.vue`, `app/pages/returns.vue`, `app/pages/terms.vue`, `app/pages/privacy.vue`: Full editorial copy, accordion FAQ, contact inquiry form, and return policy details.
+- **Dependencies Unlocked**:
+  - Realistic end-to-end payment testing (success, user-cancelled, declined card).
+  - High-converting search discoverability directly from the header.
+- **Estimated Impact on Completion**: **+7%** (Brings total project progress to **82%**).
