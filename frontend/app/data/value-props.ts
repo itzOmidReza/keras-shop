@@ -1,3 +1,5 @@
+export const FREE_SHIPPING_THRESHOLD = 1500000; // ۱,۵۰۰,۰۰۰ تومان به عنوان حد نصاب ارسال رایگان
+
 export const announcementBar = {
   text: "ارسال رایگان برای تمام سفارش‌های بالای ۱٫۵۰۰٫۰۰۰ تومان",
   highlight: "ضمانت تعویض تا ۷ روز کاری",

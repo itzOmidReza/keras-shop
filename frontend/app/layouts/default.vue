@@ -13,5 +13,6 @@ const isMobileNavOpen = ref(false)
     <AppFooter />
 
     <MobileNav :is-open="isMobileNavOpen" @close="isMobileNavOpen = false" />
+    <CartDrawer />
   </div>
 </template>

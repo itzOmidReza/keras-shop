@@ -36,6 +36,7 @@ const { data: relatedProducts } = await useAsyncData(
   { watch: [slug] },
 )
 
+const cartStore = useCartStore()
 const selectedSize = ref<string | null>(null)
 const isWishlisted = ref(false)
 
@@ -68,7 +69,22 @@ const handleAddToCart = () => {
     return
   }
 
-  toast.success(`${product.value.title} (سایز ${selectedSize.value}) به سبد خرید افزوده شد.`)
+  const matchingVariant = product.value.variants.find(
+    (v) => v.size === selectedSize.value,
+  )
+
+  cartStore.addItem({
+    productId: product.value.id,
+    variantId: matchingVariant?.id,
+    title: product.value.title,
+    slug: product.value.slug,
+    size: selectedSize.value,
+    color: matchingVariant?.color,
+    price: matchingVariant?.price_override ?? product.value.base_price,
+    compareAtPrice: matchingVariant?.compare_at_price ?? product.value.compare_at_price,
+    maxStock: matchingVariant ? (matchingVariant.stock - matchingVariant.reserved) : 10,
+    image: product.value.images[0]?.url || '',
+  })
 }
 
 const openSizeGuide = () => {

@@ -89,3 +89,31 @@ export interface ProductReviewsResponse {
   reviews: Review[];
 }
 
+export interface CartItem {
+  id: string; // کلید ترکیبی: `${product_id}-${variant_id || size}`
+  productId: number;
+  variantId?: number;
+  title: string;
+  slug: string;
+  size: string;
+  color?: string;
+  price: number;
+  compareAtPrice?: number;
+  quantity: number;
+  maxStock: number;
+  image: string;
+}
+
+export interface CartSummary {
+  subtotal: number;
+  discountTotal: number;
+  shippingEstimate: number;
+  finalTotal: number;
+  freeShippingRemaining: number;
+}
+
+export interface CartState {
+  items: CartItem[];
+  isOpen: boolean;
+}
+

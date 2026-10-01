@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   components: [
     { path: '~/components/layout', pathPrefix: false },
     { path: '~/components/product', pathPrefix: false },
+    { path: '~/components/cart', pathPrefix: false },
     '~/components',
   ],
 

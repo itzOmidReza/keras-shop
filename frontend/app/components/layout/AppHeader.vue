@@ -17,7 +17,7 @@ const isScrolled = ref(false)
 const isSearchOpen = ref(false)
 const searchQuery = ref('')
 
-const cartCount = ref(2)
+const cartStore = useCartStore()
 const wishlistCount = ref(0)
 
 const handleScroll = () => {
@@ -109,17 +109,20 @@ to="/account"
             <User class="w-5 h-5" />
           </NuxtLink>
 
-          <NuxtLink
-to="/cart"
-            class="relative w-10 h-10 flex items-center justify-center rounded-full text-ink hover:text-rose hover:bg-sand/40 transition-colors"
-            aria-label="سبد خرید">
+          <button
+            type="button"
+            class="relative w-10 h-10 flex items-center justify-center rounded-full text-ink hover:text-rose hover:bg-sand/40 transition-colors cursor-pointer"
+            aria-label="سبد خرید"
+            @click="cartStore.openCart()"
+          >
             <ShoppingBag class="w-5 h-5" />
             <span
-v-if="cartCount > 0"
-              class="absolute top-1 inset-e-1 min-w-4 h-4 px-1 rounded-full bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-              {{ cartCount }}
+              v-if="cartStore.itemCount > 0"
+              class="absolute top-1 inset-e-1 min-w-4 h-4 px-1 rounded-full bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+            >
+              {{ cartStore.itemCount }}
             </span>
-          </NuxtLink>
+          </button>
         </div>
       </div>
     </div>
