@@ -1,10 +1,17 @@
+<script setup lang="ts">
+const isMobileNavOpen = ref(false)
+</script>
+
 <template>
-  <div class="flex min-h-dvh flex-col">
-    <AppHeader />
-    <div class="flex-1 pb-20 md:pb-0">
+  <div class="min-h-screen flex flex-col bg-paper text-ink">
+    <AppHeader @open-mobile-menu="isMobileNavOpen = true" />
+
+    <main class="flex-1">
       <slot />
-    </div>
+    </main>
+
     <AppFooter />
-    <MobileNav />
+
+    <MobileNav :is-open="isMobileNavOpen" @close="isMobileNavOpen = false" />
   </div>
 </template>

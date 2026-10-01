@@ -7,8 +7,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   typescript: {
-    strict: true,
-    typeCheck: false,
+    typeCheck: true,
+    tsConfig: {
+      compilerOptions: {
+        libReplacement: undefined,
+      },
+    },
   },
 
   // ۲. ماژول‌ها
@@ -58,12 +62,10 @@ export default defineNuxtConfig({
 
   // ۶. قوانین رندرینگ و کش صفحات (SWR / CSR)
   routeRules: {
-    // صفحات عمومی با کش سمت سرور
     '/': { swr: 300 },
     '/shop/**': { swr: 300 },
-    '/p/**': { swr: 300 },
+    '/products/**': { swr: 300 }, // تغییر از /p/** به مسیر جدید سئو
 
-    // صفحات اختصاصی فقط سمت کلاینت و بدون ایندکس موتورهای جستجو
     '/cart': { ssr: false, robots: false },
     '/checkout/**': { ssr: false, robots: false },
     '/account/**': { ssr: false, robots: false },
@@ -74,7 +76,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'fa', dir: 'rtl' },
-      meta: [{ name: 'theme-color', content: '#1F2A44' }],
+      meta: [{ name: 'theme-color', content: '#FBF6F1' }],
       link: [
         { rel: 'icon', href: '/favicon.ico' },
         {
@@ -92,6 +94,18 @@ export default defineNuxtConfig({
           crossorigin: 'anonymous',
         },
       ],
+    },
+  },
+
+  hooks: {
+    'prepare:types'({ tsConfig }) {
+      if (
+        tsConfig.compilerOptions &&
+        'libReplacement' in tsConfig.compilerOptions
+      ) {
+        delete (tsConfig.compilerOptions as Record<string, unknown>)
+          .libReplacement;
+      }
     },
   },
 });
