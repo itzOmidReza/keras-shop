@@ -1,52 +1,43 @@
 <!-- frontend/app/pages/products/[slug].vue -->
 <script setup lang="ts">
-import type { ProductDetail, Variant } from '~/types/domain'
 import { ShoppingBag, Heart, Check } from '@lucide/vue'
-
-interface ExtendedVariant extends Variant {
-  price?: number
-  compareAtPrice?: number
-}
-
-interface ExtendedProductDetail extends Omit<ProductDetail, 'variants' | 'base_price'> {
-  base_price?: number
-  price?: number
-  compareAtPrice?: number
-  compare_at_price?: number
-  variants: ExtendedVariant[]
-  fabric?: {
-    stretch?: number
-    softness?: number
-    opacity?: number
-    composition?: string
-    gsm?: number
-  }
-}
+import { toast } from 'vue-sonner'
 
 const route = useRoute()
+const router = useRouter()
 const { getProductBySlug } = useProducts()
 
 const slug = computed(() => String(route.params.slug))
-const rawProduct = await getProductBySlug(slug.value)
-const product = computed(() => (rawProduct as unknown as ExtendedProductDetail) || null)
+
+const { data: product } = await useAsyncData(
+  `product-${slug.value}`,
+  () => getProductBySlug(slug.value),
+  { watch: [slug] },
+)
+
+if (!product.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'محصول مورد نظر یافت نشد.',
+    fatal: true,
+  })
+}
 
 const selectedSize = ref<string | null>(null)
 const isWishlisted = ref(false)
 
-const displayPrice = computed(() => {
-  if (!product.value) return 0
-  if (typeof product.value.base_price === 'number') return product.value.base_price
-  if (typeof product.value.price === 'number') return product.value.price
-  const firstVariant = product.value.variants?.[0]
-  if (firstVariant && typeof firstVariant.price === 'number') return firstVariant.price
-  return 1450000
-})
+const displayPrice = computed(() => product.value?.base_price ?? 0)
+const displayCompareAtPrice = computed(() => product.value?.compare_at_price)
 
-const displayCompareAtPrice = computed(() => {
+const fabricData = computed(() => {
   if (!product.value) return undefined
-  if (typeof product.value.compare_at_price === 'number') return product.value.compare_at_price
-  if (typeof product.value.compareAtPrice === 'number') return product.value.compareAtPrice
-  return undefined
+  return {
+    stretch: product.value.stretch,
+    softness: product.value.softness,
+    opacity: product.value.opacity,
+    composition: product.value.fabric_composition,
+    gsm: product.value.fabric_gsm,
+  }
 })
 
 if (product.value) {
@@ -57,17 +48,18 @@ if (product.value) {
 }
 
 const handleAddToCart = () => {
+  if (!product.value) return
+
   if (!selectedSize.value) {
-    if (import.meta.client) window.alert('لطفاً ابتدا سایز مورد نظر خود را انتخاب کنید.')
+    toast.error('لطفاً ابتدا سایز مورد نظر خود را انتخاب کنید.')
     return
   }
-  if (import.meta.client) window.alert(`محصول با سایز ${selectedSize.value} به سبد افزوده شد.`)
+
+  toast.success(`${product.value.title} (سایز ${selectedSize.value}) به سبد خرید افزوده شد.`)
 }
 
 const openSizeGuide = () => {
-  if (import.meta.client) {
-    window.alert('راهنمای سایز کراس: لطفاً دور کمر و دور باسن را بر حسب سانتی‌متر تطبیق دهید.')
-  }
+  router.push('/size-guide')
 }
 </script>
 
@@ -76,7 +68,11 @@ const openSizeGuide = () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
       <!-- ۱. گالری عمودی ادیتوریال -->
       <div class="lg:col-span-7">
-        <ProductGallery :images="product.images || []" :title="product.title" :line="product.line" />
+        <ProductGallery
+          :images="product.images || []"
+          :title="product.title"
+          :line="product.line"
+        />
       </div>
 
       <!-- ۲. ستون خرید و سفارش -->
@@ -84,9 +80,12 @@ const openSizeGuide = () => {
         <!-- عنوان و وضعیت انبار -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">کالکشن تخصصی کراس</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              کالکشن تخصصی کراس
+            </span>
             <span
-              class="text-xs font-medium text-sage bg-sage/10 border border-sage/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+              class="text-xs font-medium text-sage bg-sage/10 border border-sage/20 px-2 py-0.5 rounded-full flex items-center gap-1"
+            >
               <Check class="w-3 h-3" /> موجود در انبار
             </span>
           </div>
@@ -107,27 +106,35 @@ const openSizeGuide = () => {
 
         <!-- کامپوننت انتخاب سایز -->
         <SizeSelector
-v-model="selectedSize" :variants="product.variants" :sizes="product.available_sizes"
-          @open-size-guide="openSizeGuide" />
+          v-model="selectedSize"
+          :variants="product.variants"
+          :sizes="product.available_sizes"
+          @open-size-guide="openSizeGuide"
+        />
 
         <!-- اکشن اصلی خرید -->
         <div class="flex items-center gap-3 pt-2">
           <Button
-size="lg"
+            size="lg"
             class="flex-1 h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
             :class="[
               selectedSize
                 ? 'bg-rose hover:bg-rose/90 text-white'
                 : 'bg-sand/60 text-muted-foreground hover:bg-sand/80 cursor-not-allowed',
-            ]" :disabled="!selectedSize" @click="handleAddToCart">
+            ]"
+            :disabled="!selectedSize"
+            @click="handleAddToCart"
+          >
             <ShoppingBag class="w-5 h-5 shrink-0" />
             <span>{{ selectedSize ? 'افزودن به سبد خرید' : 'انتخاب سایز الزامی است' }}</span>
           </Button>
 
           <Button
-variant="outline" size="lg"
+            variant="outline"
+            size="lg"
             class="h-12 w-12 rounded-xl border-sand hover:bg-sand/30 shrink-0 text-ink cursor-pointer"
-            @click="isWishlisted = !isWishlisted">
+            @click="isWishlisted = !isWishlisted"
+          >
             <Heart class="w-5 h-5" :class="isWishlisted ? 'fill-rose text-rose' : 'text-ink'" />
           </Button>
         </div>
@@ -138,11 +145,20 @@ variant="outline" size="lg"
     </div>
 
     <!-- ۳. تب‌های مشخصات فنی، سنجه‌ها و شست‌وشو -->
-    <ProductTabs :title="product.title" :description="product.description" :fabric="product.fabric" />
+    <ProductTabs
+      :title="product.title"
+      :description="product.description"
+      :fabric="fabricData"
+    />
 
     <!-- نوار شناور موبایل -->
     <StickyBuyBar
-:price="displayPrice" :compare-at-price="displayCompareAtPrice" :variants="product.variants"
-      :selected-size="selectedSize" @update:selected-size="selectedSize = $event" @add-to-cart="handleAddToCart" />
+      :price="displayPrice"
+      :compare-at-price="displayCompareAtPrice"
+      :variants="product.variants"
+      :selected-size="selectedSize"
+      @update:selected-size="selectedSize = $event"
+      @add-to-cart="handleAddToCart"
+    />
   </div>
 </template>

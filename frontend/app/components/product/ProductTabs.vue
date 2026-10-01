@@ -227,8 +227,9 @@ v-for="point in highlights" :key="point"
             </p>
             <div class="pt-2 border-t border-sand/70">
               <NuxtLink
-to="/guide/size"
-                class="inline-flex items-center gap-1 text-xs font-bold text-rose hover:underline">
+                to="/size-guide"
+                class="inline-flex items-center gap-1 text-xs font-bold text-rose hover:underline"
+              >
                 <span>مشاهده جدول دقیق اندازه‌گیری دور کمر و باسن</span>
                 <span>←</span>
               </NuxtLink>

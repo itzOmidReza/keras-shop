@@ -1,8 +1,5 @@
 <!-- frontend/app/components/catalog/FilterPanel.vue -->
 <script setup lang="ts">
-import { Slider } from '~/components/ui/slider'
-import { Checkbox } from '~/components/ui/checkbox'
-import { Label } from '~/components/ui/label'
 import { formatToman } from '~/utils/format'
 import { RotateCcw } from '@lucide/vue'
 
@@ -23,18 +20,23 @@ const emit = defineEmits<{
   'reset': []
 }>()
 
-const defaultMin = props.minPrice ?? 500000
-const defaultMax = props.maxPrice ?? 3500000
+const defaultMin = computed(() => props.minPrice ?? 500000)
+const defaultMax = computed(() => props.maxPrice ?? 3500000)
 
-const toggleLine = (line: string) => {
+const isLineSelected = (line: 'move' | 'calm') => {
+  return props.modelValue.lines.some((l) => l.toLowerCase() === line)
+}
+
+const toggleLine = (line: 'move' | 'calm') => {
   const current = [...props.modelValue.lines]
-  const idx = current.indexOf(line)
-  if (idx > -1) {
-    current.splice(idx, 1)
-  }
-  else {
+  const existingIdx = current.findIndex((l) => l.toLowerCase() === line)
+
+  if (existingIdx > -1) {
+    current.splice(existingIdx, 1)
+  } else {
     current.push(line)
   }
+
   emit('update:modelValue', { ...props.modelValue, lines: current })
 }
 
@@ -59,9 +61,10 @@ const updatePrice = (val: number[] | undefined) => {
         فیلترها
       </h3>
       <button
-type="button"
-        class="inline-flex items-center gap-1 text-xs text-muted hover:text-coral transition-colors cursor-pointer"
-        @click="emit('reset')">
+        type="button"
+        class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-rose transition-colors cursor-pointer"
+        @click="emit('reset')"
+      >
         <RotateCcw class="h-3 w-3" />
         <span>پاک کردن</span>
       </button>
@@ -75,17 +78,21 @@ type="button"
       <div class="space-y-2">
         <div class="flex items-center gap-2">
           <Checkbox
-id="line-move" :checked="modelValue.lines.includes('Move')"
-            @update:checked="() => toggleLine('Move')" />
-          <Label for="line-move" class="text-xs font-medium cursor-pointer">
+            id="line-move"
+            :checked="isLineSelected('move')"
+            @update:checked="() => toggleLine('move')"
+          />
+          <Label for="line-move" class="text-xs font-medium cursor-pointer text-ink">
             Move (عملکردی / تمرینی)
           </Label>
         </div>
         <div class="flex items-center gap-2">
           <Checkbox
-id="line-calm" :checked="modelValue.lines.includes('Calm')"
-            @update:checked="() => toggleLine('Calm')" />
-          <Label for="line-calm" class="text-xs font-medium cursor-pointer">
+            id="line-calm"
+            :checked="isLineSelected('calm')"
+            @update:checked="() => toggleLine('calm')"
+          />
+          <Label for="line-calm" class="text-xs font-medium cursor-pointer text-ink">
             Calm (روزمره / راحتی)
           </Label>
         </div>
@@ -96,14 +103,18 @@ id="line-calm" :checked="modelValue.lines.includes('Calm')"
     <div class="space-y-3">
       <div class="flex items-center justify-between text-xs">
         <span class="font-bold text-ink">محدوده قیمت</span>
-        <span class="text-muted text-[11px]">
+        <span class="text-muted-foreground text-[11px]">
           {{ formatToman(modelValue.priceRange[0]) }} تا {{ formatToman(modelValue.priceRange[1]) }}
         </span>
       </div>
       <div class="pt-2 px-1">
         <Slider
-:model-value="[modelValue.priceRange[0], modelValue.priceRange[1]]" :min="defaultMin" :max="defaultMax"
-          :step="50000" @update:model-value="(val) => updatePrice(val as number[])" />
+          :model-value="[modelValue.priceRange[0], modelValue.priceRange[1]]"
+          :min="defaultMin"
+          :max="defaultMax"
+          :step="50000"
+          @update:model-value="(val) => updatePrice(val as number[])"
+        />
       </div>
     </div>
   </div>

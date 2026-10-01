@@ -8,6 +8,7 @@ export interface Variant {
   color_hex: string;
   size: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL';
   price_override?: number; // به تومان
+  compare_at_price?: number; // به تومان
   stock: number;
   reserved: number;
 }
@@ -35,6 +36,7 @@ export interface ProductListItem {
   title: string;
   line: 'move' | 'calm';
   base_price: number; // به تومان
+  compare_at_price?: number; // به تومان (قیمت قبل از تخفیف)
   images: ProductImage[];
   colors: { name: string; hex: string }[];
   rating_avg: number;

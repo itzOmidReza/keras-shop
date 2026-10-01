@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import type { ProductListItem } from '~/types/domain'
 import { productLines } from '~/data'
-import PriceTag from '~/components/product/PriceTag.vue'
 
 interface Props {
   product: ProductListItem
@@ -65,7 +64,7 @@ class="rounded-full px-2.5 py-1 text-[10px] font-bold shadow-xs backdrop-blur-md
       </NuxtLink>
 
       <div class="flex items-center justify-between pt-1">
-        <PriceTag :price="product.base_price" size="sm" />
+        <PriceTag :price="product.base_price" :compare-at-price="product.compare_at_price" size="sm" />
 
         <!-- نقاط تنوع رنگی مینیمال -->
         <div

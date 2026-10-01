@@ -1,12 +1,5 @@
 <!-- frontend/app/components/catalog/SortSelect.vue -->
 <script setup lang="ts">
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
 import { ArrowUpDown } from '@lucide/vue'
 
 const props = withDefaults(
@@ -14,7 +7,7 @@ const props = withDefaults(
     modelValue?: string
   }>(),
   {
-    modelValue: 'popular',
+    modelValue: 'bestseller',
   },
 )
 
@@ -23,7 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const sortOptions = [
-  { value: 'popular', label: 'محبوب‌ترین و پرفروش' },
+  { value: 'bestseller', label: 'محبوب‌ترین و پرفروش' },
   { value: 'newest', label: 'جدیدترین‌ها' },
   { value: 'price_asc', label: 'ارزان‌ترین' },
   { value: 'price_desc', label: 'گران‌ترین' },
@@ -34,7 +27,7 @@ const sortOptions = [
   <div class="flex items-center gap-2">
     <Select :model-value="props.modelValue" @update:model-value="(val) => emit('update:modelValue', String(val))">
       <SelectTrigger class="h-10 w-44 gap-2 text-xs font-medium">
-        <ArrowUpDown class="h-3.5 w-3.5 text-muted" />
+        <ArrowUpDown class="h-3.5 w-3.5 text-muted-foreground" />
         <SelectValue placeholder="مرتب‌سازی" />
       </SelectTrigger>
       <SelectContent>

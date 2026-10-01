@@ -1,15 +1,6 @@
 <!-- frontend/app/components/product/StickyBuyBar.vue -->
 <script setup lang="ts">
 import type { Variant } from '~/types/domain'
-import PriceTag from '~/components/product/PriceTag.vue'
-import { Button } from '~/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
 import { ShoppingBag } from '@lucide/vue'
 
 const props = defineProps<{

@@ -1,29 +1,25 @@
 <!-- frontend/app/pages/dev/components.vue -->
 <script setup lang="ts">
-import type { ProductListItem } from '~/types/domain'
-import ProductCard from '~/components/product/ProductCard.vue'
-import ProductGallery from '~/components/product/ProductGallery.vue'
-import SizeSelector from '~/components/product/SizeSelector.vue'
-import FabricMeters from '~/components/product/FabricMeters.vue'
-import PriceTag from '~/components/product/PriceTag.vue'
-import { Button } from '~/components/ui/button'
-import { Badge } from '~/components/ui/badge'
-import { useProducts } from '~/composables/useProducts'
 import { Sparkles, ShoppingBag, ArrowLeft } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 
 const selectedSize = ref<string | null>('M')
-const firstProduct = computed(() => products.value[0] ?? null)
-const { getProducts, loading } = useProducts()
-const products = ref<ProductListItem[]>([])
+const { getProducts, getProductBySlug } = useProducts()
 
-onMounted(async () => {
-  products.value = await getProducts()
-})
+const { data: products, pending: loading } = await useAsyncData(
+  'dev-products',
+  () => getProducts(),
+)
+
+const { data: detailProduct } = await useAsyncData(
+  'dev-detail-product',
+  () => getProductBySlug('calm-seamless-leggings-black'),
+)
+
+const firstProduct = computed(() => products.value?.[0] ?? null)
 
 const openSizeGuide = () => {
-  if (import.meta.client) {
-    window.alert('باز شدن راهنمای سایز (S-02)')
-  }
+  toast.info('راهنمای سایز: تطبیق دور کمر و دور باسن به سانتی‌متر')
 }
 </script>
 
@@ -51,7 +47,7 @@ const openSizeGuide = () => {
         <h2 class="text-lg font-bold text-ink">
           ۱. دکمه‌ها و بج‌ها (UI)
         </h2>
-        <div class="flex flex-wrap items-center gap-4 p-6 rounded-card border border-sand bg-white/50">
+        <div class="flex flex-wrap items-center gap-4 p-6 rounded-2xl border border-sand bg-white/50">
           <Button variant="default">
             <ShoppingBag class="w-4 h-4 ms-2" />
             دکمه اصلی (Rose)
@@ -84,7 +80,7 @@ const openSizeGuide = () => {
         </div>
       </section>
 
-      <!-- بخش ۲: تست کارت محصول با داده‌های Mock -->
+      <!-- بخش ۲: تست کارت محصول با داده‌های Mock Service -->
       <section class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-bold text-ink">
@@ -94,30 +90,50 @@ const openSizeGuide = () => {
         </div>
 
         <div v-if="loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div v-for="i in 4" :key="i" class="aspect-[4/5] rounded-card bg-sand/40 animate-pulse" />
+          <div v-for="i in 4" :key="i" class="aspect-4/5 rounded-2xl bg-sand/40 animate-pulse" />
         </div>
 
-        <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <ProductCard v-for="(product, idx) in products" :key="product.id" :product="product" :priority="idx === 0" />
+        <div v-else-if="products && products.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <ProductCard
+            v-for="(product, idx) in products"
+            :key="product.id"
+            :product="product"
+            :priority="idx === 0"
+          />
         </div>
       </section>
 
-      <!-- بخش ۳: سنجه‌های پارچه و قیمت -->
+      <!-- بخش ۳: سنجه‌های پارچه و قیمت متصل به Mock Service -->
       <section class="space-y-4">
         <h2 class="text-lg font-bold text-ink">
           ۳. مشخصات پارچه (FabricMeters) و تگ قیمت (PriceTag)
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          <FabricMeters :stretch="5" :softness="4" :opacity="5" composition="۸۵٪ پلی‌آمید، ۱۵٪ الاستین" :gsm="280" />
+          <FabricMeters
+            v-if="detailProduct"
+            :stretch="detailProduct.stretch"
+            :softness="detailProduct.softness"
+            :opacity="detailProduct.opacity"
+            :composition="detailProduct.fabric_composition"
+            :gsm="detailProduct.fabric_gsm"
+          />
 
-          <div class="p-6 rounded-card border border-sand bg-white/50 space-y-4">
+          <div class="p-6 rounded-2xl border border-sand bg-white/50 space-y-4">
             <h4 class="text-sm font-bold text-ink">
               اندازه‌های مختلف PriceTag
             </h4>
-            <div class="space-y-2">
-              <PriceTag :price="1450000" size="sm" />
-              <PriceTag :price="1450000" :compare-at-price="1850000" size="md" />
-              <PriceTag :price="1450000" :compare-at-price="2100000" size="lg" />
+            <div v-if="detailProduct" class="space-y-2">
+              <PriceTag :price="detailProduct.base_price" size="sm" />
+              <PriceTag
+                :price="detailProduct.base_price"
+                :compare-at-price="detailProduct.compare_at_price"
+                size="md"
+              />
+              <PriceTag
+                :price="detailProduct.base_price"
+                :compare-at-price="detailProduct.compare_at_price"
+                size="lg"
+              />
             </div>
           </div>
         </div>
@@ -128,10 +144,14 @@ const openSizeGuide = () => {
         <h2 class="text-lg font-bold text-ink">
           ۴. انتخابگر سایز (SizeSelector)
         </h2>
-        <div class="max-w-md p-6 rounded-card border border-sand bg-white/50">
+        <div class="max-w-md p-6 rounded-2xl border border-sand bg-white/50">
           <SizeSelector
-v-if="firstProduct" v-model="selectedSize" :variants="(firstProduct as any).variants || []"
-            @open-size-guide="openSizeGuide" />
+            v-if="detailProduct"
+            v-model="selectedSize"
+            :variants="detailProduct.variants"
+            :sizes="detailProduct.available_sizes"
+            @open-size-guide="openSizeGuide"
+          />
         </div>
       </section>
 
@@ -140,8 +160,13 @@ v-if="firstProduct" v-model="selectedSize" :variants="(firstProduct as any).vari
         <h2 class="text-lg font-bold text-ink">
           ۵. گالری تصاویر محصول (ProductGallery)
         </h2>
-        <div class="max-w-md p-6 rounded-card border border-sand bg-white/50">
-          <ProductGallery v-if="firstProduct" :images="firstProduct.images" :title="firstProduct.title" />
+        <div class="max-w-md p-6 rounded-2xl border border-sand bg-white/50">
+          <ProductGallery
+            v-if="detailProduct || firstProduct"
+            :images="(detailProduct || firstProduct)!.images"
+            :title="(detailProduct || firstProduct)!.title"
+            :line="(detailProduct || firstProduct)!.line"
+          />
         </div>
       </section>
     </div>

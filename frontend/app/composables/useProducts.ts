@@ -1,5 +1,4 @@
 // app/composables/useProducts.ts
-import { mockProducts } from '~/data/products';
 import type { ProductDetail, ProductListItem } from '~/types/domain';
 
 export interface ProductFilters {
@@ -12,58 +11,55 @@ export interface ProductFilters {
 
 export function useProducts() {
   const loading = ref(false);
+  const error = ref<Error | null>(null);
 
-  // دریافت لیست محصولات با اعمال فیلتر و مرتب‌سازی
+  /**
+   * دریافت لیست محصولات بر اساس فیلترها و مرتب‌سازی از سرویس بک‌اند / Mock API
+   */
   async function getProducts(
     filters?: ProductFilters,
   ): Promise<ProductListItem[]> {
     loading.value = true;
-    // شبیه‌سازی ۲۰۰ میلی‌ثانیه تاخیر شبکه
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    error.value = null;
 
-    let result = [...mockProducts];
-
-    if (filters?.line) {
-      result = result.filter((p) => p.line === filters.line);
+    try {
+      const data = await $fetch<ProductListItem[]>('/api/products', {
+        query: filters,
+      });
+      return data || [];
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err));
+      return [];
+    } finally {
+      loading.value = false;
     }
-
-    if (filters?.category) {
-      result = result.filter((p) => p.category.slug === filters.category);
-    }
-
-    if (filters?.size) {
-      result = result.filter((p) => p.available_sizes.includes(filters.size!));
-    }
-
-    if (filters?.color) {
-      result = result.filter((p) =>
-        p.colors.some((c) => c.name === filters.color),
-      );
-    }
-
-    if (filters?.sort === 'price_asc') {
-      result.sort((a, b) => a.base_price - b.base_price);
-    } else if (filters?.sort === 'price_desc') {
-      result.sort((a, b) => b.base_price - a.base_price);
-    } else if (filters?.sort === 'bestseller') {
-      result.sort((a, b) => b.rating_count - a.rating_count);
-    }
-
-    loading.value = false;
-    return result;
   }
 
-  // دریافت تک‌محصول بر اساس slug
+  /**
+   * دریافت جزئیات کامل یک محصول بر اساس شناسه متنی (slug)
+   */
   async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
     loading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    const product = mockProducts.find((p) => p.slug === slug) || null;
-    loading.value = false;
-    return product;
+    error.value = null;
+
+    try {
+      const data = await $fetch<ProductDetail>(`/api/products/${slug}`);
+      return data;
+    } catch (err: unknown) {
+      const fetchError = err as { statusCode?: number };
+      if (fetchError?.statusCode === 404) {
+        return null;
+      }
+      error.value = err instanceof Error ? err : new Error(String(err));
+      return null;
+    } finally {
+      loading.value = false;
+    }
   }
 
   return {
-    loading,
+    loading: readonly(loading),
+    error: readonly(error),
     getProducts,
     getProductBySlug,
   };
