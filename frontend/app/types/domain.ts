@@ -167,3 +167,19 @@ export interface CouponValidationResponse {
   message: string;
 }
 
+export interface SizeMeasurement {
+  size: string;
+  waist: number; // دور کمر (CM)
+  hips: number; // دور باسن (CM)
+  bust?: number; // دور سینه (CM)
+  inseam?: number; // قد داخل پا (CM)
+}
+
+export type FitPreference = 'snug' | 'regular' | 'relaxed';
+
+export interface FitRecommendation {
+  recommendedSize: string;
+  confidence: number;
+  fitNote: string;
+}
+

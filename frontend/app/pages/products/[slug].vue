@@ -5,7 +5,6 @@ import { toast } from 'vue-sonner'
 import { useCartStore } from '~/stores/cart'
 
 const route = useRoute()
-const router = useRouter()
 const { getProductBySlug, getProductReviews, getRelatedProducts } = useProducts()
 const cartStore = useCartStore()
 
@@ -97,8 +96,15 @@ const handleAddToCart = () => {
   })
 }
 
+const isSizeGuideOpen = ref(false)
+
 const openSizeGuide = () => {
-  router.push('/size-guide')
+  isSizeGuideOpen.value = true
+}
+
+const handleSizeSelectedFromGuide = (size: string) => {
+  selectedSize.value = size
+  toast.success(`سایز ${size} با موفقیت انتخاب شد.`)
 }
 </script>
 
@@ -213,6 +219,16 @@ const openSizeGuide = () => {
       :selected-size="selectedSize"
       @update:selected-size="selectedSize = $event"
       @add-to-cart="handleAddToCart"
+    />
+
+    <!-- مدال راهنمای سایز و محاسبه‌گر هوشمند فیت -->
+    <SizeGuideModal
+      v-if="product"
+      v-model:open="isSizeGuideOpen"
+      :collection="product.line"
+      :current-size="selectedSize"
+      :available-sizes="product.available_sizes"
+      @select-size="handleSizeSelectedFromGuide"
     />
   </div>
 </template>
