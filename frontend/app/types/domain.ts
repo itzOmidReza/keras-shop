@@ -90,6 +90,7 @@ export interface ProductReviewsResponse {
 }
 
 export interface ProductFilters {
+  q?: string;
   line?: 'move' | 'calm';
   category?: string;
   size?: string;

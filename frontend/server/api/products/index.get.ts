@@ -26,7 +26,17 @@ export default defineEventHandler(async (event) => {
     available_sizes: p.available_sizes,
   }));
 
-  // ۱. فیلتر لاین محصول (move / calm)
+  // ۱. جست‌وجوی متنی عنوان یا اسلاگ (q)
+  if (query.q && typeof query.q === 'string' && query.q.trim()) {
+    const term = query.q.trim().toLowerCase();
+    items = items.filter(
+      (p) =>
+        p.title.toLowerCase().includes(term) ||
+        p.slug.toLowerCase().includes(term),
+    );
+  }
+
+  // ۲. فیلتر لاین محصول (move / calm)
   if (query.line && typeof query.line === 'string') {
     const targetLine = query.line.toLowerCase().trim();
     if (targetLine === 'move' || targetLine === 'calm') {

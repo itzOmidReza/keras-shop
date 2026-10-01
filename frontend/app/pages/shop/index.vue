@@ -3,6 +3,7 @@
 import {
   SlidersHorizontal,
   Sparkles,
+  X,
 } from '@lucide/vue'
 import type { ProductFilters } from '~/types/domain'
 import type { FilterState } from '~/components/catalog/FilterPanel.vue'
@@ -52,6 +53,9 @@ const apiFilters = computed<ProductFilters>(() => {
   const params: ProductFilters = {
     sort: (sort.value as ProductFilters['sort']) || 'bestseller',
   }
+  if (route.query.q && typeof route.query.q === 'string' && route.query.q.trim()) {
+    params.q = route.query.q.trim()
+  }
   if (filters.value.line) params.line = filters.value.line
   if (filters.value.categories.length > 0) params.category = filters.value.categories.join(',')
   if (filters.value.sizes.length > 0) params.size = filters.value.sizes.join(',')
@@ -65,6 +69,7 @@ const apiFilters = computed<ProductFilters>(() => {
 // تعداد فیلترهای فعال برای بج دکمه موبایل
 const activeFilterCount = computed(() => {
   let count = 0
+  if (route.query.q) count++
   if (filters.value.line) count++
   count += filters.value.categories.length
   count += filters.value.sizes.length
@@ -82,6 +87,9 @@ const activeFilterCount = computed(() => {
 const syncToUrl = () => {
   const nextQuery: Record<string, string> = {}
 
+  if (route.query.q && typeof route.query.q === 'string' && route.query.q.trim()) {
+    nextQuery.q = route.query.q.trim()
+  }
   if (filters.value.line) nextQuery.line = filters.value.line
   if (filters.value.categories.length > 0) nextQuery.category = filters.value.categories.join(',')
   if (filters.value.sizes.length > 0) nextQuery.size = filters.value.sizes.join(',')
@@ -126,6 +134,12 @@ const { data: products, pending } = await useAsyncData(
   },
 )
 
+const clearSearch = () => {
+  const next = { ...route.query }
+  delete next.q
+  router.replace({ query: next })
+}
+
 const resetFilters = () => {
   filters.value = {
     line: null,
@@ -136,6 +150,9 @@ const resetFilters = () => {
   }
   sort.value = 'bestseller'
   isMobileFilterOpen.value = false
+  if (route.query.q) {
+    clearSearch()
+  }
 }
 </script>
 
@@ -156,6 +173,19 @@ const resetFilters = () => {
         <p class="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
           طراحی‌شده برای تعادل میان عملکرد ورزشی در تمرینات پرفشار و حس پوست دوم در راحتی روزمره.
         </p>
+
+        <!-- بج جست‌وجوی فعال با امکان حذف -->
+        <div v-if="route.query.q" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-sand/60 px-3 py-1.5 text-xs text-ink">
+          <span>نتایج جست‌وجو برای: <strong class="text-rose font-bold">«{{ route.query.q }}»</strong></span>
+          <button
+            type="button"
+            class="text-muted-foreground hover:text-rose cursor-pointer"
+            aria-label="حذف جست‌وجو"
+            @click="clearSearch"
+          >
+            <X class="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       <div class="text-xs text-muted-foreground font-medium">

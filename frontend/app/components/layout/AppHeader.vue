@@ -18,8 +18,25 @@ const isScrolled = ref(false)
 const isSearchOpen = ref(false)
 const searchQuery = ref('')
 
+const route = useRoute()
+const router = useRouter()
 const cartStore = useCartStore()
 const wishlistCount = ref(0)
+
+const isLinkActive = (href: string) => {
+  if (href.includes('?')) {
+    return route.fullPath === href
+  }
+  return route.path === href
+}
+
+const handleSearch = () => {
+  if (!searchQuery.value.trim()) return
+  const q = searchQuery.value.trim()
+  isSearchOpen.value = false
+  searchQuery.value = ''
+  router.push(`/shop?q=${encodeURIComponent(q)}`)
+}
 
 const handleScroll = () => {
   if (import.meta.client) {
@@ -78,35 +95,45 @@ type="button"
         <!-- منوی دستکتاپ از لایه data -->
         <nav class="hidden lg:flex items-center gap-8">
           <NuxtLink
-v-for="link in headerNav" :key="link.href" :to="link.href"
-            class="relative text-sm font-medium text-ink/80 hover:text-ink transition-colors py-2 group">
+            v-for="link in headerNav"
+            :key="link.href"
+            :to="link.href"
+            class="relative text-sm font-medium transition-colors py-2 group"
+            :class="isLinkActive(link.href) ? 'text-ink font-bold' : 'text-ink/80 hover:text-ink'"
+          >
             <span>{{ link.label }}</span>
             <span
-              class="absolute inset-x-0 bottom-0 h-0.5 bg-rose scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-center" />
+              class="absolute inset-x-0 bottom-0 h-0.5 bg-rose transition-transform duration-200 origin-center"
+              :class="isLinkActive(link.href) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"
+            />
           </NuxtLink>
         </nav>
 
         <!-- آیکون‌ها -->
         <div class="flex items-center gap-1.5 sm:gap-2">
           <button
-type="button"
+            type="button"
             class="w-10 h-10 flex items-center justify-center rounded-full text-ink/80 hover:text-ink hover:bg-sand/40 transition-colors cursor-pointer"
-            aria-label="جست‌وجو" @click="isSearchOpen = !isSearchOpen">
+            aria-label="جست‌وجو"
+            @click="isSearchOpen = !isSearchOpen"
+          >
             <Search class="w-5 h-5" />
           </button>
 
           <NuxtLink
-to="/wishlist"
+            to="/wishlist"
             class="relative w-10 h-10 hidden sm:flex items-center justify-center rounded-full text-ink/80 hover:text-ink hover:bg-sand/40 transition-colors"
-            aria-label="علاقه‌مندی‌ها">
+            aria-label="علاقه‌مندی‌ها"
+          >
             <Heart class="w-5 h-5" />
             <span v-if="wishlistCount > 0" class="absolute top-2 inset-e-2 w-2 h-2 rounded-full bg-rose" />
           </NuxtLink>
 
           <NuxtLink
-to="/account"
+            to="/account"
             class="w-10 h-10 flex items-center justify-center rounded-full text-ink/80 hover:text-ink hover:bg-sand/40 transition-colors"
-            aria-label="حساب کاربری">
+            aria-label="حساب کاربری"
+          >
             <User class="w-5 h-5" />
           </NuxtLink>
 
@@ -130,17 +157,25 @@ to="/account"
 
     <!-- فرم جست‌وجو کشویی -->
     <div v-if="isSearchOpen" class="border-t border-sand/60 bg-paper px-4 py-3 shadow-inner">
-      <div class="container mx-auto max-w-2xl flex items-center gap-3">
+      <form class="container mx-auto max-w-2xl flex items-center gap-3" @submit.prevent="handleSearch">
         <Search class="w-5 h-5 text-muted-foreground shrink-0" />
+        <label for="header-search-input" class="sr-only">جست‌وجوی کالا</label>
         <input
-v-model="searchQuery" type="text" placeholder="جست‌وجوی لگ، نیم‌تنه، شورت ورزشی..."
-          class="w-full bg-transparent text-sm text-ink placeholder:text-muted-foreground focus:outline-none" autofocus>
+          id="header-search-input"
+          v-model="searchQuery"
+          type="text"
+          placeholder="جست‌وجوی محصولات ورزشی کراس..."
+          class="w-full bg-transparent text-sm text-ink placeholder:text-muted-foreground focus:outline-none"
+          autofocus
+        >
         <button
-type="button" class="text-xs font-bold text-muted-foreground hover:text-ink cursor-pointer"
-          @click="isSearchOpen = false">
+          type="button"
+          class="text-xs font-bold text-muted-foreground hover:text-ink cursor-pointer"
+          @click="isSearchOpen = false"
+        >
           بستن
         </button>
-      </div>
+      </form>
     </div>
   </header>
 </template>

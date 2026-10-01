@@ -28,21 +28,16 @@ const router = useRouter()
 const currentStep = ref<1 | 2>(1)
 const isSubmittingOrder = ref(false)
 
-// بررسی وضعیت سبد خرید و هدایت در صورت خالی بودن
-onMounted(() => {
-  if (cartStore.isHydrated && cartStore.items.length === 0) {
-    toast.info('سبد خرید شما خالی است.')
-    router.replace('/cart')
-  }
-})
-
+// بررسی وضعیت سبد خرید و هدایت در صورت خالی بودن پس از هیدراتاسیون
 watch(
-  () => cartStore.items.length,
-  (len) => {
-    if (cartStore.isHydrated && len === 0 && !isSubmittingOrder.value) {
+  [() => cartStore.isHydrated, () => cartStore.items.length],
+  ([hydrated, len]) => {
+    if (hydrated && len === 0 && !isSubmittingOrder.value) {
+      toast.info('سبد خرید شما خالی است.')
       router.replace('/cart')
     }
   },
+  { immediate: true },
 )
 
 // فرم اعتبارسنجی مشخصات با Vee-Validate و Zod

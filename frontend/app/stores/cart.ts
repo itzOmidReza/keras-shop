@@ -162,7 +162,15 @@ export const useCartStore = defineStore('cart', () => {
     const existingIndex = items.value.findIndex(
       (item) => item.id === compositeId,
     )
-    const maxStock = newItem.maxStock || 10
+    const maxStock =
+      newItem.maxStock !== undefined && newItem.maxStock !== null
+        ? newItem.maxStock
+        : 10
+
+    if (maxStock <= 0) {
+      toast.warning(`متأسفانه موجودی این محصول به اتمام رسیده است.`)
+      return
+    }
 
     if (existingIndex > -1) {
       const existing = items.value[existingIndex]!

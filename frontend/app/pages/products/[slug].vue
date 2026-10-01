@@ -74,6 +74,15 @@ const handleAddToCart = () => {
     (v) => v.size === selectedSize.value,
   )
 
+  const availableStock = matchingVariant
+    ? matchingVariant.stock - matchingVariant.reserved
+    : 10
+
+  if (availableStock <= 0) {
+    toast.error('متأسفانه موجودی این سایز به اتمام رسیده است.')
+    return
+  }
+
   cartStore.addItem({
     productId: product.value.id,
     variantId: matchingVariant?.id,
@@ -83,7 +92,7 @@ const handleAddToCart = () => {
     color: matchingVariant?.color,
     price: matchingVariant?.price_override ?? product.value.base_price,
     compareAtPrice: matchingVariant?.compare_at_price ?? product.value.compare_at_price,
-    maxStock: matchingVariant ? (matchingVariant.stock - matchingVariant.reserved) : 10,
+    maxStock: availableStock,
     image: product.value.images[0]?.url || '',
   })
 }

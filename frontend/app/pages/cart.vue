@@ -95,8 +95,14 @@ const proceedToCheckout = () => {
       </NuxtLink>
     </div>
 
+    <!-- وضعیت در حال هیدراتاسیون جهت جلوگیری از پرش صفحه -->
+    <div v-if="!cartStore.isHydrated" class="py-20 text-center space-y-3">
+      <div class="w-10 h-10 border-2 border-sand border-t-rose rounded-full animate-spin mx-auto" />
+      <p class="text-xs text-muted-foreground font-medium">در حال بازیابی سبد خرید شما...</p>
+    </div>
+
     <!-- حالت وجود کالا در سبد -->
-    <div v-if="cartStore.items.length > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+    <div v-else-if="cartStore.items.length > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
       <!-- ستون راست: لیست اقلام سبد خرید -->
       <div class="lg:col-span-8 space-y-6">
         <!-- نوار پیشرفت ارسال رایگان -->
