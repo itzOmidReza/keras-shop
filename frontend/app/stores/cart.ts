@@ -25,32 +25,44 @@ export const useCartStore = defineStore('cart', () => {
 
   // ۱. بازیابی و ذخیره‌سازی امن در localStorage/sessionStorage برای جلوگیری از عدم تطابق هیدریشن SSR
   if (import.meta.client) {
-    onNuxtReady(() => {
+    const hydrate = () => {
       try {
-        const savedItems = localStorage.getItem('keras_cart_items')
-        if (savedItems) {
-          items.value = JSON.parse(savedItems)
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          const savedItems = window.localStorage.getItem('keras_cart_items')
+          if (savedItems) {
+            items.value = JSON.parse(savedItems)
+          }
+          const savedCoupon = window.localStorage.getItem('keras_cart_coupon')
+          if (savedCoupon) {
+            appliedCoupon.value = JSON.parse(savedCoupon)
+          }
         }
-        const savedCoupon = localStorage.getItem('keras_cart_coupon')
-        if (savedCoupon) {
-          appliedCoupon.value = JSON.parse(savedCoupon)
-        }
-        const savedReceipt = sessionStorage.getItem('keras_last_order')
-        if (savedReceipt) {
-          lastOrderReceipt.value = JSON.parse(savedReceipt)
+        if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+          const savedReceipt = window.sessionStorage.getItem('keras_last_order')
+          if (savedReceipt) {
+            lastOrderReceipt.value = JSON.parse(savedReceipt)
+          }
         }
       } catch {
         // نادیده گرفتن خطای پارس در صورت دستکاری دیتای لوکال
       }
       isHydrated.value = true
-    })
+    }
+
+    try {
+      onNuxtReady(hydrate)
+    } catch {
+      hydrate()
+    }
 
     watch(
       items,
       (newItems) => {
         if (isHydrated.value) {
           try {
-            localStorage.setItem('keras_cart_items', JSON.stringify(newItems))
+            if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+              window.localStorage.setItem('keras_cart_items', JSON.stringify(newItems))
+            }
           } catch {
             // نادیده گرفتن محدودیت‌های لوکال‌استوریج
           }
@@ -64,10 +76,12 @@ export const useCartStore = defineStore('cart', () => {
       (newCoupon) => {
         if (isHydrated.value) {
           try {
-            if (newCoupon) {
-              localStorage.setItem('keras_cart_coupon', JSON.stringify(newCoupon))
-            } else {
-              localStorage.removeItem('keras_cart_coupon')
+            if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+              if (newCoupon) {
+                window.localStorage.setItem('keras_cart_coupon', JSON.stringify(newCoupon))
+              } else {
+                window.localStorage.removeItem('keras_cart_coupon')
+              }
             }
           } catch {
             // نادیده گرفتن محدودیت‌های استوریج
@@ -80,7 +94,7 @@ export const useCartStore = defineStore('cart', () => {
 
   // ۲. گترها (Getters)
   const itemCount = computed(() => {
-    return items.value.reduce((total, item) => total + item.quantity, 0)
+    return (items.value || []).reduce((total, item) => total + (item.quantity || 0), 0)
   })
 
   const subtotal = computed(() => {

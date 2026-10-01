@@ -40,17 +40,22 @@ const handleSearch = () => {
 }
 
 const handleScroll = () => {
-  if (import.meta.client) {
+  if (import.meta.client && typeof window !== 'undefined') {
     isScrolled.value = window.scrollY > 20
   }
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
+  if (typeof window !== 'undefined') {
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+  }
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', handleScroll)
+  }
 })
 </script>
 
@@ -128,10 +133,10 @@ type="button"
           >
             <Heart class="w-5 h-5" />
             <span
-              v-if="wishlistStore.itemCount > 0"
+              v-if="(wishlistStore?.itemCount ?? 0) > 0"
               class="absolute top-1 inset-e-1 min-w-4 h-4 px-1 rounded-full bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
             >
-              {{ wishlistStore.itemCount }}
+              {{ wishlistStore?.itemCount ?? 0 }}
             </span>
           </NuxtLink>
 
@@ -151,10 +156,10 @@ type="button"
           >
             <ShoppingBag class="w-5 h-5" />
             <span
-              v-if="cartStore.itemCount > 0"
+              v-if="(cartStore?.itemCount ?? 0) > 0"
               class="absolute top-1 inset-e-1 min-w-4 h-4 px-1 rounded-full bg-rose text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
             >
-              {{ cartStore.itemCount }}
+              {{ cartStore?.itemCount ?? 0 }}
             </span>
           </button>
         </div>

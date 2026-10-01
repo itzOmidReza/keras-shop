@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import AppHeader from '~/components/layout/AppHeader.vue'
+import AppFooter from '~/components/layout/AppFooter.vue'
+import MobileNav from '~/components/layout/MobileNav.vue'
+import CartDrawer from '~/components/cart/CartDrawer.vue'
+
 const isMobileNavOpen = ref(false)
 </script>
 

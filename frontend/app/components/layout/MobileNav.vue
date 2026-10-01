@@ -114,10 +114,10 @@ const quickLinks = [
                   class="h-4 w-4 text-rose"
                 />
                 <span
-                  v-if="link.href === '/wishlist' && wishlistStore.itemCount > 0"
+                  v-if="link.href === '/wishlist' && (wishlistStore?.itemCount ?? 0) > 0"
                   class="absolute -top-1.5 -end-2 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose text-white text-[9px] font-bold flex items-center justify-center"
                 >
-                  {{ wishlistStore.itemCount }}
+                  {{ wishlistStore?.itemCount ?? 0 }}
                 </span>
               </div>
               <span>{{ link.label }}</span>

@@ -13,24 +13,34 @@ export const useWishlistStore = defineStore('wishlist', () => {
 
   // ۱. هیدراتاسیون ایمن در سمت کلاینت با onNuxtReady جهت جلوگیری از عدم تطابق SSR
   if (import.meta.client) {
-    onNuxtReady(() => {
+    const hydrate = () => {
       try {
-        const saved = localStorage.getItem('keras_wishlist_items')
-        if (saved) {
-          items.value = JSON.parse(saved)
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          const saved = window.localStorage.getItem('keras_wishlist_items')
+          if (saved) {
+            items.value = JSON.parse(saved)
+          }
         }
       } catch {
         // نادیده گرفتن خطای پارس در صورت دستکاری دیتای لوکال
       }
       isHydrated.value = true
-    })
+    }
+
+    try {
+      onNuxtReady(hydrate)
+    } catch {
+      hydrate()
+    }
 
     watch(
       items,
       (newItems) => {
         if (isHydrated.value) {
           try {
-            localStorage.setItem('keras_wishlist_items', JSON.stringify(newItems))
+            if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+              window.localStorage.setItem('keras_wishlist_items', JSON.stringify(newItems))
+            }
           } catch {
             // نادیده گرفتن محدودیت‌های فضای ذخیره‌سازی
           }
@@ -41,7 +51,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
   }
 
   // ۲. گترها (Getters)
-  const itemCount = computed(() => items.value.length)
+  const itemCount = computed(() => (items.value || []).length)
 
   const isInWishlist = (productId: number): boolean => {
     return items.value.some((item) => item.id === productId)
