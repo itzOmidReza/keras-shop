@@ -34,6 +34,7 @@ export default defineNuxtConfig({
   // ۴. کانفیگ کامپوننت‌ها و UI
   components: [
     { path: '~/components/layout', pathPrefix: false },
+    { path: '~/components/product', pathPrefix: false },
     '~/components',
   ],
 
