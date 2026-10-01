@@ -3,15 +3,10 @@ import type {
   ProductDetail,
   ProductListItem,
   ProductReviewsResponse,
+  ProductFilters,
 } from '~/types/domain';
 
-export interface ProductFilters {
-  line?: 'move' | 'calm';
-  category?: string;
-  size?: string;
-  color?: string;
-  sort?: 'newest' | 'bestseller' | 'price_asc' | 'price_desc';
-}
+export type { ProductFilters };
 
 export function useProducts() {
   const loading = ref(false);

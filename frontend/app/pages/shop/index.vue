@@ -1,136 +1,274 @@
 <!-- frontend/app/pages/shop/index.vue -->
 <script setup lang="ts">
-import type { ProductListItem } from '~/types/domain'
+import {
+  SlidersHorizontal,
+  Sparkles,
+} from '@lucide/vue'
+import type { ProductFilters } from '~/types/domain'
 import type { FilterState } from '~/components/catalog/FilterPanel.vue'
 
 useSeoMeta({
-  title: 'فروشگاه و کاتالوگ محصولات | کراس',
-  description: 'مجموعه پوشاک ورزشی و روزمره زنانه کراس - لاین‌های حرکت (Move) و آرامش (Calm).',
+  title: 'کاتالوگ و فروشگاه پوشاک ورزشی | کراس',
+  description: 'مجموعه تخصصی پوشاک تمرین و آرامش کراس با بافت بدون درز و آزادی حرکت کامل.',
 })
 
 const route = useRoute()
+const router = useRouter()
 const { getProducts } = useProducts()
 
-const initialLine = typeof route.query.line === 'string' ? [route.query.line.toLowerCase()] : []
+const DEFAULT_MIN_PRICE = 500000
+const DEFAULT_MAX_PRICE = 3500000
 
-const filters = ref<FilterState>({
-  lines: initialLine,
-  categories: [],
-  priceRange: [500000, 3500000],
+// تجزیه پارامترهای URL به استیت فیلترها
+const parseFiltersFromQuery = (): FilterState => {
+  const q = route.query
+  const line = q.line === 'move' || q.line === 'calm' ? q.line : null
+  const categories = q.category ? String(q.category).split(',').filter(Boolean) : []
+  const sizes = q.size ? String(q.size).split(',').filter(Boolean) : []
+  const colors = q.color ? String(q.color).split(',').filter(Boolean) : []
+  const min = q.min_price ? Number(q.min_price) : DEFAULT_MIN_PRICE
+  const max = q.max_price ? Number(q.max_price) : DEFAULT_MAX_PRICE
+
+  return {
+    line,
+    categories,
+    sizes,
+    colors,
+    priceRange: [
+      !isNaN(min) && min >= DEFAULT_MIN_PRICE ? min : DEFAULT_MIN_PRICE,
+      !isNaN(max) && max <= DEFAULT_MAX_PRICE ? max : DEFAULT_MAX_PRICE,
+    ],
+  }
+}
+
+const filters = ref<FilterState>(parseFiltersFromQuery())
+const sort = ref<string>(
+  typeof route.query.sort === 'string' ? route.query.sort : 'bestseller',
+)
+const isMobileFilterOpen = ref(false)
+
+// تبدیل فیلترها به پارامترهای درخواست API
+const apiFilters = computed<ProductFilters>(() => {
+  const params: ProductFilters = {
+    sort: (sort.value as ProductFilters['sort']) || 'bestseller',
+  }
+  if (filters.value.line) params.line = filters.value.line
+  if (filters.value.categories.length > 0) params.category = filters.value.categories.join(',')
+  if (filters.value.sizes.length > 0) params.size = filters.value.sizes.join(',')
+  if (filters.value.colors.length > 0) params.color = filters.value.colors.join(',')
+  if (filters.value.priceRange[0] > DEFAULT_MIN_PRICE) params.min_price = filters.value.priceRange[0]
+  if (filters.value.priceRange[1] < DEFAULT_MAX_PRICE) params.max_price = filters.value.priceRange[1]
+
+  return params
 })
 
-const sort = ref('bestseller')
+// تعداد فیلترهای فعال برای بج دکمه موبایل
+const activeFilterCount = computed(() => {
+  let count = 0
+  if (filters.value.line) count++
+  count += filters.value.categories.length
+  count += filters.value.sizes.length
+  count += filters.value.colors.length
+  if (
+    filters.value.priceRange[0] > DEFAULT_MIN_PRICE ||
+    filters.value.priceRange[1] < DEFAULT_MAX_PRICE
+  ) {
+    count++
+  }
+  return count
+})
 
-const { data: allProducts, pending: loading } = await useAsyncData(
-  'shop-products',
-  () => getProducts(),
+// همگام‌سازی تغییرات فیلتر با کوئری‌های URL
+const syncToUrl = () => {
+  const nextQuery: Record<string, string> = {}
+
+  if (filters.value.line) nextQuery.line = filters.value.line
+  if (filters.value.categories.length > 0) nextQuery.category = filters.value.categories.join(',')
+  if (filters.value.sizes.length > 0) nextQuery.size = filters.value.sizes.join(',')
+  if (filters.value.colors.length > 0) nextQuery.color = filters.value.colors.join(',')
+  if (filters.value.priceRange[0] > DEFAULT_MIN_PRICE) nextQuery.min_price = String(filters.value.priceRange[0])
+  if (filters.value.priceRange[1] < DEFAULT_MAX_PRICE) nextQuery.max_price = String(filters.value.priceRange[1])
+  if (sort.value && sort.value !== 'bestseller') nextQuery.sort = sort.value
+
+  const currentQuery = route.query
+  const isSame =
+    Object.keys(nextQuery).length === Object.keys(currentQuery).length &&
+    Object.entries(nextQuery).every(([k, v]) => currentQuery[k] === v)
+
+  if (!isSame) {
+    router.replace({ query: nextQuery })
+  }
+}
+
+watch([filters, sort], () => {
+  syncToUrl()
+}, { deep: true })
+
+watch(
+  () => route.query,
+  () => {
+    filters.value = parseFiltersFromQuery()
+    if (typeof route.query.sort === 'string') {
+      sort.value = route.query.sort
+    } else {
+      sort.value = 'bestseller'
+    }
+  },
+  { deep: true },
 )
 
-const filteredProducts = computed(() => {
-  let list: ProductListItem[] = allProducts.value ? [...allProducts.value] : []
-
-  // فیلتر لاین
-  if (filters.value.lines.length > 0) {
-    const selectedLines = filters.value.lines.map((l) => l.toLowerCase())
-    list = list.filter((p) => selectedLines.includes(p.line))
-  }
-
-  // فیلتر محدوده قیمت
-  const [minPrice, maxPrice] = filters.value.priceRange
-  list = list.filter((p) => p.base_price >= minPrice && p.base_price <= maxPrice)
-
-  // مرتب‌سازی
-  if (sort.value === 'price_asc') {
-    list.sort((a, b) => a.base_price - b.base_price)
-  } else if (sort.value === 'price_desc') {
-    list.sort((a, b) => b.base_price - a.base_price)
-  } else if (sort.value === 'newest') {
-    list.sort((a, b) => b.id - a.id)
-  } else {
-    // bestseller
-    list.sort((a, b) => b.rating_count - a.rating_count)
-  }
-
-  return list
-})
+// واکشی داده‌ها از نیترو با ری‌اکتیویتی خودکار
+const { data: products, pending } = await useAsyncData(
+  'catalog-products',
+  () => getProducts(apiFilters.value),
+  {
+    watch: [apiFilters],
+  },
+)
 
 const resetFilters = () => {
   filters.value = {
-    lines: [],
+    line: null,
     categories: [],
-    priceRange: [500000, 3500000],
+    sizes: [],
+    colors: [],
+    priceRange: [DEFAULT_MIN_PRICE, DEFAULT_MAX_PRICE],
   }
+  sort.value = 'bestseller'
+  isMobileFilterOpen.value = false
 }
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-8 lg:py-12 max-w-7xl">
-    <!-- هدر کاتالوگ -->
-    <header class="mb-8 border-b border-sand pb-6">
-      <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-        کاتالوگ محصولات کراس
-      </h1>
-      <p class="mt-1 text-sm text-muted-foreground">
-        طراحی‌شده برای تعادل میان عملکرد ورزشی و راحتی روزمره
-      </p>
+    <!-- هدر کاتالوگ و معرفی مجموعه -->
+    <header class="mb-8 border-b border-sand pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-rose flex items-center gap-1">
+            <Sparkles class="w-3.5 h-3.5" />
+            کالکشن کامل پوشاک کراس
+          </span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+          فروشگاه و محصولات ورزشی
+        </h1>
+        <p class="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
+          طراحی‌شده برای تعادل میان عملکرد ورزشی در تمرینات پرفشار و حس پوست دوم در راحتی روزمره.
+        </p>
+      </div>
+
+      <div class="text-xs text-muted-foreground font-medium">
+        <span>نمایش </span>
+        <span class="font-bold text-ink">{{ products?.length || 0 }}</span>
+        <span> کالا از مجموعه کراس</span>
+      </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-      <!-- سایدبار فیلترها (دسکتاپ) -->
-      <aside class="lg:col-span-1 rounded-2xl border border-sand bg-white/60 p-5 shadow-2xs">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- سایدبار فیلترها (دسکتاپ استیکی) -->
+      <aside class="hidden lg:block lg:col-span-3 rounded-2xl border border-sand bg-white p-5 sm:p-6 shadow-2xs sticky top-24">
         <FilterPanel
           v-model="filters"
-          :min-price="500000"
-          :max-price="3500000"
+          :min-price="DEFAULT_MIN_PRICE"
+          :max-price="DEFAULT_MAX_PRICE"
           @reset="resetFilters"
         />
       </aside>
 
       <!-- ستون محصولات -->
-      <main class="lg:col-span-3 space-y-6">
-        <!-- نوار کنترل بالای محصولات -->
-        <div class="flex items-center justify-between border-b border-sand pb-4">
-          <span class="text-xs font-medium text-muted-foreground">
-            نمایش {{ filteredProducts.length }} محصول
-          </span>
+      <main class="lg:col-span-9 space-y-6">
+        <!-- نوار کنترل بالای محصولات (مرتب‌سازی و دکمه موبایل) -->
+        <div class="flex items-center justify-between border-b border-sand/70 pb-4">
+          <!-- دکمه فیلتر در موبایل -->
+          <div class="flex items-center gap-2">
+            <Button
+              variant="outline"
+              class="lg:hidden h-10 px-3.5 gap-2 text-xs font-bold rounded-xl border-sand text-ink hover:bg-sand/30 cursor-pointer shadow-2xs"
+              @click="isMobileFilterOpen = true"
+            >
+              <SlidersHorizontal class="w-4 h-4 text-rose" />
+              <span>فیلترها</span>
+              <span
+                v-if="activeFilterCount > 0"
+                class="rounded-full bg-rose text-white text-[10px] px-1.5 py-0.2 font-bold"
+              >
+                {{ activeFilterCount }}
+              </span>
+            </Button>
 
+            <span class="text-xs text-muted-foreground hidden sm:inline-block">
+              نمایش {{ products?.length || 0 }} محصول
+            </span>
+          </div>
+
+          <!-- دراپ‌داون مرتب‌سازی ادیتوریال -->
           <SortSelect v-model="sort" />
         </div>
 
-        <!-- لودینگ -->
-        <div v-if="loading" class="grid grid-cols-2 md:grid-cols-3 gap-5">
-          <div v-for="i in 6" :key="i" class="aspect-4/5 rounded-2xl bg-sand/40 animate-pulse" />
+        <!-- لودینگ اسکلتون (هنگام تغییر فیلتر و بارگذاری بدون پرش چیدمان) -->
+        <div
+          v-if="pending"
+          class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+        >
+          <CatalogSkeleton v-for="i in 6" :key="i" />
         </div>
 
-        <!-- گرید محصولات -->
+        <!-- گرید محصولات کاتالوگ -->
         <div
-          v-else-if="filteredProducts.length > 0"
-          class="grid grid-cols-2 md:grid-cols-3 gap-5"
+          v-else-if="products && products.length > 0"
+          class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
         >
           <ProductCard
-            v-for="(product, idx) in filteredProducts"
+            v-for="(product, idx) in products"
             :key="product.id"
             :product="product"
             :priority="idx < 3"
           />
         </div>
 
-        <!-- حالت خالی (بدون نتیجه) -->
-        <div
+        <!-- وضعیت عدم تطابق فیلترها (Empty State) -->
+        <CatalogEmptyState
           v-else
-          class="rounded-2xl border border-dashed border-sand p-12 text-center space-y-3"
-        >
-          <p class="text-sm font-bold text-ink">
-            هیچ محصولی با فیلترهای انتخابی یافت نشد.
-          </p>
-          <p class="text-xs text-muted-foreground">
-            می‌توانید فیلترها را بازنشانی کرده یا محدوده قیمت را تغییر دهید.
-          </p>
-          <Button variant="outline" size="sm" class="mt-2" @click="resetFilters">
-            پاک کردن فیلترها
-          </Button>
-        </div>
+          @reset="resetFilters"
+        />
       </main>
     </div>
+
+    <!-- دراور کشویی فیلترها در موبایل -->
+    <Sheet :open="isMobileFilterOpen" @update:open="(val: boolean) => isMobileFilterOpen = val">
+      <SheetContent
+        side="start"
+        class="w-full sm:max-w-md p-6 bg-paper border-sand overflow-y-auto flex flex-col justify-between"
+      >
+        <div class="space-y-6">
+          <SheetHeader class="text-start pb-2 border-b border-sand">
+            <SheetTitle class="text-base font-bold text-ink flex items-center gap-2">
+              <SlidersHorizontal class="w-4 h-4 text-rose" />
+              <span>فیلترهای کاتالوگ</span>
+            </SheetTitle>
+            <SheetDescription class="sr-only">
+              پنل فیلتر کاتالوگ پوشاک ورزشی کراس
+            </SheetDescription>
+          </SheetHeader>
+
+          <FilterPanel
+            v-model="filters"
+            :min-price="DEFAULT_MIN_PRICE"
+            :max-price="DEFAULT_MAX_PRICE"
+            @reset="resetFilters"
+          />
+        </div>
+
+        <div class="pt-6 border-t border-sand sticky bottom-0 bg-paper py-3 mt-4">
+          <Button
+            class="w-full h-12 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs shadow-xs cursor-pointer"
+            @click="isMobileFilterOpen = false"
+          >
+            مشاهده نتایج ({{ products?.length || 0 }} محصول)
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
   </div>
 </template>

@@ -89,6 +89,16 @@ export interface ProductReviewsResponse {
   reviews: Review[];
 }
 
+export interface ProductFilters {
+  line?: 'move' | 'calm';
+  category?: string;
+  size?: string;
+  color?: string;
+  sort?: 'bestseller' | 'newest' | 'price_asc' | 'price_desc';
+  min_price?: number;
+  max_price?: number;
+}
+
 export interface CartItem {
   id: string; // کلید ترکیبی: `${product_id}-${variant_id || size}`
   productId: number;

@@ -25,13 +25,21 @@ const sortOptions = [
 
 <template>
   <div class="flex items-center gap-2">
-    <Select :model-value="props.modelValue" @update:model-value="(val) => emit('update:modelValue', String(val))">
-      <SelectTrigger class="h-10 w-44 gap-2 text-xs font-medium">
-        <ArrowUpDown class="h-3.5 w-3.5 text-muted-foreground" />
+    <Select
+      :model-value="props.modelValue"
+      @update:model-value="(val) => emit('update:modelValue', String(val))"
+    >
+      <SelectTrigger class="h-10 w-44 gap-2 text-xs font-bold rounded-xl border-sand bg-white text-ink shadow-2xs cursor-pointer hover:border-sand/80 focus:ring-rose/20">
+        <ArrowUpDown class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         <SelectValue placeholder="مرتب‌سازی" />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem v-for="opt in sortOptions" :key="opt.value" :value="opt.value" class="text-xs">
+      <SelectContent class="rounded-xl border-sand bg-white shadow-xl">
+        <SelectItem
+          v-for="opt in sortOptions"
+          :key="opt.value"
+          :value="opt.value"
+          class="text-xs font-medium cursor-pointer focus:bg-sand/40 focus:text-rose"
+        >
           {{ opt.label }}
         </SelectItem>
       </SelectContent>
