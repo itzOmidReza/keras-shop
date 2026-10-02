@@ -6,6 +6,7 @@ import type {
   ShippingAddress,
   ShippingMethod,
 } from '~/types/domain';
+import { mockUserOrders } from '../../mock/users';
 
 interface CreateOrderRequestBody {
   items: CartItem[];
@@ -89,6 +90,18 @@ export default defineEventHandler(async (event): Promise<OrderReceipt> => {
     createdAt: new Date().toISOString(),
     estimatedDelivery,
   };
+
+  mockUserOrders.unshift({
+    orderNumber,
+    createdAt: receipt.createdAt,
+    status: 'processing',
+    statusLabel: 'در حال پردازش در انبار',
+    finalTotal,
+    itemCount: items.reduce((sum, it) => sum + it.quantity, 0),
+    trackingCode: `POST-IR-${Math.floor(100000000000 + Math.random() * 900000000000)}`,
+    shippingAddress,
+    items,
+  });
 
   return receipt;
 });

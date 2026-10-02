@@ -6,10 +6,14 @@ import {
   Heart,
   User,
   Menu,
+  Package,
+  LogOut,
 } from '@lucide/vue'
 import { headerNav, announcementBar, siteConfig } from '~/data'
 import { useCartStore } from '~/stores/cart'
 import { useWishlistStore } from '~/stores/wishlist'
+import { useAuthStore } from '~/stores/auth'
+import { toFa } from '~/utils/format'
 
 defineEmits<{
   openMobileMenu: []
@@ -17,12 +21,15 @@ defineEmits<{
 
 const isScrolled = ref(false)
 const isSearchOpen = ref(false)
+const isUserMenuOpen = ref(false)
+const userMenuRef = ref<HTMLElement | null>(null)
 const searchQuery = ref('')
 
 const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
+const authStore = useAuthStore()
 
 const isLinkActive = (href: string) => {
   if (href.includes('?')) {
@@ -45,16 +52,24 @@ const handleScroll = () => {
   }
 }
 
+const handleDocumentClick = (e: MouseEvent) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(e.target as Node)) {
+    isUserMenuOpen.value = false
+  }
+}
+
 onMounted(() => {
   if (typeof window !== 'undefined') {
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
+    document.addEventListener('click', handleDocumentClick)
   }
 })
 
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('scroll', handleScroll)
+    document.removeEventListener('click', handleDocumentClick)
   }
 })
 </script>
@@ -140,13 +155,77 @@ type="button"
             </span>
           </NuxtLink>
 
-          <NuxtLink
-            to="/account"
-            class="w-10 h-10 flex items-center justify-center rounded-full text-ink/80 hover:text-ink hover:bg-sand/40 transition-colors"
-            aria-label="حساب کاربری"
-          >
-            <User class="w-5 h-5" />
-          </NuxtLink>
+          <!-- بخش کاربر: مهمان یا لاگین‌شده -->
+          <div ref="userMenuRef" class="relative">
+            <!-- حالت مهمان: باز کردن مدال ورود -->
+            <button
+              v-if="!authStore.isAuthenticated"
+              type="button"
+              class="w-10 h-10 flex items-center justify-center rounded-full text-ink/80 hover:text-ink hover:bg-sand/40 transition-colors cursor-pointer"
+              aria-label="ورود به حساب کاربری"
+              title="ورود یا ثبت‌نام"
+              @click="authStore.openAuthModal()"
+            >
+              <User class="w-5 h-5" />
+            </button>
+
+            <!-- حالت لاگین: دراپ‌داون حساب کاربری -->
+            <div v-else class="relative">
+              <button
+                type="button"
+                class="w-10 h-10 flex items-center justify-center rounded-full text-ink hover:text-rose hover:bg-sand/40 transition-colors cursor-pointer relative"
+                aria-label="حساب کاربری"
+                :title="authStore.user?.fullName || 'حساب کاربری'"
+                @click="isUserMenuOpen = !isUserMenuOpen"
+              >
+                <User class="w-5 h-5 text-rose" />
+                <span class="absolute bottom-1.5 inset-e-1.5 w-2 h-2 rounded-full bg-sage ring-2 ring-paper" />
+              </button>
+
+              <!-- منوی کشویی کاربر -->
+              <div
+                v-if="isUserMenuOpen"
+                class="absolute inset-e-0 top-full mt-2 w-56 rounded-2xl border border-sand bg-white p-2 shadow-lg z-50 space-y-1"
+                dir="rtl"
+              >
+                <div class="px-3 py-2 border-b border-sand/60">
+                  <p class="text-xs font-bold text-ink truncate">
+                    {{ authStore.user?.fullName || 'کاربر گرامی کراس' }}
+                  </p>
+                  <p class="text-[10px] text-muted-foreground font-mono mt-0.5">
+                    {{ toFa(authStore.user?.phoneNumber || '') }}
+                  </p>
+                </div>
+
+                <NuxtLink
+                  to="/account"
+                  class="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-ink hover:bg-sand/30 hover:text-rose transition-colors"
+                  @click="isUserMenuOpen = false"
+                >
+                  <User class="w-4 h-4 text-muted-foreground" />
+                  <span>پیشخوان کاربری</span>
+                </NuxtLink>
+
+                <NuxtLink
+                  to="/account?tab=orders"
+                  class="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-ink hover:bg-sand/30 hover:text-rose transition-colors"
+                  @click="isUserMenuOpen = false"
+                >
+                  <Package class="w-4 h-4 text-muted-foreground" />
+                  <span>سفارش‌های من</span>
+                </NuxtLink>
+
+                <button
+                  type="button"
+                  class="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer text-start"
+                  @click="isUserMenuOpen = false; authStore.logout()"
+                >
+                  <LogOut class="w-4 h-4" />
+                  <span>خروج از حساب</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
           <button
             type="button"

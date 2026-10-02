@@ -11,6 +11,7 @@ import {
 } from '@lucide/vue'
 import { mobileNavItems, siteConfig } from '~/data'
 import { useWishlistStore } from '~/stores/wishlist'
+import { useAuthStore } from '~/stores/auth'
 
 defineProps<{
   isOpen: boolean
@@ -21,12 +22,16 @@ const emit = defineEmits<{
 }>()
 
 const wishlistStore = useWishlistStore()
+const authStore = useAuthStore()
 
-const quickLinks = [
-  { label: 'علاقه‌مندی‌ها', href: '/wishlist', icon: Heart },
-  { label: 'حساب کاربری', href: '/account', icon: User },
-  { label: 'سبد خرید', href: '/cart', icon: ShoppingBag },
-]
+const handleAccountClick = () => {
+  emit('close')
+  if (!authStore.isAuthenticated) {
+    authStore.openAuthModal()
+  } else {
+    navigateTo('/account')
+  }
+}
 </script>
 
 <template>
@@ -101,26 +106,48 @@ const quickLinks = [
 
         <div class="space-y-4 border-t border-sand pt-4">
           <div class="grid grid-cols-3 gap-2 text-center">
+            <!-- لینک علاقه‌مندی‌ها -->
             <NuxtLink
-              v-for="link in quickLinks"
-              :key="link.href"
-              :to="link.href"
+              to="/wishlist"
               class="relative flex flex-col items-center gap-1 rounded-xl p-2 text-[11px] font-bold text-ink transition-colors hover:bg-sand/40"
               @click="emit('close')"
             >
               <div class="relative">
-                <component
-                  :is="link.icon"
-                  class="h-4 w-4 text-rose"
-                />
+                <Heart class="h-4 w-4 text-rose" />
                 <span
-                  v-if="link.href === '/wishlist' && (wishlistStore?.itemCount ?? 0) > 0"
+                  v-if="(wishlistStore?.itemCount ?? 0) > 0"
                   class="absolute -top-1.5 -end-2 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose text-white text-[9px] font-bold flex items-center justify-center"
                 >
                   {{ wishlistStore?.itemCount ?? 0 }}
                 </span>
               </div>
-              <span>{{ link.label }}</span>
+              <span>علاقه‌مندی‌ها</span>
+            </NuxtLink>
+
+            <!-- لینک / دکمه حساب کاربری -->
+            <button
+              type="button"
+              class="relative flex flex-col items-center gap-1 rounded-xl p-2 text-[11px] font-bold text-ink transition-colors hover:bg-sand/40 cursor-pointer"
+              @click="handleAccountClick"
+            >
+              <div class="relative">
+                <User class="h-4 w-4 text-rose" />
+                <span
+                  v-if="authStore.isAuthenticated"
+                  class="absolute -top-1 -end-1 w-2 h-2 rounded-full bg-sage ring-2 ring-paper"
+                />
+              </div>
+              <span>{{ authStore.isAuthenticated ? 'حساب من' : 'ورود / عضویت' }}</span>
+            </button>
+
+            <!-- لینک سبد خرید -->
+            <NuxtLink
+              to="/cart"
+              class="relative flex flex-col items-center gap-1 rounded-xl p-2 text-[11px] font-bold text-ink transition-colors hover:bg-sand/40"
+              @click="emit('close')"
+            >
+              <ShoppingBag class="h-4 w-4 text-rose" />
+              <span>سبد خرید</span>
             </NuxtLink>
           </div>
 

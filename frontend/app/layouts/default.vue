@@ -3,6 +3,7 @@ import AppHeader from '~/components/layout/AppHeader.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
 import MobileNav from '~/components/layout/MobileNav.vue'
 import CartDrawer from '~/components/cart/CartDrawer.vue'
+import AuthModal from '~/components/auth/AuthModal.vue'
 
 const isMobileNavOpen = ref(false)
 </script>
@@ -19,5 +20,6 @@ const isMobileNavOpen = ref(false)
 
     <MobileNav :is-open="isMobileNavOpen" @close="isMobileNavOpen = false" />
     <CartDrawer />
+    <AuthModal />
   </div>
 </template>

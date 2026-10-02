@@ -195,3 +195,74 @@ export interface WishlistItem {
   addedAt: string;
 }
 
+// -------------------------------------------------------------
+// Auth & User Portal Contracts (FastAPI / Pydantic Schema Aligned)
+// -------------------------------------------------------------
+
+export interface User {
+  id: string;
+  phoneNumber: string; // strictly 09xxxxxxxxx
+  fullName?: string;
+  email?: string;
+  createdAt: string;
+}
+
+export interface UserAddress {
+  id: string;
+  title: string; // e.g. 'منزل', 'محل کار'
+  fullName: string;
+  phoneNumber: string;
+  province: string;
+  city: string;
+  postalCode: string; // 10 digits
+  exactAddress: string;
+  buildingNumber?: string;
+  unit?: string;
+  isDefault: boolean;
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  tokenType: string; // 'bearer'
+  expiresIn: number; // in seconds
+}
+
+export interface OtpSendRequest {
+  phoneNumber: string;
+}
+
+export interface OtpSendResponse {
+  success: boolean;
+  expiresIn: number;
+  message: string;
+}
+
+export interface OtpVerifyRequest {
+  phoneNumber: string;
+  code: string;
+}
+
+export interface OtpVerifyResponse {
+  user: User;
+  tokens: AuthTokens;
+  message?: string;
+}
+
+export interface UserProfileUpdateRequest {
+  fullName?: string;
+  email?: string;
+}
+
+export interface UserOrderSummary {
+  orderNumber: string;
+  createdAt: string;
+  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  statusLabel: string;
+  finalTotal: number;
+  itemCount: number;
+  items: CartItem[];
+  shippingAddress: ShippingAddress;
+  trackingCode?: string;
+}
+
+
