@@ -226,7 +226,14 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
-- **2026-10-02 (`bda1c54`)**: `feat(tracking): implement server order persistence, tracking api, and visual shipment timeline`
+- **2026-10-02 (`737add1`)**: `fix(qa): harden tracking query handling, timeline prop defaults, and newsletter toast notifications`
+  - Fixed Vue Router query handling in `/tracking` to safely normalize array queries (`string | (string | null)[]`).
+  - Added reactive watcher on `searchQuery` to instantly dismiss prior error messages when the user begins typing.
+  - Hardened item list rendering in order details with unique compound keys (`:key="item.title + item.size + idx"`).
+  - Added robust `withDefaults` to `TrackingTimeline.vue` props to prevent runtime errors when optional properties are omitted.
+  - Replaced browser `window.alert()` in `AppFooter.vue` newsletter subscription with an elegant Sonner toast notification (`toast.success`).
+  - Re-verified all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`).
+- **2026-10-02 (`0318f2e`)**: `feat(tracking): implement server order persistence, tracking api, and visual shipment timeline`
   - Defined FastAPI-aligned contracts in `app/types/domain.ts`: `OrderStatus`, `TrackingEvent`, `TrackOrderResponse`, `TrackOrderRequest`.
   - Created persistent server mock repository `server/mock/orders.ts` with 3 diverse seed orders (`KERAS-104921`, `KERAS-208314`, `KERAS-309115`) and Persian/Arabic normalized query resolution.
   - Updated `server/api/orders/create.post.ts` to immediately persist placed checkout orders into `mockOrders` and `mockUserOrders`, eliminating ephemeral checkout state.
