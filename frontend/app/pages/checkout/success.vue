@@ -194,7 +194,7 @@ onMounted(() => {
         </NuxtLink>
 
         <NuxtLink
-          to="/tracking"
+          :to="`/tracking?order=${order.orderNumber}`"
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-sand bg-white hover:bg-sand/30 text-ink font-bold text-xs h-11 px-6 rounded-xl transition-all"
         >
           <span>پیگیری سفارش با کد رهگیری</span>

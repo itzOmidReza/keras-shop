@@ -22,16 +22,16 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)          |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
-| **Total Route Pages**   | **23** (15 Fully Built, 3 Redirects/Dev, 5 Stubs/Placeholders)       |
-| **Domain Components**   | **21** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
+| **Total Route Pages**   | **23** (16 Fully Built, 3 Redirects/Dev, 4 Stubs/Placeholders)       |
+| **Domain Components**   | **22** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **~90%** (Option A & Institutional Pages Complete; Core Storefront + Account + Care) |
+| **Overall Completion**  | **~94%** (Core Funnel + Auth + Tracking + Institutional Complete)    |
 
 ```
-Overall Progress: [██████████████████░░] 90%
+Overall Progress: [███████████████████░] 94%
 Core Storefront Funnel: [████████████████████] 100%
 Customer Portal & Auth: [███████████████░░░░░] 75%
-Post-Purchase Tracking: [██░░░░░░░░░░░░░░░░░░] 10%
+Post-Purchase Tracking: [████████████████████] 100%
 Institutional Pages:    [████████████████████] 100%
 ```
 
@@ -44,7 +44,7 @@ Institutional Pages:    [██████████████████�
 | **Phase 1** | Design System, Foundations & Global Layout                           |  **Completed**  |    100%    |
 | **Phase 2** | Product Discovery & PDP Experience                                   |  **Completed**  |    100%    |
 | **Phase 3** | Cart, Wishlist & Checkout Funnel                                     |  **Completed**  |    100%    |
-| **Phase 4** | Customer Account, Authentication & Order Tracking                    | **In Progress** |    75%     |
+| **Phase 4** | Customer Account, Authentication & Order Tracking                    |  **Completed**  |    100%    |
 | **Phase 5** | Integrations (Payment Gateway / SMS Provider) & Pre-Launch Hardening |   **Pending**   |     0%     |
 
 ---
@@ -66,7 +66,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 |  9  | `/search`           | `app/pages/search.vue`           | **Redirect** |  14   | Preserves query params and redirects to `/shop?q=...`                                                                                          | None (intended architectural redirect)                                     |
 | 10  | `/dev/components`   | `app/pages/dev/components.vue`   | **Internal** |  174  | Dev showcase for design tokens and UI components                                                                                               | Non-production tool                                                        |
 | 11  | `/account`          | `app/pages/account.vue`          | **Complete** |  863  | Guest Auth Guard card, Overview metrics & recent order, Orders tab with status chips, Address Book with create/delete dialog, Profile settings | Avatar upload (future backend integration)                                 |
-| 12  | `/tracking`         | `app/pages/tracking.vue`         |   **Stub**   |  15   | 15-line placeholder text ("به زودی فعال خواهد شد")                                                                                             | **Order lookup form, visual shipment timeline, Post barcode, item list**   |
+| 12  | `/tracking`         | `app/pages/tracking.vue`         | **Complete** |  471  | Order code / mobile lookup form, quick test pills, live status badge, TrackingTimeline component, 24-digit Iran Post barcode with 1-click copy & external portal link, recipient info, itemized order breakdown | SMS status notification toggle                                             |
 | 13  | `/size-guide`       | `app/pages/size-guide.vue`       |   **Stub**   |   5   | 5-line placeholder ("در حال آماده‌سازی")                                                                                                       | **Standalone metric size guide page & fit calculator (modal is complete)** |
 | 14  | `/about`            | `app/pages/about.vue`            | **Complete** |  235  | Editorial brand storytelling, Move vs Calm dual philosophy cards, manifesto quote, 3 core values, milestones                                   | Dynamic CMS founder stories                                                |
 | 15  | `/contact`          | `app/pages/contact.vue`          | **Complete** |  308  | 3 concierge channels (phone, email, showroom), interactive Zod-validated inquiry form, simulated submit, FAQ callout                            | Live chat widget integration                                               |
@@ -108,7 +108,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Catalog**: `CatalogSkeleton.vue` & `CatalogEmptyState.vue` (loading and empty states)
 - [x] **Auth**: `AuthModal.vue` (Iranian phone input + 5-digit `InputOTP`, 120s timer modal, resend code)
 - [x] **Account**: Built-in tabs inside `app/pages/account.vue` (Overview metrics, Orders, Addresses dialog, Profile)
-- [ ] **Tracking (Missing)**: `TrackingTimeline.vue`, `PostalBarcode.vue`
+- [x] **Tracking**: `TrackingTimeline.vue` (responsive horizontal/vertical timeline, Iran Post barcode, step indicator)
 - [ ] **Search (Missing)**: `SearchAutocomplete.vue` (instant header dropdown)
 
 ### 4.2 State Management (`app/stores/`)
@@ -124,16 +124,16 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `GET /api/products/[slug]/reviews`: Review ratings and customer feedback
 - [x] `GET /api/products/[slug]/related`: Line-based cross-sell products
 - [x] `POST /api/coupons/validate`: Coupon voucher verification
-- [x] `POST /api/orders/create`: Order creation receipt (pushes to `mockUserOrders`)
+- [x] `POST /api/orders/create`: Order creation receipt (pushes to `mockOrders` & `mockUserOrders`)
 - [x] `server/mock/users.ts`: User profile, addresses, and orders mock repository
+- [x] `server/mock/orders.ts`: Unified persistent guest & member order repository (KERAS-104921, KERAS-208314, KERAS-309115)
 - [x] `POST /api/auth/otp/send`: SMS OTP dispatch with Iranian phone validation (422) and 120s cooldown
 - [x] `POST /api/auth/otp/verify`: OTP validation ('12345'), JWT token issuance, and user profile update
 - [x] `GET /api/user/profile` & `PUT /api/user/profile`: Profile read and update contracts
 - [x] `GET /api/user/addresses`, `POST /api/user/addresses` & `DELETE /api/user/addresses/[id]`: Address book endpoints
 - [x] `GET /api/user/orders`: User order history endpoint
-- [ ] `server/mock/orders.ts` **(Missing)**: Unified persistent guest & member order repository
+- [x] `POST /api/orders/track`: Order tracking by order code, 24-digit barcode, or phone number (200, 404, 422)
 - [ ] `GET /api/orders/[orderNumber]` **(Missing)**: Order lookup endpoint
-- [ ] `POST /api/orders/track` **(Missing)**: Order tracking by code + phone number
 - [ ] `GET /api/search/suggestions` **(Missing)**: Instant search query suggestions
 
 ---
@@ -151,10 +151,10 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - [x] Guard `/account` with auth state (login modal trigger if unauthenticated).
   - [x] Build tabbed navigation: Overview, My Orders, Address Book, Profile Settings.
   - [x] Enable adding, editing, and deleting saved addresses.
-- [ ] **Order Persistence & Tracking System (`/tracking`)**:
-  - [ ] Create `server/mock/orders.ts` repository so checkout orders persist across sessions.
-  - [ ] Build `POST /api/orders/track` and `GET /api/orders/[orderNumber]`.
-  - [ ] Fully implement `app/pages/tracking.vue` with search form, status timeline, and item review.
+- [x] **Order Persistence & Tracking System (`/tracking`)**:
+  - [x] Create `server/mock/orders.ts` repository so checkout orders persist across sessions.
+  - [x] Build `POST /api/orders/track` with 404/422 status handling.
+  - [x] Fully implement `app/pages/tracking.vue` with search form, status timeline, and item review.
 
 ### 5.2 [P1 — Commercial Polish & Conversion]
 
@@ -180,10 +180,9 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 6. Technical Debt & Architecture Watchlist
 
-1. **Ephemeral Server Orders**: Orders generated during checkout do not persist in the server mock layer. Once a browser tab closes or `sessionStorage` clears, the order cannot be retrieved.
-2. **Guest vs. Member Checkout**: Currently, checkout is strictly guest-based. Logged-in users should have their default address and phone number auto-filled.
-3. **Secondary Content Placeholders**: 5 secondary / editorial routes (`/tracking`, `/size-guide`, `/blog`, `/journal`, `/careers`) remain as stubs, while all 7 core brand, customer care, and institutional pages are 100% completed.
-4. **Mock Data Migration**: Server mock data (`server/mock/`) should remain isolated from frontend code, ready to be swapped for real backend endpoints via `NUXT_PUBLIC_API_BASE`.
+1. **Order Persistence**: Resolved! Checkout orders now directly persist into `server/mock/orders.ts` and `mockUserOrders`, enabling instant end-to-end tracking.
+2. **Secondary Content Placeholders**: Only 4 secondary editorial routes (`/size-guide`, `/blog`, `/journal`, `/careers`) remain as stubs, while all 16 core storefront, account, tracking, and institutional pages are 100% completed.
+3. **Mock Data Migration**: Server mock data (`server/mock/`) remains cleanly isolated from frontend code, ready to be swapped for real FastAPI backend endpoints via `NUXT_PUBLIC_API_BASE`.
 
 ---
 
@@ -227,6 +226,19 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-02 (`bda1c54`)**: `feat(tracking): implement server order persistence, tracking api, and visual shipment timeline`
+  - Defined FastAPI-aligned contracts in `app/types/domain.ts`: `OrderStatus`, `TrackingEvent`, `TrackOrderResponse`, `TrackOrderRequest`.
+  - Created persistent server mock repository `server/mock/orders.ts` with 3 diverse seed orders (`KERAS-104921`, `KERAS-208314`, `KERAS-309115`) and Persian/Arabic normalized query resolution.
+  - Updated `server/api/orders/create.post.ts` to immediately persist placed checkout orders into `mockOrders` and `mockUserOrders`, eliminating ephemeral checkout state.
+  - Implemented Nitro endpoint `POST /api/orders/track` with 422 and 404 status codes.
+  - Built responsive `TrackingTimeline.vue` supporting desktop horizontal and mobile vertical layouts with completed/in-progress/pending steps.
+  - Implemented publication-grade `app/pages/tracking.vue` (471 lines) featuring:
+    - URL query auto-population and search execution (`?order=...`).
+    - Quick test pills for instant evaluation.
+    - 24-digit Iran Post barcode with 1-click clipboard copy (`toast.success`) and direct portal link to `tracking.post.ir`.
+    - Recipient details with masked phone number and itemized order breakdown.
+    - Direct tracking button in `checkout/success.vue` passing `:to="`/tracking?order=${order.orderNumber}`"`.
+  - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~94%**.
 - **2026-10-02 (`41f4017`)**: `feat(pages): implement editorial institutional and customer care brand pages`
   - Fully implemented 7 publication-grade editorial brand pages: `/about`, `/contact`, `/faq`, `/returns`, `/fabric-standards`, `/terms`, `/privacy` (totaling 1,819 lines of editorial Nuxt code).
   - Enforced strict luxury design tokens (`ink`, `sand`, `paper`, `rose`, `sage`, `clay`) with zero unlisted hex values (`bun run lint:tokens` exited 0).

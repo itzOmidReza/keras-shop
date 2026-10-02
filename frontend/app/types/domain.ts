@@ -265,4 +265,46 @@ export interface UserOrderSummary {
   trackingCode?: string;
 }
 
+// -------------------------------------------------------------
+// Order Tracking Subsystem Contracts (FastAPI-Ready)
+// -------------------------------------------------------------
+
+export type OrderStatus = 'registered' | 'processing' | 'handed_over' | 'delivered' | 'canceled';
+
+export interface TrackingEvent {
+  status: OrderStatus;
+  title: string;
+  description: string;
+  timestamp: string;
+  location?: string;
+  completed: boolean;
+}
+
+export interface TrackOrderResponse {
+  orderNumber: string;
+  createdAt: string;
+  status: OrderStatus;
+  statusLabel: string;
+  recipientName: string;
+  recipientPhone?: string;
+  shippingAddress: string;
+  trackingCode: string;
+  carrier: string;
+  estimatedDelivery: string;
+  timeline: TrackingEvent[];
+  items: {
+    title: string;
+    size: string;
+    color?: string;
+    quantity: number;
+    price: number;
+    image: string;
+  }[];
+  totalAmount: number;
+}
+
+export interface TrackOrderRequest {
+  query: string;
+}
+
 

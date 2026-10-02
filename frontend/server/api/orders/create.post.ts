@@ -5,8 +5,10 @@ import type {
   PaymentMethod,
   ShippingAddress,
   ShippingMethod,
+  TrackOrderResponse,
 } from '~/types/domain';
 import { mockUserOrders } from '../../mock/users';
+import { addMockOrder } from '../../mock/orders';
 
 interface CreateOrderRequestBody {
   items: CartItem[];
@@ -69,7 +71,7 @@ export default defineEventHandler(async (event): Promise<OrderReceipt> => {
   const finalTotal = Math.max(0, subtotal - couponDiscount + shippingCost);
 
   // تولید شناسه یکتا برای سفارش
-  const orderNumber = `KRS-${Math.floor(100000 + Math.random() * 900000)}`;
+  const orderNumber = `KERAS-${Math.floor(100000 + Math.random() * 900000)}`;
 
   const estimatedDelivery =
     shippingMethod === 'express'
@@ -91,6 +93,17 @@ export default defineEventHandler(async (event): Promise<OrderReceipt> => {
     estimatedDelivery,
   };
 
+  const trackingBarcode =
+    shippingMethod === 'express'
+      ? `EXP-${orderNumber.replace('KERAS-', '')}`
+      : `${Math.floor(100000000000 + Math.random() * 900000000000)}${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+
+  const carrierName =
+    shippingMethod === 'express'
+      ? 'پیک اختصاصی کراس (تهران)'
+      : 'شرکت ملی پست جمهوری اسلامی ایران (پست پیشتاز)';
+
+  // ثبت در مخزن کاربر لاگین شده
   mockUserOrders.unshift({
     orderNumber,
     createdAt: receipt.createdAt,
@@ -98,10 +111,69 @@ export default defineEventHandler(async (event): Promise<OrderReceipt> => {
     statusLabel: 'در حال پردازش در انبار',
     finalTotal,
     itemCount: items.reduce((sum, it) => sum + it.quantity, 0),
-    trackingCode: `POST-IR-${Math.floor(100000000000 + Math.random() * 900000000000)}`,
+    trackingCode: trackingBarcode,
     shippingAddress,
     items,
   });
+
+  // ثبت در مخزن رهگیری زنده سفارش‌ها
+  const trackableOrder: TrackOrderResponse = {
+    orderNumber,
+    createdAt: receipt.createdAt,
+    status: 'registered',
+    statusLabel: 'سفارش ثبت‌شده (آماده پردازش)',
+    recipientName: shippingAddress.fullName,
+    recipientPhone: shippingAddress.phoneNumber,
+    shippingAddress: `${shippingAddress.province}، ${shippingAddress.city}، ${shippingAddress.exactAddress}`,
+    trackingCode: trackingBarcode,
+    carrier: carrierName,
+    estimatedDelivery,
+    totalAmount: finalTotal,
+    timeline: [
+      {
+        status: 'registered',
+        title: 'ثبت و تأیید سفارش',
+        description: 'سفارش شما در سیستم ثبت و پرداخت در درگاه با موفقیت تایید شد.',
+        timestamp: 'هم‌اکنون',
+        location: 'سامانه مرکزی کراس',
+        completed: true,
+      },
+      {
+        status: 'processing',
+        title: 'بسته‌بندی و کنترل کیفیت',
+        description: 'سفارش در صف آماده‌سازی و کنترل کیفی در انبار مرکزی قرار گرفت.',
+        timestamp: 'در انتظار پردازش',
+        location: 'انبار مرکزی تهران',
+        completed: false,
+      },
+      {
+        status: 'handed_over',
+        title: 'تحویل به ناوگان ارسال',
+        description: `بسته پس از بسته‌بندی تحویل ${carrierName} خواهد شد.`,
+        timestamp: 'به زودی',
+        location: 'مرکز ارسال',
+        completed: false,
+      },
+      {
+        status: 'delivered',
+        title: 'تحویل نهایی به خریدار',
+        description: 'تحویل بسته به خریدار در آدرس ثبت‌شده.',
+        timestamp: estimatedDelivery,
+        location: 'نشانی تحویل‌گیرنده',
+        completed: false,
+      },
+    ],
+    items: items.map((item) => ({
+      title: item.title,
+      size: item.size,
+      color: item.color,
+      quantity: item.quantity,
+      price: item.price,
+      image: item.image,
+    })),
+  };
+
+  addMockOrder(trackableOrder);
 
   return receipt;
 });
