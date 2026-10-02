@@ -13,18 +13,25 @@
 | Metric | Details |
 | :--- | :--- |
 | **Project Name** | Keras (کراس) — Luxury Athletic Wear & Athleisure |
-| **Current Version** | `v0.8.0-alpha` |
-| **Last Updated** | 2026-10-01 (1405-07-10) |
+| **Current Version** | `v0.8.5-alpha` |
+| **Last Updated** | 2026-10-02 (1405-07-11) |
 | **Architecture** | Nuxt 4 (`app/` directory structure, SSR + SWR hybrid) |
 | **Frontend Core** | Vue 3.5, TypeScript 5.7, Vite 8, Pinia 4 (`@pinia/nuxt`) |
 | **Design System** | Tailwind CSS v4, tw-animate-css, Reka UI, shadcn-nuxt, Lucide Icons |
 | **Server Engine** | Nitro Server (isolated mock API endpoints in `server/api/`) |
 | **Validation Layer** | Vee-Validate 4, Zod 3.25 |
 | **Target Direction** | RTL-First (Persian / Farsi language support) |
-| **Overall Completion** | **~75%** (Core E-Commerce & Storefront Journey Complete) |
+| **Total Route Pages** | **23** (7 Fully Built, 3 Redirects/Dev, 13 Stubs/Placeholders) |
+| **Domain Components**| **20** Custom Domain Components + 28 shadcn/Reka UI Primitives |
+| **Active Pinia Stores**| **2** (`cart`, `wishlist`) — `auth` store missing |
+| **Overall Completion** | **~70%** (Core E-Commerce Funnel Complete; Account, Tracking & Static Stubs Remaining) |
 
 ```
-Progress: [███████████████░░░░░] 75%
+Overall Progress: [██████████████░░░░░░] 70%
+Core Storefront Funnel: [████████████████████] 100%
+Customer Portal & Auth: [███░░░░░░░░░░░░░░░░░] 15%
+Post-Purchase Tracking: [██░░░░░░░░░░░░░░░░░░] 10%
+Institutional Pages:    [██░░░░░░░░░░░░░░░░░░] 10%
 ```
 
 ---
@@ -41,209 +48,187 @@ Progress: [███████████████░░░░░] 75%
 
 ---
 
-## 3. Detailed Completed Modules (What Works Today)
+## 3. Master Checklist: Audit of All 23 Pages
 
-### 3.1 Design System & Foundations (Phase 1)
-- **Design Tokens**: Standardized Keras palette (`ink: #3B2F2C`, `sand: #F1E7DC`, `paper: #FBF6F1`, `rose: #B8475F`, `sage: #56705B`, `clay: #C98F78`) defined in `app/assets/css/tailwind.css`.
-- **RTL Logical Styling**: Strict enforcement of logical properties (`ms-*`, `ps-*`, `inset-s-*`, `inset-e-*`, `text-start`). Verified via `bun run lint:rtl`.
-- **Token Linter**: Strict prohibition of hardcoded hex values in Vue templates. Verified via `bun run lint:tokens`.
-- **Global Layout & Navigation**: Resilient `AppHeader.vue`, `AppFooter.vue`, and `MobileNav.vue` with explicit layout imports in `app/layouts/default.vue`.
-- **Persian Formatting Utilities**: `toFa()`, `formatToman()`, and metric formatters in `app/utils/format.ts`.
+An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
-### 3.2 Product Discovery & Catalog (`/shop`) (Phase 2)
-- **Interactive Collection Page**: `app/pages/shop/index.vue` with responsive sidebar filter panel and product grid.
-- **Two-Way URL Query Sync**: Filters (`line`, `category`, `size`, `color`, `sort`, `min_price`, `max_price`, `q`) reactively synchronize with browser query strings via `useRouter().replace`.
-- **Components**: `FilterPanel.vue`, `SortSelect.vue`, `CatalogSkeleton.vue`, `CatalogEmptyState.vue`.
-- **Nitro API Endpoint**: `GET /api/products` with dynamic query filtering, multi-criteria sorting, and price range evaluation.
-
-### 3.3 Product Detail Page (`/products/[slug]`) (Phase 2)
-- **Editorial Presentation**: Dynamic PDP with hero image gallery (`ProductGallery.vue`), line badge, sticky buy bar (`StickyBuyBar.vue`), and size selection (`SizeSelector.vue`).
-- **Interactive Metric Size Guide**: `SizeGuideModal.vue` with strict metric units only (CM/KG), interactive fit finder calculator, and visual measurement guide.
-- **Fabric & Technical Specs**: Visual indicators for softness, stretch, and breathability (`FabricMeters.vue`).
-- **Customer Reviews**: Rating overview, breakdown bars, and review list (`ProductReviews.vue`) backed by `GET /api/products/:slug/reviews`.
-- **Cross-Sell & Related Products**: Curated line recommendations carousel (`RelatedProducts.vue`) backed by `GET /api/products/:slug/related`.
-
-### 3.4 Cart & Shopping Bag System (Phase 3)
-- **Slide-over Drawer**: `app/components/cart/CartDrawer.vue` with animated backdrop, item list, quantity updates, and free shipping progress bar.
-- **Persistent Store**: `app/stores/cart.ts` using Pinia with hydration-safe `localStorage` persistence, error-tolerant storage checks, and subtotal calculations.
-- **Value Proposition**: Dynamic free shipping meter with 1,500,000 Toman threshold (`FREE_SHIPPING_THRESHOLD`).
-- **Full Cart Page**: `app/pages/cart.vue` with detailed line item management, discount voucher validation, and summary breakdown.
-- **Coupon Engine**: `POST /api/cart/validate-coupon` verifying promotional vouchers (`KERAS10`, `WELCOME`, `MOVE20`).
-
-### 3.5 Checkout & Order Funnel (Phase 3)
-- **2-Step Checkout Page**: `app/pages/checkout.vue` with stepper (`CheckoutSteps.vue`) and live order summary (`CheckoutOrderSummary.vue`).
-- **Form Validation**: Form handling using `vee-validate` and `@vee-validate/zod` with Iranian mobile regex (`09\d{9}`) and 10-digit postal code validation.
-- **Shipping & Payment**: Support for standard/express shipping options and online gateway or card-to-card payment methods.
-- **Order Generation**: `POST /api/checkout/orders` producing simulated order receipts with tracking identifiers (`KERAS-XXXXXX`).
-- **Order Confirmation**: `app/pages/checkout/success.vue` displaying order receipt, delivery timeline, and direct tracking buttons.
-
-### 3.6 Wishlist & Bookmarks System (Phase 3)
-- **Dedicated Store**: `app/stores/wishlist.ts` with hydration-safe client persistence (`keras_wishlist_items`), reactive counts, and toast notifications.
-- **UI Triggers**: Floating heart action button on `ProductCard.vue` and PDP action bar.
-- **Live Badges**: Real-time reactive item count badge on desktop header (`AppHeader.vue`) and mobile menu (`MobileNav.vue`).
-- **Full Wishlist Page**: `app/pages/wishlist.vue` featuring responsive product cards, direct size-picker add-to-cart pills (`quickAddToCart`), and empty state CTA.
+| # | Route | File Path | Status | Lines | Details / Current Capability | Missing / Next Steps |
+| :-: | :--- | :--- | :---: | :-: | :--- | :--- |
+| 1 | `/` | `app/pages/index.vue` | **Complete** | 114 | Hero, Move/Calm lines, bestsellers carousel, value props, newsletter | Dynamic CMS banner integration |
+| 2 | `/shop` | `app/pages/shop/index.vue` | **Complete** | 304 | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips | Infinite scroll / pagination |
+| 3 | `/products/[slug]` | `app/pages/products/[slug].vue` | **Complete** | 246 | Gallery, size guide modal (CM only), fabric meters, reviews, related | Social share drawer, stock urgency |
+| 4 | `/cart` | `app/pages/cart.vue` | **Complete** | 319 | Item list, coupon code validator, free shipping meter, full summary | Multi-voucher support |
+| 5 | `/checkout` | `app/pages/checkout.vue` | **Complete** | 562 | 2-step validated funnel, Zod Iranian mobile & postal regex, shipping select | User saved-address autofill |
+| 6 | `/checkout/success`| `app/pages/checkout/success.vue` | **Complete** | 232 | Order confirmation receipt, delivery timeline, direct tracking CTA | PDF receipt download |
+| 7 | `/wishlist` | `app/pages/wishlist.vue` | **Complete** | 218 | Responsive grid, quick add-to-cart size pills, clear all, empty state | Shareable public wishlist link |
+| 8 | `/products` | `app/pages/products/index.vue` | **Redirect** | 7 | Seamlessly redirects to `/shop` | None (intended architectural redirect) |
+| 9 | `/search` | `app/pages/search.vue` | **Redirect** | 14 | Preserves query params and redirects to `/shop?q=...` | None (intended architectural redirect) |
+| 10 | `/dev/components` | `app/pages/dev/components.vue` | **Internal** | 174 | Dev showcase for design tokens and UI components | Non-production tool |
+| 11 | `/account` | `app/pages/account.vue` | **Incomplete** | 116 | Static links menu + placeholder banner for upcoming OTP | **Auth gate, OTP modal, profile tabs, order history, address book** |
+| 12 | `/tracking` | `app/pages/tracking.vue` | **Stub** | 15 | 15-line placeholder text ("به زودی فعال خواهد شد") | **Order lookup form, visual shipment timeline, Post barcode, item list** |
+| 13 | `/size-guide` | `app/pages/size-guide.vue` | **Stub** | 5 | 5-line placeholder ("در حال آماده‌سازی") | **Standalone metric size guide page & fit calculator (modal is complete)** |
+| 14 | `/about` | `app/pages/about.vue` | **Stub** | 15 | 15-line placeholder text | **Editorial brand storytelling, mission, manufacturing ethics** |
+| 15 | `/contact` | `app/pages/contact.vue` | **Stub** | 15 | 15-line placeholder text | **Support contact form, branch info, operating hours, phone/email** |
+| 16 | `/faq` | `app/pages/faq.vue` | **Stub** | 15 | 15-line placeholder text | **Categorized Accordion FAQ (shipping, sizing, returns, payments)** |
+| 17 | `/returns` | `app/pages/returns.vue` | **Stub** | 15 | 15-line placeholder text | **Detailed 7-day exchange and return policy, step-by-step guide** |
+| 18 | `/terms` | `app/pages/terms.vue` | **Stub** | 15 | 15-line placeholder text | **Legal purchase terms, user responsibilities, return conditions** |
+| 19 | `/privacy` | `app/pages/privacy.vue` | **Stub** | 15 | 15-line placeholder text | **Data privacy, cookie policies, security guidelines** |
+| 20 | `/blog` | `app/pages/blog.vue` | **Stub** | 15 | 15-line placeholder text | **Athletic lifestyle articles, training tips, wellness guides** |
+| 21 | `/journal` | `app/pages/journal.vue` | **Stub** | 5 | 5-line placeholder text | **Editorial journal / lookbook presentation** |
+| 22 | `/fabric-standards`| `app/pages/fabric-standards.vue`| **Stub** | 15 | 15-line placeholder text | **Fabric transparency test standards, GSM guide, squat-proof guarantees** |
+| 23 | `/careers` | `app/pages/careers.vue` | **Stub** | 15 | 15-line placeholder text | **Brand culture, open job positions, talent application form** |
 
 ---
 
-## 4. Remaining Backlog & Pending Milestones
+## 4. Master Checklist: Components & Architectural Subsystems
 
-### 4.1 Phase 4: Customer Account, Authentication & Order Tracking
-- [ ] **[P0 - Critical] SMS OTP Authentication**:
-  - Modal / page for Iranian phone number input (`09...`).
-  - OTP verification input with 5-digit code using `InputOTP` / countdown resend timer.
-  - Pinia auth store (`useAuthStore`) storing auth tokens / mock user state.
-  - Nitro endpoints: `POST /api/auth/otp/send`, `POST /api/auth/otp/verify`.
-- [ ] **[P0 - Critical] User Account Dashboard (`/account`)**:
-  - Overview tab with recent orders, default shipping address, and loyalty points.
-  - Profile settings tab with name, phone, and email update forms.
-  - Address book management (add, edit, set default shipping address).
-  - Order history tab listing previous purchases with status badges.
-- [ ] **[P1 - High] Order Tracking Page (`/tracking`)**:
-  - Order lookup input by tracking number (`KERAS-XXXXXX`) or mobile phone.
-  - Visual status timeline (ثبت سفارش -> در حال پردازش -> تحویل به پست -> تحویل شده).
+### 4.1 Custom Domain Components (`app/components/`)
+- [x] **Layout**: `AppHeader.vue` (sticky, scroll-aware, cart/wishlist counters, mobile trigger)
+- [x] **Layout**: `AppFooter.vue` (brand links, newsletter subscription, copyright)
+- [x] **Layout**: `MobileNav.vue` (drawer navigation with quick links and badges)
+- [x] **Product**: `ProductCard.vue` (dual image hover, floating heart toggle, line pill)
+- [x] **Product**: `ProductGallery.vue` (multi-image thumbnail carousel & view)
+- [x] **Product**: `ProductTabs.vue` (description, technical details, care instructions)
+- [x] **Product**: `PriceTag.vue` (formatted Toman with discount strikethrough)
+- [x] **Product**: `ProductReviews.vue` (breakdown meters, review cards)
+- [x] **Product**: `SizeGuideModal.vue` (metric CM/KG fit calculator & size charts)
+- [x] **Product**: `RelatedProducts.vue` (cross-sell recommendation carousel)
+- [x] **Product**: `ProductTrustBadges.vue` (7-day returns, transparency tested, express shipping)
+- [x] **Product**: `SizeSelector.vue` (stock availability and size pills)
+- [x] **Product**: `StickyBuyBar.vue` (sticky bottom action bar on mobile scroll)
+- [x] **Product**: `FabricMeters.vue` (stretch, softness, breathability visual meters)
+- [x] **Cart**: `CartDrawer.vue` (slide-over mini cart with free shipping meter)
+- [x] **Cart**: `CartItemRow.vue` (quantity controls, size badge, remove item)
+- [x] **Checkout**: `CheckoutOrderSummary.vue` (price summary, voucher input, items preview)
+- [x] **Checkout**: `CheckoutSteps.vue` (step indicator: Shipping Info -> Payment Method)
+- [x] **Catalog**: `SortSelect.vue` (sort order dropdown with RTL alignment)
+- [x] **Catalog**: `FilterPanel.vue` (accordion filters: line, category, size, color, price)
+- [x] **Catalog**: `CatalogSkeleton.vue` & `CatalogEmptyState.vue` (loading and empty states)
+- [ ] **Auth (Missing)**: `AuthModal.vue` (phone input + 5-digit `InputOTP` timer modal)
+- [ ] **Account (Missing)**: `AddressCard.vue`, `AddressModal.vue`, `OrderHistoryItem.vue`
+- [ ] **Tracking (Missing)**: `TrackingTimeline.vue`, `PostalBarcode.vue`
+- [ ] **Search (Missing)**: `SearchAutocomplete.vue` (instant header dropdown)
 
-### 4.2 Phase 5: Payment Gateway, Search & Hardening
-- [ ] **[P1 - High] IPG (Shaparak) Gateway Callback Integration**:
-  - Simulated payment gateway redirect page (`/checkout/payment-gateway`).
-  - Callback verification endpoint (`POST /api/checkout/payment/callback`) handling success/failure states and transaction reference IDs.
-- [ ] **[P1 - High] Live Search Autocomplete**:
-  - Instant debounced search suggestions dropdown in `AppHeader.vue` showing top matching products and direct category links.
-  - Nitro endpoint `GET /api/search/suggestions`.
-- [ ] **[P2 - Polish] End-to-End Automated Testing**:
-  - Playwright test suite for critical e-commerce flows (PDP -> Add to Cart -> Checkout -> Wishlist).
-- [ ] **[P2 - Polish] Static & Editorial Pages**:
-  - About Us (`/about`), Contact (`/contact`), FAQ (`/faq`), Terms & Conditions (`/terms`), Privacy Policy (`/privacy`).
-- [ ] **[P2 - Polish] Production Deployment & CI/CD**:
-  - Multi-stage Dockerfile for containerized deployment.
-  - GitHub Actions CI pipeline for linting, typechecking, and build validation.
+### 4.2 State Management (`app/stores/`)
+- [x] `cart.ts`: Persistent Pinia store (`keras_cart_items`), coupon engine, free shipping threshold
+- [x] `wishlist.ts`: Persistent Pinia store (`keras_wishlist_items`), toggles, item count
+- [ ] `auth.ts` **(Missing)**: Pinia store for session token, user profile, saved addresses, login/logout
+
+### 4.3 Nitro Server API Layer (`server/`)
+- [x] `GET /api/products`: Filterable, sortable catalog endpoint
+- [x] `GET /api/products/[slug]`: Single product detail payload
+- [x] `GET /api/products/[slug]/reviews`: Review ratings and customer feedback
+- [x] `GET /api/products/[slug]/related`: Line-based cross-sell products
+- [x] `POST /api/coupons/validate`: Coupon voucher verification
+- [x] `POST /api/orders/create`: Ephemeral order creation receipt
+- [ ] `server/mock/orders.ts` **(Missing)**: Server-side persistent order repository
+- [ ] `GET /api/orders/[orderNumber]` **(Missing)**: Order lookup endpoint
+- [ ] `POST /api/orders/track` **(Missing)**: Order tracking by code + phone number
+- [ ] `POST /api/auth/otp/send` & `verify` **(Missing)**: SMS OTP dispatch and validation
+- [ ] `GET /api/search/suggestions` **(Missing)**: Instant search query suggestions
 
 ---
 
-## 5. Technical Debt & Architecture Watchlist
+## 5. Prioritized Actionable Backlog
 
-1. **Server Order Persistence**:
-   - Currently, orders generated in `server/api/orders/create.post.ts` return a receipt to the client and store it solely in client `sessionStorage`. There is no Nitro server-side registry or mock repository, meaning orders cannot currently be queried by ID from another session or from `/tracking`.
-2. **Account Page Current State**:
-   - `app/pages/account.vue` is currently an unauthenticated static navigation menu linking to informational pages with a banner noting that SMS OTP is coming soon.
-3. **Tracking Page Current State**:
-   - `app/pages/tracking.vue` is a 16-line placeholder stub, despite `/checkout/success.vue` and `AppFooter.vue` actively linking to it.
-4. **Guest vs. Member Identity**:
-   - Cart and wishlist hydration are safeguarded with `import.meta.client` in `localStorage` for guests. Once authentication is introduced, a guest-to-member cart/wishlist merge strategy is needed.
-5. **SSR Route Rules**:
-   - Non-cacheable user-specific routes (`/cart`, `/checkout/**`, `/account/**`) are explicitly marked as `ssr: false` in `nuxt.config.ts`. Once `/account` and `/tracking` are completed, maintain `ssr: false` or implement server session cookies.
+### 5.1 [P0 — Critical Core Path]
+- [ ] **SMS OTP Authentication System**:
+  - [ ] Implement `app/stores/auth.ts` with token and user profile management.
+  - [ ] Build Nitro endpoints `POST /api/auth/otp/send` and `POST /api/auth/otp/verify`.
+  - [ ] Create `AuthModal.vue` utilizing `InputOTP` and countdown resend timer.
+  - [ ] Connect auth trigger to Header User icon and Checkout flow.
+- [ ] **Customer Account Dashboard (`/account`)**:
+  - [ ] Guard `/account` with auth state (login modal trigger if unauthenticated).
+  - [ ] Build tabbed navigation: Overview, My Orders, Address Book, Profile Settings.
+  - [ ] Enable adding, editing, and deleting saved addresses.
+- [ ] **Order Persistence & Tracking System (`/tracking`)**:
+  - [ ] Create `server/mock/orders.ts` repository so checkout orders persist across sessions.
+  - [ ] Build `POST /api/orders/track` and `GET /api/orders/[orderNumber]`.
+  - [ ] Fully implement `app/pages/tracking.vue` with search form, status timeline, and item review.
+
+### 5.2 [P1 — Commercial Polish & Conversion]
+- [ ] **Live Search Autocomplete**:
+  - [ ] Build `GET /api/search/suggestions` endpoint.
+  - [ ] Create debounced dropdown in `AppHeader.vue` showing matching items, prices, and categories.
+- [ ] **Simulated IPG (Shaparak) Payment Flow**:
+  - [ ] Build simulated payment gateway page (`/checkout/gateway`).
+  - [ ] Create callback verification route (`/checkout/callback` -> success or retry).
+- [ ] **Standalone Metric Size Guide Page (`/size-guide`)**:
+  - [ ] Promote `SizeGuideModal` content into full standalone editorial page with printable measurement guide.
+
+### 5.3 [P2 — Institutional Pages & Hardening]
+- [ ] **Customer Service & Institutional Copy**:
+  - [ ] Build rich editorial content for `/about`, `/contact`, `/faq` (Accordion), `/returns`, `/terms`, `/privacy`.
+  - [ ] Build `/fabric-standards` with detailed fabric tech breakdown.
+- [ ] **Automated Testing & DevOps**:
+  - [ ] Playwright E2E test suite (Browse -> Add to Cart -> Checkout -> Wishlist).
+  - [ ] Multi-stage production `Dockerfile` and GitHub Actions CI.
 
 ---
 
-## 6. Changelog & Activity Log
+## 6. Technical Debt & Architecture Watchlist
 
+1. **Ephemeral Server Orders**: Orders generated during checkout do not persist in the server mock layer. Once a browser tab closes or `sessionStorage` clears, the order cannot be retrieved.
+2. **Guest vs. Member Checkout**: Currently, checkout is strictly guest-based. Logged-in users should have their default address and phone number auto-filled.
+3. **Institutional Placeholders**: 13 out of 23 pages currently render brief placeholder copy. While all core shopping pages are complete, institutional credibility requires these pages to have proper content.
+4. **Mock Data Migration**: Server mock data (`server/mock/`) should remain isolated from frontend code, ready to be swapped for real backend endpoints via `NUXT_PUBLIC_API_BASE`.
+
+---
+
+## 7. Proposed Strategic Options (Awaiting Lead Approval)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ گزینه A [P0 - بحرانی]: احراز هویت پیامکی (SMS OTP) و داشبورد کامل حساب کاربری         │
+│ تاثیر بر پیشرفت: +۱۲٪ (رسیدن به ۸۲٪)                                                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ گزینه B [P0/P1 - اولویت بالا]: چرخه عمر و پایداری سفارش‌ها + سامانه زنده پیگیری مرسوله │
+│ تاثیر بر پیشرفت: +۸٪ (رسیدن به ۷۸٪)                                                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ گزینه C [P1 - پولیش تجاری]: صفحات نهادی و برند + جستجوی زنده + درگاه بانکی            │
+│ تاثیر بر پیشرفت: +۱۰٪ (رسیدن به ۸۰٪)                                                   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Option A [Priority: P0 — Critical Core]: Complete Customer Authentication (SMS OTP) & Account Dashboard
+- **Focus**: User Identity, Retention, Profile & Saved Addresses
+- **Scope**: `app/stores/auth.ts`, `AuthModal.vue`, `app/pages/account.vue`, Nitro endpoints `POST /api/auth/otp/send`, `POST /api/auth/otp/verify`, `GET/PUT /api/auth/me`.
+- **Unlocks**: 1-click address autofill in checkout, personal order history, member discounts.
+- **Estimated Progress Impact**: **+12%** (Total Progress -> **82%**).
+
+### Option B [Priority: P0/P1 — High Flow]: Order Lifecycle, Server Persistence & Live Tracking Subsystem
+- **Focus**: Post-Purchase Journey & Fulfillment Trust
+- **Scope**: `server/mock/orders.ts` (persistent registry), `server/api/orders/track.post.ts`, `app/pages/tracking.vue` (search, timeline, parcel tracking barcode), integration with `/checkout/success.vue`.
+- **Unlocks**: Working tracking for all orders (guest & member), closing the loop on post-purchase.
+- **Estimated Progress Impact**: **+8%** (Total Progress -> **78%**).
+
+### Option C [Priority: P1 — Commercial Polish]: Institutional Pages, Live Search & IPG Simulation
+- **Focus**: Brand Trust, Discoverability & Payment Realism
+- **Scope**: Complete all 7 institutional pages (`/about`, `/contact`, `/faq`, `/returns`, `/terms`, `/privacy`, `/size-guide`), header debounced live search dropdown, simulated Shaparak gateway (`/checkout/gateway`).
+- **Unlocks**: Elimination of placeholder stubs across the site, authentic commercial readiness.
+- **Estimated Progress Impact**: **+10%** (Total Progress -> **80%**).
+
+---
+
+## 8. Changelog & Activity Log
+
+- **2026-10-02 (`current`)**: `docs: exhaustive repository scan, page-by-page inventory, and master progress checklist`
+  - Conducted full audit of all 23 route pages, 48 components, 2 stores, and Nitro API routes.
+  - Categorized pages: 7 fully built, 3 redirects, 13 stubs/placeholders.
+  - Adjusted overall completion metric to a realistic **~70%**.
+  - Established Master Checklist matrix for all pages and subsystems.
+- **2026-10-01 (`aeae107`)**: `docs: update progress tracker with architectural evaluation and proposed strategic options`
+  - Formulated 3 distinct strategic options (Options A, B, C) for human lead review.
 - **2026-10-01 (`ce4114c`)**: `docs: establish living project progress tracker and roadmap dashboard`
   - Created centralized living tracker at `docs/progress-tracker.md`.
 - **2026-10-01 (`3700d69`)**: `fix(layout): restore AppHeader mounting, explicit imports, and harden store hydration`
   - Explicitly imported layout components in `default.vue`.
   - Added safe optional-chaining guards for store item counts in `AppHeader.vue` and `MobileNav.vue`.
-  - Hardened client-side storage hydration in `stores/wishlist.ts` and `stores/cart.ts`.
 - **2026-10-01 (`da6789d`)**: `feat(wishlist): implement reactive pinia wishlist store, ui triggers, and full wishlist page`
-  - Defined `WishlistItem` in `types/domain.ts`.
-  - Created `useWishlistStore` with `localStorage` persistence.
-  - Added floating heart toggles in `ProductCard.vue` and PDP.
-  - Built full editorial wishlist page (`/wishlist`) with quick add-to-cart size pills.
 - **2026-10-01 (`ff6b673`)**: `feat(pdp): implement interactive metric size guide and smart fit calculator modal`
-  - Created `SizeGuideModal.vue` with strict metric units only (CM/KG).
-  - Integrated fit calculator with body measurement comparison.
 - **2026-10-01 (`c351fbe`)**: `docs(audit): complete end-to-end audit, fix edge case bugs, and document in docs/report.md`
-  - Audited full flow across storefront, catalog, cart, and checkout.
 - **2026-10-01 (`6d721ad`)**: `feat(catalog): implement interactive shop page with two-way URL sync, filter panel, and skeleton loaders`
-  - Dynamic filtering and sorting with Nitro API integration and URL sync.
 - **2026-10-01 (`64a465f`)**: `feat(checkout): implement full cart page, 2-step checkout flow, and order confirmation`
-  - Full `/cart`, `/checkout`, and `/checkout/success` funnel with Vee-Validate and Zod.
-- **2026-10-01 (`3643c01`)**: `fix(cart): normalize store exports, hydration lifecycle, and navigation routes`
-  - Fixed Pinia store export identifier mismatch and route warnings.
 - **2026-10-01 (`06b38f0`)**: `feat(cart): implement Pinia cart store and editorial slide-over drawer`
-  - Built `CartDrawer.vue` and `useCartStore` with free shipping progress meter.
 - **2026-10-01 (`18a522b`)**: `feat(pdp): add product reviews and related products cross-sell sections`
-  - Implemented `ProductReviews.vue` and `RelatedProducts.vue` on PDP.
 - **2026-10-01 (`aee455a`)**: `refactor(frontend): decouple mock layer to Nitro server API and enforce strict domain typing`
-  - Cleaned up mock data from `app/data` to Nitro server routes.
-
----
-
-## 7. Proposed Next Strategic Steps (Awaiting Lead Approval)
-
-Following our comprehensive repository inspection and dependency analysis, three concrete architectural paths have been formulated for the upcoming sprint. Each option addresses a distinct layer of the product journey.
-
----
-
-### Option A [Priority: P0 — Critical Core]: Complete Customer Authentication (SMS OTP) & Account Dashboard
-
-- **Core Focus**: User Identity, Customer Retention & Personalization
-- **Architectural Rationale**: 
-  Currently, clicking the User icon in `AppHeader.vue` or navigating to `/account` presents a placeholder screen. E-commerce platforms rely on user identity for customer lifetime value (LTV). Implementing SMS OTP authentication provides the missing identity layer that unlocks saved addresses for 1-click checkout autofill, personalized order histories, and seamless guest-to-member transitions.
-- **Scope & Affected Files**:
-  1. **Domain & Typing**:
-     - `app/types/domain.ts`: Extend with `UserProfile`, `UserAddress`, `AuthSession`, `OtpRequest`, `OtpVerify`.
-  2. **Pinia Store**:
-     - `app/stores/auth.ts`: `useAuthStore` with token persistence, user state, address book actions, and login/logout methods.
-  3. **Nitro Server Routes**:
-     - `server/api/auth/otp/send.post.ts`: Validates Iranian mobile regex (`09\d{9}`) and dispatches simulated 5-digit OTP with 120s cooldown.
-     - `server/api/auth/otp/verify.post.ts`: Verifies OTP token and returns authenticated session with mock user profile.
-     - `server/api/auth/me.get.ts` & `server/api/auth/me.put.ts`: User profile retrieval and modification.
-     - `server/api/auth/addresses.get.ts` & `server/api/auth/addresses.post.ts`: Address management.
-  4. **UI Components**:
-     - `app/components/auth/AuthModal.vue`: Slide-over/dialog featuring phone input step and 5-digit `InputOTP` step with timer.
-     - `app/components/account/AddressCard.vue` & `AddressModal.vue`: Address book management.
-     - `app/components/account/OrderHistoryItem.vue`: Expandable past order cards.
-  5. **Page Overhaul**:
-     - `app/pages/account.vue`: Full authenticated dashboard with tabs for Overview, Orders, Saved Addresses, and Profile Settings (with unauthenticated fallback to inline OTP prompt).
-- **Dependencies Unlocked**: 
-  - Autofill addresses in `/checkout.vue`.
-  - Merging guest cart/wishlist into member accounts.
-- **Estimated Impact on Completion**: **+12%** (Brings total project progress to **87%**).
-
----
-
-### Option B [Priority: P0/P1 — High Flow]: Order Lifecycle, Server Persistence & Live Tracking Subsystem
-
-- **Core Focus**: Post-Purchase Journey & Fulfillment Trust
-- **Architectural Rationale**: 
-  Right now, when a customer places an order, the receipt is stored purely in client-side `sessionStorage` within `cartStore`. If the user opens a new tab or refreshes after the session expires, the order is lost. Crucially, `/checkout/success.vue` provides a prominent CTA button to `/tracking`, but `app/pages/tracking.vue` is an empty 16-line stub. Closing this gap ensures every order generated has persistent server-side lookup and delivers a best-in-class tracking experience.
-- **Scope & Affected Files**:
-  1. **Server Repository**:
-     - `server/mock/orders.ts`: In-memory persistent order store seeded with realistic past orders and dynamic runtime order appending.
-  2. **Nitro Server Routes**:
-     - `server/api/orders/create.post.ts`: Update to persist the created order in `server/mock/orders.ts`.
-     - `server/api/orders/[orderNumber].get.ts`: Lookup order details by order ID (`KRS-XXXXXX`).
-     - `server/api/orders/track.post.ts`: Query orders by order ID + customer phone number with detailed fulfillment timeline events.
-  3. **Domain & Typing**:
-     - `app/types/domain.ts`: Extend with `TrackingTimelineEvent`, `OrderStatus` (`registered` -> `processing` -> `dispatched` -> `delivered`), `PostalTrackingInfo`.
-  4. **Page & Component Implementation**:
-     - `app/pages/tracking.vue`: Full rebuild featuring tracking code search bar, phone verification, active status stepper, simulated Iran Post tracking code (`18-digit`), and parcel items breakdown.
-     - `app/components/tracking/TrackingTimeline.vue`: Visual milestone timeline with timestamps and fulfillment statuses.
-- **Dependencies Unlocked**:
-  - Seamless redirection from `/checkout/success.vue` to `/tracking?code=KRS-XXXXXX`.
-  - Reusable order lookup component for both guest tracking and member account order history.
-- **Estimated Impact on Completion**: **+8%** (Brings total project progress to **83%**).
-
----
-
-### Option C [Priority: P1 — Commercial Polish]: Instant Search Autocomplete, IPG Gateway Simulation & Brand Pages
-
-- **Core Focus**: Conversion Optimization, Payment Realism & Brand Completeness
-- **Architectural Rationale**: 
-  The core buying funnel is functional, but lacks key commercial polish that creates luxury store credibility:
-  1. The header search bar currently only triggers on full Enter submission to `/shop?q=...` without instant live suggestions.
-  2. The checkout flow immediately creates a completed order without simulating the actual Iranian online payment gateway (Shaparak) redirect, callback verification, and potential payment failure recovery.
-  3. Informational footer pages (`/about`, `/contact`, `/faq`, `/returns`, `/terms`, `/privacy`) have placeholder copy.
-- **Scope & Affected Files**:
-  1. **Search Autocomplete**:
-     - `server/api/search/suggestions.get.ts`: Fast prefix/fuzzy matching returning top product cards, matching categories, and price tags.
-     - `app/components/layout/AppHeader.vue`: Integration of debounced live dropdown with thumbnail previews and arrow-key navigation.
-  2. **IPG Gateway Simulation**:
-     - `app/pages/checkout/gateway.vue`: Dedicated Shaparak simulated banking gateway interface with card number inputs, CVV2, captcha, dynamic OTP request, and success/cancel action buttons.
-     - `server/api/checkout/payment/callback.post.ts`: Transaction verification endpoint that receives gateway callback and marks order as paid or failed.
-     - `app/pages/checkout.vue`: Redirecting to gateway on 'online_gateway' selection, with handling for returned error callbacks.
-  3. **Editorial Brand Pages**:
-     - `app/pages/about.vue`, `app/pages/contact.vue`, `app/pages/faq.vue`, `app/pages/returns.vue`, `app/pages/terms.vue`, `app/pages/privacy.vue`: Full editorial copy, accordion FAQ, contact inquiry form, and return policy details.
-- **Dependencies Unlocked**:
-  - Realistic end-to-end payment testing (success, user-cancelled, declined card).
-  - High-converting search discoverability directly from the header.
-- **Estimated Impact on Completion**: **+7%** (Brings total project progress to **82%**).
