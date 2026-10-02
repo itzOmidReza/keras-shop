@@ -22,17 +22,17 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)          |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
-| **Total Route Pages**   | **23** (8 Fully Built, 3 Redirects/Dev, 12 Stubs/Placeholders)       |
+| **Total Route Pages**   | **23** (15 Fully Built, 3 Redirects/Dev, 5 Stubs/Placeholders)       |
 | **Domain Components**   | **21** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **~82%** (Option A Completed; Core Funnel + Auth + Account Complete) |
+| **Overall Completion**  | **~90%** (Option A & Institutional Pages Complete; Core Storefront + Account + Care) |
 
 ```
-Overall Progress: [████████████████░░░░] 82%
+Overall Progress: [██████████████████░░] 90%
 Core Storefront Funnel: [████████████████████] 100%
 Customer Portal & Auth: [███████████████░░░░░] 75%
 Post-Purchase Tracking: [██░░░░░░░░░░░░░░░░░░] 10%
-Institutional Pages:    [██░░░░░░░░░░░░░░░░░░] 10%
+Institutional Pages:    [████████████████████] 100%
 ```
 
 ---
@@ -68,15 +68,15 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 11  | `/account`          | `app/pages/account.vue`          | **Complete** |  863  | Guest Auth Guard card, Overview metrics & recent order, Orders tab with status chips, Address Book with create/delete dialog, Profile settings | Avatar upload (future backend integration)                                 |
 | 12  | `/tracking`         | `app/pages/tracking.vue`         |   **Stub**   |  15   | 15-line placeholder text ("به زودی فعال خواهد شد")                                                                                             | **Order lookup form, visual shipment timeline, Post barcode, item list**   |
 | 13  | `/size-guide`       | `app/pages/size-guide.vue`       |   **Stub**   |   5   | 5-line placeholder ("در حال آماده‌سازی")                                                                                                       | **Standalone metric size guide page & fit calculator (modal is complete)** |
-| 14  | `/about`            | `app/pages/about.vue`            |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Editorial brand storytelling, mission, manufacturing ethics**            |
-| 15  | `/contact`          | `app/pages/contact.vue`          |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Support contact form, branch info, operating hours, phone/email**        |
-| 16  | `/faq`              | `app/pages/faq.vue`              |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Categorized Accordion FAQ (shipping, sizing, returns, payments)**        |
-| 17  | `/returns`          | `app/pages/returns.vue`          |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Detailed 7-day exchange and return policy, step-by-step guide**          |
-| 18  | `/terms`            | `app/pages/terms.vue`            |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Legal purchase terms, user responsibilities, return conditions**         |
-| 19  | `/privacy`          | `app/pages/privacy.vue`          |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Data privacy, cookie policies, security guidelines**                     |
+| 14  | `/about`            | `app/pages/about.vue`            | **Complete** |  235  | Editorial brand storytelling, Move vs Calm dual philosophy cards, manifesto quote, 3 core values, milestones                                   | Dynamic CMS founder stories                                                |
+| 15  | `/contact`          | `app/pages/contact.vue`          | **Complete** |  308  | 3 concierge channels (phone, email, showroom), interactive Zod-validated inquiry form, simulated submit, FAQ callout                            | Live chat widget integration                                               |
+| 16  | `/faq`              | `app/pages/faq.vue`              | **Complete** |  248  | Categorized Reka/Shadcn Accordion FAQ (shipping, sizing, returns, care) with real-time keyword search filter                                    | Algolia / AI semantic search                                               |
+| 17  | `/returns`          | `app/pages/returns.vue`          | **Complete** |  290  | 7-day guarantee cards, 3-step visual return workflow, permitted vs forbidden hygiene checklist, return FAQ, concierge CTA                      | Automated return label generator                                           |
+| 18  | `/terms`            | `app/pages/terms.vue`            | **Complete** |  157  | 7 structured legal clauses (Definitions, SMS OTP, Pricing, Shipping, 7-day returns, IP rights, Dispute resolution)                             | PDF download option                                                        |
+| 19  | `/privacy`          | `app/pages/privacy.vue`          | **Complete** |  177  | 4 comprehensive privacy articles (Data collection, Shaparak IPG security, cookie/session policy, user rights & data purging)                   | GDPR/Iranian data export portal                                            |
 | 20  | `/blog`             | `app/pages/blog.vue`             |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Athletic lifestyle articles, training tips, wellness guides**            |
 | 21  | `/journal`          | `app/pages/journal.vue`          |   **Stub**   |   5   | 5-line placeholder text                                                                                                                        | **Editorial journal / lookbook presentation**                              |
-| 22  | `/fabric-standards` | `app/pages/fabric-standards.vue` |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Fabric transparency test standards, GSM guide, squat-proof guarantees**  |
+| 22  | `/fabric-standards` | `app/pages/fabric-standards.vue` | **Complete** |  404  | Move (300 GSM) vs Calm (220 GSM) technical spec breakdown, visual performance meters, Squat-proof 300% lab testing protocol, wash & care tips | Interactive 3D textile viewer                                              |
 | 23  | `/careers`          | `app/pages/careers.vue`          |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Brand culture, open job positions, talent application form**             |
 
 ---
@@ -169,9 +169,9 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ### 5.3 [P2 — Institutional Pages & Hardening]
 
-- [ ] **Customer Service & Institutional Copy**:
-  - [ ] Build rich editorial content for `/about`, `/contact`, `/faq` (Accordion), `/returns`, `/terms`, `/privacy`.
-  - [ ] Build `/fabric-standards` with detailed fabric tech breakdown.
+- [x] **Customer Service & Institutional Copy**:
+  - [x] Build rich editorial content for `/about`, `/contact`, `/faq` (Accordion), `/returns`, `/terms`, `/privacy`.
+  - [x] Build `/fabric-standards` with detailed fabric tech breakdown.
 - [ ] **Automated Testing & DevOps**:
   - [ ] Playwright E2E test suite (Browse -> Add to Cart -> Checkout -> Wishlist).
   - [ ] Multi-stage production `Dockerfile` and GitHub Actions CI.
@@ -182,7 +182,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 1. **Ephemeral Server Orders**: Orders generated during checkout do not persist in the server mock layer. Once a browser tab closes or `sessionStorage` clears, the order cannot be retrieved.
 2. **Guest vs. Member Checkout**: Currently, checkout is strictly guest-based. Logged-in users should have their default address and phone number auto-filled.
-3. **Institutional Placeholders**: 13 out of 23 pages currently render brief placeholder copy. While all core shopping pages are complete, institutional credibility requires these pages to have proper content.
+3. **Secondary Content Placeholders**: 5 secondary / editorial routes (`/tracking`, `/size-guide`, `/blog`, `/journal`, `/careers`) remain as stubs, while all 7 core brand, customer care, and institutional pages are 100% completed.
 4. **Mock Data Migration**: Server mock data (`server/mock/`) should remain isolated from frontend code, ready to be swapped for real backend endpoints via `NUXT_PUBLIC_API_BASE`.
 
 ---
@@ -227,6 +227,17 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-02 (`41f4017`)**: `feat(pages): implement editorial institutional and customer care brand pages`
+  - Fully implemented 7 publication-grade editorial brand pages: `/about`, `/contact`, `/faq`, `/returns`, `/fabric-standards`, `/terms`, `/privacy` (totaling 1,819 lines of editorial Nuxt code).
+  - Enforced strict luxury design tokens (`ink`, `sand`, `paper`, `rose`, `sage`, `clay`) with zero unlisted hex values (`bun run lint:tokens` exited 0).
+  - Strictly enforced RTL logical CSS properties (`ms-*`, `ps-*`, `inset-s-*`, `inset-e-*`, `text-start`) with zero physical direction classes (`bun run lint:rtl` exited 0).
+  - Enforced metric units exclusively (CM, KG, GSM, °C) across all fabric specs, measurements, and FAQs.
+  - Implemented categorized Reka/Shadcn Accordion with real-time keyword search in `/faq`.
+  - Built interactive Zod-validated customer concierge inquiry form in `/contact`.
+  - Built comparative performance visual meters and 300% stretch lab protocol breakdown in `/fabric-standards`.
+  - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
+  - Documented 7-day exchange and hygiene protocol in `/returns`.
+  - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
 - **2026-10-02 (`4f124e9`)**: `fix(auth): resolve OTP countdown reset, address validation, and account hydration edge cases`
   - Fixed phone number and OTP input digit sanitization: automatically normalizes pasted Persian/Arabic digits (`۰-۹`) to English digits (`0-9`) via `toEn()` watchers.
   - Hardened OTP resend and error display: routed resend failures to `otpError` on Step 2 so users clearly see error messages below OTP slots.
