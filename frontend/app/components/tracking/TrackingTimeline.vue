@@ -11,10 +11,16 @@ import {
 } from '@lucide/vue'
 import type { OrderStatus, TrackingEvent } from '~/types/domain'
 
-const props = defineProps<{
-  timeline: TrackingEvent[]
-  currentStatus: OrderStatus
-}>()
+const props = withDefaults(
+  defineProps<{
+    timeline?: TrackingEvent[]
+    currentStatus?: OrderStatus
+  }>(),
+  {
+    timeline: () => [],
+    currentStatus: 'registered',
+  }
+)
 
 // نگاشت آیکون متناسب با وضعیت مرحله
 const getStepIcon = (index: number) => {

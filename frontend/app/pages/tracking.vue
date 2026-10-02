@@ -118,10 +118,17 @@ const copyTrackingCode = async () => {
 
 // مقداردهی اولیه از کوئری URL
 onMounted(() => {
-  const queryParam = (route.query.order || route.query.q) as string | undefined
-  if (queryParam) {
+  const rawParam = route.query.order ?? route.query.q
+  const queryParam = Array.isArray(rawParam) ? rawParam[0] : rawParam
+  if (queryParam && typeof queryParam === 'string') {
     searchQuery.value = queryParam
     handleSearch(queryParam)
+  }
+})
+
+watch(searchQuery, () => {
+  if (errorMessage.value) {
+    errorMessage.value = ''
   }
 })
 </script>
@@ -399,8 +406,8 @@ onMounted(() => {
 
           <div class="divide-y divide-sand/40">
             <div
-              v-for="item in orderData.items"
-              :key="item.title + item.size"
+              v-for="(item, idx) in orderData.items"
+              :key="item.title + item.size + idx"
               class="py-4 first:pt-2 last:pb-0 flex items-center justify-between gap-4"
             >
               <div class="flex items-center gap-4">

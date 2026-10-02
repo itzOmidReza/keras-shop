@@ -7,16 +7,15 @@ import {
   RotateCcw,
   Sparkles,
 } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 import { footerSections, brandPerks, siteConfig } from '~/data'
 
 const email = ref('')
 
 const handleNewsletter = () => {
   if (!email.value) return
-  if (import.meta.client) {
-    window.alert('عضویت شما در خبرنامه با موفقیت ثبت شد.')
-    email.value = ''
-  }
+  toast.success('عضویت شما در باشگاه مشتریان کراس با موفقیت ثبت شد.')
+  email.value = ''
 }
 
 // مپ کردن آیکون‌های پویا
