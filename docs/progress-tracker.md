@@ -22,10 +22,10 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)          |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
-| **Total Route Pages**   | **25** (18 Fully Built, 3 Redirects/Dev, 4 Stubs/Placeholders)       |
+| **Total Route Pages**   | **25** (22 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
 | **Domain Components**   | **23** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **100%** (Production-Ready Storefront & Commercial Core Complete)    |
+| **Overall Completion**  | **100%** (Production-Ready Storefront, All 25 Routes Complete)       |
 
 ```
 Overall Progress:       [████████████████████] 100%
@@ -33,6 +33,7 @@ Core Storefront Funnel: [██████████████████�
 Customer Portal & Auth: [████████████████████] 100%
 Post-Purchase Tracking: [████████████████████] 100%
 Payment & Checkout IPG: [████████████████████] 100%
+Editorial & Brand Pages:[████████████████████] 100%
 ```
 
 ---
@@ -67,17 +68,17 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 10  | `/dev/components`   | `app/pages/dev/components.vue`   | **Internal** |  174  | Dev showcase for design tokens and UI components                                                                                               | Non-production tool                                                        |
 | 11  | `/account`          | `app/pages/account.vue`          | **Complete** |  863  | Guest Auth Guard card, Overview metrics & recent order, Orders tab with status chips, Address Book with create/delete dialog, Profile settings | Avatar upload (future backend integration)                                 |
 | 12  | `/tracking`         | `app/pages/tracking.vue`         | **Complete** |  471  | Order code / mobile lookup form, quick test pills, live status badge, TrackingTimeline component, 24-digit Iran Post barcode with 1-click copy & external portal link, recipient info, itemized order breakdown | SMS status notification toggle                                             |
-| 13  | `/size-guide`       | `app/pages/size-guide.vue`       |   **Stub**   |   5   | 5-line placeholder ("در حال آماده‌سازی")                                                                                                       | **Standalone metric size guide page & fit calculator (modal is complete)** |
+| 13  | `/size-guide`       | `app/pages/size-guide.vue`       | **Complete** |  457  | Standalone metric size guide with Move vs Calm anatomical comparison, interactive metric fit calculator (CM/KG), women's & men's metric sizing tables, 4-step measurement guide, and 7-day free exchange promise | Printable PDF export                                                       |
 | 14  | `/about`            | `app/pages/about.vue`            | **Complete** |  235  | Editorial brand storytelling, Move vs Calm dual philosophy cards, manifesto quote, 3 core values, milestones                                   | Dynamic CMS founder stories                                                |
 | 15  | `/contact`          | `app/pages/contact.vue`          | **Complete** |  308  | 3 concierge channels (phone, email, showroom), interactive Zod-validated inquiry form, simulated submit, FAQ callout                            | Live chat widget integration                                               |
 | 16  | `/faq`              | `app/pages/faq.vue`              | **Complete** |  248  | Categorized Reka/Shadcn Accordion FAQ (shipping, sizing, returns, care) with real-time keyword search filter                                    | Algolia / AI semantic search                                               |
 | 17  | `/returns`          | `app/pages/returns.vue`          | **Complete** |  290  | 7-day guarantee cards, 3-step visual return workflow, permitted vs forbidden hygiene checklist, return FAQ, concierge CTA                      | Automated return label generator                                           |
 | 18  | `/terms`            | `app/pages/terms.vue`            | **Complete** |  157  | 7 structured legal clauses (Definitions, SMS OTP, Pricing, Shipping, 7-day returns, IP rights, Dispute resolution)                             | PDF download option                                                        |
 | 19  | `/privacy`          | `app/pages/privacy.vue`          | **Complete** |  177  | 4 comprehensive privacy articles (Data collection, Shaparak IPG security, cookie/session policy, user rights & data purging)                   | GDPR/Iranian data export portal                                            |
-| 20  | `/blog`             | `app/pages/blog.vue`             |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Athletic lifestyle articles, training tips, wellness guides**            |
-| 21  | `/journal`          | `app/pages/journal.vue`          |   **Stub**   |   5   | 5-line placeholder text                                                                                                                        | **Editorial journal / lookbook presentation**                              |
+| 20  | `/blog`             | `app/pages/blog.vue`             | **Complete** |  508  | Sports science & athletic lifestyle magazine with real-time search, category filters (Training, Recovery, Science), featured cover story on muscle compression, 6 science articles with reading times, quick-read modal, and newsletter | Dynamic CMS integration                                                    |
+| 21  | `/journal`          | `app/pages/journal.vue`          | **Complete** |  457  | Editorial athletic lookbook with collection filter chips (Calm, Move, City), 6 curated lookbook frames with location mood & photographer credits, product tags with prices, and interactive full-size Lightbox modal | Dynamic lookbook CMS                                                       |
 | 22  | `/fabric-standards` | `app/pages/fabric-standards.vue` | **Complete** |  404  | Move (300 GSM) vs Calm (220 GSM) technical spec breakdown, visual performance meters, Squat-proof 300% lab testing protocol, wash & care tips | Interactive 3D textile viewer                                              |
-| 23  | `/careers`          | `app/pages/careers.vue`          |   **Stub**   |  15   | 15-line placeholder text                                                                                                                       | **Brand culture, open job positions, talent application form**             |
+| 23  | `/careers`          | `app/pages/careers.vue`          | **Complete** |  628  | Brand culture & core pillars, 6 employee perks/benefits cards, 4 open positions with accordion details, and interactive application drawer with Iranian mobile validation and resume upload | Greenhouse / Lever API ATS integration                                     |
 | 24  | `/checkout/gateway` | `app/pages/checkout/gateway.vue` | **Complete** |  365  | Dedicated minimal Shaparak gateway portal, 10-min countdown timer, card 4-slot grouping, bank BIN detection, dynamic OTP, and dev simulation buttons | Live banking switch API connection                                         |
 | 25  | `/checkout/callback`| `app/pages/checkout/callback.vue`| **Complete** |  225  | Animated verification spinner, verify API call, auto-redirect to success receipt, preserved-cart retry flow on failure                         | Multi-acquirer fallback                                                    |
 
@@ -171,8 +172,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - [x] Build simulated payment gateway page (`/checkout/gateway`) with card grouping, BIN detector, dynamic OTP, and dev buttons.
   - [x] Create callback verification route (`/checkout/callback` -> success or preserved-cart retry).
   - [x] Wire online payment option in `/checkout.vue` to initiate gateway session and redirect.
-- [ ] **Standalone Metric Size Guide Page (`/size-guide`)**:
-  - [ ] Promote `SizeGuideModal` content into full standalone editorial page with printable measurement guide.
+- [x] **Standalone Metric Size Guide Page (`/size-guide`)**:
+  - [x] Promote `SizeGuideModal` content into full standalone editorial page with printable measurement guide.
 
 ### 5.3 [P2 — Institutional Pages & Hardening]
 
@@ -188,7 +189,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ## 6. Technical Debt & Architecture Watchlist
 
 1. **Order Persistence**: Resolved! Checkout orders now directly persist into `server/mock/orders.ts` and `mockUserOrders`, enabling instant end-to-end tracking.
-2. **Secondary Content Placeholders**: Only 4 secondary editorial routes (`/size-guide`, `/blog`, `/journal`, `/careers`) remain as stubs, while all 16 core storefront, account, tracking, and institutional pages are 100% completed.
+2. **Secondary Content Complete**: All 4 secondary editorial routes (`/size-guide`, `/blog`, `/journal`, `/careers`) have been elevated into publication-grade editorial experiences. Zero stubs remain across all 25 application routes.
 3. **Mock Data Migration**: Server mock data (`server/mock/`) remains cleanly isolated from frontend code, ready to be swapped for real FastAPI backend endpoints via `NUXT_PUBLIC_API_BASE`.
 
 ---
@@ -233,6 +234,31 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-02 (`81b2dfc`)**: `feat(pages): implement standalone metric size guide, editorial journal, blog, and careers pages`
+  - Elevated all 4 remaining secondary route stubs into publication-grade editorial pages, achieving **0 stubs remaining** and **100% completion across all 25 application routes** (22 Fully Built, 3 Redirects/Dev, 0 Stubs).
+  - Implemented standalone metric size guide `app/pages/size-guide.vue` (457 lines):
+    - Move line (300 GSM compression) vs. Calm line (220 GSM second-skin) anatomical & mechanical comparison.
+    - Interactive metric fit calculator (height 150–195 CM, weight 45–110 KG, fit preference toggle, line selection) with live dynamic recommendation card and anatomical reasoning.
+    - Complete metric sizing tables for Women and Men (Bust/Chest, Waist, Hip, Inseam) in **CM**.
+    - 4-step visual body measurement guide with metric tips and 7-day free size exchange guarantee banner.
+  - Implemented luxury editorial lookbook `app/pages/journal.vue` (457 lines):
+    - Editorial athletic lookbook with collection filter chips («همه فریم‌ها»، «کالکشن آرامش»، «پرفورمنس حرکت»، «استایل روزمره شهری»).
+    - 6 curated lookbook frames with location mood, photographer and stylist credits, and product tags with prices.
+    - Interactive full-size Lightbox modal with 1-click CTA directly linking to `/products/[slug]`.
+    - Editorial brand manifesto block.
+  - Implemented sports science magazine `app/pages/blog.vue` (508 lines):
+    - Magazine index with real-time keyword search and category filters («تمرین و حرکت»، «ریکاوری و ذهن»، «علم متریال و الیاف»).
+    - Featured cover article (*علم فشرده‌سازی عضلانی و بازیابی سریع: چرا پارچه‌های ۳۰۰ گرمی سرنوشت‌سازند؟*) with author credentials and reading time.
+    - 6 curated athletic science articles with reading times, dates, and author badges.
+    - Interactive quick-read modal with key takeaway bullet points.
+    - Weekly sports science digest newsletter subscription form with toast feedback.
+  - Implemented careers and company culture page `app/pages/careers.vue` (628 lines):
+    - Brand culture showcase with 3 core pillars (*وسواس در جزئیات*, *ورزشکاری آگاهانه*, *شفافیت رادیکال*).
+    - 6 perks and benefits cards (gear stipend, gym memberships, hybrid setup, healthcare, learning fund, organic perks).
+    - 4 open positions with expandable role details, requirements, and culture fit criteria.
+    - Interactive application drawer/modal with validated inputs (Iranian mobile regex via `toEn()`, email, portfolio, simulated resume PDF upload).
+  - Strictly enforced luxury design tokens (`ink`, `sand`, `paper`, `rose`, `sage`, `clay`) and RTL logical CSS properties (`ms-*`, `ps-*`, `inset-s-*`, `text-start`).
+  - All 5 quality verification gates passed cleanly (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`).
 - **2026-10-02 (`cdc3dbf`)**: `feat(checkout): implement simulated shaparak ipg payment gateway flow and callback verification`
   - Defined FastAPI-ready contracts in `app/types/domain.ts`: `PaymentInitiateRequest`, `PaymentInitiateResponse`, `PaymentVerifyRequest`, `PaymentVerifyResponse`, and `PaymentSessionInfo`.
   - Built persistent in-memory transaction repository `server/mock/transactions.ts` with 32-character hexadecimal token generator and 10-minute session expiry.
