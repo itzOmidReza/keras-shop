@@ -17,6 +17,7 @@ import {
   X,
   ShoppingBag,
 } from '@lucide/vue'
+import { z } from 'zod'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,25 @@ const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+// تازه نگه‌داشتن داده‌های حساب کاربری
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    await Promise.all([
+      authStore.fetchProfile(),
+      authStore.fetchAddresses(),
+      authStore.fetchOrders(),
+    ])
+  }
+})
+
+watch(() => authStore.isAuthenticated, (isAuth) => {
+  if (isAuth) {
+    authStore.fetchProfile()
+    authStore.fetchAddresses()
+    authStore.fetchOrders()
+  }
+})
+
 // مدیریت تب‌های فعال
 type TabType = 'overview' | 'orders' | 'addresses' | 'profile'
 const activeTab = ref<TabType>('overview')
@@ -51,7 +71,9 @@ watch(() => route.query.tab, (newTab) => {
 
 const switchTab = (tab: TabType) => {
   activeTab.value = tab
-  router.replace({ query: { ...route.query, tab } })
+  if (route.query.tab !== tab) {
+    router.replace({ query: { ...route.query, tab } })
+  }
 }
 
 // فرم ویرایش اطلاعات پروفایل
@@ -105,39 +127,34 @@ const openNewAddressModal = () => {
   isAddressModalOpen.value = true
 }
 
+const addressZodSchema = z.object({
+  title: z.string().min(1, 'لطفاً عنوان نشانی را مشخص کنید.'),
+  fullName: z.string().min(2, 'نام تحویل‌گیرنده الزامی است.'),
+  phoneNumber: z.string().regex(iranianMobileRegex, 'شماره موبایل نامعتبر است (فرمت: ۰۹xxxxxxxxx).'),
+  province: z.string().min(1, 'استان الزامی است.'),
+  city: z.string().min(1, 'شهر الزامی است.'),
+  postalCode: z.string().regex(iranianPostalCodeRegex, 'کد پستی باید دقیقاً ۱۰ رقم باشد.'),
+  exactAddress: z.string().min(10, 'آدرس پستی باید حداقل ۱۰ حرف و شامل جزئیات باشد.'),
+})
+
 const handleCreateAddress = async () => {
   addressFormError.value = ''
 
   const cleanPhone = toEn(newAddressForm.phoneNumber.trim())
   const cleanPostal = toEn(newAddressForm.postalCode.trim())
 
-  if (!newAddressForm.title.trim()) {
-    addressFormError.value = 'لطفاً عنوان نشانی را مشخص کنید.'
-    return
-  }
+  const validation = addressZodSchema.safeParse({
+    title: newAddressForm.title.trim(),
+    fullName: newAddressForm.fullName.trim(),
+    phoneNumber: cleanPhone,
+    province: newAddressForm.province,
+    city: newAddressForm.city.trim(),
+    postalCode: cleanPostal,
+    exactAddress: newAddressForm.exactAddress.trim(),
+  })
 
-  if (!newAddressForm.fullName.trim()) {
-    addressFormError.value = 'نام تحویل‌گیرنده الزامی است.'
-    return
-  }
-
-  if (!iranianMobileRegex.test(cleanPhone)) {
-    addressFormError.value = 'شماره موبایل نامعتبر است (فرمت: ۰۹xxxxxxxxx).'
-    return
-  }
-
-  if (!newAddressForm.province || !newAddressForm.city.trim()) {
-    addressFormError.value = 'استان و شهر الزامی هستند.'
-    return
-  }
-
-  if (!iranianPostalCodeRegex.test(cleanPostal)) {
-    addressFormError.value = 'کد پستی باید دقیقاً ۱۰ رقم باشد.'
-    return
-  }
-
-  if (newAddressForm.exactAddress.trim().length < 10) {
-    addressFormError.value = 'آدرس پستی باید حداقل ۱۰ حرف و شامل جزئیات باشد.'
+  if (!validation.success) {
+    addressFormError.value = validation.error.errors[0]?.message || 'اطلاعات وارد شده نامعتبر است.'
     return
   }
 
@@ -149,14 +166,22 @@ const handleCreateAddress = async () => {
     city: newAddressForm.city.trim(),
     postalCode: cleanPostal,
     exactAddress: newAddressForm.exactAddress.trim(),
-    buildingNumber: newAddressForm.buildingNumber.trim(),
-    unit: newAddressForm.unit.trim(),
+    buildingNumber: newAddressForm.buildingNumber.trim() || undefined,
+    unit: newAddressForm.unit.trim() || undefined,
     isDefault: newAddressForm.isDefault,
   })
 
   if (success) {
     isAddressModalOpen.value = false
   }
+}
+
+const handleDeleteAddress = async (id: string) => {
+  if (typeof window !== 'undefined') {
+    const confirmed = window.confirm('آیا از حذف این نشانی از حساب خود اطمینان دارید؟')
+    if (!confirmed) return
+  }
+  await authStore.deleteAddress(id)
 }
 
 // محاسبه آمار پیشخوان
@@ -609,7 +634,7 @@ const recentOrder = computed(() => authStore.orders[0] || null)
                   type="button"
                   class="w-7 h-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="حذف نشانی"
-                  @click="authStore.deleteAddress(addr.id)"
+                  @click="handleDeleteAddress(addr.id)"
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>

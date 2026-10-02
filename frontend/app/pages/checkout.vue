@@ -8,13 +8,16 @@ import {
   CreditCard,
   Building,
   Lock,
+  MapPin,
+  Sparkles,
 } from '@lucide/vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { shippingAddressSchema, IRAN_PROVINCES } from '~/utils/validation'
 import { toEn, formatToman } from '~/utils/format'
 import { useCartStore } from '~/stores/cart'
-import type { ShippingMethod, PaymentMethod, OrderReceipt } from '~/types/domain'
+import { useAuthStore } from '~/stores/auth'
+import type { ShippingMethod, PaymentMethod, OrderReceipt, UserAddress } from '~/types/domain'
 import { toast } from 'vue-sonner'
 
 useSeoMeta({
@@ -41,7 +44,7 @@ watch(
 )
 
 // فرم اعتبارسنجی مشخصات با Vee-Validate و Zod
-const { defineField, errors, handleSubmit, values, validate } = useForm({
+const { defineField, errors, handleSubmit, values, validate, setValues } = useForm({
   validationSchema: toTypedSchema(shippingAddressSchema),
   initialValues: {
     fullName: '',
@@ -55,6 +58,43 @@ const { defineField, errors, handleSubmit, values, validate } = useForm({
     notes: '',
   },
 })
+
+const authStore = useAuthStore()
+const selectedSavedAddressId = ref<string | null>(null)
+
+const applySavedAddress = (addr: UserAddress) => {
+  selectedSavedAddressId.value = addr.id
+  setValues({
+    fullName: addr.fullName,
+    phoneNumber: addr.phoneNumber,
+    province: addr.province,
+    city: addr.city,
+    postalCode: addr.postalCode,
+    exactAddress: addr.exactAddress,
+    buildingNumber: addr.buildingNumber || '',
+    unit: addr.unit || '',
+    notes: values.notes || '',
+  })
+}
+
+// بارگذاری خودکار آدرس پیش‌فرض در صورت احراز هویت
+watch(
+  [() => authStore.isHydrated, () => authStore.isAuthenticated, () => authStore.defaultAddress],
+  ([hydrated, isAuth, defAddr]) => {
+    if (hydrated && isAuth) {
+      if (defAddr && !values.fullName && !values.phoneNumber) {
+        applySavedAddress(defAddr)
+      } else if (authStore.user && !values.phoneNumber) {
+        setValues({
+          ...values,
+          fullName: values.fullName || authStore.user.fullName || '',
+          phoneNumber: authStore.user.phoneNumber,
+        })
+      }
+    }
+  },
+  { immediate: true },
+)
 
 const [fullName, fullNameProps] = defineField('fullName')
 const [phoneNumber, phoneNumberProps] = defineField('phoneNumber')
@@ -124,6 +164,9 @@ const handleFinalSubmit = async () => {
 
     cartStore.setLastOrderReceipt(receipt)
     cartStore.clearCart()
+    if (authStore.isAuthenticated) {
+      authStore.fetchOrders()
+    }
     toast.success('سفارش شما با موفقیت ثبت شد!')
     router.push('/checkout/success')
   } catch (err: unknown) {
@@ -155,6 +198,57 @@ const handleFinalSubmit = async () => {
             <p class="text-xs text-muted-foreground mt-1">
               لطفاً آدرس دقیق و شماره موبایل در دسترس را جهت هماهنگی ارسال مرسوله وارد فرمایید.
             </p>
+          </div>
+
+          <!-- بخش اعضای باشگاه کراس: انتخاب از آدرس‌های ذخیره‌شده -->
+          <div v-if="authStore.isAuthenticated && authStore.addresses.length > 0" class="rounded-2xl border border-sand bg-paper/40 p-4 space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 font-bold text-ink">
+                <MapPin class="w-4 h-4 text-rose" />
+                <span>نشانی‌های ذخیره‌شده در حساب شما</span>
+              </div>
+              <NuxtLink to="/account?tab=addresses" class="text-[11px] font-bold text-rose hover:underline">
+                مدیریت نشانی‌ها
+              </NuxtLink>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                v-for="addr in authStore.addresses"
+                :key="addr.id"
+                type="button"
+                class="text-start p-3.5 rounded-xl border transition-all text-xs cursor-pointer flex flex-col justify-between gap-2"
+                :class="selectedSavedAddressId === addr.id ? 'border-rose bg-white shadow-2xs ring-1 ring-rose/30' : 'border-sand bg-white/80 hover:bg-white'"
+                @click="applySavedAddress(addr)"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-ink">{{ addr.title }}</span>
+                  <span v-if="addr.isDefault" class="text-[10px] text-rose font-bold bg-rose/10 px-2 py-0.5 rounded-full">پیش‌فرض</span>
+                </div>
+                <p class="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                  {{ addr.province }}، {{ addr.city }}، {{ addr.exactAddress }}
+                </p>
+              </button>
+            </div>
+          </div>
+
+          <!-- پیام دعوت به ورود برای کاربران مهمان -->
+          <div v-else-if="!authStore.isAuthenticated" class="rounded-2xl border border-sand bg-paper/50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-sand/40 text-rose flex items-center justify-center shrink-0">
+                <Sparkles class="w-4 h-4" />
+              </div>
+              <div class="space-y-0.5">
+                <p class="text-xs font-bold text-ink">عضو باشگاه مشتریان کراس هستید؟</p>
+                <p class="text-[11px] text-muted-foreground leading-relaxed">با ورود به حساب، آدرس پستی شما خودکار بارگذاری شده و امتیاز خرید ثبت می‌شود.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="shrink-0 px-4 py-2 rounded-xl border border-sand bg-white hover:border-rose hover:text-rose text-xs font-bold text-ink transition-colors cursor-pointer self-end sm:self-auto"
+              @click="authStore.openAuthModal()"
+            >
+              ورود با شماره موبایل
+            </button>
           </div>
 
           <form class="space-y-5" @submit.prevent="goToStep2">

@@ -36,6 +36,19 @@ const otpError = ref('')
 const countdown = ref(120)
 let timer: ReturnType<typeof setInterval> | null = null
 
+// خودکارسازی تبدیل ارقام فارسی و عربی به انگلیسی
+watch(phoneNumber, (val) => {
+  if (val) {
+    const converted = toEn(val)
+    if (converted !== val) {
+      phoneNumber.value = converted
+    }
+    if (phoneError.value) {
+      phoneError.value = ''
+    }
+  }
+})
+
 // پاک‌سازی فرم هنگام باز/بسته شدن
 watch(() => authStore.isAuthModalOpen, (isOpen) => {
   if (isOpen) {
@@ -98,6 +111,7 @@ const handleSendOtp = async () => {
     await authStore.sendOtp(cleanPhone)
     step.value = 'otp'
     otpCode.value = ''
+    otpError.value = ''
     startTimer()
   } catch (err: unknown) {
     const fetchErr = err as { data?: { statusMessage?: string } }
@@ -107,6 +121,7 @@ const handleSendOtp = async () => {
 
 // مرحله ۲: بررسی و تایید کد ۵ رقمی
 const handleVerifyOtp = async () => {
+  if (authStore.isLoading) return
   otpError.value = ''
   const cleanPhone = toEn(phoneNumber.value.trim())
   const cleanCode = toEn(otpCode.value.trim())
@@ -122,16 +137,35 @@ const handleVerifyOtp = async () => {
   }
 }
 
-// گوش دادن به تکمیل خودکار کد OTP
+// گوش دادن به تکمیل خودکار کد OTP و پاک‌سازی ارقام غیر انگلیسی
 watch(otpCode, (newVal) => {
-  if (newVal && newVal.length === 5) {
-    handleVerifyOtp()
+  if (newVal) {
+    const converted = toEn(newVal)
+    if (converted !== newVal) {
+      otpCode.value = converted
+      return
+    }
+    if (otpError.value) {
+      otpError.value = ''
+    }
+    if (converted.length === 5 && !authStore.isLoading) {
+      handleVerifyOtp()
+    }
   }
 })
 
 const handleResendOtp = async () => {
-  if (countdown.value > 0) return
-  await handleSendOtp()
+  if (countdown.value > 0 || authStore.isLoading) return
+  otpError.value = ''
+  try {
+    const cleanPhone = toEn(phoneNumber.value.trim())
+    await authStore.sendOtp(cleanPhone)
+    otpCode.value = ''
+    startTimer()
+  } catch (err: unknown) {
+    const fetchErr = err as { data?: { statusMessage?: string } }
+    otpError.value = fetchErr?.data?.statusMessage || 'خطا در ارسال مجدد کد تایید.'
+  }
 }
 
 const handleBackToPhone = () => {
@@ -139,6 +173,7 @@ const handleBackToPhone = () => {
   step.value = 'phone'
   otpCode.value = ''
   otpError.value = ''
+  phoneError.value = ''
 }
 </script>
 

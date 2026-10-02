@@ -137,10 +137,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     toast.info('از حساب کاربری خود خارج شدید.');
 
-    const route = useRoute();
-    const router = useRouter();
-    if (route.path === '/account') {
-      router.push('/');
+    if (import.meta.client) {
+      if (window.location.pathname.startsWith('/account')) {
+        navigateTo('/');
+      }
     }
   }
 
@@ -220,10 +220,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function setDefaultAddress(id: string): void {
+  async function setDefaultAddress(id: string): Promise<void> {
     addresses.value.forEach((a) => {
       a.isDefault = a.id === id;
     });
+    try {
+      await $fetch(`/api/user/addresses/${id}/default`, { method: 'PUT' });
+    } catch {
+      // استفاده از داده‌های محلی استور در صورت خطای شبکه
+    }
     toast.success('نشانی پیش‌فرض تحویل سفارش تنظیم شد.');
   }
 
