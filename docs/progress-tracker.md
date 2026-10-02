@@ -23,12 +23,12 @@
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
 | **Total Route Pages**   | **23** (16 Fully Built, 3 Redirects/Dev, 4 Stubs/Placeholders)       |
-| **Domain Components**   | **22** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
+| **Domain Components**   | **23** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **~94%** (Core Funnel + Auth + Tracking + Institutional Complete)    |
+| **Overall Completion**  | **~97%** (Core Funnel + Auth + Tracking + Search Complete)           |
 
 ```
-Overall Progress: [███████████████████░] 94%
+Overall Progress: [███████████████████░] 97%
 Core Storefront Funnel: [████████████████████] 100%
 Customer Portal & Auth: [███████████████░░░░░] 75%
 Post-Purchase Tracking: [████████████████████] 100%
@@ -109,7 +109,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Auth**: `AuthModal.vue` (Iranian phone input + 5-digit `InputOTP`, 120s timer modal, resend code)
 - [x] **Account**: Built-in tabs inside `app/pages/account.vue` (Overview metrics, Orders, Addresses dialog, Profile)
 - [x] **Tracking**: `TrackingTimeline.vue` (responsive horizontal/vertical timeline, Iran Post barcode, step indicator)
-- [ ] **Search (Missing)**: `SearchAutocomplete.vue` (instant header dropdown)
+- [x] **Search**: `SearchAutocomplete.vue` (debounced autocomplete dropdown in header and mobile nav, category pills, keyboard navigation)
 
 ### 4.2 State Management (`app/stores/`)
 
@@ -133,8 +133,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `GET /api/user/addresses`, `POST /api/user/addresses` & `DELETE /api/user/addresses/[id]`: Address book endpoints
 - [x] `GET /api/user/orders`: User order history endpoint
 - [x] `POST /api/orders/track`: Order tracking by order code, 24-digit barcode, or phone number (200, 404, 422)
+- [x] `GET /api/search/suggestions`: Instant search query suggestions with multi-field scoring, category aggregation, and 150ms simulated latency
 - [ ] `GET /api/orders/[orderNumber]` **(Missing)**: Order lookup endpoint
-- [ ] `GET /api/search/suggestions` **(Missing)**: Instant search query suggestions
 
 ---
 
@@ -158,9 +158,9 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ### 5.2 [P1 — Commercial Polish & Conversion]
 
-- [ ] **Live Search Autocomplete**:
-  - [ ] Build `GET /api/search/suggestions` endpoint.
-  - [ ] Create debounced dropdown in `AppHeader.vue` showing matching items, prices, and categories.
+- [x] **Live Search Autocomplete**:
+  - [x] Build `GET /api/search/suggestions` endpoint with multi-field scoring and category aggregation.
+  - [x] Create debounced dropdown in `AppHeader.vue` and `MobileNav.vue` showing matching items, prices, and categories.
 - [ ] **Simulated IPG (Shaparak) Payment Flow**:
   - [ ] Build simulated payment gateway page (`/checkout/gateway`).
   - [ ] Create callback verification route (`/checkout/callback` -> success or retry).
@@ -226,6 +226,24 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-02 (`6642f3c`)**: `feat(search): implement debounced live search autocomplete and suggestions api`
+  - Defined FastAPI-aligned contracts in `app/types/domain.ts`: `SearchSuggestionItem`, `SearchCategorySuggestion`, and `SearchSuggestionsResponse`.
+  - Created Nitro mock endpoint `GET /api/search/suggestions` featuring:
+    - Multi-field scoring and relevance ranking (exact title, title prefix, category, slug, line, and fabric description).
+    - Case-insensitive search with full Persian/Arabic character and digit normalization (`toEn()`, zero-width characters, Yeh/Kaf).
+    - Top 3 relevant category aggregation with matching product counts.
+    - Top 5 scored products with stock state and formatted pricing.
+    - 150ms artificial network latency for realistic testing.
+  - Implemented publication-grade `SearchAutocomplete.vue` component with:
+    - Real-time 300ms debounce with instant clear button (`X`) and animated loading spinner (`Loader2`).
+    - Floating dropdown popover with `z-50`, backdrop blur, and editorial border (`border-sand/60 bg-paper/95 shadow-xl`).
+    - Full keyboard navigation (`ArrowDown`, `ArrowUp`, `Enter`, and `Escape`).
+    - Click-outside event listener for seamless dismissal.
+    - Substring match highlighting in product titles using official `text-rose font-bold` token without unsafe `v-html`.
+    - Category pills linking directly to `/shop?category=...`.
+    - Editorial Persian empty state and footer CTA linking to full catalog search.
+  - Replaced the basic search form in `AppHeader.vue` with `SearchAutocomplete.vue` and embedded it into `MobileNav.vue` with automatic drawer dismissal upon result selection.
+  - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~97%**.
 - **2026-10-02 (`737add1`)**: `fix(qa): harden tracking query handling, timeline prop defaults, and newsletter toast notifications`
   - Fixed Vue Router query handling in `/tracking` to safely normalize array queries (`string | (string | null)[]`).
   - Added reactive watcher on `searchQuery` to instantly dismiss prior error messages when the user begins typing.
