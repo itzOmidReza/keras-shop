@@ -163,6 +163,30 @@ const handleFinalSubmit = async () => {
     })
 
     cartStore.setLastOrderReceipt(receipt)
+
+    // در صورت انتخاب پرداخت آنلاین شتابی، هدایت به درگاه پرداخت شاپرک
+    if (selectedPayment.value === 'online_gateway') {
+      try {
+        const paymentRes = await $fetch<{ paymentToken: string; gatewayUrl: string }>(
+          '/api/checkout/payment/initiate',
+          {
+            method: 'POST',
+            body: {
+              orderNumber: receipt.orderNumber,
+              amount: receipt.finalTotal,
+              callbackUrl: '/checkout/callback',
+            },
+          }
+        )
+        toast.info('در حال انتقال به درگاه پرداخت اینترنتی شاپرک...')
+        router.push(paymentRes.gatewayUrl)
+        return
+      } catch (payErr) {
+        console.error('Failed to initiate payment gateway:', payErr)
+      }
+    }
+
+    // سایر روش‌ها (پرداخت در محل یا پرداخت مستقیم)
     cartStore.clearCart()
     if (authStore.isAuthenticated) {
       authStore.fetchOrders()

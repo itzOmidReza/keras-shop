@@ -336,4 +336,44 @@ export interface SearchSuggestionsResponse {
   totalMatches: number;
 }
 
+// -------------------------------------------------------------
+// Shaparak IPG Payment Gateway Contracts (FastAPI-Ready)
+// -------------------------------------------------------------
+
+export interface PaymentInitiateRequest {
+  orderNumber: string;
+  amount: number;
+  callbackUrl: string;
+}
+
+export interface PaymentInitiateResponse {
+  paymentToken: string;
+  gatewayUrl: string;
+}
+
+export interface PaymentVerifyRequest {
+  paymentToken: string;
+  cardNumber?: string;
+  action: 'success' | 'fail' | 'cancel';
+}
+
+export interface PaymentVerifyResponse {
+  success: boolean;
+  orderNumber: string;
+  transactionId?: string;
+  referenceId?: string;
+  paidAt?: string;
+  errorMessage?: string;
+}
+
+export interface PaymentSessionInfo {
+  token: string;
+  orderNumber: string;
+  amount: number;
+  merchantName: string;
+  createdAt: string;
+  expiresAt: string;
+  status: 'pending' | 'settled' | 'failed' | 'cancelled';
+}
+
 

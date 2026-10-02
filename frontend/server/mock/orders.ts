@@ -245,3 +245,26 @@ export const findMockOrderByQuery = (rawQuery: string): TrackOrderResponse | und
     return false;
   });
 };
+
+/**
+ * به‌روزرسانی وضعیت سفارش (مانند پس از پرداخت موفقیت‌آمیز در درگاه شاپرک)
+ */
+export const updateMockOrderStatus = (
+  orderNumber: string,
+  newStatus: 'registered' | 'processing' | 'handed_over' | 'delivered' | 'canceled',
+  statusLabel: string,
+): boolean => {
+  const order = mockOrders.find((o) => o.orderNumber === orderNumber);
+  if (!order) return false;
+  order.status = newStatus;
+  order.statusLabel = statusLabel;
+
+  if (newStatus === 'processing') {
+    const processingStep = order.timeline.find((t) => t.status === 'processing');
+    if (processingStep) {
+      processingStep.completed = true;
+      processingStep.timestamp = 'هم‌اکنون (پس از پرداخت شاپرک)';
+    }
+  }
+  return true;
+};
