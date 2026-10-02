@@ -71,6 +71,15 @@ const handleAccountClick = () => {
             </button>
           </div>
 
+          <!-- جست‌وجوی زنده همراه با Autocomplete -->
+          <div class="relative">
+            <SearchAutocomplete
+              placeholder="جست‌وجوی محصولات کراس..."
+              @close="emit('close')"
+              @select="emit('close')"
+            />
+          </div>
+
           <!-- لینک‌های داینامیک از data -->
           <nav class="flex flex-col gap-1">
             <NuxtLink

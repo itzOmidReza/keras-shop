@@ -307,4 +307,33 @@ export interface TrackOrderRequest {
   query: string;
 }
 
+// -------------------------------------------------------------
+// Live Search Autocomplete Contracts (FastAPI-Ready)
+// -------------------------------------------------------------
+
+export interface SearchSuggestionItem {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  compare_at_price?: number;
+  primary_image: string;
+  line: 'move' | 'calm';
+  category: string;
+  inStock: boolean;
+}
+
+export interface SearchCategorySuggestion {
+  name: string;
+  slug: string;
+  count: number;
+}
+
+export interface SearchSuggestionsResponse {
+  query: string;
+  products: SearchSuggestionItem[];
+  categories: SearchCategorySuggestion[];
+  totalMatches: number;
+}
+
 

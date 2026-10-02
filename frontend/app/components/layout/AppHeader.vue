@@ -23,10 +23,8 @@ const isScrolled = ref(false)
 const isSearchOpen = ref(false)
 const isUserMenuOpen = ref(false)
 const userMenuRef = ref<HTMLElement | null>(null)
-const searchQuery = ref('')
 
 const route = useRoute()
-const router = useRouter()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const authStore = useAuthStore()
@@ -36,14 +34,6 @@ const isLinkActive = (href: string) => {
     return route.fullPath === href
   }
   return route.path === href
-}
-
-const handleSearch = () => {
-  if (!searchQuery.value.trim()) return
-  const q = searchQuery.value.trim()
-  isSearchOpen.value = false
-  searchQuery.value = ''
-  router.push(`/shop?q=${encodeURIComponent(q)}`)
 }
 
 const handleScroll = () => {
@@ -245,27 +235,16 @@ type="button"
       </div>
     </div>
 
-    <!-- فرم جست‌وجو کشویی -->
-    <div v-if="isSearchOpen" class="border-t border-sand/60 bg-paper px-4 py-3 shadow-inner">
-      <form class="container mx-auto max-w-2xl flex items-center gap-3" @submit.prevent="handleSearch">
-        <Search class="w-5 h-5 text-muted-foreground shrink-0" />
-        <label for="header-search-input" class="sr-only">جست‌وجوی کالا</label>
-        <input
-          id="header-search-input"
-          v-model="searchQuery"
-          type="text"
-          placeholder="جست‌وجوی محصولات ورزشی کراس..."
-          class="w-full bg-transparent text-sm text-ink placeholder:text-muted-foreground focus:outline-none"
-          autofocus
-        >
-        <button
-          type="button"
-          class="text-xs font-bold text-muted-foreground hover:text-ink cursor-pointer"
-          @click="isSearchOpen = false"
-        >
-          بستن
-        </button>
-      </form>
+    <!-- کشوی جست‌وجوی زنده همراه با Autocomplete -->
+    <div v-if="isSearchOpen" class="border-t border-sand/60 bg-paper/95 px-4 py-3 shadow-inner">
+      <div class="container mx-auto max-w-2xl">
+        <SearchAutocomplete
+          :auto-focus="true"
+          :show-close-button="true"
+          @close="isSearchOpen = false"
+          @select="isSearchOpen = false"
+        />
+      </div>
     </div>
   </header>
 </template>
