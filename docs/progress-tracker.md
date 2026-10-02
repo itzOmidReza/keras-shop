@@ -180,8 +180,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Customer Service & Institutional Copy**:
   - [x] Build rich editorial content for `/about`, `/contact`, `/faq` (Accordion), `/returns`, `/terms`, `/privacy`.
   - [x] Build `/fabric-standards` with detailed fabric tech breakdown.
-- [ ] **Automated Testing & DevOps**:
-  - [ ] Playwright E2E test suite (Browse -> Add to Cart -> Checkout -> Wishlist).
+- [x] **Automated Testing & DevOps**:
+  - [x] Playwright E2E test suite (Browse -> Add to Cart -> Checkout -> Wishlist & IPG Flow).
   - [ ] Multi-stage production `Dockerfile` and GitHub Actions CI.
 
 ---
@@ -233,6 +233,18 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-02 (`7fb49d4`)**: `test(e2e): implement playwright automated testing suite for core commerce, auth, and ipg funnel`
+  - Setup and configured Playwright test runner (`@playwright/test` v1.63.0) with multi-device coverage (`Desktop Chrome` 1280x800 and `Mobile Safari` iPhone 14 touch & viewport emulation).
+  - Implemented 4 end-to-end automated test suites in `frontend/tests/e2e/`:
+    - `01-auth-otp.spec.ts`: SMS OTP customer authentication, Persian/Arabic digit normalization (`۰۹۱۲۳۴۵۶۷۸۹` -> `09123456789`), 5-digit code entry, auto-verification, and `/account` dashboard profile verification.
+    - `02-catalog-discovery.spec.ts`: Collection filtering (Move/Calm), 300ms debounced live search autocomplete dropdown, product card image and pricing validation, and PDP navigation.
+    - `03-pdp-to-cart.spec.ts`: PDP size selection, interactive metric size guide modal with CM/KG fit calculator, add-to-cart drawer opening with free shipping progress bar, and wishlist toggle with header counter.
+    - `04-checkout-ipg-success.spec.ts`: Complete 2-step checkout form submission, Shaparak IPG gateway redirect (`/checkout/gateway?token=...`), dev simulation toolbar payment, `/checkout/callback` verification, final order receipt (`/checkout/success?order=KERAS-...`), and order tracking navigation (`/tracking?order=KERAS-...`).
+  - Refactored `app/pages/checkout.vue` to `app/pages/checkout/index.vue` to eliminate Nuxt nested route layout capturing of `/checkout/gateway` and `/checkout/callback`.
+  - Enhanced `gateway.vue` dev simulation toolbar to auto-populate test card credentials on 1-click test payment.
+  - Executed all 8 tests with 100% pass rate in 15.9s.
+  - Passed all verification linters and builds: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (ESLint 0 errors), `typecheck` (vue-tsc 0 errors), and `build` (clean production bundle).
 
 - **2026-10-02 (`81b2dfc`)**: `feat(pages): implement standalone metric size guide, editorial journal, blog, and careers pages`
   - Elevated all 4 remaining secondary route stubs into publication-grade editorial pages, achieving **0 stubs remaining** and **100% completion across all 25 application routes** (22 Fully Built, 3 Redirects/Dev, 0 Stubs).

@@ -122,8 +122,11 @@ const fillTestCard = (prefix: string) => {
 }
 
 // ارسال فرم یا شبیه‌سازی
-const submitPayment = (action: 'success' | 'fail' | 'cancel') => {
+const submitPayment = (action: 'success' | 'fail' | 'cancel', isSimulated = false) => {
   if (action !== 'cancel') {
+    if (isSimulated && (!cardNumber.value || toEn(cardNumber.value.replace(/\s+/g, '')).length < 16)) {
+      fillTestCard('6104 33')
+    }
     const rawCard = toEn(cardNumber.value.replace(/\s+/g, ''))
     if (rawCard.length < 16) {
       formError.value = 'شماره کارت بانکی باید ۱۶ رقم کامل باشد.'
@@ -510,7 +513,7 @@ onUnmounted(() => {
           <button
             type="button"
             class="flex-1 sm:flex-none py-1.5 px-3 rounded-lg bg-sage/20 text-sage hover:bg-sage/30 text-xs font-bold transition-colors cursor-pointer"
-            @click="submitPayment('success')"
+            @click="submitPayment('success', true)"
           >
             تست پرداخت موفق
           </button>
@@ -518,7 +521,7 @@ onUnmounted(() => {
           <button
             type="button"
             class="flex-1 sm:flex-none py-1.5 px-3 rounded-lg bg-destructive/15 text-destructive hover:bg-destructive/25 text-xs font-bold transition-colors cursor-pointer"
-            @click="submitPayment('fail')"
+            @click="submitPayment('fail', true)"
           >
             تست خطای موجودی
           </button>

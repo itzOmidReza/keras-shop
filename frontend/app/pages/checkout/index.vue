@@ -456,6 +456,7 @@ const handleFinalSubmit = async () => {
                 type="submit"
                 size="lg"
                 class="h-12 px-6 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                @click="goToStep2"
               >
                 <span>انتخاب شیوه ارسال و پرداخت</span>
                 <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
