@@ -12,15 +12,15 @@ const props = withDefaults(defineProps<Props>(), {
   initialProducts: () => [],
 })
 
-const activeTab = ref<'all' | 'fall-1405' | 'apparel' | 'accessories'>('all')
+const activeTab = ref<'fall-1405' | 'apparel' | 'accessories' | 'sale'>('fall-1405')
 const isLoading = ref(false)
 const localProducts = ref<ProductListItem[]>(props.initialProducts)
 
 const tabs = [
-  { id: 'all', label: 'همه کالکشن‌ها', description: 'نمای کامل محصولات و اکسسوری کراس' },
   { id: 'fall-1405', label: 'کالکشن جدید (پاییز ۱۴۰۵)', description: 'دراپ فصلی پاییزی با بافت‌های گرم و پالتوهای فوتر' },
   { id: 'apparel', label: 'پوشاک ادیتوریال', description: 'شومیز، بافت، پالتو و شلوارهای مینیمال' },
   { id: 'accessories', label: 'اکسسوری و شال', description: 'دستمال سر، اسکرانچی و شال‌های ابریشمی و پشمی' },
+  { id: 'sale', label: 'تخفیف‌های ویژه', description: 'محصولات دارای تخفیف فصلی و قیمت ویژه' },
 ] as const
 
 const filteredProducts = computed(() => {
@@ -33,11 +33,18 @@ const filteredProducts = computed(() => {
   if (activeTab.value === 'accessories') {
     return localProducts.value.filter(p => p.division === 'accessories')
   }
+  if (activeTab.value === 'sale') {
+    return localProducts.value.filter(p =>
+      p.badge === 'sale'
+      || p.badge === 'حراج'
+      || (p.compare_at_price && p.compare_at_price > (p.price ?? p.base_price)),
+    )
+  }
   return localProducts.value
 })
 
 // سوییچ تب با دریافت داده در صورت نیاز
-const selectTab = async (tabId: 'all' | 'fall-1405' | 'apparel' | 'accessories') => {
+const selectTab = async (tabId: 'fall-1405' | 'apparel' | 'accessories' | 'sale') => {
   activeTab.value = tabId
   if (localProducts.value.length === 0) {
     isLoading.value = true

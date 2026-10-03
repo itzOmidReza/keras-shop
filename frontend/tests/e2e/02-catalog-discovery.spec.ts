@@ -4,15 +4,16 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
   test('should filter products by collection line and navigate via search autocomplete', async ({ page, isMobile }) => {
     // ۱. ناوبری به صفحه فروشگاه
     await page.goto('/shop')
+    await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/فروشگاه|کاتالوگ/i)
 
     // ۲. فیلتر کردن بر اساس لاین Move
     if (isMobile) {
       // در حالت موبایل، ابتدا دراور فیلترها را باز می‌کنیم
       const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
-      if (await filterDrawerBtn.isVisible()) {
-        await filterDrawerBtn.click()
-      }
+      await expect(filterDrawerBtn).toBeVisible()
+      await filterDrawerBtn.click()
+      await page.waitForTimeout(300)
     }
 
     // کلیک روی دکمه کالکشن پاییز ۱۴۰۵ در فیلتر فصل

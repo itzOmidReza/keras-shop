@@ -32,7 +32,7 @@ const looks: OutfitLook[] = [
     id: 'look-autumn',
     title: 'استایل ادیتوریال پاییزه',
     subtitle: 'کالکشن جدید — پاییز ۱۴۰۵',
-    description: 'ترکیب شومیز لینن اسلپ مدل کارن به همراه شلوار واید لینن پاییزه؛ هارمونی چشم‌نواز تنالیته شنی و خاکی برای استایل روزمره.',
+    description: 'ترکیب شومیز لینن اسلپ مدل کارن به همراه شلوار واید لینن پاییزه و دستمال سر ژاکارد نخ پنبه؛ هارمونی چشم‌نواز تنالیته شنی و خاکی برای استایل روزمره.',
     image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80',
     items: [
       {
@@ -55,13 +55,23 @@ const looks: OutfitLook[] = [
         hotspot: { top: 72, right: 48 },
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
       },
+      {
+        id: 20,
+        slug: 'cotton-jacquard-bandana',
+        title: 'دستمال سر ژاکارد نخ پنبه',
+        price: 390000,
+        compareAtPrice: 480000,
+        image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80',
+        hotspot: { top: 16, right: 50 },
+        sizes: ['Free'],
+      },
     ],
   },
   {
     id: 'look-winter',
     title: 'استایل لایه‌لایه زمستانه',
     subtitle: 'کالکشن زمستان ۱۴۰۵',
-    description: 'هارمونی شیک پالتو فوتر پشمی آستردار با پلیور بافت کرکی یقه اسکی؛ گرما و وقار مینیمال در روزهای سرد سال.',
+    description: 'هارمونی شیک پالتو فوتر پشمی آستردار با پلیور بافت کرکی یقه اسکی و شال بلند پشمی؛ گرما و وقار مینیمال در روزهای سرد سال.',
     image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1000&q=80',
     items: [
       {
@@ -71,7 +81,7 @@ const looks: OutfitLook[] = [
         price: 4850000,
         compareAtPrice: 5600000,
         image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 35, right: 48 },
+        hotspot: { top: 40, right: 50 },
         sizes: ['S', 'M', 'L', 'XL'],
       },
       {
@@ -84,15 +94,6 @@ const looks: OutfitLook[] = [
         hotspot: { top: 60, right: 48 },
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
       },
-    ],
-  },
-  {
-    id: 'look-accessories',
-    title: 'ست اکسسوری و شال مکمل',
-    subtitle: 'اکسسوری‌های دست‌ساز',
-    description: 'هماهنگی شال بلند پشمی بافت ضخیم و دستمال سر ژاکارد نخ پنبه برای تکمیل لوک‌های روزمره و رسمی ادیتوریال.',
-    image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80',
-    items: [
       {
         id: 24,
         slug: 'thick-knit-wool-long-scarf',
@@ -100,7 +101,36 @@ const looks: OutfitLook[] = [
         price: 1250000,
         compareAtPrice: 1550000,
         image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 35, right: 48 },
+        hotspot: { top: 22, right: 52 },
+        sizes: ['Free'],
+      },
+    ],
+  },
+  {
+    id: 'look-accessories',
+    title: 'ست اکسسوری و شال مکمل',
+    subtitle: 'اکسسوری‌های دست‌ساز',
+    description: 'هماهنگی شال بلند پشمی بافت ضخیم، اسکرانچی ابریشم طبیعی و دستمال سر ژاکارد نخ پنبه برای تکمیل لوک‌های روزمره و رسمی ادیتوریال.',
+    image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80',
+    items: [
+      {
+        id: 17,
+        slug: 'natural-silk-autumn-scrunchie',
+        title: 'اسکرانچی ابریشم طبیعی پالت پاییزه',
+        price: 280000,
+        compareAtPrice: 350000,
+        image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=400&q=80',
+        hotspot: { top: 20, right: 52 },
+        sizes: ['Free'],
+      },
+      {
+        id: 24,
+        slug: 'thick-knit-wool-long-scarf',
+        title: 'شال بلند پشمی بافت ضخیم',
+        price: 1250000,
+        compareAtPrice: 1550000,
+        image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=400&q=80',
+        hotspot: { top: 46, right: 48 },
         sizes: ['Free'],
       },
       {
@@ -110,7 +140,7 @@ const looks: OutfitLook[] = [
         price: 390000,
         compareAtPrice: 480000,
         image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 65, right: 48 },
+        hotspot: { top: 72, right: 50 },
         sizes: ['Free'],
       },
     ],
@@ -128,6 +158,7 @@ const selectedSizes = reactive<Record<number, string>>({
   5: 'M',
   9: 'M',
   12: 'M',
+  17: 'Free',
   20: 'Free',
   24: 'Free',
 })
@@ -159,7 +190,7 @@ const bundleTotal = computed(() => {
 // افزودن کل ست به سبد خرید با ۱۰٪ تخفیف
 const addEntireBundleToCart = () => {
   activeLook.value.items.forEach((item) => {
-    const size = selectedSizes[item.id] || item.sizes[0] || 'M'
+    const size = selectedSizes[item.id] || item.sizes[0] || 'Free'
     cartStore.addItem(
       {
         productId: item.id,

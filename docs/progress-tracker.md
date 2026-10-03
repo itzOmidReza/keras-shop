@@ -355,7 +355,16 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
-- **2026-10-03 (`HEAD`)**: `refactor(catalog): pivot domain to four-season apparel and accessories with 24 mock products`
+- **2026-10-03 (`HEAD`)**: `feat(home): polish editorial four-season lifestyle landing page with shop-the-look and category stories`
+  - **Editorial Landing Polish**: Updated `HeroPromoBanner.vue` with Fall 1405 drop hero photography, interactive voucher pill with 1-click clipboard copy and toast feedback, and dual CTAs («مشاهده کالکشن پاییز» and «بررسی اکسسوری‌ها»).
+  - **Category Stories**: Upgraded `CategoryStories.vue` with 7 circular category avatars styled with luxury gradient borders (`bg-gradient-to-tr from-rose via-clay to-sand`) and direct links to active drops and categories.
+  - **Shop The Look**: Enhanced `ShopTheLook.vue` featuring 3 curated lifestyle outfits (Blouse + Pants + Bandana; Coat + Sweater + Scarf; Scrunchie + Scarf + Bandana) with precise pulsing hotspots, popovers, dynamic 10% bundle pricing, and 1-click bundle add-to-cart.
+  - **Seasonal Showcase Grid**: Created `SeasonalShowcaseGrid.vue` with 4 mood cards covering Fall 1405, Winter 1405, Spring 1406, and Capsule Accessories with editorial typography and subtle hover zooms. Wrapped `ShopByActivity.vue` for full backwards compatibility.
+  - **Discovery Tabs & Trust Bar**: Updated `CatalogDiscoveryTabs.vue` with 4 lifestyle tabs («کالکشن جدید (پاییز ۱۴۰۵)», «پوشاک ادیتوریال», «اکسسوری و شال», «تخفیف‌های ویژه»), and updated `StorefrontTrustBar.vue` with 4 lifestyle value propositions (7-day returns, natural fiber guarantee, editorial express packaging, secure Shaparak payment).
+  - **Product Card Micro-Interactions**: Enhanced `ProductCard.vue` with desktop hover quick size selection pills, connecting directly to `useCartStore.addItem` with toast notification.
+  - **E2E Test Hardening**: Hardened `01-auth-otp.spec.ts`, `02-catalog-discovery.spec.ts`, `03-pdp-to-cart.spec.ts`, and `04-checkout-ipg-success.spec.ts` with `waitForLoadState('networkidle')` ensuring flawless cross-browser execution on both dev and production preview servers.
+  - **Quality Gates**: All 6 verification gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`, `test:e2e`).
+- **2026-10-03 (`f97b5e1`)**: `refactor(catalog): pivot domain to four-season apparel and accessories with 24 mock products`
   - **Brand & Domain Pivot**: Transitioned Keras from purely athletic wear to a **Four-Season Lifestyle Fashion & Accessories Brand**.
   - **FastAPI-Ready Domain Typing (`app/types/domain.ts`)**:
     - Defined `ProductDivision`: `'apparel' | 'accessories'`.

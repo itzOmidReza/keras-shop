@@ -4,6 +4,7 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
   test('should validate invalid phone, normalize Persian digits, verify OTP and access account', async ({ page }) => {
     // ۱. باز کردن صفحه اصلی
     await page.goto('/')
+    await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/کراس|Keras/i)
 
     // ۲. کلیک روی دکمه ورود در هدر

@@ -4,16 +4,16 @@ import { siteConfig } from '~/data'
 import HeroPromoBanner from '~/components/home/HeroPromoBanner.vue'
 import CategoryStories from '~/components/home/CategoryStories.vue'
 import FlashDealsRow from '~/components/home/FlashDealsRow.vue'
-import ShopByActivity from '~/components/home/ShopByActivity.vue'
+import SeasonalShowcaseGrid from '~/components/home/SeasonalShowcaseGrid.vue'
 import ShopTheLook from '~/components/home/ShopTheLook.vue'
 import CatalogDiscoveryTabs from '~/components/home/CatalogDiscoveryTabs.vue'
 import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
 
 useSeoMeta({
-  title: `${siteConfig.name} | پوشاک ورزشی تخصصی و طراحی مینیمال`,
-  description: 'فروشگاه تخصصی پوشاک ورزشی و اتلژر کراس؛ بافت‌های فشرده‌ساز ۳۰۰ گرمی ضد دید، فناوری بدون درز و حس پوست دوم.',
-  ogTitle: `${siteConfig.name} | پوشاک ورزشی تخصصی و طراحی مینیمال`,
-  ogDescription: 'فروشگاه تخصصی پوشاک ورزشی و اتلژر کراس؛ بافت‌های فشرده‌ساز ۳۰۰ گرمی ضد دید، فناوری بدون درز و حس پوست دوم.',
+  title: `${siteConfig.name} | خانه مد و اکسسوری لایف‌استایل چهارفصل`,
+  description: 'فروشگاه تخصصی پوشاک چهارفصل و اکسسوری‌های دست‌ساز کراس؛ تلفیق وقار، سادگی و لطافت منسوجات طبیعی لینن، کشمیر و پشم مرینوس.',
+  ogTitle: `${siteConfig.name} | خانه مد و اکسسوری لایف‌استایل چهارفصل`,
+  ogDescription: 'فروشگاه تخصصی پوشاک چهارفصل و اکسسوری‌های دست‌ساز کراس؛ تلفیق وقار، سادگی و لطافت منسوجات طبیعی لینن، کشمیر و پشم مرینوس.',
 })
 
 const { getProducts } = useProducts()
@@ -36,8 +36,8 @@ const { data: featuredProducts } = await useAsyncData(
     <!-- بخش ۳: حراج شتابان و دسترسی سریع به سایزها (Flash Sale with Quick-Add) -->
     <FlashDealsRow :products="featuredProducts || []" />
 
-    <!-- بخش ۴: انتخاب بر اساس فعالیت فیزیولوژیک و نوع تمرین (Shop By Activity) -->
-    <ShopByActivity />
+    <!-- بخش ۴: ویترین کالکشن‌های چهارفصل و مانیفست استایل (Seasonal Showcase Grid) -->
+    <SeasonalShowcaseGrid />
 
     <!-- بخش ۵: استایل تن مدل با هات‌اسپات‌های تعاملی و تخفیف باندل (Shop The Look) -->
     <ShopTheLook />

@@ -4,6 +4,7 @@ test.describe('Full 2-Step Checkout & Simulated Shaparak IPG Flow', () => {
   test('should complete 2-step checkout, redirect to IPG gateway, simulate payment, verify callback, and track order', async ({ page }) => {
     // ۱. افزودن کالا به سبد خرید از طریق صفحه محصول
     await page.goto('/products/karen-slub-linen-blouse')
+    await page.waitForLoadState('networkidle')
     const sizePill = page.getByRole('button', { name: 'M', exact: true }).first()
     await sizePill.click()
     const addToCartBtn = page.getByRole('button', { name: 'افزودن به سبد خرید' }).first()
@@ -11,6 +12,7 @@ test.describe('Full 2-Step Checkout & Simulated Shaparak IPG Flow', () => {
 
     // رفتن به صفحه سبد خرید و سپس تسویه‌حساب
     await page.goto('/cart')
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('h1')).toContainText('سبد خرید')
 
     const proceedToCheckoutBtn = page.getByRole('button', { name: /ادامه جهت تسویه حساب/i }).first()

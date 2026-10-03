@@ -4,6 +4,7 @@ import type { ProductListItem } from '~/types/domain'
 import { Heart } from '@lucide/vue'
 import { productLines } from '~/data'
 import { useWishlistStore } from '~/stores/wishlist'
+import { useCartStore } from '~/stores/cart'
 
 interface Props {
   product: ProductListItem
@@ -15,7 +16,37 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const wishlistStore = useWishlistStore()
+const cartStore = useCartStore()
 const isFavorite = computed(() => wishlistStore.isInWishlist(props.product.id))
+
+const availableSizes = computed(() => {
+  if (props.product.sizes && props.product.sizes.length > 0) {
+    return props.product.sizes
+  }
+  if (props.product.available_sizes && props.product.available_sizes.length > 0) {
+    return props.product.available_sizes
+  }
+  return ['Free']
+})
+
+const quickAddSize = (size: string, event: Event) => {
+  event.stopPropagation()
+  event.preventDefault()
+  const primaryColor = props.product.colors?.[0]?.name || 'پیش‌فرض'
+  const price = props.product.price ?? props.product.base_price
+
+  cartStore.addItem({
+    productId: props.product.id,
+    title: props.product.title,
+    price,
+    compareAtPrice: props.product.compare_at_price,
+    size,
+    color: primaryColor,
+    image: primaryImage.value,
+    slug: props.product.slug,
+    maxStock: 10,
+  }, 1)
+}
 
 // استخراج تصویر اول و دوم برای هاور موشن مینیمال
 const primaryImage = computed(() => {
@@ -98,6 +129,25 @@ const productBadgeClass = computed(() => {
           :class="isFavorite ? 'fill-rose text-rose' : 'text-ink/80'"
         />
       </button>
+
+      <!-- پیل‌های انتخاب سریع سایز در هاور کارت دسکتاپ -->
+      <div
+        class="absolute inset-x-2 bottom-2 z-10 translate-y-3 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hidden sm:flex flex-col items-center gap-1 p-2 rounded-xl bg-white/95 backdrop-blur-md shadow-xs border border-sand/60"
+        @click.stop.prevent
+      >
+        <span class="text-[9px] font-bold text-muted-foreground">انتخاب سریع سایز:</span>
+        <div class="flex flex-wrap items-center justify-center gap-1">
+          <button
+            v-for="s in availableSizes"
+            :key="s"
+            type="button"
+            class="px-2 py-0.5 text-[10px] font-bold rounded-md border border-sand bg-paper hover:bg-ink hover:text-paper hover:border-ink text-ink transition-colors cursor-pointer active:scale-95"
+            @click.stop.prevent="quickAddSize(s, $event)"
+          >
+            {{ s }}
+          </button>
+        </div>
+      </div>
     </NuxtLink>
 
     <!-- اطلاعات متنی محصول -->

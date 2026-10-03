@@ -48,7 +48,7 @@ const copyVoucher = async () => {
 
         <!-- عنوان اصلی کمپین -->
         <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-paper leading-[1.15] sm:leading-[1.15]">
-          تلاقی ظرافت مدرن و استایل چهارفصل
+          کالکشن پاییز ۱۴۰۵ — تلفیق وقار، سادگی و لطافت منسوجات طبیعی
         </h1>
 
         <!-- توضیحات کوتاه -->
@@ -85,7 +85,7 @@ const copyVoucher = async () => {
             to="/shop?season=fall-1405"
             class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-rose/90 transition-all cursor-pointer active:scale-95"
           >
-            <span>کالکشن جدید (پاییز ۱۴۰۵)</span>
+            <span>مشاهده کالکشن پاییز</span>
             <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
           </NuxtLink>
 
@@ -93,7 +93,7 @@ const copyVoucher = async () => {
             to="/shop?division=accessories"
             class="inline-flex items-center justify-center gap-2 rounded-xl border border-paper/40 bg-paper/10 backdrop-blur-xs px-6 py-3.5 text-xs sm:text-sm font-bold text-paper hover:bg-paper hover:text-ink transition-all cursor-pointer active:scale-95"
           >
-            <span>اکسسوری و شال</span>
+            <span>بررسی اکسسوری‌ها</span>
           </NuxtLink>
         </div>
 

@@ -4,6 +4,7 @@ test.describe('PDP, Metric Size Guide, Cart & Wishlist Flow', () => {
   test('should verify metric size guide, select size, add to cart, and toggle wishlist', async ({ page }) => {
     // ۱. ناوبری به صفحه محصول مشخص
     await page.goto('/products/karen-slub-linen-blouse')
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('h1')).toContainText('شومیز')
 
     // ۲. باز کردن مدال راهنمای سایز
