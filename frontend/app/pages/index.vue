@@ -9,7 +9,6 @@ import TrendingCarousel from '~/components/home/TrendingCarousel.vue'
 import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
 import BrandLogosMarquee from '~/components/home/BrandLogosMarquee.vue'
 import StoreJournalGrid from '~/components/home/StoreJournalGrid.vue'
-import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
 
 useSeoMeta({
   title: `${siteConfig.name} | خانه مد و اکسسوری لایف‌استایل پاییز ۱۴۰۵`,
@@ -29,7 +28,7 @@ const { data: featuredProducts } = await useAsyncData(
 
 <template>
   <div class="space-y-16 lg:space-y-24 pb-16 overflow-hidden">
-    <!-- بخش ۱: هیرو ادیتوریال بوتیک با سوشال پروف و نوار اعتماد (Hero Boutique) -->
+    <!-- بخش ۱: هیرو ادیتوریال بوتیک با بج اصالت نسخه محدود پاییز (Hero Boutique) -->
     <HeroBoutique />
 
     <!-- بخش ۲: کاروسل تک‌ردیفه روان تخفیف‌های شتابان با Swiper.js (Flash Deals Carousel) — ایجاد تنفس بصری بین هیرو و بنتو -->
@@ -47,13 +46,10 @@ const { data: featuredProducts } = await useAsyncData(
     <!-- بخش ۶: اسلایدر اتوپلی لوک‌های تن مدل با هات‌اسپات‌های تعاملی (Shop-The-Look Slider) -->
     <ShopTheLookSlider />
 
-    <!-- بخش ۷: مارکی بی‌نهایت لوگوتایپ‌های مونوکروم برندهای همکار با فیلتر اختصاصی کاتالوگ (Brand Logos Marquee) -->
+    <!-- بخش ۷: مارکی پیوسته تایپوگرافی مونوکروم وکتوری برندهای لوکس (Pure Brand Logos Marquee) -->
     <BrandLogosMarquee />
 
     <!-- بخش ۸: شبکه ۳ ستونه مجله و ژورنال ادیتوریال مد (Editorial Store Journal Grid) -->
     <StoreJournalGrid />
-
-    <!-- بخش ۹: نوار شاخص‌های اعتماد و ضمانت خرید (Footer Trust Guarantee Bar) -->
-    <StorefrontTrustBar />
   </div>
 </template>

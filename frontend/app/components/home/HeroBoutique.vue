@@ -3,35 +3,7 @@
 import {
   Sparkles,
   ArrowLeft,
-  Star,
-  Truck,
-  RotateCcw,
-  ShieldCheck,
-  Headphones,
 } from '@lucide/vue'
-
-const trustBadges = [
-  {
-    icon: Truck,
-    title: 'ارسال اکسپرس',
-    description: 'تحویل سریع سراسری',
-  },
-  {
-    icon: RotateCcw,
-    title: '۷ روز ضمانت بازگشت',
-    description: 'تعویض بدون قید و شرط',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'پرداخت امن شاپرک',
-    description: 'تاییدیه آنی بانکی',
-  },
-  {
-    icon: Headphones,
-    title: 'پشتیبانی کانسیرژ',
-    description: 'مشاوره استایلینگ',
-  },
-]
 </script>
 
 <template>
@@ -41,10 +13,10 @@ const trustBadges = [
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         <!-- ستون متنی و اکشن‌ها (در RTL سمت راست) -->
         <div class="lg:col-span-7 space-y-6 text-start">
-          <!-- برچسب دراپ فصلی -->
+          <!-- برچسب دراپ فصلی و تیراژ محدود -->
           <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sand/60 border border-sand text-ink text-xs font-bold shadow-2xs">
             <Sparkles class="w-3.5 h-3.5 text-rose" />
-            <span>کالکشن جدید پاییز ۱۴۰۵</span>
+            <span>طراحی اختصاصی • تیراژ محدود پاییز ۱۴۰۵</span>
           </div>
 
           <!-- عنوان پرصلابت ادیتوریال -->
@@ -56,17 +28,17 @@ const trustBadges = [
 
           <!-- توضیحات کوتاه با اشاره به الیاف طبیعی -->
           <p class="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
-            کالکشن پاییز ۱۴۰۵ کراس؛ تلفیق وقار، دوخت مینیمال و لطافت منسوجات طبیعی لینن اسلپ، بافت‌های چندلایه کشمیر و ابریشم خالص برای زنانی که به اصالت پوشش اهمیت می‌دهند.
+            تلفیق پارچه‌های الیاف طبیعی، بافت‌های مرینوس و ابریشم خالص با الگوهای مدرن برای بانوان آگاه.
           </p>
 
-          <!-- دکمه CTA و سوشال پروف -->
-          <div class="space-y-6 pt-2">
+          <!-- دکمه‌های CTA و نشان اصالت دست‌دوز آتلیه کراس -->
+          <div class="space-y-5 pt-2">
             <div class="flex flex-wrap items-center gap-4">
               <NuxtLink
                 to="/shop?season=fall-1405"
                 class="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-7 py-3.5 text-xs sm:text-sm font-bold text-paper hover:bg-rose transition-all shadow-xs active:scale-95 cursor-pointer"
               >
-                <span>مشاهده و خرید کالکشن</span>
+                <span>مشاهده کالکشن پاییز</span>
                 <ArrowLeft class="w-4 h-4" />
               </NuxtLink>
 
@@ -78,60 +50,22 @@ const trustBadges = [
               </NuxtLink>
             </div>
 
-            <!-- ویجت تایید اجتماعی (Social Proof Widget) بر اساس رفرنس Luxora & ChicWave -->
-            <div class="flex items-center gap-4 pt-1">
-              <!-- کلاستر آواتار خریداران -->
-              <div class="flex items-center -space-x-2 rtl:space-x-reverse">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
-                  alt="مشتری راضی کراس"
-                  class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-2xs"
-                >
-                <img
-                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&h=100&q=80"
-                  alt="مشتری راضی کراس"
-                  class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-2xs"
-                >
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80"
-                  alt="مشتری راضی کراس"
-                  class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-2xs"
-                >
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80"
-                  alt="مشتری راضی کراس"
-                  class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-2xs"
-                >
-              </div>
-
-              <!-- ریتینگ و تعداد مشتریان -->
-              <div class="space-y-0.5 text-start">
-                <div class="flex items-center gap-1">
-                  <div class="flex items-center text-amber-400">
-                    <Star
-                      v-for="i in 5"
-                      :key="i"
-                      class="w-3.5 h-3.5 fill-amber-400"
-                    />
-                  </div>
-                  <span class="text-xs font-bold text-ink">۴.۹</span>
-                </div>
-                <p class="text-xs text-muted-foreground font-medium">
-                  بیش از ۲۰ هزار مشتری راضی
-                </p>
-              </div>
+            <!-- بج اصالت آتلیه کراس به جای سوشال پروف ساختگی -->
+            <div class="flex items-center gap-2.5 pt-1 text-xs text-muted-foreground">
+              <span class="w-2 h-2 rounded-full bg-rose animate-pulse" />
+              <span class="font-medium text-ink">کالکشن دست‌دوز استودیو کراس • نسخه محدود پاییز ۱۴۰۵</span>
             </div>
           </div>
         </div>
 
-        <!-- ستون بصری پرتره مدل با پس‌زمینه ارگانیک (در RTL سمت چپ) -->
+        <!-- ستون بصری پرتره مدل با پس‌زمینه ارگانیک و استایل لوکس پاییزه (در RTL سمت چپ) -->
         <div class="lg:col-span-5 relative flex justify-center">
           <!-- قاب ارگانیک پشت تصویر مدل -->
           <div class="relative w-full max-w-[380px] sm:max-w-[420px] aspect-[4/5] rounded-[2.5rem] bg-sand/50 p-3 sm:p-4 border border-sand/80 shadow-sm">
             <div class="w-full h-full rounded-[2rem] overflow-hidden bg-white/70 relative">
               <NuxtImg
-                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80"
-                alt="مدل کالکشن پاییز ۱۴۰۵ کراس"
+                src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80"
+                alt="مدل کالکشن پاییز ۱۴۰۵ کراس با پالتوی پشمی و بافت لوکس"
                 class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
                 loading="eager"
                 fetchpriority="high"
@@ -142,29 +76,6 @@ const trustBadges = [
                 <span class="block text-[10px] text-muted-foreground font-medium">طراحی کپسولی</span>
                 <span class="block text-xs font-bold text-ink">پاییز ۱۴۰۵ • Fall Drop</span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- نوار اطمینان کوچک زیر هیرو (Trust Micro-Bar بر اساس رفرنس Luxora) -->
-      <div class="mt-8 sm:mt-12 pt-6 border-t border-sand/70">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          <div
-            v-for="badge in trustBadges"
-            :key="badge.title"
-            class="flex items-center gap-3 text-start"
-          >
-            <div class="w-10 h-10 rounded-xl bg-rose/10 text-rose flex items-center justify-center shrink-0">
-              <component :is="badge.icon" class="w-5 h-5" />
-            </div>
-            <div>
-              <h3 class="text-xs sm:text-sm font-bold text-ink">
-                {{ badge.title }}
-              </h3>
-              <p class="text-[11px] text-muted-foreground">
-                {{ badge.description }}
-              </p>
             </div>
           </div>
         </div>

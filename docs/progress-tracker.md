@@ -56,7 +56,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 |  #  | Route               | File Path                        |    Status    | Lines | Details / Current Capability                                                                                                                   | Missing / Next Steps                                                       |
 | :-: | :------------------ | :------------------------------- | :----------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  56   | Master 9-section storefront architecture: HeroBoutique (social proof & trust bar), FlashDealsCarousel (Swiper), BentoCategoryGrid, AccessoriesCarousel (Swiper elevated), TrendingCarousel (Swiper), ShopTheLookSlider (Swiper Autoplay), BrandLogosMarquee (clickable monochrome luxury logotypes), StoreJournalGrid (3-card magazine preview), and StorefrontTrustBar | Dynamic CMS banner integration                                             |
+|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  52   | Clean 8-section storefront architecture: HeroBoutique (authentic atelier drop badge & autumn visual), FlashDealsCarousel (Swiper), BentoCategoryGrid, AccessoriesCarousel (Swiper elevated), TrendingCarousel (Swiper), ShopTheLookSlider (Swiper Autoplay), BrandLogosMarquee (pure monochrome floating typographic SVGs), and StoreJournalGrid (3-card magazine preview) | Dynamic CMS banner integration                                             |
 |  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
@@ -356,7 +356,23 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
-- **2026-10-03 (`581d9b6`)**: `feat(home): reorganize storefront rhythm, add clickable brand marquee, and introduce editorial journal grid`
+- **2026-10-03 (`b62b63b`)**: `fix(home): redesign authentic hero without fake proof, clean brand logotypes, and purge trust bar`
+  - **Authentic Hero Realignment (`HeroBoutique.vue`)**:
+    - Purged fake social proof (customer avatar cluster, star ratings, and "بیش از ۲۰ هزار مشتری راضی") to protect luxury credibility.
+    - Added authentic Atelier limited drop pill badge: «کالکشن دست‌دوز استودیو کراس • نسخه محدود پاییز ۱۴۰۵» and top craft badge «طراحی اختصاصی • تیراژ محدود پاییز ۱۴۰۵».
+    - Updated hero visual to a warm, sophisticated autumn editorial fashion portrait (`photo-1539109136881-3be0616acf4b`).
+    - Streamlined CTAs: Primary «مشاهده کالکشن پاییز» (with leftward RTL arrow) and Secondary «اکسسوری و شال‌ها».
+    - Removed repetitive 4-service sub-bar from the hero container for visual focus and editorial breathing room.
+  - **Graphic Polish & Pure Typography Marquee (`BrandLogosMarquee.vue`)**:
+    - Stripped away all white card wrappers, borders, shadows, and Persian body text/counts.
+    - Rendered clean, pure monochrome typographic SVG logotypes (TOTÊME, MASSIMO DUTTI, COS, ZARA, MANGO, KERAS ATELIER) directly floating on `bg-sand/20`.
+    - Maintained continuous smooth Swiper ticker with silky hover opacity transitions and direct shop catalog filter navigation (`/shop?brand=<slug>`).
+  - **Trust Bar Purge & 8-Section Master Sequence (`index.vue`)**:
+    - Completely removed and unmounted `StorefrontTrustBar.vue` from `app/pages/index.vue`.
+    - Established the streamlined 8-section luxury cadence: Hero -> Flash Deals -> Bento Grid -> Accessories -> Trending -> Shop The Look -> Pure Brand Marquee -> Store Journal Grid.
+  - **E2E Test Suite Update (`02-catalog-discovery.spec.ts`)**: Updated brand marquee selector to assert direct brand logo link presence, all 10 Playwright tests passing with Exit Code 0.
+  - **Quality Gates**: All 6 verification gates passed cleanly with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e` [10/10], `build`).
+- **2026-10-03 (`bd27042`)**: `feat(home): reorganize storefront rhythm, add clickable brand marquee, and introduce editorial journal grid`
   - **Optimal 9-Section Storefront Rhythm (`index.vue`)**: Reorganized the landing page flow into an editorial cadence that prevents optical clashing between visual heroes: `HeroBoutique` -> `FlashDealsCarousel` (commercial breathing room) -> `BentoCategoryGrid` -> `AccessoriesCarousel` (elevated upper-middle placement) -> `TrendingCarousel` -> `ShopTheLookSlider` -> `BrandLogosMarquee` -> `StoreJournalGrid` -> `StorefrontTrustBar`.
   - **Clickable Luxury Brand Logotypes (`BrandLogosMarquee.vue`)**: Replaced plain text partners with authentic monochrome vector/SVG logotypes for 6 high-fashion houses (Keras Atelier, Totême, Massimo Dutti, COS, Zara, Mango). Each slide is an interactive pill (`/shop?brand=<slug>`) with pause-on-hover smooth infinite Swiper marquee.
   - **Brand Domain Typing & Mock Catalog Filtering**:

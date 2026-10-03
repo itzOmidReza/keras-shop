@@ -66,8 +66,8 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     const journalHeading = page.getByRole('heading', { name: /روایت پارچه‌ها و هنر استایلینگ/i })
     await expect(journalHeading).toBeVisible()
 
-    const brandLogosHeader = page.getByText(/برندها و آتلیه‌های منتخب چهارفصل/i)
-    await expect(brandLogosHeader).toBeVisible()
+    const brandLink = page.locator('a[href*="brand=toteme"]').first()
+    await expect(brandLink).toBeVisible()
 
     // ۳. ناوبری مستقیم به فروشگاه با فیلتر برند (مثلاً Totême)
     await page.goto('/shop?brand=toteme')
