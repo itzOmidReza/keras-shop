@@ -223,7 +223,7 @@ const recentOrder = computed(() => authStore.orders[0] || null)
         </p>
       </div>
 
-      <div class="pt-2">
+      <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
         <button
           type="button"
           class="w-full sm:w-auto min-w-56 h-12 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs inline-flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
@@ -231,6 +231,16 @@ const recentOrder = computed(() => authStore.orders[0] || null)
         >
           <span>ورود یا عضویت با پیامک (OTP)</span>
           <ArrowLeft class="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          data-testid="demo-login-btn"
+          class="w-full sm:w-auto h-12 px-5 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+          @click="authStore.loginAsMockUser()"
+        >
+          <Sparkles class="w-4 h-4 text-rose" />
+          <span>ورود سریع آزمایشی (اکانت دمو)</span>
         </button>
       </div>
     </div>

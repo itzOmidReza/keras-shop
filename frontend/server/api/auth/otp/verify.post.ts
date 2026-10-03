@@ -15,11 +15,12 @@ export default defineEventHandler(async (event): Promise<OtpVerifyResponse> => {
   const cleanPhone = body.phoneNumber.trim();
   const cleanCode = body.code.trim();
 
-  // کد تست پیش‌فرض بر اساس استانداردهای تست پروژه ۱۲۳۴۵ است
-  if (cleanCode !== '12345') {
+  // کدهای تستی مجاز در محیط توسعه (۱۲۳۴، ۱۲۳۴۵، ۱۲۳۴۵۶)
+  const allowedDevCodes = ['1234', '12345', '123456', '1111', '11111'];
+  if (!allowedDevCodes.includes(cleanCode)) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'کد تایید وارد شده نامعتبر است یا منقضی شده است (کد تستی: ۱۲۳۴۵).',
+      statusMessage: 'کد تایید وارد شده نامعتبر است یا منقضی شده است (کد تستی: ۱۲۳۴ یا ۱۲۳۴۵ یا ۱۲۳۴۵۶).',
     });
   }
 

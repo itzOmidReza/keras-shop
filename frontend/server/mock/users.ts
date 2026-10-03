@@ -6,10 +6,10 @@ import type {
 } from '~/types/domain';
 
 export const mockCurrentUser: User = {
-  id: 'usr_keras_001',
-  phoneNumber: '09123456789',
-  fullName: 'سارا ملکی',
-  email: 'sara.maleki@example.com',
+  id: 'usr_demo_1405',
+  phoneNumber: '09121112233',
+  fullName: 'سارا رادمنش',
+  email: 'sara.rad@example.com',
   createdAt: '2026-01-15T09:00:00Z',
 };
 
@@ -21,22 +21,22 @@ export const updateMockUser = (partial: Partial<User>) => {
 export const mockAddresses: UserAddress[] = [
   {
     id: 'addr_1',
-    title: 'منزل (تهران)',
-    fullName: 'سارا ملکی',
-    phoneNumber: '09123456789',
+    title: 'منزل',
+    fullName: 'سارا رادمنش',
+    phoneNumber: '09121112233',
     province: 'تهران',
     city: 'تهران',
-    postalCode: '1985912345',
-    exactAddress: 'خیابان ولیعصر، بالاتر از پارک وی، کوچه مریم، پلاک ۱۲',
-    buildingNumber: '۱۲',
-    unit: '۴',
+    postalCode: '1983963111',
+    exactAddress: 'زعفرانیه، خیابان مقدس اردبیلی، پلاک ۲۴، واحد ۶',
+    buildingNumber: '۲۴',
+    unit: '۶',
     isDefault: true,
   },
   {
     id: 'addr_2',
     title: 'محل کار (استودیو یوگا)',
-    fullName: 'سارا ملکی',
-    phoneNumber: '09123456789',
+    fullName: 'سارا رادمنش',
+    phoneNumber: '09121112233',
     province: 'تهران',
     city: 'تهران',
     postalCode: '1415698765',

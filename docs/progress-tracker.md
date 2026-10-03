@@ -126,7 +126,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 - [x] `cart.ts`: Persistent Pinia store (`keras_cart_items`), coupon engine, free shipping threshold
 - [x] `wishlist.ts`: Persistent Pinia store (`keras_wishlist_items`), toggles, item count
-- [x] `auth.ts`: Persistent Pinia store (`keras_auth_token`, `keras_user_data`), session management, address book CRUD, order history, profile updates
+- [x] `auth.ts`: Persistent Pinia store (`keras_auth_token`, `keras_user_data`, `auth_token`, `auth_user`), SSR cookies synchronization, development mock bypass (`loginAsMockUser()`), session management, address book CRUD, order history, profile updates
+- [x] `useAuth.ts`: Composable wrapper exporting `useAuthStore`
 
 ### 4.3 Nitro Server API Layer (`server/`)
 
@@ -136,10 +137,10 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `GET /api/products/[slug]/related`: Line-based cross-sell products
 - [x] `POST /api/coupons/validate`: Coupon voucher verification
 - [x] `POST /api/orders/create`: Order creation receipt (pushes to `mockOrders` & `mockUserOrders`)
-- [x] `server/mock/users.ts`: User profile, addresses, and orders mock repository
+- [x] `server/mock/users.ts`: User profile, addresses, and orders mock repository (demo user Sara Radmanesh `usr_demo_1405`)
 - [x] `server/mock/orders.ts`: Unified persistent guest & member order repository (KERAS-104921, KERAS-208314, KERAS-309115)
 - [x] `POST /api/auth/otp/send`: SMS OTP dispatch with Iranian phone validation (422) and 120s cooldown
-- [x] `POST /api/auth/otp/verify`: OTP validation ('12345'), JWT token issuance, and user profile update
+- [x] `POST /api/auth/otp/verify` & `POST /api/auth/verify-otp`: Multi-code dev bypass ('1234', '12345', '123456', '1111', '11111'), OTP validation, JWT token issuance, and user profile update
 - [x] `GET /api/user/profile` & `PUT /api/user/profile`: Profile read and update contracts
 - [x] `GET /api/user/addresses`, `POST /api/user/addresses` & `DELETE /api/user/addresses/[id]`: Address book endpoints
 - [x] `GET /api/user/orders`: User order history endpoint
@@ -356,6 +357,22 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
+- **2026-10-03**: `feat(auth): add dev bypass and demo account login for seamless testing`
+  - **Mock Authentication Action (`useAuthStore` & `useAuth`)**:
+    - Implemented development bypass action `loginAsMockUser()` in Pinia store `app/stores/auth.ts` and exported via composable `app/composables/useAuth.ts`.
+    - Populates client reactive state (`user`, `token`, `addresses`, `orders`), browser localStorage (`keras_auth_token`, `keras_user_data`), and SSR cookies (`auth_token`, `auth_user`, `keras_auth_token`, `keras_user_data`) with demo profile Sara Radmanesh (`usr_demo_1405`, `09121112233`, `sara.rad@example.com`, Zafaraniyeh address, and 3 orders).
+    - Hardened SSR cookie synchronization in store watcher and `logout()` to clear all cookies and storage without warnings.
+  - **Quick Demo Login Buttons (`account.vue` & `AuthModal.vue`)**:
+    - Added styled demo login button «ورود سریع آزمایشی (اکانت دمو)» with Sparkles icon (`data-testid="demo-login-btn"`) on the `/account` guest card.
+    - Added demo login button (`data-testid="modal-demo-login-btn"` & `data-testid="modal-demo-login-btn-step2"`) in `AuthModal.vue` Step 1 (phone input) and Step 2 (OTP code) with divider, navigating directly to `/account`.
+  - **Nitro Endpoint Dev OTP Bypass**:
+    - Updated `POST /api/auth/otp/verify` and created alias `POST /api/auth/verify-otp` to unconditionally accept development OTP codes (`1234`, `12345`, `123456`, `1111`, `11111`).
+    - Synchronized mock repository in `server/mock/users.ts` with demo user Sara Radmanesh.
+  - **Playwright E2E Suite Expansion (`01-auth-otp.spec.ts`)**:
+    - Added test for direct `/account` bypass rendering user dashboard with Sara Radmanesh and order history tabs.
+    - Added test for 1-click bypass from `AuthModal.vue`.
+    - All 14 Playwright tests passed across Chrome and Mobile Safari.
+  - **Quality Gates**: All 6 verification gates passed cleanly with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e` [14/14], `build`).
 - **2026-10-03 (`b62b63b`)**: `fix(home): redesign authentic hero without fake proof, clean brand logotypes, and purge trust bar`
   - **Authentic Hero Realignment (`HeroBoutique.vue`)**:
     - Purged fake social proof (customer avatar cluster, star ratings, and "بیش از ۲۰ هزار مشتری راضی") to protect luxury credibility.

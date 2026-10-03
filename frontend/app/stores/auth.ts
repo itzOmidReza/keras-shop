@@ -19,13 +19,29 @@ export const useAuthStore = defineStore('auth', () => {
   const isHydrated = ref(false);
   const isLoading = ref(false);
 
+  // کوکی‌های SSR برای دسترسی پایدار میان کلاینت و سرور
+  const cookieAuthToken = useCookie<string | null>('auth_token', { maxAge: 30 * 24 * 60 * 60, path: '/' });
+  const cookieAuthUser = useCookie<User | null>('auth_user', { maxAge: 30 * 24 * 60 * 60, path: '/' });
+  const cookieKerasToken = useCookie<string | null>('keras_auth_token', { maxAge: 30 * 24 * 60 * 60, path: '/' });
+  const cookieKerasUser = useCookie<User | null>('keras_user_data', { maxAge: 30 * 24 * 60 * 60, path: '/' });
+
+  // خواندن اولیه از کوکی‌ها برای هیدراتاسیون SSR
+  if (!token.value) {
+    const initialToken = cookieAuthToken.value || cookieKerasToken.value;
+    const initialUser = cookieAuthUser.value || cookieKerasUser.value;
+    if (initialToken && initialUser) {
+      token.value = initialToken;
+      user.value = initialUser;
+    }
+  }
+
   // ۱. هیدراتاسیون ایمن در کلاینت برای جلوگیری از خطای عدم تطابق SSR
   if (import.meta.client) {
     const hydrate = () => {
       try {
         if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-          const savedToken = window.localStorage.getItem('keras_auth_token');
-          const savedUser = window.localStorage.getItem('keras_user_data');
+          const savedToken = window.localStorage.getItem('keras_auth_token') || cookieAuthToken.value;
+          const savedUser = window.localStorage.getItem('keras_user_data') || (cookieAuthUser.value ? (typeof cookieAuthUser.value === 'string' ? cookieAuthUser.value : JSON.stringify(cookieAuthUser.value)) : null);
           if (savedToken && savedUser) {
             token.value = savedToken;
             user.value = JSON.parse(savedUser);
@@ -47,17 +63,31 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     watch([user, token], ([newUser, newToken]) => {
-      if (isHydrated.value && typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-        try {
-          if (newToken && newUser) {
-            window.localStorage.setItem('keras_auth_token', newToken);
-            window.localStorage.setItem('keras_user_data', JSON.stringify(newUser));
-          } else {
-            window.localStorage.removeItem('keras_auth_token');
-            window.localStorage.removeItem('keras_user_data');
+      if (isHydrated.value) {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          try {
+            if (newToken && newUser) {
+              window.localStorage.setItem('keras_auth_token', newToken);
+              window.localStorage.setItem('keras_user_data', JSON.stringify(newUser));
+            } else {
+              window.localStorage.removeItem('keras_auth_token');
+              window.localStorage.removeItem('keras_user_data');
+            }
+          } catch {
+            // نادیده گرفتن خطای فضای ذخیره‌سازی
           }
-        } catch {
-          // نادیده گرفتن خطای فضای ذخیره‌سازی
+        }
+        // همگام‌سازی کوکی‌ها
+        if (newToken && newUser) {
+          cookieAuthToken.value = newToken;
+          cookieAuthUser.value = newUser;
+          cookieKerasToken.value = newToken;
+          cookieKerasUser.value = newUser;
+        } else {
+          cookieAuthToken.value = null;
+          cookieAuthUser.value = null;
+          cookieKerasToken.value = null;
+          cookieKerasUser.value = null;
         }
       }
     }, { deep: true });
@@ -130,6 +160,11 @@ export const useAuthStore = defineStore('auth', () => {
     addresses.value = [];
     orders.value = [];
 
+    cookieAuthToken.value = null;
+    cookieAuthUser.value = null;
+    cookieKerasToken.value = null;
+    cookieKerasUser.value = null;
+
     if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
       window.localStorage.removeItem('keras_auth_token');
       window.localStorage.removeItem('keras_user_data');
@@ -142,6 +177,68 @@ export const useAuthStore = defineStore('auth', () => {
         navigateTo('/');
       }
     }
+  }
+
+  /**
+   * ورود سریع آزمایشی در محیط توسعه (Bypass Mock Auth)
+   * جهت دسترسی فوری به پیشخوان کاربری و تست امکانات بدون نیاز به دریافت پیامک
+   */
+  function loginAsMockUser(): void {
+    const demoUser = {
+      id: 'usr_demo_1405',
+      name: 'سارا رادمنش',
+      fullName: 'سارا رادمنش',
+      phone: '09121112233',
+      phoneNumber: '09121112233',
+      email: 'sara.rad@example.com',
+      createdAt: '2026-09-01T10:00:00Z',
+      ordersCount: 3,
+    };
+
+    const demoAddress: UserAddress & { fullAddress: string } = {
+      id: 'addr_1',
+      title: 'منزل',
+      fullName: 'سارا رادمنش',
+      phoneNumber: '09121112233',
+      province: 'تهران',
+      city: 'تهران',
+      postalCode: '1983963111',
+      exactAddress: 'زعفرانیه، خیابان مقدس اردبیلی، پلاک ۲۴، واحد ۶',
+      fullAddress: 'زعفرانیه، خیابان مقدس اردبیلی، پلاک ۲۴، واحد ۶',
+      buildingNumber: '۲۴',
+      unit: '۶',
+      isDefault: true,
+    };
+
+    const demoToken = 'keras_jwt_mock_dev_token_1405';
+
+    token.value = demoToken;
+    user.value = demoUser;
+    addresses.value = [demoAddress];
+
+    // ذخیره در کوکی‌های SSR
+    cookieAuthToken.value = demoToken;
+    cookieAuthUser.value = demoUser;
+    cookieKerasToken.value = demoToken;
+    cookieKerasUser.value = demoUser;
+
+    // ذخیره در فضای محلی مرورگر
+    if (import.meta.client && typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      try {
+        window.localStorage.setItem('keras_auth_token', demoToken);
+        window.localStorage.setItem('keras_user_data', JSON.stringify(demoUser));
+      } catch {
+        // نادیده گرفتن خطای استوریج
+      }
+    }
+
+    isHydrated.value = true;
+    closeAuthModal();
+
+    // واکشی سوابق سفارش‌ها
+    fetchOrders();
+
+    toast.success('ورود سریع آزمایشی انجام شد (اکانت دمو سارا رادمنش).');
   }
 
   // ۵. اکشن‌های پروفایل و اطلاعات کاربر
@@ -257,6 +354,7 @@ export const useAuthStore = defineStore('auth', () => {
     sendOtp,
     verifyOtp,
     logout,
+    loginAsMockUser,
     fetchProfile,
     updateProfile,
     fetchAddresses,

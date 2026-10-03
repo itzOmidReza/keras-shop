@@ -66,4 +66,51 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
     // نمایش شماره موبایل لاگین شده در داشبورد (با ارقام فارسی یا انگلیسی)
     await expect(page.locator('body')).toContainText(/۰۹۱۲۱۲۳۴۵۶۷|09121234567/)
   })
+
+  test('should bypass authentication using demo account login on /account and open full dashboard', async ({ page }) => {
+    // ۱. مراجعه مستقیم به صفحه حساب کاربری در حالت مهمان
+    await page.goto('/account')
+    await page.waitForLoadState('networkidle')
+    await expect(page).toHaveURL(/.*\/account/)
+
+    // ۲. بررسی وجود دکمه ورود سریع آزمایشی در کارت مهمان
+    const demoLoginBtn = page.locator('[data-testid="demo-login-btn"]')
+    await expect(demoLoginBtn).toBeVisible()
+    await expect(page.getByText('برای دسترسی به پیشخوان، رهگیری سفارش‌ها')).toBeVisible()
+
+    // ۳. کلیک روی دکمه ورود سریع آزمایشی
+    await demoLoginBtn.click()
+
+    // ۴. اطمینان از ناپدید شدن دکمه لاگین مهمان و رندر فوری داشبورد کاربر دمو سارا رادمنش
+    await expect(demoLoginBtn).not.toBeVisible()
+    await expect(page.locator('body')).toContainText('سارا رادمنش')
+    await expect(page.locator('body')).toContainText(/۰۹۱۲۱۱۱۲۲۳۳|09121112233/)
+    await expect(page.locator('body')).toContainText('sara.rad@example.com')
+
+    // ۵. بررسی بارگذاری تب‌های پیشخوان، سفارش‌ها و آدرس‌ها
+    await expect(page.getByRole('button', { name: /سفارش‌های من/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /دفترچه نشانی‌ها/i })).toBeVisible()
+  })
+
+  test('should allow one-click demo login from AuthModal', async ({ page }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    // باز کردن مدال ورود از هدر
+    const userButton = page.locator('header').getByRole('button', { name: 'ورود به حساب کاربری' })
+    await userButton.click()
+
+    const modal = page.locator('div[role="dialog"]')
+    await expect(modal).toBeVisible()
+
+    // کلیک روی دکمه ورود سریع آزمایشی در مدال
+    const modalDemoBtn = modal.locator('[data-testid="modal-demo-login-btn"]')
+    await expect(modalDemoBtn).toBeVisible()
+    await modalDemoBtn.click()
+
+    // انتظار هدایت به صفحه /account و نمایش مشخصات سارا رادمنش
+    await expect(page).toHaveURL(/.*\/account/)
+    await expect(modal).not.toBeVisible()
+    await expect(page.locator('body')).toContainText('سارا رادمنش')
+  })
 })

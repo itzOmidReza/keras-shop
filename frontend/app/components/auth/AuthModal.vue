@@ -126,15 +126,20 @@ const handleVerifyOtp = async () => {
   const cleanPhone = toEn(phoneNumber.value.trim())
   const cleanCode = toEn(otpCode.value.trim())
 
-  if (cleanCode.length !== 5) {
-    otpError.value = 'لطفاً کد تایید ۵ رقمی را به طور کامل وارد کنید.'
+  if (cleanCode.length < 4 || cleanCode.length > 6) {
+    otpError.value = 'لطفاً کد تایید را وارد کنید (کد تستی: ۱۲۳۴ یا ۱۲۳۴۵).'
     return
   }
 
   const success = await authStore.verifyOtp(cleanPhone, cleanCode)
   if (!success) {
-    otpError.value = 'کد وارد شده صحیح نمی‌باشد (کد تستی: ۱۲۳۴۵).'
+    otpError.value = 'کد وارد شده صحیح نمی‌باشد (کد تستی: ۱۲۳۴۵ یا ۱۲۳۴).'
   }
+}
+
+const handleDemoLoginModal = () => {
+  authStore.loginAsMockUser()
+  navigateTo('/account')
 }
 
 // گوش دادن به تکمیل خودکار کد OTP و پاک‌سازی ارقام غیر انگلیسی
@@ -148,7 +153,7 @@ watch(otpCode, (newVal) => {
     if (otpError.value) {
       otpError.value = ''
     }
-    if (converted.length === 5 && !authStore.isLoading) {
+    if ((converted.length === 5 || converted.length === 6) && !authStore.isLoading) {
       handleVerifyOtp()
     }
   }
@@ -259,6 +264,24 @@ const handleBackToPhone = () => {
           </template>
         </button>
 
+        <!-- دکمه ورود سریع تستی/دمو -->
+        <div class="relative flex items-center justify-center my-3">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-sand" />
+          </div>
+          <span class="relative px-3 bg-paper text-[11px] text-muted-foreground font-medium">یا</span>
+        </div>
+
+        <button
+          type="button"
+          data-testid="modal-demo-login-btn"
+          class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+          @click="handleDemoLoginModal"
+        >
+          <Sparkles class="w-3.5 h-3.5 text-rose" />
+          <span>ورود سریع آزمایشی (اکانت دمو)</span>
+        </button>
+
         <!-- نکات امنیتی و حریم خصوصی -->
         <div class="pt-2 border-t border-sand/60 flex items-center gap-2 text-[10px] text-muted-foreground">
           <ShieldCheck class="w-4 h-4 text-sage shrink-0" />
@@ -303,13 +326,13 @@ const handleBackToPhone = () => {
           </p>
 
           <p class="text-[11px] text-muted-foreground text-center">
-            کد تستی جهت ارزیابی سیستم: <span class="font-mono font-bold text-rose">12345</span>
+            کد تستی جهت ارزیابی سیستم: <span class="font-mono font-bold text-rose">12345</span> یا <span class="font-mono font-bold text-rose">1234</span>
           </p>
         </div>
 
         <button
           type="button"
-          :disabled="authStore.isLoading || otpCode.length !== 5"
+          :disabled="authStore.isLoading || otpCode.length < 4"
           class="w-full h-12 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           @click="handleVerifyOtp"
         >
@@ -318,6 +341,24 @@ const handleBackToPhone = () => {
             <CheckCircle2 class="w-4 h-4" />
             <span>تایید و ورود به حساب</span>
           </template>
+        </button>
+
+        <!-- دکمه ورود سریع دمو در استپ ۲ -->
+        <div class="relative flex items-center justify-center my-1">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-sand" />
+          </div>
+          <span class="relative px-3 bg-paper text-[11px] text-muted-foreground font-medium">یا</span>
+        </div>
+
+        <button
+          type="button"
+          data-testid="modal-demo-login-btn-step2"
+          class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+          @click="handleDemoLoginModal"
+        >
+          <Sparkles class="w-3.5 h-3.5 text-rose" />
+          <span>ورود سریع آزمایشی (اکانت دمو)</span>
         </button>
 
         <!-- تایمر ارسال مجدد -->
