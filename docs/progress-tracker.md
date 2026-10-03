@@ -22,10 +22,10 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)          |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
-| **Total Route Pages**   | **26** (23 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
-| **Domain Components**   | **32** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
+| **Total Route Pages**   | **27** (24 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
+| **Domain Components**   | **34** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **100%** (Production-Ready Storefront, All 26 Routes Complete)       |
+| **Overall Completion**  | **100%** (Production-Ready Storefront, All 27 Routes Complete)       |
 
 ```
 Overall Progress:       [████████████████████] 100%
@@ -82,6 +82,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 24  | `/checkout/gateway` | `app/pages/checkout/gateway.vue` | **Complete** |  365  | Dedicated minimal Shaparak gateway portal, 10-min countdown timer, card 4-slot grouping, bank BIN detection, dynamic OTP, and dev simulation buttons | Live banking switch API connection                                         |
 | 25  | `/checkout/callback`| `app/pages/checkout/callback.vue`| **Complete** |  225  | Animated verification spinner, verify API call, auto-redirect to success receipt, preserved-cart retry flow on failure                         | Multi-acquirer fallback                                                    |
 | 26  | `/login`            | `app/pages/login.vue`            | **Complete** |  320  | Standalone split editorial login page with 11-digit Iranian mobile input, terms agreement, 5-slot InputOTP, 120s timer, dev demo bypass, and redirect preservation | Social login providers (future)                                            |
+| 27  | `/internal-ops-nexus`| `app/pages/internal-ops-nexus/index.vue` | **Complete** | 1256 | Stealth Super Admin Operations Command Center (HQ Nexus) protected by `ops-guard` (404 for unauthenticated/customers), Executive Analytics, Fulfillment Desk with Iran Post 24-digit barcode dispatcher, SKU variant stock matrix with low-stock alerts, and discount engine management | Multi-warehouse inventory sync                                             |
 
 ---
 
@@ -93,6 +94,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Layout**: `AppFooter.vue` (brand links, newsletter subscription, copyright)
 - [x] **Layout**: `MobileNav.vue` (drawer navigation with quick links and badges)
 - [x] **Layout**: `layouts/account.vue` (Dedicated 2-column luxury account layout with sticky right profile card, vertical navigation, and responsive mobile scroll tabs)
+- [x] **Layout**: `layouts/ops.vue` (Dedicated enterprise ops command center layout with dark slate theme tokens, collapsible sidebar, live server heartbeat monitor, Jalali live clock, and session lock)
+- [x] **Middleware**: `middleware/ops-guard.ts` (Stealth Super Admin route guard concealing `/internal-ops-nexus` with fatal 404 Not Found error for non-super-admins)
 - [x] **Product**: `ProductCard.vue` (dual image hover, floating heart toggle, line pill)
 - [x] **Product**: `ProductGallery.vue` (multi-image thumbnail carousel & view)
 - [x] **Product**: `ProductTabs.vue` (description, technical details, care instructions)
@@ -245,6 +248,15 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-03 (`HEAD`)**: `feat(core): implement dedicated account layout, guest checkout otp, and stealth super admin ops nexus`
+  - Created stealth Super Admin Operations Command Center (`frontend/app/pages/internal-ops-nexus/index.vue`) protected by `ops-guard.ts` middleware throwing standard 404 Not Found error (`statusCode: 404`, `fatal: true`) for guests and regular customers to conceal existence from web scanners.
+  - Built dedicated enterprise ops layout (`frontend/app/layouts/ops.vue`) in dark slate (`bg-ops-dark text-slate-100`) featuring collapsible operational sidebar, live server heartbeat monitor, Persian live clock, quick refresh, and session lock.
+  - Implemented 5 operational command desks: Executive Analytics (Gross Revenue, Net Margin, AOV, Active Carts), Order Fulfillment Desk with Iran Post 24-digit barcode modal and status transitions, SKU Variant Stock Matrix with urgent low-stock alerts, and Discount Engine Management with voucher creation and toggling.
+  - Added Super Admin role support (`role: 'super_admin'`) across types, mock users (`09129990000`), login endpoints, and dev bypass buttons on `/login` and `AuthModal.vue`.
+  - Added privileged HQ Nexus access card (`data-testid="privileged-ops-card"`) and mobile navigation tab (`data-testid="mobile-tab-ops"`) in `layouts/account.vue` visible exclusively to Super Admins.
+  - Added comprehensive E2E Playwright test suite (`frontend/tests/e2e/05-internal-ops-nexus.spec.ts`) validating 404 stealth behavior, super admin auth bypass, account layout navigation, fulfillment barcode modal, inventory matrix, vouchers, and session lock.
+  - All 20 Playwright E2E tests passing across Desktop Chrome and Mobile Safari; 100% token and RTL lint compliance.
 
 - **2026-10-03 (`45f853b`)**: `feat(account): implement dedicated account layout, standalone login page, and in-checkout guest otp registration`
   - Implemented bespoke 2-column luxury Account layout (`frontend/app/layouts/account.vue`): sticky right profile sidebar with monogram avatar, customer club tier badge («باشگاه مشتریان کراس»), vertical navigation tabs with Lucide icons, ghost logout button, and responsive mobile horizontal scroll tabs (`data-testid="mobile-tab-*"`).

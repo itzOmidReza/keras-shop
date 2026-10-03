@@ -37,6 +37,12 @@
   --color-clay: #c98f78;
   --color-success: #2e7d5b;
 
+  /* تم فرماندهی و عملیات محرمانه (Ops Nexus) */
+  --color-ops-dark: #0b0f19;
+  --color-ops-surface: #111827;
+  --color-ops-border: #1f2937;
+  --color-ops-card: #131c2e;
+
   --font-display: 'Estedad', 'Vazirmatn', sans-serif;
 
   --text-title-lg: 1.75rem;

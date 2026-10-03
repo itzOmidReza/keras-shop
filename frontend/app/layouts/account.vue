@@ -10,6 +10,8 @@ import {
   User,
   Phone,
   ShieldCheck,
+  Terminal,
+  ShieldAlert,
 } from '@lucide/vue'
 import AppHeader from '~/components/layout/AppHeader.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
@@ -122,11 +124,53 @@ const userMonogram = computed(() => {
             <Settings class="w-3.5 h-3.5" />
             <span>اطلاعات فردی</span>
           </button>
+
+          <!-- دکمه ناوبری سریع به مرکز فرماندهی ویژه مدیر ارشد در موبایل -->
+          <NuxtLink
+            v-if="authStore.user?.role === 'super_admin'"
+            to="/internal-ops-nexus"
+            data-testid="mobile-tab-ops"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer bg-slate-900 text-amber-400 border border-amber-500/30 hover:bg-slate-800"
+          >
+            <Terminal class="w-3.5 h-3.5 text-amber-400" />
+            <span>مرکز عملیات (HQ Nexus)</span>
+          </NuxtLink>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <!-- سایدبار سمت راست: پروفایل استیکی، مشخصات کاربر و منوی عمودی -->
           <aside class="hidden lg:block lg:col-span-4 xl:col-span-3 sticky top-24 space-y-4">
+            <!-- کارت دسترسی فوق‌ممتاز مدیر ارشد (HQ Nexus) -->
+            <div
+              v-if="authStore.user?.role === 'super_admin'"
+              data-testid="privileged-ops-card"
+              class="rounded-3xl border border-amber-500/30 bg-slate-950 text-slate-100 p-5 shadow-sm space-y-3"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <ShieldAlert class="w-4 h-4" />
+                  </div>
+                  <div class="text-start">
+                    <p class="text-[11px] font-bold text-amber-400">دسترسی فوق‌ممتاز</p>
+                    <p class="text-xs font-extrabold text-white">مرکز فرماندهی و عملیات آتلیه</p>
+                  </div>
+                </div>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="سیستم فعال" />
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed text-start">
+                دسترسی مستقیم به دیده‌بان مالی، میز توزیع و بارکد پستی، ماتریس موجودی سایز و موتور کدهای تخفیف.
+              </p>
+              <NuxtLink
+                to="/internal-ops-nexus"
+                data-testid="privileged-ops-link"
+                class="w-full h-10 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-2xs cursor-pointer"
+              >
+                <Terminal class="w-4 h-4" />
+                <span>ورود به مرکز فرماندهی (HQ Nexus)</span>
+              </NuxtLink>
+            </div>
+
             <!-- کارت پروفایل کاربر با مونوگرام -->
             <div class="rounded-3xl border border-sand bg-white p-6 shadow-2xs space-y-5 text-center">
               <div class="relative w-20 h-20 mx-auto">
@@ -149,7 +193,7 @@ const userMonogram = computed(() => {
                 <div class="pt-1">
                   <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-sage/15 text-sage text-[11px] font-bold">
                     <Sparkles class="w-3 h-3" />
-                    <span>عضو رسمی • باشگاه کراس</span>
+                    <span>عضو رسمی باشگاه مشتریان کراس</span>
                   </span>
                 </div>
               </div>

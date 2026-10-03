@@ -84,6 +84,7 @@ export default defineNuxtConfig({
     '/checkout/**': { ssr: false, robots: false },
     '/account/**': { ssr: false, robots: false },
     '/dev/**': { ssr: false, robots: false },
+    '/internal-ops-nexus/**': { ssr: false, robots: false },
   },
 
   // ۷. تگ‌های Head سند HTML (فونت، متادیتا و RTL)

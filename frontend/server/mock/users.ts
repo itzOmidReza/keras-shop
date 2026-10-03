@@ -10,10 +10,24 @@ export const mockCurrentUser: User = {
   phoneNumber: '09121112233',
   fullName: 'سارا رادمنش',
   email: 'sara.rad@example.com',
+  role: 'customer',
   createdAt: '2026-01-15T09:00:00Z',
 };
 
+export const mockSuperAdminUser: User = {
+  id: 'usr_super_admin_nexus',
+  phoneNumber: '09129990000',
+  fullName: 'مدیریت ارشد آتلیه کراس',
+  email: 'ciso.director@keras-atelier.com',
+  role: 'super_admin',
+  createdAt: '2026-01-01T00:00:00Z',
+};
+
 export const updateMockUser = (partial: Partial<User>) => {
+  if (partial.phoneNumber === '09129990000' || partial.role === 'super_admin') {
+    Object.assign(mockSuperAdminUser, partial);
+    return mockSuperAdminUser;
+  }
   Object.assign(mockCurrentUser, partial);
   return mockCurrentUser;
 };

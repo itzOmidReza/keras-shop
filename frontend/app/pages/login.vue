@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   RefreshCw,
   Edit2,
+  Terminal,
 } from '@lucide/vue'
 import {
   InputOTP,
@@ -154,6 +155,11 @@ const handleVerifyOtp = async () => {
 
 const handleDemoLogin = () => {
   authStore.loginAsMockUser()
+  navigateTo(redirectUrl.value)
+}
+
+const handleAdminLogin = () => {
+  authStore.loginAsSuperAdmin()
   navigateTo(redirectUrl.value)
 }
 
@@ -326,16 +332,28 @@ const handleBackToPhone = () => {
               <span class="relative px-3 bg-white text-[11px] text-muted-foreground font-medium">یا</span>
             </div>
 
-            <!-- دکمه ورود سریع آزمایشی برای توسعه‌دهنده -->
-            <button
-              type="button"
-              data-testid="login-demo-btn"
-              class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-              @click="handleDemoLogin"
-            >
-              <Sparkles class="w-3.5 h-3.5 text-rose" />
-              <span>ورود سریع آزمایشی (اکانت دمو)</span>
-            </button>
+            <!-- دکمه‌های ورود سریع آزمایشی برای توسعه‌دهنده -->
+            <div class="space-y-2">
+              <button
+                type="button"
+                data-testid="login-demo-btn"
+                class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+                @click="handleDemoLogin"
+              >
+                <Sparkles class="w-3.5 h-3.5 text-rose" />
+                <span>ورود سریع آزمایشی (اکانت دمو سارا رادمنش)</span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="login-admin-bypass"
+                class="w-full h-11 rounded-xl border border-amber-500/30 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+                @click="handleAdminLogin"
+              >
+                <Terminal class="w-3.5 h-3.5 text-amber-400" />
+                <span>ورود مستقیم مدیریت ارشد (Super Admin HQ Nexus)</span>
+              </button>
+            </div>
 
             <!-- تضمین امنیتی -->
             <div class="pt-3 border-t border-sand/60 flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -407,15 +425,27 @@ const handleBackToPhone = () => {
               <span class="relative px-3 bg-white text-[11px] text-muted-foreground font-medium">یا</span>
             </div>
 
-            <button
-              type="button"
-              data-testid="login-demo-btn-step2"
-              class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-              @click="handleDemoLogin"
-            >
-              <Sparkles class="w-3.5 h-3.5 text-rose" />
-              <span>ورود سریع آزمایشی (اکانت دمو)</span>
-            </button>
+            <div class="space-y-2">
+              <button
+                type="button"
+                data-testid="login-demo-btn-step2"
+                class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+                @click="handleDemoLogin"
+              >
+                <Sparkles class="w-3.5 h-3.5 text-rose" />
+                <span>ورود سریع آزمایشی (اکانت دمو)</span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="login-admin-bypass-step2"
+                class="w-full h-11 rounded-xl border border-amber-500/30 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+                @click="handleAdminLogin"
+              >
+                <Terminal class="w-3.5 h-3.5 text-amber-400" />
+                <span>ورود مدیریت ارشد (Super Admin HQ)</span>
+              </button>
+            </div>
 
             <!-- تایمر ارسال مجدد -->
             <div class="flex items-center justify-center text-xs text-muted-foreground pt-1">

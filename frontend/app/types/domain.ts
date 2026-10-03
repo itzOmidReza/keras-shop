@@ -253,6 +253,7 @@ export interface User {
   phoneNumber: string; // strictly 09xxxxxxxxx
   fullName?: string;
   email?: string;
+  role?: 'customer' | 'super_admin';
   createdAt: string;
 }
 

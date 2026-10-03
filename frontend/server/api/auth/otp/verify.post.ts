@@ -27,9 +27,13 @@ export default defineEventHandler(async (event): Promise<OtpVerifyResponse> => {
   // شبیه‌سازی تاخیر اعتبارسنجی توکن JWT
   await new Promise((resolve) => setTimeout(resolve, 600));
 
+  const isSuperAdminPhone = cleanPhone === '09129990000';
   const updatedUser = updateMockUser({
     phoneNumber: cleanPhone,
-    fullName: mockCurrentUser.phoneNumber === cleanPhone ? mockCurrentUser.fullName : 'کاربر گرامی کراس',
+    fullName: isSuperAdminPhone
+      ? 'مدیریت ارشد آتلیه کراس'
+      : (mockCurrentUser.phoneNumber === cleanPhone ? mockCurrentUser.fullName : 'کاربر گرامی کراس'),
+    role: isSuperAdminPhone ? 'super_admin' : 'customer',
   });
 
   return {
