@@ -6,17 +6,16 @@ import {
   ShoppingCart,
   Percent,
   Truck,
-  Boxes,
-  TicketPercent,
-  Users,
   Copy,
   Plus,
-  RefreshCw,
-  AlertTriangle,
   Search,
-  Check,
-  Send,
-  SlidersHorizontal,
+  Package,
+  Printer,
+  Download,
+  Trash2,
+  Edit3,
+  ExternalLink,
+  Sparkles,
 } from '@lucide/vue'
 import {
   Dialog,
@@ -26,9 +25,16 @@ import {
   DialogDescription,
 } from '~/components/ui/dialog'
 import { useAuthStore } from '~/stores/auth'
-import { formatToman, toFa, toEn } from '~/utils/format'
+import { formatToman } from '~/utils/format'
 import { mockOrders } from '../../../server/mock/orders'
-import type { TrackOrderResponse } from '~/types/domain'
+import { mockProducts } from '../../../server/mock/products'
+import type {
+  TrackOrderResponse,
+  ProductDetail,
+  ProductDivision,
+  ProductCategory,
+  ProductSeason,
+} from '~/types/domain'
 import { toast } from 'vue-sonner'
 
 definePageMeta({
@@ -57,8 +63,8 @@ const router = useRouter()
 
 const currentView = computed(() => {
   const v = route.query.view as string
-  if (['analytics', 'fulfillment', 'inventory', 'vouchers', 'crm'].includes(v)) {
-    return v
+  if (['analytics', 'products', 'fulfillment', 'inventory', 'orders', 'finance', 'articles', 'vouchers', 'crm'].includes(v)) {
+    return v === 'orders' ? 'fulfillment' : v
   }
   return 'analytics'
 })
@@ -79,725 +85,1583 @@ const kpis = [
     growthPositive: true,
     subtitle: 'نسبت به دوره مالی پاییز گذشته',
     icon: TrendingUp,
-    color: 'amber',
   },
   {
-    title: 'حاشیه سود خالص تخمینی (Net Margin)',
-    amountText: '۳۴.۸٪',
-    unit: 'سود برآوردی: ۱۴,۹۰۰,۰۰۰ تومان',
-    growth: '+۲.۱٪',
-    growthPositive: true,
-    subtitle: 'پس از کسر هزینه تامین و دوخت',
-    icon: Percent,
-    color: 'emerald',
-  },
-  {
-    title: 'میانگین ارزش هر سفارش (AOV)',
-    amount: 2380000,
+    title: 'حاشیه سود خالص تخمینی',
+    amount: 19282500,
     unit: 'تومان',
-    growth: '+۶.۲٪',
+    growth: '+۱۴.۲٪',
     growthPositive: true,
-    subtitle: 'میانگین اقلام در هر فاکتور: ۲.۳ قلم',
-    icon: CreditCard,
-    color: 'sky',
+    subtitle: 'پس از کسر بهای تمام‌شده و مالیات',
+    icon: Percent,
   },
   {
-    title: 'سبدهای خرید در جریان (Active Carts)',
-    amountText: '۲۴ سبد',
-    unit: 'نرخ نهایی‌سازی: ۴.۸٪',
-    growth: '+۱۲٪',
+    title: 'میانگین ارزش هر سبد (AOV)',
+    amount: 2142500,
+    unit: 'تومان',
+    growth: '+۶.۸٪',
     growthPositive: true,
-    subtitle: 'تعداد مشتریان در مرحله پرداخت',
+    subtitle: 'متوسط خرید در سفارش‌های ثبت‌شده',
     icon: ShoppingCart,
-    color: 'rose',
+  },
+  {
+    title: 'نرخ سبدهای رهاشده',
+    amount: null,
+    percentage: '۲۸.۶٪',
+    growth: '-۴.۱٪',
+    growthPositive: true,
+    subtitle: '۲۴ سبد در انتظار یادآوری هوشمند',
+    icon: CreditCard,
   },
 ]
 
-const recentTransactions = [
-  { id: 'TXN-90812', amount: 2850000, user: 'مهسا کامرانی', gateway: 'شاپرک (سامان)', time: '۱۰ دقیقه پیش', status: 'موفق' },
-  { id: 'TXN-90811', amount: 1450000, user: 'سارا رادمنش', gateway: 'شاپرک (ملت)', time: '۲۵ دقیقه پیش', status: 'موفق' },
-  { id: 'TXN-90810', amount: 4320000, user: 'نیلوفر رهنما', gateway: 'شاپرک (سامان)', time: '۱ ساعت پیش', status: 'موفق' },
-  { id: 'TXN-90809', amount: 890000, user: 'فاطمه موسوی', gateway: 'شاپرک (پارسیان)', time: '۲ ساعت پیش', status: 'موفق' },
-]
-
 // -------------------------------------------------------------
-// ۲. میز مدیریت سفارش‌ها و توزیع پستی (Order Fulfillment Desk)
+// ۲. مدیریت محصولات و انبارداری (Full Product Catalog CRUD)
 // -------------------------------------------------------------
-interface LocalOrder extends TrackOrderResponse {
-  paymentStatus: 'paid' | 'pending' | 'failed'
-}
+const productsList = ref<ProductDetail[]>(
+  JSON.parse(JSON.stringify(mockProducts)),
+)
 
-const orders = ref<LocalOrder[]>([
-  ...mockOrders.map((o) => ({
-    ...o,
-    paymentStatus: 'paid' as const,
-  })),
-  {
-    orderNumber: 'KERAS-502118',
-    createdAt: '2026-04-03T18:20:00Z',
-    status: 'registered',
-    statusLabel: 'ثبت و پرداخت تایید شده',
-    recipientName: 'نگار رضایی',
-    recipientPhone: '09127778899',
-    shippingAddress: 'تهران، فرمانیه، خیابان سنبل، پلاک ۱۸، واحد ۴',
-    trackingCode: '',
-    carrier: 'شرکت ملی پست جمهوری اسلامی ایران (پست پیشتاز)',
-    estimatedDelivery: '۲ الی ۳ روز کاری',
-    totalAmount: 3120000,
-    paymentStatus: 'paid',
-    timeline: [
-      {
-        status: 'registered',
-        title: 'ثبت و تأیید سفارش',
-        description: 'سفارش در سیستم ثبت شد و پرداخت آنلاین تایید گردید.',
-        timestamp: '۱۴۰۵/۰۷/۱۲ - ۱۸:۲۰',
-        location: 'سامانه مرکزی کراس',
-        completed: true,
-      },
-    ],
-    items: [
-      {
-        title: 'شومیز اسلپ لینن کارن',
-        size: 'M',
-        color: 'شیری صدف',
-        quantity: 1,
-        price: 2450000,
-        image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80',
-      },
-    ],
-  },
-  {
-    orderNumber: 'KERAS-619042',
-    createdAt: '2026-04-03T19:40:00Z',
-    status: 'processing',
-    statusLabel: 'کنترل کیفیت و بسته‌بندی آتلیه',
-    recipientName: 'الناز کریمی',
-    recipientPhone: '09351239988',
-    shippingAddress: 'اصفهان، خیابان چهارباغ بالا، کوچه نگار، ساختمان ترنج، واحد ۹',
-    trackingCode: '',
-    carrier: 'شرکت ملی پست جمهوری اسلامی ایران (پست پیشتاز)',
-    estimatedDelivery: '۳ الی ۴ روز کاری',
-    totalAmount: 1890000,
-    paymentStatus: 'paid',
-    timeline: [
-      {
-        status: 'registered',
-        title: 'ثبت و تأیید سفارش',
-        description: 'پرداخت با موفقیت انجام شد.',
-        timestamp: '۱۴۰۵/۰۷/۱۲ - ۱۹:۴۰',
-        location: 'سامانه مرکزی',
-        completed: true,
-      },
-      {
-        status: 'processing',
-        title: 'بسته‌بندی اختصاصی آتلیه',
-        description: 'بسته‌بندی در جعبه پرمیوم با عطر ویژه کراس.',
-        timestamp: '۱۴۰۵/۰۷/۱۲ - ۲۰:۱۰',
-        location: 'استودیو طراحی تهران',
-        completed: true,
-      },
-    ],
-    items: [
-      {
-        title: 'شال ابریشم تویل کتیبه',
-        size: 'Free',
-        color: 'زرشکی کهن',
-        quantity: 1,
-        price: 1890000,
-        image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&w=800&q=80',
-      },
-    ],
-  },
-])
+const productSearchQuery = ref('')
+const selectedProductDivision = ref<'all' | 'apparel' | 'accessories'>('all')
+const selectedProductCategory = ref('all')
+const selectedProductSeason = ref('all')
 
-const orderSearch = ref('')
-const orderStatusFilter = ref<string>('all')
-
-const filteredOrders = computed(() => {
-  return orders.value.filter((o) => {
-    const search = orderSearch.value.trim()
+const filteredProducts = computed(() => {
+  return productsList.value.filter((p) => {
+    const q = productSearchQuery.value.trim().toLowerCase()
     const matchesSearch =
-      !search ||
-      o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      o.recipientName.includes(search) ||
-      Boolean(o.recipientPhone && o.recipientPhone.includes(toEn(search)))
+      !q ||
+      p.title.toLowerCase().includes(q) ||
+      p.slug.toLowerCase().includes(q) ||
+      (p.brand && p.brand.toLowerCase().includes(q))
 
-    const matchesFilter =
-      orderStatusFilter.value === 'all' || o.status === orderStatusFilter.value
+    const matchesDivision =
+      selectedProductDivision.value === 'all' ||
+      p.division === selectedProductDivision.value
 
-    return matchesSearch && matchesFilter
+    const matchesCategory =
+      selectedProductCategory.value === 'all' ||
+      p.category === selectedProductCategory.value
+
+    const matchesSeason =
+      selectedProductSeason.value === 'all' ||
+      p.season === selectedProductSeason.value
+
+    return matchesSearch && matchesDivision && matchesCategory && matchesSeason
   })
 })
 
-// تغییر سریع وضعیت سفارش
-const updateOrderStatus = (order: LocalOrder, newStatus: LocalOrder['status']) => {
-  order.status = newStatus
-  const labels: Record<string, string> = {
-    registered: 'ثبت و تایید شده',
-    processing: 'در حال بسته‌بندی',
-    handed_over: 'تحویل به پست پیشتاز',
-    delivered: 'تحویل نهایی به خریدار',
-    cancelled: 'لغو شده',
+const getProductTotalStock = (p: ProductDetail): number => {
+  if (p.variants && p.variants.length > 0) {
+    return p.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
   }
-  order.statusLabel = labels[newStatus] || newStatus
-  toast.success(`وضعیت سفارش ${order.orderNumber} به «${order.statusLabel}» تغییر یافت.`)
+  return p.inStock ? 25 : 0
 }
 
-// مودال تخصیص بارکد ۲۴ رقمی پست پیشتاز
-const isBarcodeModalOpen = ref(false)
-const selectedOrder = ref<LocalOrder | null>(null)
-const barcodeInput = ref('')
-const barcodeError = ref('')
+const toggleProductActive = (p: ProductDetail) => {
+  p.is_active = !p.is_active
+  toast.success(
+    `وضعیت کالا «${p.title}» به ${p.is_active ? 'فعال' : 'غیرفعال'} تغییر یافت.`,
+  )
+}
 
-const openBarcodeModal = (order: LocalOrder) => {
-  selectedOrder.value = order
+// مودال افزودن / ویرایش کالا
+const isProductModalOpen = ref(false)
+const editingProduct = ref<ProductDetail | null>(null)
+
+interface ProductFormData {
+  title: string
+  slug: string
+  division: ProductDivision
+  category: ProductCategory
+  season: ProductSeason
+  badge: string
+  basePrice: number
+  salePrice: number
+  mainImage: string
+  galleryImages: string
+  fabricGsm: number
+  fabricComposition: string
+  fabricCare: string
+  stockXS: number
+  stockS: number
+  stockM: number
+  stockL: number
+  stockXL: number
+  stockFree: number
+}
+
+const productForm = ref<ProductFormData>({
+  title: '',
+  slug: '',
+  division: 'apparel',
+  category: 'shirts-blouses',
+  season: 'fall-1405',
+  badge: 'جدید',
+  basePrice: 1850000,
+  salePrice: 1850000,
+  mainImage: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80',
+  galleryImages: '',
+  fabricGsm: 210,
+  fabricComposition: '۱۰۰٪ الیاف طبیعی لینن اسلپ ارگانیک',
+  fabricCare: 'شست‌وشوی دستی با آب ۳۰ درجه',
+  stockXS: 5,
+  stockS: 10,
+  stockM: 15,
+  stockL: 10,
+  stockXL: 5,
+  stockFree: 0,
+})
+
+const autoDiscountPercent = computed(() => {
+  if (productForm.value.basePrice <= 0 || productForm.value.salePrice <= 0) return 0
+  if (productForm.value.basePrice <= productForm.value.salePrice) return 0
+  return Math.round(
+    ((productForm.value.basePrice - productForm.value.salePrice) /
+      productForm.value.basePrice) *
+      100,
+  )
+})
+
+const openAddProductModal = () => {
+  editingProduct.value = null
+  productForm.value = {
+    title: '',
+    slug: '',
+    division: 'apparel',
+    category: 'shirts-blouses',
+    season: 'fall-1405',
+    badge: 'جدید',
+    basePrice: 1850000,
+    salePrice: 1850000,
+    mainImage: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80',
+    galleryImages: '',
+    fabricGsm: 220,
+    fabricComposition: '۱۰۰٪ کتان ارگانیک شسته‌شده',
+    fabricCare: 'شست‌وشوی ملایم با آب سرد، اتوکشی در دمای متوسط',
+    stockXS: 4,
+    stockS: 8,
+    stockM: 12,
+    stockL: 8,
+    stockXL: 4,
+    stockFree: 0,
+  }
+  isProductModalOpen.value = true
+}
+
+const openEditProductModal = (p: ProductDetail) => {
+  editingProduct.value = p
+  const xs = p.variants?.find((v) => v.size === 'XS')?.stock || 0
+  const s = p.variants?.find((v) => v.size === 'S')?.stock || 0
+  const m = p.variants?.find((v) => v.size === 'M')?.stock || 0
+  const l = p.variants?.find((v) => v.size === 'L')?.stock || 0
+  const xl = p.variants?.find((v) => v.size === 'XL')?.stock || 0
+  const free = p.variants?.find((v) => v.size === 'Free')?.stock || 0
+
+  productForm.value = {
+    title: p.title,
+    slug: p.slug,
+    division: p.division,
+    category: p.category,
+    season: p.season,
+    badge: p.badge || '',
+    basePrice: p.compare_at_price || p.price,
+    salePrice: p.price,
+    mainImage: p.images?.[0]?.url || '',
+    galleryImages: p.images?.slice(1).map((i) => i.url).join('\n') || '',
+    fabricGsm: p.fabric?.gsm || p.fabric_gsm || 210,
+    fabricComposition: p.fabric?.composition || p.fabric_composition || '',
+    fabricCare: p.fabric?.care || '',
+    stockXS: xs,
+    stockS: s,
+    stockM: m,
+    stockL: l,
+    stockXL: xl,
+    stockFree: free,
+  }
+  isProductModalOpen.value = true
+}
+
+const saveProduct = () => {
+  if (!productForm.value.title.trim()) {
+    toast.error('لطفاً عنوان محصول را وارد نمایید.')
+    return
+  }
+  if (!productForm.value.slug.trim()) {
+    productForm.value.slug = `keras-item-${Date.now().toString().slice(-4)}`
+  }
+
+  const sizes =
+    productForm.value.division === 'accessories'
+      ? ['Free']
+      : ['XS', 'S', 'M', 'L', 'XL']
+
+  const variants =
+    productForm.value.division === 'accessories'
+      ? [
+          {
+            id: Date.now() + 1,
+            sku: `${productForm.value.slug.toUpperCase()}-FREE`,
+            color: 'تک‌رنگ',
+            color_hex: 'rgb(59, 47, 44)',
+            size: 'Free' as const,
+            stock: productForm.value.stockFree || 15,
+            reserved: 0,
+          },
+        ]
+      : [
+          { id: Date.now() + 1, sku: `${productForm.value.slug.toUpperCase()}-XS`, color: 'اصلی', color_hex: 'rgb(59, 47, 44)', size: 'XS' as const, stock: productForm.value.stockXS, reserved: 0 },
+          { id: Date.now() + 2, sku: `${productForm.value.slug.toUpperCase()}-S`, color: 'اصلی', color_hex: 'rgb(59, 47, 44)', size: 'S' as const, stock: productForm.value.stockS, reserved: 0 },
+          { id: Date.now() + 3, sku: `${productForm.value.slug.toUpperCase()}-M`, color: 'اصلی', color_hex: 'rgb(59, 47, 44)', size: 'M' as const, stock: productForm.value.stockM, reserved: 0 },
+          { id: Date.now() + 4, sku: `${productForm.value.slug.toUpperCase()}-L`, color: 'اصلی', color_hex: 'rgb(59, 47, 44)', size: 'L' as const, stock: productForm.value.stockL, reserved: 0 },
+          { id: Date.now() + 5, sku: `${productForm.value.slug.toUpperCase()}-XL`, color: 'اصلی', color_hex: 'rgb(59, 47, 44)', size: 'XL' as const, stock: productForm.value.stockXL, reserved: 0 },
+        ]
+
+  const galleryList = productForm.value.galleryImages
+    .split('\n')
+    .map((u) => u.trim())
+    .filter((u) => u.length > 0)
+
+  const images = [
+    {
+      id: Date.now() + 10,
+      url: productForm.value.mainImage,
+      alt: productForm.value.title,
+      kind: 'photo' as const,
+      position: 1,
+    },
+    ...galleryList.map((url, idx) => ({
+      id: Date.now() + 20 + idx,
+      url,
+      alt: `${productForm.value.title} - زاویه ${idx + 2}`,
+      kind: 'photo' as const,
+      position: idx + 2,
+    })),
+  ]
+
+  if (editingProduct.value) {
+    // بروزرسانی
+    Object.assign(editingProduct.value, {
+      title: productForm.value.title,
+      slug: productForm.value.slug,
+      division: productForm.value.division,
+      category: productForm.value.category,
+      season: productForm.value.season,
+      badge: productForm.value.badge,
+      price: productForm.value.salePrice,
+      base_price: productForm.value.basePrice,
+      compare_at_price:
+        productForm.value.basePrice > productForm.value.salePrice
+          ? productForm.value.basePrice
+          : undefined,
+      images,
+      sizes,
+      available_sizes: sizes,
+      variants,
+      fabric: {
+        composition: productForm.value.fabricComposition,
+        gsm: productForm.value.fabricGsm,
+        care: productForm.value.fabricCare,
+      },
+      fabric_gsm: productForm.value.fabricGsm,
+      fabric_composition: productForm.value.fabricComposition,
+    })
+    toast.success(`تغییرات کالا «${productForm.value.title}» با موفقیت ذخیره شد.`)
+  } else {
+    // کالا جدید
+    const newProd: ProductDetail = {
+      id: Date.now(),
+      slug: productForm.value.slug,
+      title: productForm.value.title,
+      brand: 'keras-atelier',
+      division: productForm.value.division,
+      category: productForm.value.category,
+      season: productForm.value.season,
+      badge: productForm.value.badge,
+      price: productForm.value.salePrice,
+      base_price: productForm.value.basePrice,
+      compare_at_price:
+        productForm.value.basePrice > productForm.value.salePrice
+          ? productForm.value.basePrice
+          : undefined,
+      description: `طراحی و دوخت انحصاری استودیو کراس. متریال اعلا با گرماژ ${productForm.value.fabricGsm} گرم و برش مدرن ادیتوریال.`,
+      fabric: {
+        composition: productForm.value.fabricComposition,
+        gsm: productForm.value.fabricGsm,
+        care: productForm.value.fabricCare,
+      },
+      fabric_composition: productForm.value.fabricComposition,
+      fabric_gsm: productForm.value.fabricGsm,
+      stretch: 2,
+      softness: 5,
+      opacity: 5,
+      rating: 5.0,
+      rating_avg: 5.0,
+      reviewCount: 0,
+      rating_count: 0,
+      is_active: true,
+      inStock: true,
+      sizes,
+      available_sizes: sizes,
+      colors: [{ name: 'اصلی', hex: 'rgb(59, 47, 44)' }],
+      images,
+      variants,
+    }
+    productsList.value.unshift(newProd)
+    toast.success(`محصول جدید «${newProd.title}» به کاتالوگ اضافه گردید.`)
+  }
+
+  isProductModalOpen.value = false
+}
+
+// حذف / بایگانی کالا
+const isDeleteProductDialogOpen = ref(false)
+const productToDelete = ref<ProductDetail | null>(null)
+
+const confirmDeleteProduct = () => {
+  if (productToDelete.value) {
+    const idx = productsList.value.findIndex(
+      (p) => p.id === productToDelete.value?.id,
+    )
+    if (idx !== -1 && productsList.value[idx]) {
+      const title = productsList.value[idx]!.title
+      productsList.value.splice(idx, 1)
+      toast.success(`کالای «${title}» با موفقیت حذف گردید.`)
+    }
+  }
+  isDeleteProductDialogOpen.value = false
+  productToDelete.value = null
+}
+
+// -------------------------------------------------------------
+// ۳. میز سفارش‌ها و ثبت دستی (Advanced Orders Desk & Manual Entry)
+// -------------------------------------------------------------
+const ordersList = ref<TrackOrderResponse[]>(
+  JSON.parse(JSON.stringify(mockOrders)),
+)
+
+const orderStatusFilter = ref<
+  'all' | 'registered' | 'processing' | 'handed_over' | 'delivered' | 'canceled'
+>('all')
+const orderSearchQuery = ref('')
+
+const filteredOrders = computed(() => {
+  return ordersList.value.filter((o) => {
+    const q = orderSearchQuery.value.trim().toLowerCase()
+    const matchesSearch =
+      !q ||
+      o.orderNumber.toLowerCase().includes(q) ||
+      o.recipientName.toLowerCase().includes(q) ||
+      (o.recipientPhone && o.recipientPhone.includes(q)) ||
+      (o.trackingCode && o.trackingCode.includes(q))
+
+    const matchesStatus =
+      orderStatusFilter.value === 'all' || o.status === orderStatusFilter.value
+
+    return matchesSearch && matchesStatus
+  })
+})
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'registered':
+      return { label: 'در انتظار بررسی', class: 'bg-amber-50 text-amber-700 border border-amber-200' }
+    case 'processing':
+      return { label: 'در حال بسته‌بندی', class: 'bg-blue-50 text-blue-700 border border-blue-200' }
+    case 'handed_over':
+      return { label: 'ارسال با پست', class: 'bg-purple-50 text-purple-700 border border-purple-200' }
+    case 'delivered':
+      return { label: 'تحویل نهایی', class: 'bg-emerald-50 text-emerald-700 border border-emerald-200' }
+    case 'canceled':
+      return { label: 'مرجوعی / لغو', class: 'bg-rose-50 text-rose border border-rose/30' }
+    default:
+      return { label: status, class: 'bg-slate-100 text-slate-700 border border-slate-200' }
+  }
+}
+
+const updateOrderStatus = (
+  order: TrackOrderResponse,
+  newStatus: TrackOrderResponse['status'],
+) => {
+  order.status = newStatus
+  const badge = getStatusBadge(newStatus)
+  order.statusLabel = badge.label
+  toast.success(
+    `وضعیت سفارش ${order.orderNumber} به «${badge.label}» به‌روزرسانی شد.`,
+  )
+}
+
+// مودال بارکد ۲۴ رقمی پست
+const isBarcodeModalOpen = ref(false)
+const selectedOrderForBarcode = ref<TrackOrderResponse | null>(null)
+const barcodeInput = ref('')
+
+const openBarcodeModal = (order: TrackOrderResponse) => {
+  selectedOrderForBarcode.value = order
   barcodeInput.value = order.trackingCode || ''
-  barcodeError.value = ''
   isBarcodeModalOpen.value = true
 }
 
 const generateSampleBarcode = () => {
-  // ساخت بارکد نمونه ۲۴ رقمی پست ایران
   const prefix = '98234'
-  const randomDigits = Math.floor(1000000000000000000 + Math.random() * 9000000000000000000).toString()
-  barcodeInput.value = `${prefix}${randomDigits}`.slice(0, 24)
-  barcodeError.value = ''
+  const randomSuffix = Math.floor(
+    1000000000000000000 + Math.random() * 9000000000000000000,
+  ).toString()
+  barcodeInput.value = (prefix + randomSuffix).slice(0, 24)
 }
 
-const handleSaveBarcode = () => {
-  const cleanBarcode = toEn(barcodeInput.value.trim())
-  if (!cleanBarcode || cleanBarcode.length !== 24 || !/^\d{24}$/.test(cleanBarcode)) {
-    barcodeError.value = 'بارکد پست پیشتاز باید دقیقاً ۲۴ رقم باشد.'
+const submitBarcode = () => {
+  if (!barcodeInput.value || barcodeInput.value.length !== 24) {
+    toast.error('کد رهگیری پست باید دقیقاً ۲۴ رقم باشد.')
     return
   }
 
-  if (selectedOrder.value) {
-    selectedOrder.value.trackingCode = cleanBarcode
-    selectedOrder.value.status = 'handed_over'
-    selectedOrder.value.statusLabel = 'تحویل به شرکت ملی پست'
-    toast.success(`بارکد ۲۴ رقمی پستی برای سفارش ${selectedOrder.value.orderNumber} با موفقیت ثبت شد.`)
-    isBarcodeModalOpen.value = false
+  if (selectedOrderForBarcode.value) {
+    selectedOrderForBarcode.value.trackingCode = barcodeInput.value
+    selectedOrderForBarcode.value.status = 'handed_over'
+    selectedOrderForBarcode.value.statusLabel = 'تحویل به شرکت پست'
+    toast.success(
+      `بارکد ۲۴ رقمی برای سفارش ${selectedOrderForBarcode.value.orderNumber} ثبت و پیامک رهگیری به شماره ${selectedOrderForBarcode.value.recipientPhone || 'خریدار'} شبیه‌سازی شد.`,
+    )
   }
+  isBarcodeModalOpen.value = false
+}
+
+// مودال ثبت سفارش دستی
+const isManualOrderModalOpen = ref(false)
+
+interface ManualOrderItem {
+  productId: number
+  title: string
+  size: string
+  quantity: number
+  price: number
+  image: string
+}
+
+const manualOrderCustomerMode = ref<'existing' | 'new'>('existing')
+const manualCustomerName = ref('سارا رادمنش')
+const manualCustomerPhone = ref('09121112233')
+const manualCustomerProvince = ref('تهران')
+const manualCustomerCity = ref('تهران')
+const manualCustomerAddress = ref('بلوار اندرزگو، خیابان سلیمی شمالی، ساختمان نگین، طبقه ۳')
+const manualPaymentMethod = ref<'card_to_card' | 'gateway' | 'cod'>('card_to_card')
+const manualOrderItems = ref<ManualOrderItem[]>([])
+
+const manualSelectedProductId = ref<number>(mockProducts[0]?.id ?? 1)
+const manualSelectedSize = ref('M')
+const manualSelectedQty = ref(1)
+
+const addManualItem = () => {
+  const prod = productsList.value.find(
+    (p) => p.id === manualSelectedProductId.value,
+  )
+  if (!prod) return
+
+  manualOrderItems.value.push({
+    productId: prod.id,
+    title: prod.title,
+    size: manualSelectedSize.value,
+    quantity: manualSelectedQty.value,
+    price: prod.price,
+    image: prod.images?.[0]?.url || '',
+  })
+
+  toast.success(`کالای «${prod.title}» به پیش‌فاکتور افزوده شد.`)
+}
+
+const removeManualItem = (index: number) => {
+  manualOrderItems.value.splice(index, 1)
+}
+
+const manualOrderTotal = computed(() => {
+  return manualOrderItems.value.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  )
+})
+
+const openManualOrderModal = () => {
+  const firstProd = mockProducts[0] || productsList.value[0]
+  if (firstProd) {
+    manualOrderItems.value = [
+      {
+        productId: firstProd.id,
+        title: firstProd.title,
+        size: 'M',
+        quantity: 1,
+        price: firstProd.price,
+        image: firstProd.images?.[0]?.url || '',
+      },
+    ]
+  } else {
+    manualOrderItems.value = []
+  }
+  isManualOrderModalOpen.value = true
 }
 
 const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-  toast.success('کد رهگیری پستی در کلیپ‌بورد کپی شد.')
+  if (import.meta.client && typeof navigator !== 'undefined' && navigator.clipboard) {
+    navigator.clipboard.writeText(text)
+    toast.success('بارکد پستی کپی شد')
+  }
 }
 
-// -------------------------------------------------------------
-// ۳. انبارداری و ماتریس سایز (Variant & Size Stock Matrix)
-// -------------------------------------------------------------
-interface ProductStockMatrix {
-  id: number
-  sku: string
-  title: string
-  category: string
-  thumbnail: string
-  stockS: number
-  stockM: number
-  stockL: number
-  stockFree: number
-}
-
-const stockMatrix = ref<ProductStockMatrix[]>([
-  {
-    id: 1,
-    sku: 'KRS-BL-101',
-    title: 'شومیز اسلپ لینن کارن',
-    category: 'شومیز و پیراهن',
-    thumbnail: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=300&q=80',
-    stockS: 2, // Low stock!
-    stockM: 8,
-    stockL: 5,
-    stockFree: 0,
-  },
-  {
-    id: 2,
-    sku: 'KRS-CT-204',
-    title: 'ترنچ‌کت پشمی دبل‌برست مرینو',
-    category: 'کت و ترنچ‌کت',
-    thumbnail: 'https://images.unsplash.com/photo-1544022613-e87ce7526edb?auto=format&fit=crop&w=300&q=80',
-    stockS: 1, // Critical!
-    stockM: 4,
-    stockL: 2, // Low stock!
-    stockFree: 0,
-  },
-  {
-    id: 3,
-    sku: 'KRS-KN-305',
-    title: 'پلیور یقه اسکی کشمیر آلپاین',
-    category: 'بافت و پلیور',
-    thumbnail: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=300&q=80',
-    stockS: 6,
-    stockM: 9,
-    stockL: 7,
-    stockFree: 0,
-  },
-  {
-    id: 4,
-    sku: 'KRS-PT-402',
-    title: 'شلوار واید لگ پشمی زارا فیت',
-    category: 'شلوار و دامن',
-    thumbnail: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=300&q=80',
-    stockS: 3, // Low stock!
-    stockM: 6,
-    stockL: 4,
-    stockFree: 0,
-  },
-  {
-    id: 5,
-    sku: 'KRS-SC-501',
-    title: 'شال ابریشم تویل کتیبه',
-    category: 'اکسسوری',
-    thumbnail: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&w=300&q=80',
-    stockS: 0,
-    stockM: 0,
-    stockL: 0,
-    stockFree: 3, // Low stock!
-  },
-  {
-    id: 6,
-    sku: 'KRS-BD-602',
-    title: 'باندانا مینی ابریشمی نقوش فلورال',
-    category: 'اکسسوری',
-    thumbnail: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=300&q=80',
-    stockS: 0,
-    stockM: 0,
-    stockL: 0,
-    stockFree: 14,
-  },
-])
-
-const adjustStock = (item: ProductStockMatrix, sizeKey: 'stockS' | 'stockM' | 'stockL' | 'stockFree', delta: number) => {
-  const current = item[sizeKey]
-  if (current + delta < 0) return
-  item[sizeKey] = current + delta
-  toast.info(`موجودی SKU ${item.sku} به روز شد (${toFa(item[sizeKey])} عدد).`)
-}
-
-// -------------------------------------------------------------
-// ۴. مدیریت کوپن‌ها و کدهای تخفیف (Discount Engine)
-// -------------------------------------------------------------
-interface VoucherItem {
-  id: string
-  code: string
-  discountPercent: number
-  usedCount: number
-  maxUses: number
-  isActive: boolean
-  expiresAt: string
-}
-
-const vouchers = ref<VoucherItem[]>([
-  {
-    id: 'v_1',
-    code: 'KERAS-PRO',
-    discountPercent: 10,
-    usedCount: 42,
-    maxUses: 100,
-    isActive: true,
-    expiresAt: '۱۴۰۵/۰۸/۳۰',
-  },
-  {
-    id: 'v_2',
-    code: 'FALL1405',
-    discountPercent: 15,
-    usedCount: 128,
-    maxUses: 500,
-    isActive: true,
-    expiresAt: '۱۴۰۵/۰۸/۱۵',
-  },
-  {
-    id: 'v_3',
-    code: 'VIP-GOLD',
-    discountPercent: 20,
-    usedCount: 18,
-    maxUses: 50,
-    isActive: true,
-    expiresAt: '۱۴۰۵/۰۹/۳۰',
-  },
-  {
-    id: 'v_4',
-    code: 'ATELIER-DROP',
-    discountPercent: 25,
-    usedCount: 50,
-    maxUses: 50,
-    isActive: false,
-    expiresAt: '۱۴۰۵/۰۷/۱۰ (منقضی شده)',
-  },
-])
-
-const isNewVoucherModalOpen = ref(false)
-const newVoucherCode = ref('')
-const newVoucherDiscount = ref(10)
-const newVoucherMaxUses = ref(100)
-
-const handleCreateVoucher = () => {
-  if (!newVoucherCode.value.trim()) {
-    toast.error('لطفاً عنوان کد تخفیف را وارد کنید.')
+const submitManualOrder = () => {
+  if (manualOrderItems.value.length === 0) {
+    toast.error('حداقل یک قلم کالا به سفارش اضافه کنید.')
+    return
+  }
+  if (!manualCustomerName.value || !manualCustomerPhone.value) {
+    toast.error('مشخصات خریدار الزامی است.')
     return
   }
 
-  vouchers.value.unshift({
-    id: `v_${Date.now()}`,
-    code: newVoucherCode.value.trim().toUpperCase(),
-    discountPercent: newVoucherDiscount.value,
-    usedCount: 0,
-    maxUses: newVoucherMaxUses.value,
-    isActive: true,
-    expiresAt: '۱۴۰۵/۰۹/۳۰',
-  })
+  const newOrderNum = `KERAS-${Math.floor(400000 + Math.random() * 500000)}`
+  const newOrder: TrackOrderResponse = {
+    orderNumber: newOrderNum,
+    createdAt: new Date().toISOString(),
+    status: 'registered',
+    statusLabel: 'ثبت و در انتظار بررسی',
+    recipientName: manualCustomerName.value,
+    recipientPhone: manualCustomerPhone.value,
+    shippingAddress: `${manualCustomerProvince.value}، ${manualCustomerCity.value}، ${manualCustomerAddress.value}`,
+    trackingCode: '',
+    carrier: 'شرکت ملی پست جمهوری اسلامی ایران (پست پیشتاز)',
+    estimatedDelivery: '۲ الی ۴ روز کاری',
+    totalAmount: manualOrderTotal.value,
+    timeline: [
+      {
+        status: 'registered',
+        title: 'ثبت سفارش دستی',
+        description: 'سفارش از طریق پنل عملیات آتلیه با موفقیت ایجاد شد.',
+        timestamp: 'اکنون',
+        location: 'سامانه مرکزی کراس',
+        completed: true,
+      },
+    ],
+    items: manualOrderItems.value.map((i) => ({
+      title: i.title,
+      size: i.size,
+      quantity: i.quantity,
+      price: i.price,
+      image: i.image,
+    })),
+  }
 
-  toast.success(`کد تخفیف ${newVoucherCode.value.toUpperCase()} با موفقیت ایجاد گردید.`)
-  newVoucherCode.value = ''
-  isNewVoucherModalOpen.value = false
+  ordersList.value.unshift(newOrder)
+  toast.success(`سفارش دستی ${newOrderNum} با موفقیت در سامانه صادر گردید.`)
+  isManualOrderModalOpen.value = false
+}
+
+// مودال چاپ برگه ارسال / فاکتور (Packing Slip)
+const isPackingSlipModalOpen = ref(false)
+const selectedSlipOrder = ref<TrackOrderResponse | null>(null)
+
+const openPackingSlip = (order: TrackOrderResponse) => {
+  selectedSlipOrder.value = order
+  isPackingSlipModalOpen.value = true
+}
+
+const triggerPrintSlip = () => {
+  window.print()
 }
 
 // -------------------------------------------------------------
-// ۵. باشگاه مشتریان و CRM (Loyalty & VIP Customers)
+// ۴. امور مالی و حسابداری (Financial Ledger & Shaparak)
 // -------------------------------------------------------------
-const vipCustomers = [
-  { name: 'سارا رادمنش', phone: '09121112233', tier: 'الماس سیاه', ordersCount: 3, totalSpend: 9800000, lastOrder: '۲ روز پیش' },
-  { name: 'نیلوفر صادقی', phone: '09123344556', tier: 'پلاتین آتلیه', ordersCount: 2, totalSpend: 6400000, lastOrder: '۴ روز پیش' },
-  { name: 'مهسا یوسفی', phone: '09128899001', tier: 'طلایی کراس', ordersCount: 1, totalSpend: 3200000, lastOrder: '۱ هفته پیش' },
-  { name: 'کیمیا شمس', phone: '09351112233', tier: 'طلایی کراس', ordersCount: 2, totalSpend: 4100000, lastOrder: '۲ هفته پیش' },
-]
+const financeDateRange = ref<'today' | 'week' | 'month' | 'all'>('month')
+
+interface ShaparakTx {
+  id: string
+  rrn: string
+  cardNumber: string
+  bankName: string
+  orderNumber: string
+  customerName: string
+  amount: number
+  fee: number
+  status: 'settled' | 'pending' | 'failed'
+  settledAt: string
+}
+
+const transactionsList = ref<ShaparakTx[]>([
+  {
+    id: 'tx_101',
+    rrn: '982301449102',
+    cardNumber: '6037-99**-****-1234',
+    bankName: 'بانک ملی ایران',
+    orderNumber: 'KERAS-104921',
+    customerName: 'سارا ملکی',
+    amount: 2340000,
+    fee: 4000,
+    status: 'settled',
+    settledAt: '۱۴۰۵/۰۷/۱۲ - ۱۰:۱۵:۲۲',
+  },
+  {
+    id: 'tx_102',
+    rrn: '981423881903',
+    cardNumber: '6104-33**-****-5678',
+    bankName: 'بانک ملت',
+    orderNumber: 'KERAS-208314',
+    customerName: 'فرهاد احمدی',
+    amount: 1450000,
+    fee: 4000,
+    status: 'settled',
+    settledAt: '۱۴۰۵/۰۷/۱۱ - ۱۶:۴۰:۰۵',
+  },
+  {
+    id: 'tx_103',
+    rrn: '984511092834',
+    cardNumber: '5892-10**-****-9012',
+    bankName: 'بانک سپه',
+    orderNumber: 'KERAS-309115',
+    customerName: 'مریم کمالی',
+    amount: 3890000,
+    fee: 4000,
+    status: 'settled',
+    settledAt: '۱۴۰۵/۰۷/۱۰ - ۱۱:۲۲:۴۸',
+  },
+  {
+    id: 'tx_104',
+    rrn: '983391204856',
+    cardNumber: '6221-06**-****-4321',
+    bankName: 'بانک پارسیان',
+    orderNumber: 'KERAS-401827',
+    customerName: 'سارا رادمنش',
+    amount: 1850000,
+    fee: 4000,
+    status: 'settled',
+    settledAt: '۱۴۰۵/۰۷/۰۹ - ۰۹:۳۰:۱۴',
+  },
+  {
+    id: 'tx_105',
+    rrn: '985512948172',
+    cardNumber: '5022-29**-****-8812',
+    bankName: 'بانک پاسارگاد',
+    orderNumber: 'KERAS-502918',
+    customerName: 'نیلوفر رضایی',
+    amount: 2650000,
+    fee: 4000,
+    status: 'settled',
+    settledAt: '۱۴۰۵/۰۷/۰۸ - ۱۹:۱۴:۳۳',
+  },
+  {
+    id: 'tx_106',
+    rrn: '986623194850',
+    cardNumber: '6274-12**-****-3399',
+    bankName: 'بانک اقتصاد نوین',
+    orderNumber: 'KERAS-609124',
+    customerName: 'آیدا شمس',
+    amount: 980000,
+    fee: 4000,
+    status: 'pending',
+    settledAt: 'در صف تسویه پایا',
+  },
+])
+
+const financialKpis = computed(() => {
+  const gross = transactionsList.value.reduce(
+    (sum, t) => sum + (t.status === 'settled' ? t.amount : 0),
+    0,
+  )
+  const totalFees = transactionsList.value.reduce(
+    (sum, t) => sum + (t.status === 'settled' ? t.fee : 0),
+    0,
+  )
+  const discountsAbsorbed = 1850000
+  const estimatedShipping = 340000
+  const net = gross - discountsAbsorbed - totalFees - estimatedShipping
+
+  return {
+    gross,
+    net,
+    discountsAbsorbed,
+    totalFees,
+    estimatedShipping,
+  }
+})
+
+const exportFinanceCsv = () => {
+  const headers = 'شماره ارجاع (RRN),شماره سفارش,بانک عامل,شماره کارت,خریدار,مبلغ (تومان),کارمزد شاپرک,وضعیت تسویه,تاریخ و زمان\n'
+  const rows = transactionsList.value
+    .map(
+      (t) =>
+        `"${t.rrn}","${t.orderNumber}","${t.bankName}","${t.cardNumber}","${t.customerName}",${t.amount},${t.fee},"${t.status === 'settled' ? 'تسویه‌شده' : 'در انتظار'}","${t.settledAt}"`,
+    )
+    .join('\n')
+
+  const blob = new Blob(['\uFEFF' + headers + rows], {
+    type: 'text/csv;charset=utf-8;',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', `keras-ledger-${Date.now()}.csv`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  toast.success('گزارش دفتر کل شاپرک با فرمت CSV دانلود گردید.')
+}
+
+const printFinanceSummary = () => {
+  window.print()
+}
+
+// -------------------------------------------------------------
+// ۵. مدیریت مقالات و ژورنال ادیتوریال (CMS Journal & Blog)
+// -------------------------------------------------------------
+interface ArticleItem {
+  id: number
+  title: string
+  slug: string
+  category: string
+  categoryLabel: string
+  readTime: string
+  date: string
+  author: string
+  authorRole: string
+  image: string
+  excerpt: string
+  status: 'published' | 'draft'
+}
+
+const articlesList = ref<ArticleItem[]>([
+  {
+    id: 1,
+    title: 'علم فشرده‌سازی عضلانی و بازیابی سریع: چرا پارچه‌های ۳۰۰ گرمی سرنوشت‌سازند؟',
+    slug: 'science-of-muscle-compression-300gsm',
+    category: 'science',
+    categoryLabel: 'علم متریال و الیاف',
+    readTime: '۶ دقیقه',
+    date: '۱۲ مهر ۱۴۰۵',
+    author: 'دکتر مریم رادمنش',
+    authorRole: 'متخصص فیزیولوژی ورزش',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    excerpt: 'بررسی بیومکانیک بافت‌های متراکم الاستین بر بهبود بازگشت خون سیاهرگی و کاهش تجمع اسید لاکتیک.',
+    status: 'published',
+  },
+  {
+    id: 2,
+    title: 'هنر لایه‌بندی ادیتوریال پاییز ۱۴۰۵: از شومیز لینن اسلپ تا کت پشمی اورسایز',
+    slug: 'editorial-autumn-layering-guide-1405',
+    category: 'styling',
+    categoryLabel: 'استایلینگ و ترندها',
+    readTime: '۴ دقیقه',
+    date: '۰۸ مهر ۱۴۰۵',
+    author: 'سپهر رادمنش',
+    authorRole: 'مدیر هنری استودیو کراس',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    excerpt: 'چگونه پارچه‌های تنفس‌پذیر تابستانی را با ژاکت‌های پشمی سنگین پاییزی ترکیب کنیم بدون از دست رفتن سبکی فرم.',
+    status: 'published',
+  },
+  {
+    id: 3,
+    title: 'اصول پایداری الیاف نچرال: تست شفافیت و تراکم نخ در آتلیه مد',
+    slug: 'natural-fiber-sustainability-metrics',
+    category: 'sustainability',
+    categoryLabel: 'پایداری و مراقبت',
+    readTime: '۵ دقیقه',
+    date: '۰۲ مهر ۱۴۰۵',
+    author: 'نیلوفر امینی',
+    authorRole: 'سرپرست کنترل کیفی الیاف',
+    image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80',
+    excerpt: 'استانداردهای بین‌المللی Oeko-Tex و GOTS در فرآیند رنگرزی طبیعی و ثبات رنگ در برابر شست‌وشو.',
+    status: 'draft',
+  },
+])
+
+const isArticleModalOpen = ref(false)
+const editingArticle = ref<ArticleItem | null>(null)
+
+const articleForm = ref({
+  title: '',
+  slug: '',
+  category: 'science',
+  categoryLabel: 'علم متریال و الیاف',
+  author: 'دکتر مریم رادمنش',
+  authorRole: 'هیئت علمی آتلیه کراس',
+  readTime: '۵ دقیقه',
+  image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+  excerpt: '',
+  content: '',
+})
+
+const openAddArticleModal = () => {
+  editingArticle.value = null
+  articleForm.value = {
+    title: '',
+    slug: '',
+    category: 'styling',
+    categoryLabel: 'استایلینگ و ترندها',
+    author: 'سپهر رادمنش',
+    authorRole: 'مدیر هنری آتلیه کراس',
+    readTime: '۴ دقیقه',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    excerpt: '',
+    content: '',
+  }
+  isArticleModalOpen.value = true
+}
+
+const saveArticle = (publishNow = false) => {
+  if (!articleForm.value.title.trim()) {
+    toast.error('عنوان مقاله الزامی است.')
+    return
+  }
+
+  const slug =
+    articleForm.value.slug.trim() ||
+    `journal-${Date.now().toString().slice(-4)}`
+
+  if (editingArticle.value) {
+    Object.assign(editingArticle.value, {
+      title: articleForm.value.title,
+      slug,
+      category: articleForm.value.category,
+      categoryLabel: articleForm.value.categoryLabel,
+      author: articleForm.value.author,
+      readTime: articleForm.value.readTime,
+      image: articleForm.value.image,
+      excerpt: articleForm.value.excerpt,
+      status: publishNow ? 'published' : editingArticle.value.status,
+    })
+    toast.success('مقاله با موفقیت به‌روزرسانی شد.')
+  } else {
+    const newArt: ArticleItem = {
+      id: Date.now(),
+      title: articleForm.value.title,
+      slug,
+      category: articleForm.value.category,
+      categoryLabel: articleForm.value.categoryLabel,
+      readTime: articleForm.value.readTime,
+      date: 'امروز',
+      author: articleForm.value.author,
+      authorRole: articleForm.value.authorRole,
+      image: articleForm.value.image,
+      excerpt: articleForm.value.excerpt,
+      status: publishNow ? 'published' : 'draft',
+    }
+    articlesList.value.unshift(newArt)
+    toast.success(
+      publishNow
+        ? 'مقاله جدید در ژورنال منتشر شد.'
+        : 'پیش‌نویس مقاله با موفقیت ذخیره گردید.',
+    )
+  }
+
+  isArticleModalOpen.value = false
+}
+
+const toggleArticleStatus = (art: ArticleItem) => {
+  art.status = art.status === 'published' ? 'draft' : 'published'
+  toast.success(
+    `وضعیت مقاله «${art.title}» به ${art.status === 'published' ? 'منتشر شده' : 'پیش‌نویس'} تغییر یافت.`,
+  )
+}
+
+// -------------------------------------------------------------
+// ۶. انبارداری متغیرها و هشدارهای کسری (Inventory Matrix)
+// -------------------------------------------------------------
+interface VariantRow {
+  productId: number
+  productTitle: string
+  color: string
+  colorClass: string
+  stockXS: number
+  stockS: number
+  stockM: number
+  stockL: number
+  stockXL: number
+  stockFree: number
+  reserved: number
+  isUrgentLow: boolean
+}
+
+const variantInventory = ref<VariantRow[]>([
+  {
+    productId: 1,
+    productTitle: 'شومیز لینن اسلپ مدل کارن',
+    color: 'شنی نچرال',
+    colorClass: 'bg-amber-100 border border-amber-300',
+    stockXS: 5,
+    stockS: 8,
+    stockM: 12,
+    stockL: 2,
+    stockXL: 1,
+    stockFree: 0,
+    reserved: 3,
+    isUrgentLow: true,
+  },
+  {
+    productId: 1,
+    productTitle: 'شومیز لینن اسلپ مدل کارن',
+    color: 'مشکی موکا',
+    colorClass: 'bg-ink border border-slate-600',
+    stockXS: 7,
+    stockS: 9,
+    stockM: 14,
+    stockL: 6,
+    stockXL: 3,
+    stockFree: 0,
+    reserved: 1,
+    isUrgentLow: false,
+  },
+  {
+    productId: 5,
+    productTitle: 'پالتو پشمی دبل‌برست پاییزه',
+    color: 'شتری کلاسیک',
+    colorClass: 'bg-amber-700/80 border border-amber-800',
+    stockXS: 2,
+    stockS: 3,
+    stockM: 4,
+    stockL: 1,
+    stockXL: 0,
+    stockFree: 0,
+    reserved: 4,
+    isUrgentLow: true,
+  },
+  {
+    productId: 9,
+    productTitle: 'پلیور بافت کرکی یقه اسکی',
+    color: 'زغالی ملانژ',
+    colorClass: 'bg-slate-700 border border-slate-500',
+    stockXS: 4,
+    stockS: 6,
+    stockM: 8,
+    stockL: 5,
+    stockXL: 2,
+    stockFree: 0,
+    reserved: 2,
+    isUrgentLow: false,
+  },
+  {
+    productId: 17,
+    productTitle: 'روسری ابریشم توییل دست‌دوز',
+    color: 'طرح ادیتوریال پاییز',
+    colorClass: 'bg-rose-200 border border-rose-300',
+    stockXS: 0,
+    stockS: 0,
+    stockM: 0,
+    stockL: 0,
+    stockXL: 0,
+    stockFree: 18,
+    reserved: 5,
+    isUrgentLow: false,
+  },
+])
+
+// -------------------------------------------------------------
+// ۷. کمپین‌ها و کدهای تخفیف (Discount Engine)
+// -------------------------------------------------------------
+const vouchers = ref([
+  {
+    id: 1,
+    code: 'KERAS-PRO',
+    discount: '۱۵٪',
+    maxDiscount: '۳۵۰,۰۰۰ تومان',
+    minOrder: '۱,۵۰۰,۰۰۰ تومان',
+    usedCount: 142,
+    limit: 500,
+    expiresAt: '۱۴۰۵/۰۸/۳۰',
+    active: true,
+  },
+  {
+    id: 2,
+    code: 'FALL1405',
+    discount: '۱۰٪',
+    maxDiscount: '۲۰۰,۰۰۰ تومان',
+    minOrder: '۱,۰۰۰,۰۰۰ تومان',
+    usedCount: 88,
+    limit: 300,
+    expiresAt: '۱۴۰۵/۰۷/۳۰',
+    active: true,
+  },
+  {
+    id: 3,
+    code: 'VIP-ATELIER',
+    discount: '۲۰٪',
+    maxDiscount: '۵۰۰,۰۰۰ تومان',
+    minOrder: '۳,۰۰۰,۰۰۰ تومان',
+    usedCount: 29,
+    limit: 50,
+    expiresAt: '۱۴۰۵/۰۹/۱۵',
+    active: true,
+  },
+])
+
+const toggleVoucher = (v: (typeof vouchers.value)[0]) => {
+  v.active = !v.active
+  toast.success(
+    `وضعیت کد تخفیف ${v.code} به ${v.active ? 'فعال' : 'غیرفعال'} تغییر یافت.`,
+  )
+}
 </script>
 
 <template>
-  <div class="space-y-8 max-w-7xl mx-auto">
-    <!-- تب‌های بالای بوم برای سوییچ آسان نماها در هر اندازه صفحه -->
-    <div class="flex items-center justify-between border-b border-ops-border pb-4 overflow-x-auto gap-2">
-      <div class="flex items-center gap-1.5 sm:gap-2">
+  <div class="space-y-6 max-w-7xl mx-auto">
+    <!-- تب‌های ناوبری سریع دسکتاپ و موبایل (Breadcrumbs / Quick Switch) -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3 gap-2 overflow-x-auto">
+      <div class="flex items-center gap-1.5 shrink-0">
         <button
           type="button"
           data-testid="tab-view-analytics"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
-          :class="currentView === 'analytics' ? 'bg-amber-500 text-slate-950 font-black shadow-2xs' : 'bg-slate-900 text-slate-400 hover:text-white'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'analytics' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
           @click="switchView('analytics')"
         >
-          <TrendingUp class="w-3.5 h-3.5" />
-          <span>دیده‌بان مالی</span>
+          دیده‌بان اجرایی
+        </button>
+
+        <button
+          type="button"
+          data-testid="tab-view-products"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'products' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
+          @click="switchView('products')"
+        >
+          محصولات و انبارداری
         </button>
 
         <button
           type="button"
           data-testid="tab-view-fulfillment"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
-          :class="currentView === 'fulfillment' ? 'bg-amber-500 text-slate-950 font-black shadow-2xs' : 'bg-slate-900 text-slate-400 hover:text-white'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'fulfillment' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
           @click="switchView('fulfillment')"
         >
-          <Truck class="w-3.5 h-3.5" />
-          <span>میز سفارش‌ها و پست</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300">
-            {{ toFa(orders.length) }}
-          </span>
+          میز سفارش‌ها
         </button>
 
         <button
           type="button"
           data-testid="tab-view-inventory"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
-          :class="currentView === 'inventory' ? 'bg-amber-500 text-slate-950 font-black shadow-2xs' : 'bg-slate-900 text-slate-400 hover:text-white'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'inventory' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
           @click="switchView('inventory')"
         >
-          <Boxes class="w-3.5 h-3.5" />
-          <span>ماتریس موجودی</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-rose/20 text-rose font-bold">
-            ۳ کسری
-          </span>
+          ماتریس انبار
+        </button>
+
+        <button
+          type="button"
+          data-testid="tab-view-finance"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'finance' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
+          @click="switchView('finance')"
+        >
+          امور مالی و شاپرک
+        </button>
+
+        <button
+          type="button"
+          data-testid="tab-view-articles"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'articles' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
+          @click="switchView('articles')"
+        >
+          مجله و مقالات
         </button>
 
         <button
           type="button"
           data-testid="tab-view-vouchers"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
-          :class="currentView === 'vouchers' ? 'bg-amber-500 text-slate-950 font-black shadow-2xs' : 'bg-slate-900 text-slate-400 hover:text-white'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="currentView === 'vouchers' ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
           @click="switchView('vouchers')"
         >
-          <TicketPercent class="w-3.5 h-3.5" />
-          <span>کدهای تخفیف</span>
+          کدهای تخفیف
         </button>
+      </div>
 
-        <button
-          type="button"
-          data-testid="tab-view-crm"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
-          :class="currentView === 'crm' ? 'bg-amber-500 text-slate-950 font-black shadow-2xs' : 'bg-slate-900 text-slate-400 hover:text-white'"
-          @click="switchView('crm')"
-        >
-          <Users class="w-3.5 h-3.5" />
-          <span>باشگاه مشتریان</span>
-        </button>
+      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-mono">
+        <span>پایگاه داده: آنلاین</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
       </div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- ۱. بخش تحلیل مالی و دیدهبان کل (Analytics View) -->
-    <!-- ========================================================= -->
-    <section v-if="currentView === 'analytics'" class="space-y-8" data-testid="nexus-analytics-view">
-      <!-- ۴ کارت شاخص کلیدی مالی -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div
-          v-for="(kpi, index) in kpis"
-          :key="index"
-          class="rounded-3xl border border-ops-border bg-ops-surface p-5 shadow-2xs space-y-4 relative overflow-hidden"
-        >
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-400">{{ kpi.title }}</span>
-            <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-400">
-              <component :is="kpi.icon" class="w-4 h-4" />
-            </div>
-          </div>
-
-          <div>
-            <div class="text-2xl font-black text-white font-mono tracking-tight">
-              <template v-if="kpi.amount">
-                {{ formatToman(kpi.amount) }}
-              </template>
-              <template v-else>
-                {{ kpi.amountText }}
-              </template>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">{{ kpi.unit }}</p>
-          </div>
-
-          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-emerald-400 font-bold font-mono">{{ kpi.growth }}</span>
-            <span class="text-slate-500 text-[10px]">{{ kpi.subtitle }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- شبکه تفکیک درآمدی کالکشن‌ها و تراکنش‌های زنده شاپرک -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- نمودار سهم فروش کالکشن‌ها -->
-        <div class="lg:col-span-6 rounded-3xl border border-ops-border bg-ops-surface p-6 space-y-5">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <SlidersHorizontal class="w-4 h-4 text-amber-400" />
-              <span>ترکیب سهم فروش بر اساس دسته‌بندی</span>
-            </h3>
-            <span class="text-xs text-slate-400 font-mono">پاییز ۱۴۰۵</span>
-          </div>
-
-          <div class="space-y-4">
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-300">پوشاک اصلی و ترنچ‌کت‌ها (Apparel)</span>
-                <span class="font-bold text-white font-mono">۶۸٪ • ۲۹,۱۳۸,۰۰۰ تومان</span>
-              </div>
-              <div class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden">
-                <div class="h-full bg-amber-500 rounded-full" style="width: 68%" />
-              </div>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-300">اکسسوری، شال ابریشم و کلاچ (Accessories)</span>
-                <span class="font-bold text-white font-mono">۲۶٪ • ۱۱,۱۴۱,۰۰۰ تومان</span>
-              </div>
-              <div class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden">
-                <div class="h-full bg-rose rounded-full" style="width: 26%" />
-              </div>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-300">خدمات بسته‌بندی هدیه و اکسپرس</span>
-                <span class="font-bold text-white font-mono">۶٪ • ۲,۵۷۱,۰۰۰ تومان</span>
-              </div>
-              <div class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden">
-                <div class="h-full bg-emerald-500 rounded-full" style="width: 6%" />
-              </div>
-            </div>
-          </div>
+    <!-- ============================================================= -->
+    <!-- ۱. نمای دیده‌بان تحلیلی و مالی (Executive Analytics View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'analytics'" data-testid="nexus-analytics-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">دیده‌بان اجرایی و نظارت مالی</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">شاخص‌های کلیدی عملکرد آتلیه مد و وضعیت فروش کالکشن پاییز ۱۴۰۵</p>
         </div>
 
-        <!-- آخرین تراکنش‌های موفق شاپرک -->
-        <div class="lg:col-span-6 rounded-3xl border border-ops-border bg-ops-surface p-6 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <CreditCard class="w-4 h-4 text-emerald-400" />
-              <span>جریان تراکنش‌های برخط درگاه شاپرک</span>
-            </h3>
-            <span class="text-xs text-emerald-400 font-bold">۱۰۰٪ پایدار</span>
-          </div>
-
-          <div class="divide-y divide-slate-800/80">
-            <div
-              v-for="txn in recentTransactions"
-              :key="txn.id"
-              class="py-3 flex items-center justify-between text-xs"
-            >
-              <div class="space-y-0.5">
-                <div class="flex items-center gap-2">
-                  <span class="font-bold text-white">{{ txn.user }}</span>
-                  <span class="text-[10px] font-mono text-slate-400">#{{ txn.id }}</span>
-                </div>
-                <p class="text-[10px] text-slate-400">{{ txn.gateway }} • {{ txn.time }}</p>
-              </div>
-
-              <div class="text-end space-y-0.5">
-                <span class="font-mono font-bold text-amber-300 block">
-                  {{ formatToman(txn.amount) }}
-                </span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
-                  {{ txn.status }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- ۲. میز مدیریت سفارش‌ها و توزیع پستی (Order Fulfillment Desk) -->
-    <!-- ========================================================= -->
-    <section v-if="currentView === 'fulfillment'" class="space-y-6" data-testid="nexus-fulfillment-view">
-      <!-- نوار فیلتر و جستجوی سفارش‌ها -->
-      <div class="rounded-3xl border border-ops-border bg-ops-surface p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="relative w-full sm:w-80">
-          <Search class="w-4 h-4 absolute inset-s-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            v-model="orderSearch"
-            type="text"
-            placeholder="جستجوی کد سفارش، خریدار یا شماره..."
-            class="w-full h-10 rounded-xl bg-slate-900 border border-slate-800 ps-10 pe-4 text-xs text-white placeholder:text-slate-500 focus:border-amber-500 focus:outline-none"
-          >
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+        <div class="flex items-center gap-2">
           <button
-            v-for="st in [
-              { id: 'all', label: 'همه' },
-              { id: 'registered', label: 'ثبت جدید' },
-              { id: 'processing', label: 'بسته‌بندی' },
-              { id: 'handed_over', label: 'تحویل پست' },
-              { id: 'delivered', label: 'تحویل شده' },
-            ]"
-            :key="st.id"
             type="button"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
-            :class="orderStatusFilter === st.id ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-900 text-slate-400 hover:text-white'"
-            @click="orderStatusFilter = st.id"
+            class="h-9 px-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            @click="switchView('products')"
           >
-            {{ st.label }}
+            <Plus class="w-4 h-4 text-slate-500" />
+            <span>محصول جدید</span>
+          </button>
+          <button
+            type="button"
+            class="h-9 px-3.5 rounded-xl bg-ink text-white hover:bg-ink/90 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            @click="switchView('fulfillment')"
+          >
+            <Plus class="w-4 h-4" />
+            <span>ثبت سفارش دستی</span>
           </button>
         </div>
       </div>
 
-      <!-- جدول سفارش‌ها -->
-      <div class="rounded-3xl border border-ops-border bg-ops-surface overflow-hidden shadow-2xs">
+      <!-- کارت‌های شاخص‌های کلیدی (KPIs Grid) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          v-for="kpi in kpis"
+          :key="kpi.title"
+          class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative overflow-hidden group hover:border-slate-300 transition-all"
+        >
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-bold text-slate-600 block">{{ kpi.title }}</span>
+            <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+              <component :is="kpi.icon" class="w-4 h-4" />
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div v-if="kpi.amount !== null" class="flex items-baseline gap-1.5">
+              <span class="text-2xl font-black text-slate-900 font-mono tracking-tight">{{ formatToman(kpi.amount) }}</span>
+              <span class="text-xs text-slate-500">{{ kpi.unit }}</span>
+            </div>
+            <div v-else class="text-2xl font-black text-slate-900 font-mono tracking-tight">
+              {{ kpi.percentage }}
+            </div>
+
+            <div class="flex items-center gap-2 mt-2">
+              <span
+                class="text-[11px] font-bold font-mono px-1.5 py-0.5 rounded-md"
+                :class="kpi.growthPositive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose border border-rose/30'"
+              >
+                {{ kpi.growth }}
+              </span>
+              <span class="text-[11px] text-slate-500 truncate">{{ kpi.subtitle }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- کارت‌های خلاصه عملیات سریع (Operations Shortcuts) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-ink font-bold text-sm">
+              <Package class="w-4.5 h-4.5" />
+              <span>کاتالوگ فعال آتلیه</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              ۲۴ محصول تعریف‌شده با موجودی انبار در ۵ سایز. کالکشن پاییز ۱۴۰۵ در وضعیت فعال قرار دارد.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="mt-4 w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+            @click="switchView('products')"
+          >
+            مدیریت کالاها و انبار
+          </button>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-purple-700 font-bold text-sm">
+              <Truck class="w-4.5 h-4.5" />
+              <span>سفارش‌های در حال ارسال</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              صدور بارکد ۲۴ رقمی پست پیشتاز برای مرسولات و ثبت سفارشات تلفنی و اینستاگرامی.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="mt-4 w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+            @click="switchView('fulfillment')"
+          >
+            مشاهده میز سفارش‌ها
+          </button>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm">
+              <CreditCard class="w-4.5 h-4.5" />
+              <span>تسویه حساب شاپرک</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              گزارش لحظه‌ای شماره ارجاع‌های بانکی (RRN)، کارمزد ۱٪ شاپرک و خروجی اکسل دفتر کل.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="mt-4 w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+            @click="switchView('finance')"
+          >
+            مشاهده دفتر کل مالی
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ۲. نمای مدیریت محصولات و انبارداری (Products Catalog CRUD View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'products'" data-testid="nexus-products-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">مدیریت محصولات و کاتالوگ آتلیه</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">تعریف محصول جدید، ویرایش متغیرهای سایز، قیمت‌گذاری و کنترل عرضه</p>
+        </div>
+
+        <button
+          type="button"
+          data-testid="add-product-btn"
+          class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
+          @click="openAddProductModal"
+        >
+          <Plus class="w-4 h-4" />
+          <span>افزودن محصول جدید</span>
+        </button>
+      </div>
+
+      <!-- فیلترها و جستجوی کالاها -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">
+        <div class="relative w-full md:w-80">
+          <input
+            v-model="productSearchQuery"
+            type="text"
+            placeholder="جستجوی عنوان، شناسه (Slug) یا برند..."
+            class="w-full h-10 ps-9 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-ink transition-all outline-hidden"
+          >
+          <Search class="w-4 h-4 text-slate-400 absolute inset-s-3 top-3" />
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+          <!-- فیلتر بخش -->
+          <select
+            v-model="selectedProductDivision"
+            class="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 outline-hidden focus:border-ink"
+          >
+            <option value="all">همه بخش‌ها</option>
+            <option value="apparel">پوشاک (Apparel)</option>
+            <option value="accessories">اکسسوری (Accessories)</option>
+          </select>
+
+          <!-- فیلتر فصل -->
+          <select
+            v-model="selectedProductSeason"
+            class="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 outline-hidden focus:border-ink"
+          >
+            <option value="all">همه فصل‌ها</option>
+            <option value="fall-1405">پاییز ۱۴۰۵</option>
+            <option value="winter-1405">زمستان ۱۴۰۵</option>
+            <option value="spring-1406">بهار ۱۴۰۶</option>
+            <option value="four-season">چهار فصل</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- جدول جامع محصولات -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-start text-xs">
-            <thead class="bg-slate-950 text-slate-400 border-b border-ops-border font-bold">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
               <tr>
-                <th class="p-4 text-start">کد سفارش</th>
-                <th class="p-4 text-start">خریدار و نشانی</th>
-                <th class="p-4 text-start">مبلغ فاکتور</th>
-                <th class="p-4 text-start">وضعیت سفارش</th>
-                <th class="p-4 text-start">بارکد ۲۴ رقمی پست</th>
-                <th class="p-4 text-start">اقدام سریع</th>
+                <th class="p-3.5 text-start">کالا و مشخصات</th>
+                <th class="p-3.5 text-start">بخش و دسته‌بندی</th>
+                <th class="p-3.5 text-start">فصل</th>
+                <th class="p-3.5 text-start">قیمت پایه و فروش</th>
+                <th class="p-3.5 text-start">موجودی انبار</th>
+                <th class="p-3.5 text-start">وضعیت عرضه</th>
+                <th class="p-3.5 text-end">عملیات</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/80 text-slate-200">
+            <tbody class="divide-y divide-slate-100">
               <tr
-                v-for="order in filteredOrders"
-                :key="order.orderNumber"
-                class="hover:bg-slate-900/40 transition-colors"
+                v-for="product in filteredProducts"
+                :key="product.id"
+                class="hover:bg-slate-50/70 transition-colors"
               >
-                <!-- کد سفارش -->
-                <td class="p-4 font-mono font-bold text-amber-300">
-                  {{ order.orderNumber }}
-                </td>
-
-                <!-- اطلاعات خریدار -->
-                <td class="p-4 space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-white">{{ order.recipientName }}</span>
-                    <span class="text-[11px] text-slate-400 font-mono">{{ toFa(order.recipientPhone || '') }}</span>
+                <!-- کالا و عکس -->
+                <td class="p-3.5">
+                  <div class="flex items-center gap-3">
+                    <img
+                      :src="product.images?.[0]?.url || 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=200&q=80'"
+                      :alt="product.title"
+                      class="w-12 h-14 rounded-lg object-cover shrink-0 border border-slate-200"
+                    >
+                    <div class="min-w-0">
+                      <span class="font-bold text-slate-900 block truncate max-w-xs">{{ product.title }}</span>
+                      <span class="text-[10px] text-slate-500 font-mono block mt-0.5">{{ product.slug }}</span>
+                      <span v-if="product.badge" class="inline-block mt-1 text-[9px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold">
+                        {{ product.badge }}
+                      </span>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{{ order.shippingAddress }}</p>
                 </td>
 
-                <!-- مبلغ فاکتور -->
-                <td class="p-4 font-mono font-bold text-white">
-                  {{ formatToman(order.totalAmount) }}
+                <!-- بخش و دسته -->
+                <td class="p-3.5">
+                  <span class="font-bold text-slate-800 block">
+                    {{ product.division === 'apparel' ? 'پوشاک' : 'اکسسوری' }}
+                  </span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ product.category }}</span>
                 </td>
 
-                <!-- وضعیت سفارش -->
-                <td class="p-4">
-                  <span
-                    class="px-2.5 py-1 rounded-full text-[11px] font-bold inline-block"
-                    :class="{
-                      'bg-amber-500/15 text-amber-300 border border-amber-500/30': order.status === 'registered',
-                      'bg-sky-500/15 text-sky-300 border border-sky-500/30': order.status === 'processing',
-                      'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30': order.status === 'handed_over',
-                      'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30': order.status === 'delivered',
-                    }"
-                  >
-                    {{ order.statusLabel }}
+                <!-- فصل -->
+                <td class="p-3.5">
+                  <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] font-bold">
+                    {{ product.season }}
                   </span>
                 </td>
 
-                <!-- بارکد پستی -->
-                <td class="p-4">
-                  <div v-if="order.trackingCode" class="flex items-center gap-1.5">
-                    <span class="font-mono text-[11px] text-slate-300 bg-slate-900 px-2 py-1 rounded border border-slate-800">
-                      {{ order.trackingCode.slice(0, 8) }}...{{ order.trackingCode.slice(-4) }}
-                    </span>
-                    <button
-                      type="button"
-                      class="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
-                      title="کپی بارکد"
-                      @click="copyToClipboard(order.trackingCode)"
-                    >
-                      <Copy class="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <span v-else class="text-slate-500 text-[11px]">صادر نشده</span>
+                <!-- قیمت -->
+                <td class="p-3.5 font-mono">
+                  <span class="font-bold text-slate-900 block">{{ formatToman(product.price) }} تومان</span>
+                  <span
+                    v-if="product.compare_at_price && product.compare_at_price > product.price"
+                    class="text-[10px] text-slate-400 line-through block"
+                  >
+                    {{ formatToman(product.compare_at_price) }}
+                  </span>
                 </td>
 
-                <!-- اقدام‌ها -->
-                <td class="p-4">
+                <!-- موجودی -->
+                <td class="p-3.5">
+                  <div class="flex items-center gap-1.5 font-mono">
+                    <span
+                      class="px-2 py-0.5 rounded-md font-bold text-xs"
+                      :class="getProductTotalStock(product) < 10 ? 'bg-rose-50 text-rose border border-rose/30' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'"
+                    >
+                      {{ getProductTotalStock(product) }} عدد
+                    </span>
+                  </div>
+                </td>
+
+                <!-- سوئیچ فعال/غیرفعال -->
+                <td class="p-3.5">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-colors"
+                    :class="product.is_active ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'"
+                    @click="toggleProductActive(product)"
+                  >
+                    {{ product.is_active ? 'فعال' : 'غیرفعال' }}
+                  </button>
+                </td>
+
+                <!-- عملیات -->
+                <td class="p-3.5 text-end">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      data-testid="edit-product-btn"
+                      class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                      title="ویرایش محصول"
+                      @click="openEditProductModal(product)"
+                    >
+                      <Edit3 class="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="delete-product-btn"
+                      class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose cursor-pointer"
+                      title="حذف / بایگانی"
+                      @click="productToDelete = product; isDeleteProductDialogOpen = true"
+                    >
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ۳. میز سفارش‌ها و توزیع (Fulfillment & Manual Orders View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'fulfillment'" data-testid="nexus-fulfillment-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">میز مدیریت سفارش‌ها و توزیع پستی</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">پردازش وضعیت سفارش‌ها، تخصیص بارکد ۲۴ رقمی پست و ثبت سفارش دستی</p>
+        </div>
+
+        <button
+          type="button"
+          data-testid="create-manual-order-btn"
+          class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
+          @click="openManualOrderModal"
+        >
+          <Plus class="w-4 h-4" />
+          <span>+ ثبت سفارش دستی جدید</span>
+        </button>
+      </div>
+
+      <!-- فیلترهای وضعیت سفارش -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">
+        <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+            :class="orderStatusFilter === 'all' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'"
+            @click="orderStatusFilter = 'all'"
+          >
+            همه ({{ ordersList.length }})
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+            :class="orderStatusFilter === 'registered' ? 'bg-amber-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+            @click="orderStatusFilter = 'registered'"
+          >
+            در انتظار بررسی
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+            :class="orderStatusFilter === 'processing' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+            @click="orderStatusFilter = 'processing'"
+          >
+            در حال بسته‌بندی
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+            :class="orderStatusFilter === 'handed_over' ? 'bg-purple-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+            @click="orderStatusFilter = 'handed_over'"
+          >
+            ارسال با پست
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+            :class="orderStatusFilter === 'delivered' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+            @click="orderStatusFilter = 'delivered'"
+          >
+            تحویل شده
+          </button>
+        </div>
+
+        <div class="relative w-full md:w-72">
+          <input
+            v-model="orderSearchQuery"
+            type="text"
+            placeholder="جستجوی شماره سفارش، خریدار یا بارکد..."
+            class="w-full h-9 ps-8 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white outline-hidden"
+          >
+          <Search class="w-3.5 h-3.5 text-slate-400 absolute inset-s-2.5 top-2.5" />
+        </div>
+      </div>
+
+      <!-- جدول سفارش‌ها -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-start text-xs">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="p-3.5 text-start">سفارش و خریدار</th>
+                <th class="p-3.5 text-start">نشانی تحویل</th>
+                <th class="p-3.5 text-start">اقلام</th>
+                <th class="p-3.5 text-start">مبلغ فاکتور</th>
+                <th class="p-3.5 text-start">وضعیت جاری</th>
+                <th class="p-3.5 text-start">کد رهگیری پست</th>
+                <th class="p-3.5 text-end">عملیات</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr
+                v-for="order in filteredOrders"
+                :key="order.orderNumber"
+                class="hover:bg-slate-50/70 transition-colors"
+              >
+                <!-- شماره و خریدار -->
+                <td class="p-3.5">
+                  <span class="font-bold text-slate-900 font-mono block">{{ order.orderNumber }}</span>
+                  <span class="text-slate-700 font-medium block mt-0.5">{{ order.recipientName }}</span>
+                  <span class="text-[10px] text-slate-400 font-mono block">{{ order.recipientPhone || '—' }}</span>
+                </td>
+
+                <!-- نشانی -->
+                <td class="p-3.5 max-w-xs truncate text-slate-600" :title="order.shippingAddress">
+                  {{ order.shippingAddress }}
+                </td>
+
+                <!-- اقلام -->
+                <td class="p-3.5">
                   <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-[11px] text-slate-700">
+                      {{ order.items.length }} قلم
+                    </span>
+                  </div>
+                </td>
+
+                <!-- مبلغ فاکتور -->
+                <td class="p-3.5 font-mono font-bold text-slate-900">
+                  {{ formatToman(order.totalAmount) }} تومان
+                </td>
+
+                <!-- وضعیت سفارش و تغییر سریع درون‌خطی -->
+                <td class="p-3.5">
+                  <select
+                    :value="order.status"
+                    class="h-8 px-2 rounded-lg text-xs font-bold border transition-colors outline-hidden cursor-pointer"
+                    :class="getStatusBadge(order.status).class"
+                    @change="updateOrderStatus(order, ($event.target as HTMLSelectElement).value as any)"
+                  >
+                    <option value="registered">در انتظار بررسی</option>
+                    <option value="processing">در حال بسته‌بندی</option>
+                    <option value="handed_over">ارسال با پست</option>
+                    <option value="delivered">تحویل شده</option>
+                    <option value="canceled">مرجوعی / لغو</option>
+                  </select>
+                </td>
+
+                <!-- بارکد پست -->
+                <td class="p-3.5">
+                  <div v-if="order.trackingCode" class="flex items-center gap-1 font-mono text-[11px] text-slate-800">
+                    <span class="truncate max-w-[120px]">{{ order.trackingCode }}</span>
+                    <button
+                      type="button"
+                      class="p-1 hover:text-ink cursor-pointer"
+                      title="کپی بارکد"
+                      @click="copyToClipboard(order.trackingCode!)"
+                    >
+                      <Copy class="w-3 h-3" />
+                    </button>
+                  </div>
+                  <span v-else class="text-slate-400 text-[11px]">صادر نشده</span>
+                </td>
+
+                <!-- عملیات -->
+                <td class="p-3.5 text-end">
+                  <div class="flex items-center justify-end gap-1.5">
                     <button
                       type="button"
                       data-testid="assign-barcode-btn"
-                      class="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1"
+                      class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-bold cursor-pointer flex items-center gap-1"
+                      title="تخصیص بارکد ۲۴ رقمی پست"
                       @click="openBarcodeModal(order)"
                     >
                       <Truck class="w-3 h-3" />
                       <span>تخصیص بارکد</span>
                     </button>
-
-                    <!-- دکمه پیشرفت وضعیت ۱-کلیک -->
                     <button
-                      v-if="order.status === 'registered'"
                       type="button"
-                      class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-[11px] cursor-pointer"
-                      @click="updateOrderStatus(order, 'processing')"
+                      data-testid="print-packing-slip-btn"
+                      class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                      title="چاپ فاکتور و برچسب پستی"
+                      @click="openPackingSlip(order)"
                     >
-                      بسته‌بندی
-                    </button>
-                    <button
-                      v-else-if="order.status === 'processing'"
-                      type="button"
-                      class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-[11px] cursor-pointer"
-                      @click="updateOrderStatus(order, 'handed_over')"
-                    >
-                      تحویل پست
-                    </button>
-                    <button
-                      v-else-if="order.status === 'handed_over'"
-                      type="button"
-                      class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-bold text-[11px] cursor-pointer"
-                      @click="updateOrderStatus(order, 'delivered')"
-                    >
-                      تحویل شد
+                      <Printer class="w-4 h-4" />
                     </button>
                   </div>
                 </td>
@@ -808,154 +1672,173 @@ const vipCustomers = [
       </div>
     </section>
 
-    <!-- ========================================================= -->
-    <!-- ۳. انبارداری و ماتریس موجودی سایز (Inventory Matrix) -->
-    <!-- ========================================================= -->
-    <section v-if="currentView === 'inventory'" class="space-y-6" data-testid="nexus-inventory-view">
-      <!-- بنر هشدار کسری بحرانی موجودی -->
-      <div class="rounded-3xl border border-rose/30 bg-rose/10 p-5 flex items-center justify-between text-xs">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-rose/20 text-rose flex items-center justify-center font-bold">
-            <AlertTriangle class="w-5 h-5" />
-          </div>
-          <div>
-            <h4 class="font-bold text-white">۳ ردیف از محصولات پاییز در آستانه اتمام موجودی هستند</h4>
-            <p class="text-slate-400 mt-0.5">موجودی سایزهای S و M ترنچ‌کت و شومیز اسلپ زیر حد مجاز ۳ عدد قرار دارد.</p>
-          </div>
+    <!-- ============================================================= -->
+    <!-- ۴. امور مالی و حسابداری (Financial Ledger & Shaparak View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'finance'" data-testid="nexus-finance-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">دفتر کل مالی و تسویه شاپرک</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">تراز مالی، کارمزدهای شاپرک، تخفیف‌های جذب‌شده و اسناد تسویه بانکی</p>
         </div>
 
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            data-testid="export-finance-csv-btn"
+            class="h-9 px-3.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            @click="exportFinanceCsv"
+          >
+            <Download class="w-4 h-4 text-slate-500" />
+            <span>خروجی اکسل (CSV)</span>
+          </button>
+          <button
+            type="button"
+            data-testid="print-finance-summary-btn"
+            class="h-9 px-3.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            @click="printFinanceSummary"
+          >
+            <Printer class="w-4 h-4" />
+            <span>چاپ ترازنامه</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- بازه زمانی و فیلترها -->
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200/80 p-2 rounded-2xl shadow-xs w-fit">
         <button
           type="button"
-          class="px-4 py-2 rounded-xl bg-rose text-white font-bold text-xs hover:bg-rose/90 transition-all cursor-pointer"
-          @click="toast.info('درخواست دوخت فوری به کارگاه خیاطی آتلیه ارسال شد.')"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="financeDateRange === 'today' ? 'bg-ink text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="financeDateRange = 'today'"
         >
-          دستور دوخت فوری کارگاه
+          امروز
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="financeDateRange === 'week' ? 'bg-ink text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="financeDateRange = 'week'"
+        >
+          ۷ روز گذشته
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="financeDateRange === 'month' ? 'bg-ink text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="financeDateRange = 'month'"
+        >
+          این ماه
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          :class="financeDateRange === 'all' ? 'bg-ink text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="financeDateRange = 'all'"
+        >
+          کل دوره
         </button>
       </div>
 
-      <!-- جدول ماتریس موجودی -->
-      <div class="rounded-3xl border border-ops-border bg-ops-surface overflow-hidden shadow-2xs">
+      <!-- کارت‌های تراز مالی (Ledger KPI Cards) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
+          <span class="text-xs font-bold text-slate-500 block">فروش ناخالص (Gross)</span>
+          <span class="text-lg font-black text-slate-900 font-mono block mt-2">{{ formatToman(financialKpis.gross) }}</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5">تومان</span>
+        </div>
+
+        <div class="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-xs bg-emerald-50/20">
+          <span class="text-xs font-bold text-emerald-800 block">درآمد خالص تسویه (Net)</span>
+          <span class="text-lg font-black text-emerald-700 font-mono block mt-2">{{ formatToman(financialKpis.net) }}</span>
+          <span class="text-[10px] text-emerald-600 block mt-0.5">تومان</span>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
+          <span class="text-xs font-bold text-slate-500 block">تخفیف‌های جذب‌شده</span>
+          <span class="text-lg font-black text-rose font-mono block mt-2">{{ formatToman(financialKpis.discountsAbsorbed) }}</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5">تومان</span>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
+          <span class="text-xs font-bold text-slate-500 block">هزینه ارسال پست</span>
+          <span class="text-lg font-black text-slate-800 font-mono block mt-2">{{ formatToman(financialKpis.estimatedShipping) }}</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5">تومان</span>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
+          <span class="text-xs font-bold text-slate-500 block">کارمزد شاپرک (۱٪)</span>
+          <span class="text-lg font-black text-amber-700 font-mono block mt-2">{{ formatToman(financialKpis.totalFees) }}</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5">تومان</span>
+        </div>
+      </div>
+
+      <!-- جدول تراکنش‌های شاپرک -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-900">ریز اسناد تسویه شبکه پرداخت شاپرک</h3>
+          <span class="text-[11px] text-slate-500 font-mono">{{ transactionsList.length }} سند ثبت‌شده</span>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="w-full text-start text-xs">
-            <thead class="bg-slate-950 text-slate-400 border-b border-ops-border font-bold">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
               <tr>
-                <th class="p-4 text-start">مشخصات محصول</th>
-                <th class="p-4 text-start">کد SKU</th>
-                <th class="p-4 text-center">سایز Small</th>
-                <th class="p-4 text-center">سایز Medium</th>
-                <th class="p-4 text-center">سایز Large</th>
-                <th class="p-4 text-center">سایز Free</th>
+                <th class="p-3.5 text-start">شماره ارجاع (RRN)</th>
+                <th class="p-3.5 text-start">شماره کارت و بانک عامل</th>
+                <th class="p-3.5 text-start">شماره سفارش و خریدار</th>
+                <th class="p-3.5 text-start">مبلغ تراکنش</th>
+                <th class="p-3.5 text-start">کارمزد ۱٪</th>
+                <th class="p-3.5 text-start">وضعیت تسویه</th>
+                <th class="p-3.5 text-start">زمان تسویه</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/80 text-slate-200">
+            <tbody class="divide-y divide-slate-100 font-mono">
               <tr
-                v-for="item in stockMatrix"
-                :key="item.id"
-                class="hover:bg-slate-900/40 transition-colors"
+                v-for="tx in transactionsList"
+                :key="tx.id"
+                class="hover:bg-slate-50/70 transition-colors"
               >
-                <!-- محصول -->
-                <td class="p-4 flex items-center gap-3">
-                  <img
-                    :src="item.thumbnail"
-                    :alt="item.title"
-                    class="w-10 h-12 rounded-lg object-cover border border-slate-800"
+                <!-- RRN -->
+                <td class="p-3.5 font-bold text-slate-900">
+                  {{ tx.rrn }}
+                </td>
+
+                <!-- کارت و بانک -->
+                <td class="p-3.5 font-sans">
+                  <span class="font-bold text-slate-800 block font-mono text-[11px]">{{ tx.cardNumber }}</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ tx.bankName }}</span>
+                </td>
+
+                <!-- سفارش و خریدار -->
+                <td class="p-3.5 font-sans">
+                  <span class="font-bold text-slate-900 block font-mono text-[11px]">{{ tx.orderNumber }}</span>
+                  <span class="text-[10px] text-slate-600 block mt-0.5">{{ tx.customerName }}</span>
+                </td>
+
+                <!-- مبلغ -->
+                <td class="p-3.5 font-bold text-slate-900">
+                  {{ formatToman(tx.amount) }} تومان
+                </td>
+
+                <!-- کارمزد -->
+                <td class="p-3.5 text-slate-500">
+                  {{ formatToman(tx.fee) }} تومان
+                </td>
+
+                <!-- وضعیت -->
+                <td class="p-3.5 font-sans">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[11px] font-bold"
+                    :class="tx.status === 'settled' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'"
                   >
-                  <div>
-                    <h5 class="font-bold text-white text-xs">{{ item.title }}</h5>
-                    <p class="text-[10px] text-slate-400">{{ item.category }}</p>
-                  </div>
+                    {{ tx.status === 'settled' ? 'تسویه‌شده' : 'در انتظار' }}
+                  </span>
                 </td>
 
-                <!-- SKU -->
-                <td class="p-4 font-mono font-bold text-slate-300">
-                  {{ item.sku }}
-                </td>
-
-                <!-- سایز Small -->
-                <td class="p-4 text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockS', -1)"
-                    >-</button>
-                    <span class="font-mono font-bold text-sm w-6 text-center" :class="{ 'text-rose': item.stockS <= 3 }">
-                      {{ toFa(item.stockS) }}
-                    </span>
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockS', 1)"
-                    >+</button>
-                  </div>
-                  <div v-if="item.stockS > 0 && item.stockS <= 3" class="mt-1">
-                    <span class="px-1.5 py-0.5 rounded text-[9px] bg-rose/15 text-rose border border-rose/30 font-bold inline-block">
-                      کسری انبار
-                    </span>
-                  </div>
-                </td>
-
-                <!-- سایز Medium -->
-                <td class="p-4 text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockM', -1)"
-                    >-</button>
-                    <span class="font-mono font-bold text-sm w-6 text-center" :class="{ 'text-rose': item.stockM <= 3 }">
-                      {{ toFa(item.stockM) }}
-                    </span>
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockM', 1)"
-                    >+</button>
-                  </div>
-                </td>
-
-                <!-- سایز Large -->
-                <td class="p-4 text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockL', -1)"
-                    >-</button>
-                    <span class="font-mono font-bold text-sm w-6 text-center" :class="{ 'text-rose': item.stockL <= 3 }">
-                      {{ toFa(item.stockL) }}
-                    </span>
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockL', 1)"
-                    >+</button>
-                  </div>
-                  <div v-if="item.stockL > 0 && item.stockL <= 3" class="mt-1">
-                    <span class="px-1.5 py-0.5 rounded text-[9px] bg-rose/15 text-rose border border-rose/30 font-bold inline-block">
-                      کسری انبار
-                    </span>
-                  </div>
-                </td>
-
-                <!-- سایز Free -->
-                <td class="p-4 text-center">
-                  <div v-if="item.category === 'اکسسوری'" class="flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockFree', -1)"
-                    >-</button>
-                    <span class="font-mono font-bold text-sm w-6 text-center" :class="{ 'text-rose': item.stockFree <= 3 }">
-                      {{ toFa(item.stockFree) }}
-                    </span>
-                    <button
-                      type="button"
-                      class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 cursor-pointer"
-                      @click="adjustStock(item, 'stockFree', 1)"
-                    >+</button>
-                  </div>
-                  <span v-else class="text-slate-600">—</span>
+                <!-- زمان -->
+                <td class="p-3.5 text-slate-500 font-sans text-[11px]">
+                  {{ tx.settledAt }}
                 </td>
               </tr>
             </tbody>
@@ -964,291 +1847,966 @@ const vipCustomers = [
       </div>
     </section>
 
-    <!-- ========================================================= -->
-    <!-- ۴. کمپین‌ها و کدهای تخفیف (Discount Vouchers Engine) -->
-    <!-- ========================================================= -->
-    <section v-if="currentView === 'vouchers'" class="space-y-6" data-testid="nexus-vouchers-view">
-      <div class="flex items-center justify-between">
+    <!-- ============================================================= -->
+    <!-- ۵. مدیریت مقالات و ژورنال ادیتوریال (CMS Journal & Blog View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'articles'" data-testid="nexus-articles-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 class="text-base font-bold text-white">مدیریت موتور کدهای تخفیف و پروموشن‌ها</h3>
-          <p class="text-xs text-slate-400 mt-1">ایجاد کوپن، پایش سقف استفاده و فعال‌سازی فوری در سبد خرید.</p>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">مدیریت مقالات و ژورنال ادیتوریال</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">تولید محتوا، راهنمای استایلینگ پاییزه، علم الیاف و انتشار در بلاگ</p>
         </div>
 
         <button
           type="button"
-          data-testid="create-voucher-btn"
-          class="h-10 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
-          @click="isNewVoucherModalOpen = true"
+          data-testid="create-article-btn"
+          class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
+          @click="openAddArticleModal"
         >
           <Plus class="w-4 h-4" />
-          <span>کد تخفیف جدید</span>
+          <span>+ نگارش مقاله جدید</span>
         </button>
       </div>
 
-      <!-- جدول کدهای تخفیف -->
-      <div class="rounded-3xl border border-ops-border bg-ops-surface overflow-hidden shadow-2xs">
-        <table class="w-full text-start text-xs">
-          <thead class="bg-slate-950 text-slate-400 border-b border-ops-border font-bold">
-            <tr>
-              <th class="p-4 text-start">کد تخفیف</th>
-              <th class="p-4 text-start">میزان تخفیف</th>
-              <th class="p-4 text-start">دفعات مصرف شده / سقف</th>
-              <th class="p-4 text-start">تاریخ انقضا</th>
-              <th class="p-4 text-start">وضعیت فعال</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/80 text-slate-200">
-            <tr
-              v-for="v in vouchers"
-              :key="v.id"
-              class="hover:bg-slate-900/40 transition-colors"
-            >
-              <td class="p-4 font-mono font-black text-amber-300 text-sm">
+      <!-- جدول مقالات -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-start text-xs">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="p-3.5 text-start">عنوان مقاله و کاور</th>
+                <th class="p-3.5 text-start">دسته‌بندی</th>
+                <th class="p-3.5 text-start">نویسنده</th>
+                <th class="p-3.5 text-start">زمان مطالعه</th>
+                <th class="p-3.5 text-start">وضعیت انتشار</th>
+                <th class="p-3.5 text-end">عملیات</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr
+                v-for="article in articlesList"
+                :key="article.id"
+                class="hover:bg-slate-50/70 transition-colors"
+              >
+                <!-- عنوان و عکس -->
+                <td class="p-3.5">
+                  <div class="flex items-center gap-3">
+                    <img
+                      :src="article.image"
+                      :alt="article.title"
+                      class="w-12 h-14 rounded-lg object-cover shrink-0 border border-slate-200"
+                    >
+                    <div class="min-w-0 max-w-md">
+                      <span class="font-bold text-slate-900 block truncate">{{ article.title }}</span>
+                      <span class="text-[10px] text-slate-500 font-mono block mt-0.5">{{ article.slug }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- دسته -->
+                <td class="p-3.5">
+                  <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium text-[11px]">
+                    {{ article.categoryLabel }}
+                  </span>
+                </td>
+
+                <!-- نویسنده -->
+                <td class="p-3.5 text-slate-700">
+                  <span class="font-bold block">{{ article.author }}</span>
+                  <span class="text-[10px] text-slate-400 block mt-0.5">{{ article.authorRole }}</span>
+                </td>
+
+                <!-- زمان مطالعه -->
+                <td class="p-3.5 text-slate-600 font-mono">
+                  {{ article.readTime }}
+                </td>
+
+                <!-- وضعیت -->
+                <td class="p-3.5">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-colors"
+                    :class="article.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'"
+                    @click="toggleArticleStatus(article)"
+                  >
+                    {{ article.status === 'published' ? 'منتشر شده' : 'پیش‌نویس' }}
+                  </button>
+                </td>
+
+                <!-- عملیات -->
+                <td class="p-3.5 text-end">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <NuxtLink
+                      :to="`/blog`"
+                      target="_blank"
+                      class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                      title="مشاهده در وبلاگ"
+                    >
+                      <ExternalLink class="w-4 h-4" />
+                    </NuxtLink>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ۶. ماتریس موجودی انبارداری (Variant Stock Matrix View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'inventory'" data-testid="nexus-inventory-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">ماتریس موجودی انبار و متغیرهای سایز</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">کنترل متمرکز موجودی‌های S, M, L و هشدارهای اتوماتیک کسری انبار</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-start text-xs">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="p-3.5 text-start">کالا و رنگ</th>
+                <th class="p-3.5 text-center">XS</th>
+                <th class="p-3.5 text-center">S</th>
+                <th class="p-3.5 text-center">M</th>
+                <th class="p-3.5 text-center">L</th>
+                <th class="p-3.5 text-center">XL</th>
+                <th class="p-3.5 text-center">Free</th>
+                <th class="p-3.5 text-start">رزرو شده</th>
+                <th class="p-3.5 text-end">وضعیت کسری</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-mono">
+              <tr
+                v-for="(row, idx) in variantInventory"
+                :key="idx"
+                class="hover:bg-slate-50/70 transition-colors"
+              >
+                <td class="p-3.5 font-sans">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3.5 h-3.5 rounded-full inline-block shrink-0" :class="row.colorClass" />
+                    <div>
+                      <span class="font-bold text-slate-900 block">{{ row.productTitle }}</span>
+                      <span class="text-[10px] text-slate-500 block mt-0.5">{{ row.color }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockXS }}</td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockS }}</td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockM }}</td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockL }}</td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockXL }}</td>
+                <td class="p-3.5 text-center font-bold text-slate-700">{{ row.stockFree }}</td>
+                <td class="p-3.5 text-slate-500">{{ row.reserved }} عدد</td>
+                <td class="p-3.5 text-end font-sans">
+                  <span
+                    v-if="row.isUrgentLow"
+                    class="px-2 py-0.5 rounded-md font-bold text-[11px] bg-rose-50 text-rose border border-rose/30"
+                  >
+                    کسری انبار
+                  </span>
+                  <span
+                    v-else
+                    class="px-2 py-0.5 rounded-md font-bold text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  >
+                    مطلوب
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ۷. کدهای تخفیف و پروموشن (Discount Vouchers View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'vouchers'" data-testid="nexus-vouchers-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">کمپین‌های تخفیف و پروموشن</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">مدیریت کوپن‌های فعال، درصد تخفیف، محدودیت مصرف و تاریخ انقضا</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div
+          v-for="v in vouchers"
+          :key="v.id"
+          class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs relative flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-black text-base text-slate-900 px-2 py-1 rounded bg-slate-100 border border-slate-200">
                 {{ v.code }}
-              </td>
-              <td class="p-4 font-bold text-white font-mono">
-                {{ toFa(v.discountPercent) }}٪
-              </td>
-              <td class="p-4 space-y-1">
-                <div class="flex items-center justify-between font-mono text-[11px] text-slate-400">
-                  <span>{{ toFa(v.usedCount) }} از {{ toFa(v.maxUses) }}</span>
-                  <span>{{ toFa(Math.round((v.usedCount / v.maxUses) * 100)) }}٪</span>
-                </div>
-                <div class="w-32 h-1.5 rounded-full bg-slate-900 overflow-hidden">
-                  <div
-                    class="h-full bg-amber-500 rounded-full"
-                    :style="{ width: `${(v.usedCount / v.maxUses) * 100}%` }"
-                  />
-                </div>
-              </td>
-              <td class="p-4 text-slate-400 font-mono text-[11px]">
-                {{ v.expiresAt }}
-              </td>
-              <td class="p-4">
-                <button
-                  type="button"
-                  class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
-                  :class="v.isActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-900 text-slate-500 border border-slate-800'"
-                  @click="v.isActive = !v.isActive; toast.info(`وضعیت کوپن ${v.code} به‌روز شد.`)"
-                >
-                  {{ v.isActive ? 'فعال' : 'غیرفعال' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </span>
+              <button
+                type="button"
+                class="px-2 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-colors"
+                :class="v.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'"
+                @click="toggleVoucher(v)"
+              >
+                {{ v.active ? 'فعال' : 'غیرفعال' }}
+              </button>
+            </div>
+
+            <div class="mt-4 space-y-1.5 text-xs text-slate-600">
+              <div class="flex justify-between">
+                <span>میزان تخفیف:</span>
+                <span class="font-bold text-slate-900">{{ v.discount }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>سقف تخفیف:</span>
+                <span class="font-bold text-slate-900">{{ v.maxDiscount }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>حداقل سبد خرید:</span>
+                <span class="font-bold text-slate-900">{{ v.minOrder }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>مصرف شده:</span>
+                <span class="font-bold text-slate-900 font-mono">{{ v.usedCount }} از {{ v.limit }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between font-mono">
+            <span>انقضا: {{ v.expiresAt }}</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ========================================================= -->
-    <!-- ۵. باشگاه مشتریان و CRM (Customer Loyalty View) -->
-    <!-- ========================================================= -->
-    <section v-if="currentView === 'crm'" class="space-y-6" data-testid="nexus-crm-view">
-      <div>
-        <h3 class="text-base font-bold text-white">باشگاه مشتریان و سطوح وفاداری کراس</h3>
-        <p class="text-xs text-slate-400 mt-1">مدیریت مشتریان VIP و تسهیلات دراپ‌های اختصاصی آتلیه.</p>
-      </div>
-
-      <!-- کارت‌های سطح باشگاه -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="p-5 rounded-3xl border border-ops-border bg-ops-surface space-y-2">
-          <span class="text-[11px] font-bold text-amber-400 block">سطح ۱ • الماس سیاه</span>
-          <p class="text-xs text-slate-300">خریدهای بالای ۲۰ میلیون تومان</p>
-          <p class="text-[11px] text-slate-500">تخفیف دائم ۲۰٪ + ارسال VIP اختصاصی</p>
-        </div>
-        <div class="p-5 rounded-3xl border border-ops-border bg-ops-surface space-y-2">
-          <span class="text-[11px] font-bold text-slate-200 block">سطح ۲ • پلاتین آتلیه</span>
-          <p class="text-xs text-slate-300">خریدهای بین ۱۰ تا ۲۰ میلیون</p>
-          <p class="text-[11px] text-slate-500">تخفیف دائم ۱۵٪ + بسته‌بندی هدیه</p>
-        </div>
-        <div class="p-5 rounded-3xl border border-ops-border bg-ops-surface space-y-2">
-          <span class="text-[11px] font-bold text-amber-500 block">سطح ۳ • طلایی کراس</span>
-          <p class="text-xs text-slate-300">خریدهای بین ۳ تا ۱۰ میلیون</p>
-          <p class="text-[11px] text-slate-500">تخفیف دائم ۱۰٪ + ارسال رایگان</p>
-        </div>
-        <div class="p-5 rounded-3xl border border-ops-border bg-ops-surface space-y-2">
-          <span class="text-[11px] font-bold text-slate-400 block">سطح ۴ • نقره‌ای پایه</span>
-          <p class="text-xs text-slate-300">ورود و عضویت رسمی</p>
-          <p class="text-[11px] text-slate-500">کوپن ۱۰٪ خوش‌آمدگویی</p>
+    <!-- ============================================================= -->
+    <!-- ۸. باشگاه مشتریان و CRM (CRM View) -->
+    <!-- ============================================================= -->
+    <section v-if="currentView === 'crm'" data-testid="nexus-crm-view" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">باشگاه مشتریان و CRM آتلیه</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">مدیریت اعضای رسمی باشگاه مشتریان کراس، سطح‌بندی و ارزش سبد</p>
         </div>
       </div>
 
-      <!-- جدول مشتریان VIP -->
-      <div class="rounded-3xl border border-ops-border bg-ops-surface overflow-hidden shadow-2xs">
-        <table class="w-full text-start text-xs">
-          <thead class="bg-slate-950 text-slate-400 border-b border-ops-border font-bold">
-            <tr>
-              <th class="p-4 text-start">نام مشتری</th>
-              <th class="p-4 text-start">شماره تماس</th>
-              <th class="p-4 text-start">سطح عضویت</th>
-              <th class="p-4 text-start">تعداد سفارش‌ها</th>
-              <th class="p-4 text-start">مجموع خرید (LTV)</th>
-              <th class="p-4 text-start">آخرین فعالیت</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/80 text-slate-200">
-            <tr
-              v-for="c in vipCustomers"
-              :key="c.phone"
-              class="hover:bg-slate-900/40 transition-colors"
-            >
-              <td class="p-4 font-bold text-white">
-                {{ c.name }}
-              </td>
-              <td class="p-4 font-mono text-slate-400">
-                {{ toFa(c.phone) }}
-              </td>
-              <td class="p-4">
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                  {{ c.tier }}
-                </span>
-              </td>
-              <td class="p-4 font-mono font-bold">
-                {{ toFa(c.ordersCount) }}
-              </td>
-              <td class="p-4 font-mono font-bold text-amber-300">
-                {{ formatToman(c.totalSpend) }}
-              </td>
-              <td class="p-4 text-slate-400">
-                {{ c.lastOrder }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-start text-xs">
+            <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="p-3.5 text-start">نام خریدار</th>
+                <th class="p-3.5 text-start">شماره تماس</th>
+                <th class="p-3.5 text-start">سطح کاربری</th>
+                <th class="p-3.5 text-start">تعداد سفارشات</th>
+                <th class="p-3.5 text-start">مجموع خرید</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-sans">
+              <tr class="hover:bg-slate-50/70">
+                <td class="p-3.5 font-bold text-slate-900">سارا رادمنش</td>
+                <td class="p-3.5 font-mono text-slate-600">09121112233</td>
+                <td class="p-3.5">
+                  <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[11px]">
+                    پلاتینوم آتلیه
+                  </span>
+                </td>
+                <td class="p-3.5 font-mono">۴ سفارش</td>
+                <td class="p-3.5 font-mono font-bold text-slate-900">۷,۵۵۰,۰۰۰ تومان</td>
+              </tr>
+              <tr class="hover:bg-slate-50/70">
+                <td class="p-3.5 font-bold text-slate-900">سارا ملکی</td>
+                <td class="p-3.5 font-mono text-slate-600">09123456789</td>
+                <td class="p-3.5">
+                  <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px]">
+                    طلایی
+                  </span>
+                </td>
+                <td class="p-3.5 font-mono">۲ سفارش</td>
+                <td class="p-3.5 font-mono font-bold text-slate-900">۳,۷۹۰,۰۰۰ تومان</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
-    <!-- دیالوگ تخصیص بارکد ۲۴ رقمی پست پیشتاز -->
-    <Dialog :open="isBarcodeModalOpen" @update:open="(val: boolean) => !val && (isBarcodeModalOpen = false)">
-      <DialogContent class="max-w-md rounded-3xl border border-ops-border bg-ops-surface p-6 text-slate-100 shadow-2xl" dir="rtl">
-        <DialogHeader class="space-y-2 text-start">
-          <DialogTitle class="text-base font-bold text-white flex items-center gap-2">
-            <Truck class="w-4 h-4 text-amber-400" />
-            <span>تخصیص بارکد ۲۴ رقمی شرکت ملی پست</span>
+    <!-- ============================================================= -->
+    <!-- مودال‌های تعاملی (Dialogs & Modals) -->
+    <!-- ============================================================= -->
+
+    <!-- مودال افزودن / ویرایش کالا -->
+    <Dialog :open="isProductModalOpen" @update:open="isProductModalOpen = $event">
+      <DialogContent class="sm:max-w-3xl bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-slate-900">
+            {{ editingProduct ? 'ویرایش مشخصات کالا' : 'افزودن محصول جدید به کاتالوگ آتلیه' }}
           </DialogTitle>
-          <DialogDescription class="text-xs text-slate-400 leading-relaxed">
-            برای سفارش <span class="font-mono text-amber-300 font-bold">{{ selectedOrder?.orderNumber }}</span> بارکد رسمی پست پیشتاز را درج نمایید.
+          <DialogDescription class="text-xs text-slate-500">
+            اطلاعات پایه، تصاویر، گرماژ متریال و ماتریس موجودی سایزهای کالا
           </DialogDescription>
         </DialogHeader>
 
-        <div class="mt-4 space-y-4">
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
-              <span>بارکد ۲۴ رقمی پست</span>
-              <span class="text-[10px] text-slate-500 font-mono">طول استاندارد: ۲۴ رقم</span>
-            </label>
-            <input
-              v-model="barcodeInput"
-              type="text"
-              maxlength="24"
-              dir="ltr"
-              placeholder="982341908234123456789012"
-              class="w-full h-11 rounded-xl bg-slate-900 border border-slate-800 px-3.5 text-sm font-mono text-white placeholder:text-slate-600 focus:border-amber-500 focus:outline-none text-start"
-            >
-            <p v-if="barcodeError" class="text-[11px] text-rose font-medium pt-1">
-              {{ barcodeError }}
-            </p>
+        <div class="space-y-4 py-3 text-xs">
+          <!-- بخش اول: عناوین و دسته‌بندی -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">عنوان فارسی کالا</label>
+              <input
+                v-model="productForm.title"
+                type="text"
+                placeholder="مثال: کت پشمی دبل‌برست پاییزه"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-ink outline-hidden"
+              >
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">شناسه یکتا (Slug)</label>
+              <input
+                v-model="productForm.slug"
+                type="text"
+                placeholder="double-breasted-wool-coat"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono focus:bg-white focus:border-ink outline-hidden"
+              >
+            </div>
           </div>
 
-          <!-- دکمه تولید بارکد تستی -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">بخش اصلی</label>
+              <select
+                v-model="productForm.division"
+                class="w-full h-9 px-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
+              >
+                <option value="apparel">پوشاک (Apparel)</option>
+                <option value="accessories">اکسسوری (Accessories)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">دسته‌بندی</label>
+              <select
+                v-model="productForm.category"
+                class="w-full h-9 px-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
+              >
+                <option value="shirts-blouses">شومیز و پیراهن</option>
+                <option value="knitwear">بافت و پلیور</option>
+                <option value="coats-jackets">پالتو و بارانی</option>
+                <option value="pants">شلوار</option>
+                <option value="scarves">شال و روسری</option>
+                <option value="hair-accessories">اکسسوری مو</option>
+                <option value="bandanas">باندانا</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">فصل و کالکشن</label>
+              <select
+                v-model="productForm.season"
+                class="w-full h-9 px-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
+              >
+                <option value="fall-1405">پاییز ۱۴۰۵</option>
+                <option value="winter-1405">زمستان ۱۴۰۵</option>
+                <option value="spring-1406">بهار ۱۴۰۶</option>
+                <option value="four-season">چهار فصل</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- بخش دوم: قیمت‌گذاری -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
+            <span class="font-bold text-slate-800 block">قیمت‌گذاری و تخفیف</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-slate-600 mb-1">قیمت پایه (تومان)</label>
+                <input
+                  v-model.number="productForm.basePrice"
+                  type="number"
+                  class="w-full h-9 px-3 rounded-lg bg-white border border-slate-200 text-slate-900 font-mono outline-hidden"
+                >
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">قیمت فروش نقدی (تومان)</label>
+                <input
+                  v-model.number="productForm.salePrice"
+                  type="number"
+                  class="w-full h-9 px-3 rounded-lg bg-white border border-slate-200 text-slate-900 font-mono outline-hidden"
+                >
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">درصد تخفیف خودکار</label>
+                <div class="h-9 px-3 rounded-lg bg-white border border-slate-200 flex items-center font-mono font-bold text-amber-700">
+                  {{ autoDiscountPercent }}٪ تخفیف
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- بخش سوم: تصاویر -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">آدرس تصویر اصلی</label>
+            <input
+              v-model="productForm.mainImage"
+              type="text"
+              placeholder="https://..."
+              class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono outline-hidden"
+            >
+          </div>
+
+          <!-- بخش چهارم: مشخصات پارچه -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">گرماژ پارچه (GSM)</label>
+              <input
+                v-model.number="productForm.fabricGsm"
+                type="number"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono outline-hidden"
+              >
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">ترکیب الیاف</label>
+              <input
+                v-model="productForm.fabricComposition"
+                type="text"
+                placeholder="۸۰٪ پشم مرینوس، ۲۰٪ کشمیر"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
+              >
+            </div>
+          </div>
+
+          <!-- بخش پنجم: ماتریس موجودی سایزها -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <span class="font-bold text-slate-800 block mb-2">موجودی انبار بر حسب سایز</span>
+            <div v-if="productForm.division === 'apparel'" class="grid grid-cols-5 gap-2">
+              <div>
+                <label class="block text-center text-slate-500 mb-1">XS</label>
+                <input
+                  v-model.number="productForm.stockXS"
+                  type="number"
+                  class="w-full h-8 text-center rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+              <div>
+                <label class="block text-center text-slate-500 mb-1">S</label>
+                <input
+                  v-model.number="productForm.stockS"
+                  type="number"
+                  class="w-full h-8 text-center rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+              <div>
+                <label class="block text-center text-slate-500 mb-1">M</label>
+                <input
+                  v-model.number="productForm.stockM"
+                  type="number"
+                  class="w-full h-8 text-center rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+              <div>
+                <label class="block text-center text-slate-500 mb-1">L</label>
+                <input
+                  v-model.number="productForm.stockL"
+                  type="number"
+                  class="w-full h-8 text-center rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+              <div>
+                <label class="block text-center text-slate-500 mb-1">XL</label>
+                <input
+                  v-model.number="productForm.stockXL"
+                  type="number"
+                  class="w-full h-8 text-center rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+            </div>
+            <div v-else class="max-w-xs">
+              <label class="block text-slate-500 mb-1">موجودی تک‌سایز (Free Size)</label>
+              <input
+                v-model.number="productForm.stockFree"
+                type="number"
+                class="w-full h-8 px-3 rounded-lg bg-white border border-slate-200 font-mono"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
           <button
             type="button"
-            class="text-[11px] font-bold text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
-            @click="generateSampleBarcode"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isProductModalOpen = false"
           >
-            <RefreshCw class="w-3.5 h-3.5" />
-            <span>تولید بارکد ۲۴ رقمی نمونه برای تست</span>
+            انصراف
           </button>
-
-          <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
-              @click="isBarcodeModalOpen = false"
-            >
-              انصراف
-            </button>
-
-            <button
-              type="button"
-              data-testid="submit-barcode-btn"
-              class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
-              @click="handleSaveBarcode"
-            >
-              <Check class="w-4 h-4" />
-              <span>ثبت و تحویل به باجه پست</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            data-testid="save-product-btn"
+            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer"
+            @click="saveProduct"
+          >
+            ذخیره اطلاعات محصول
+          </button>
         </div>
       </DialogContent>
     </Dialog>
 
-    <!-- دیالوگ ایجاد کد تخفیف جدید -->
-    <Dialog :open="isNewVoucherModalOpen" @update:open="(val: boolean) => !val && (isNewVoucherModalOpen = false)">
-      <DialogContent class="max-w-md rounded-3xl border border-ops-border bg-ops-surface p-6 text-slate-100 shadow-2xl" dir="rtl">
-        <DialogHeader class="space-y-2 text-start">
-          <DialogTitle class="text-base font-bold text-white flex items-center gap-2">
-            <TicketPercent class="w-4 h-4 text-amber-400" />
-            <span>ایجاد کد تخفیف و کمپین جدید</span>
+    <!-- دیالوگ تایید حذف محصول -->
+    <Dialog :open="isDeleteProductDialogOpen" @update:open="isDeleteProductDialogOpen = $event">
+      <DialogContent class="sm:max-w-md bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-rose">تایید حذف کالا از کاتالوگ</DialogTitle>
+          <DialogDescription class="text-xs text-slate-600">
+            آیا از حذف محصول «{{ productToDelete?.title }}» اطمینان دارید؟ این عمل کالا را از ویترین فروشگاه خارج می‌سازد.
+          </DialogDescription>
+        </DialogHeader>
+        <div class="flex items-center justify-end gap-2 pt-4">
+          <button
+            type="button"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isDeleteProductDialogOpen = false"
+          >
+            انصراف
+          </button>
+          <button
+            type="button"
+            data-testid="confirm-delete-product-btn"
+            class="h-9 px-5 rounded-xl bg-rose hover:bg-rose/90 text-white text-xs font-bold cursor-pointer"
+            @click="confirmDeleteProduct"
+          >
+            بله، حذف شود
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- مودال تخصیص بارکد ۲۴ رقمی پست (Exact Text Preserved) -->
+    <Dialog :open="isBarcodeModalOpen" @update:open="isBarcodeModalOpen = $event">
+      <DialogContent class="sm:max-w-md bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-slate-900">
+            تخصیص بارکد ۲۴ رقمی شرکت ملی پست
           </DialogTitle>
-          <DialogDescription class="text-xs text-slate-400">
-            مشخصات کد تخفیف و درصد اعمال روی سبد خرید را تعیین کنید.
+          <DialogDescription class="text-xs text-slate-600">
+            کد رهگیری صادرشده از باجه پستی را وارد کنید تا پیامک رهگیری به خریدار ارسال شود.
           </DialogDescription>
         </DialogHeader>
 
-        <form class="mt-4 space-y-4" @submit.prevent="handleCreateVoucher">
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-300">عنوان کد تخفیف (لاتین)</label>
+        <div class="space-y-4 py-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">بارکد ۲۴ رقمی مرسوله</label>
             <input
-              v-model="newVoucherCode"
+              v-model="barcodeInput"
+              data-testid="dispatch-barcode-input"
               type="text"
-              placeholder="مثال: WINTER-VIP"
-              dir="ltr"
-              class="w-full h-11 rounded-xl bg-slate-900 border border-slate-800 px-3.5 text-sm font-mono text-white placeholder:text-slate-600 focus:border-amber-500 focus:outline-none uppercase text-start"
+              maxlength="24"
+              placeholder="مثال: 982341908234123456789012"
+              class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono tracking-widest text-slate-900 outline-hidden focus:bg-white focus:border-ink"
             >
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-slate-300">درصد تخفیف</label>
+          <button
+            type="button"
+            class="text-xs text-ink hover:underline font-bold cursor-pointer flex items-center gap-1"
+            @click="generateSampleBarcode"
+          >
+            <Sparkles class="w-3.5 h-3.5" />
+            <span>تولید بارکد ۲۴ رقمی نمونه برای تست</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            type="button"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isBarcodeModalOpen = false"
+          >
+            انصراف
+          </button>
+          <button
+            type="button"
+            data-testid="submit-barcode-btn"
+            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer"
+            @click="submitBarcode"
+          >
+            ثبت بارکد و ارسال مرسوله
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- مودال ثبت سفارش دستی جدید -->
+    <Dialog :open="isManualOrderModalOpen" @update:open="isManualOrderModalOpen = $event">
+      <DialogContent class="sm:max-w-2xl bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-slate-900">
+            ثبت سفارش دستی جدید (فروش تلفنی / اینستاگرام)
+          </DialogTitle>
+          <DialogDescription class="text-xs text-slate-500">
+            انتخاب کالا از کاتالوگ، مشخصات خریدار و شیوه تسویه حساب
+          </DialogDescription>
+        </DialogHeader>
+
+        <div class="space-y-4 py-3 text-xs">
+          <!-- مشخصات خریدار -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-800 block">مشخصات تحویل‌گیرنده</span>
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  class="px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer"
+                  :class="manualOrderCustomerMode === 'existing' ? 'bg-ink text-white' : 'bg-slate-200 text-slate-700'"
+                  @click="manualOrderCustomerMode = 'existing'; manualCustomerName = 'سارا رادمنش'; manualCustomerPhone = '09121112233'"
+                >
+                  سارا رادمنش (پیش‌فرض)
+                </button>
+                <button
+                  type="button"
+                  class="px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer"
+                  :class="manualOrderCustomerMode === 'new' ? 'bg-ink text-white' : 'bg-slate-200 text-slate-700'"
+                  @click="manualOrderCustomerMode = 'new'; manualCustomerName = ''; manualCustomerPhone = ''"
+                >
+                  خریدار جدید
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-600 mb-1">نام کامل خریدار</label>
+                <input
+                  v-model="manualCustomerName"
+                  type="text"
+                  class="w-full h-8 px-3 rounded-lg bg-white border border-slate-200"
+                >
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">شماره تماس (موبایل)</label>
+                <input
+                  v-model="manualCustomerPhone"
+                  type="text"
+                  class="w-full h-8 px-3 rounded-lg bg-white border border-slate-200 font-mono"
+                >
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">نشانی دقیق پستی</label>
               <input
-                v-model.number="newVoucherDiscount"
-                type="number"
-                min="1"
-                max="90"
-                class="w-full h-11 rounded-xl bg-slate-900 border border-slate-800 px-3.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none text-start"
+                v-model="manualCustomerAddress"
+                type="text"
+                class="w-full h-8 px-3 rounded-lg bg-white border border-slate-200"
               >
             </div>
+            <div>
+              <label class="block text-slate-600 mb-1">شیوه تسویه و پرداخت</label>
+              <select
+                v-model="manualPaymentMethod"
+                class="w-full h-8 px-2 rounded-lg bg-white border border-slate-200 text-xs"
+              >
+                <option value="card_to_card">کارت‌به‌کارت بانکی</option>
+                <option value="gateway">درگاه پرداخت اینترنتی شاپرک</option>
+                <option value="cod">پرداخت در محل (تهران)</option>
+              </select>
+            </div>
+          </div>
 
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-slate-300">سقف مجاز مصرف</label>
+          <!-- انتخاب کالا -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
+            <span class="font-bold text-slate-800 block">افزودن اقلام به پیش‌فاکتور</span>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+              <div class="sm:col-span-2">
+                <label class="block text-slate-600 mb-1">انتخاب کالا</label>
+                <select
+                  v-model="manualSelectedProductId"
+                  class="w-full h-8 px-2 rounded-lg bg-white border border-slate-200 text-xs"
+                >
+                  <option v-for="p in productsList" :key="p.id" :value="p.id">
+                    {{ p.title }} ({{ formatToman(p.price) }} ت)
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">سایز</label>
+                <select
+                  v-model="manualSelectedSize"
+                  class="w-full h-8 px-2 rounded-lg bg-white border border-slate-200 text-xs"
+                >
+                  <option value="XS">XS</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="Free">Free</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button
+                  type="button"
+                  class="w-full h-8 rounded-lg bg-ink text-white font-bold text-xs cursor-pointer hover:bg-ink/90"
+                  @click="addManualItem"
+                >
+                  + افزودن
+                </button>
+              </div>
+            </div>
+
+            <!-- جدول اقلام افزوده شده -->
+            <div v-if="manualOrderItems.length > 0" class="mt-3 border-t border-slate-200 pt-2 space-y-1.5">
+              <div
+                v-for="(item, idx) in manualOrderItems"
+                :key="idx"
+                class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-slate-900">{{ item.title }}</span>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[10px]">سایز: {{ item.size }}</span>
+                  <span class="text-slate-500 font-mono">({{ formatToman(item.price) }} تومان)</span>
+                </div>
+                <button
+                  type="button"
+                  class="text-rose hover:underline font-bold"
+                  @click="removeManualItem(idx)"
+                >
+                  حذف
+                </button>
+              </div>
+
+              <div class="flex justify-between items-center pt-2 font-bold text-sm text-slate-900">
+                <span>جمع کل سفارش:</span>
+                <span class="font-mono">{{ formatToman(manualOrderTotal) }} تومان</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+          <button
+            type="button"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isManualOrderModalOpen = false"
+          >
+            انصراف
+          </button>
+          <button
+            type="button"
+            data-testid="submit-manual-order-btn"
+            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer"
+            @click="submitManualOrder"
+          >
+            ثبت نهایی سفارش
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- مودال چاپ برگ ارسال پستی (Packing Slip Modal) -->
+    <Dialog :open="isPackingSlipModalOpen" @update:open="isPackingSlipModalOpen = $event">
+      <DialogContent class="sm:max-w-xl bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-slate-900">
+            برگ ارسال مرسوله پستی (Packing Slip)
+          </DialogTitle>
+          <DialogDescription class="text-xs text-slate-500">
+            برچسب چاپی استاندارد برای درج روی جعبه ارسالی آتلیه کراس
+          </DialogDescription>
+        </DialogHeader>
+
+        <div v-if="selectedSlipOrder" class="p-4 border border-slate-300 rounded-xl space-y-4 text-xs font-sans bg-white">
+          <div class="flex items-center justify-between border-b border-slate-300 pb-3">
+            <div>
+              <span class="font-black text-sm text-slate-900 block">کراس • استودیو مد و لباس</span>
+              <span class="text-[10px] text-slate-500 block">برگ ارسال مرسوله پستی</span>
+            </div>
+            <div class="text-end font-mono">
+              <span class="font-bold text-slate-900 block">{{ selectedSlipOrder.orderNumber }}</span>
+              <span class="text-[10px] text-slate-500 block">پست پیشتاز</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg text-[11px]">
+            <div>
+              <span class="font-bold text-slate-700 block">فرستنده:</span>
+              <p class="text-slate-600 mt-1 leading-relaxed">
+                آتلیه مد کراس — تهران، خیابان فرشته، پلاک ۱۸<br >
+                تلفن پشتیبانی: ۰۲۱۲۲۰۰۳۳۰۰
+              </p>
+            </div>
+            <div>
+              <span class="font-bold text-slate-700 block">گیرنده:</span>
+              <p class="text-slate-900 font-bold mt-1">{{ selectedSlipOrder.recipientName }}</p>
+              <p class="text-slate-600 font-mono">{{ selectedSlipOrder.recipientPhone || '—' }}</p>
+              <p class="text-slate-600 mt-1 leading-relaxed">{{ selectedSlipOrder.shippingAddress }}</p>
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-lg overflow-hidden">
+            <table class="w-full text-start text-[11px]">
+              <thead class="bg-slate-100 font-bold border-b border-slate-200">
+                <tr>
+                  <th class="p-2 text-start">شرح کالا</th>
+                  <th class="p-2 text-center">سایز</th>
+                  <th class="p-2 text-center">تعداد</th>
+                  <th class="p-2 text-end">مبلغ</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr v-for="(item, idx) in selectedSlipOrder.items" :key="idx">
+                  <td class="p-2 font-bold">{{ item.title }}</td>
+                  <td class="p-2 text-center font-mono">{{ item.size }}</td>
+                  <td class="p-2 text-center font-mono">{{ item.quantity }}</td>
+                  <td class="p-2 text-end font-mono">{{ formatToman(item.price) }} ت</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex justify-between items-center pt-2 font-bold text-xs">
+            <span>مجموع ارزش فاکتور:</span>
+            <span class="font-mono text-sm">{{ formatToman(selectedSlipOrder.totalAmount) }} تومان</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+          <button
+            type="button"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isPackingSlipModalOpen = false"
+          >
+            بستن
+          </button>
+          <button
+            type="button"
+            data-testid="do-print-slip-btn"
+            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            @click="triggerPrintSlip"
+          >
+            <Printer class="w-4 h-4" />
+            <span>چاپ برگه ارسال</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- مودال نگارش / ویرایش مقاله ژورنال -->
+    <Dialog :open="isArticleModalOpen" @update:open="isArticleModalOpen = $event">
+      <DialogContent class="sm:max-w-2xl bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle class="text-base font-black text-slate-900">
+            {{ editingArticle ? 'ویرایش مقاله ژورنال' : 'نگارش مقاله جدید در مجله ادیتوریال کراس' }}
+          </DialogTitle>
+          <DialogDescription class="text-xs text-slate-500">
+            محتوای آموزشی، ترندهای استایل، علم الیاف و انتشار در بلاگ
+          </DialogDescription>
+        </DialogHeader>
+
+        <div class="space-y-4 py-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">عنوان مقاله</label>
+            <input
+              v-model="articleForm.title"
+              type="text"
+              placeholder="مثال: هنر لایه‌بندی ادیتوریال پاییز ۱۴۰۵"
+              class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
+            >
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">نامک یکتا (Slug)</label>
               <input
-                v-model.number="newVoucherMaxUses"
-                type="number"
-                min="1"
-                class="w-full h-11 rounded-xl bg-slate-900 border border-slate-800 px-3.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none text-start"
+                v-model="articleForm.slug"
+                type="text"
+                placeholder="autumn-layering-1405"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono outline-hidden"
+              >
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">دسته‌بندی موضوعی</label>
+              <select
+                v-model="articleForm.categoryLabel"
+                class="w-full h-9 px-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
+              >
+                <option value="استایلینگ و ترندها">استایلینگ و ترندها</option>
+                <option value="علم متریال و الیاف">علم متریال و الیاف</option>
+                <option value="فیزیولوژی تمرین">فیزیولوژی تمرین</option>
+                <option value="پایداری و مراقبت">پایداری و مراقبت</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">نویسنده</label>
+              <input
+                v-model="articleForm.author"
+                type="text"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
+              >
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">زمان مطالعه تخمینی</label>
+              <input
+                v-model="articleForm.readTime"
+                type="text"
+                placeholder="۵ دقیقه"
+                class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
               >
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
-              @click="isNewVoucherModalOpen = false"
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">آدرس تصویر کاور</label>
+            <input
+              v-model="articleForm.image"
+              type="text"
+              class="w-full h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono outline-hidden"
             >
-              انصراف
-            </button>
-
-            <button
-              type="submit"
-              class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
-            >
-              <Send class="w-4 h-4" />
-              <span>ایجاد و فعال‌سازی فوری</span>
-            </button>
           </div>
-        </form>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">خلاصه کوتاه مقاله (Excerpt)</label>
+            <textarea
+              v-model="articleForm.excerpt"
+              rows="2"
+              class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden resize-none"
+            />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">متن کامل مقاله</label>
+            <textarea
+              v-model="articleForm.content"
+              rows="5"
+              placeholder="پاراگراف‌های کامل مقاله..."
+              class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+          <button
+            type="button"
+            class="h-9 px-4 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            @click="isArticleModalOpen = false"
+          >
+            انصراف
+          </button>
+          <button
+            type="button"
+            data-testid="save-draft-article-btn"
+            class="h-9 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer"
+            @click="saveArticle(false)"
+          >
+            ذخیره به عنوان پیش‌نویس
+          </button>
+          <button
+            type="button"
+            data-testid="publish-article-btn"
+            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer"
+            @click="saveArticle(true)"
+          >
+            انتشار فوری در ژورنال
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   </div>

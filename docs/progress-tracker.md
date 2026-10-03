@@ -249,7 +249,17 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
-- **2026-10-03 (`HEAD`)**: `feat(core): implement dedicated account layout, guest checkout otp, and stealth super admin ops nexus`
+- **2026-10-03 (`HEAD`)**: `feat(ops): overhaul internal ops nexus to clean light theme with product crud, manual order entry, finance ledger, and cms editor`
+  - Re-architected `/internal-ops-nexus` into a clean luxury light SaaS backoffice (`bg-slate-50`, crisp white cards `bg-white border border-slate-200/80 shadow-xs rounded-2xl`, and refined Keras palette) eliminating the dark monitor aesthetic.
+  - Grouped ops sidebar navigation (`frontend/app/layouts/ops.vue`) into 5 dedicated operational domains: کاتالوگ و انبارداری, فروش و سفارشات, امور مالی و حسابداری, محتوا و ژورنال, دیده‌بان و اعضا.
+  - Built Full Product Management & Catalog CRUD sub-view (`?view=products`): search & filters by division/season, thumbnail and stock metrics, active/inactive toggle switch, comprehensive «+ افزودن / ویرایش محصول» modal (titles, slugs, base/sale prices with auto-discount calculator, fabric GSM & composition, gallery URLs, and 6-size variant stock matrix), and soft-delete confirmation dialog.
+  - Built Advanced Order Desk & Manual Order Entry sub-view (`?view=fulfillment`): status tabs (registered, processing, handed_over, delivered, canceled), inline status updater dropdown on each order row with real-time toast feedback, «+ ثبت سفارش دستی جدید» modal for phone/Instagram sales with customer mode toggle and live pre-invoice item picker, 24-digit Iran Post barcode dispatch modal, and minimal printable packing slip receipt modal (`window.print()`).
+  - Built Financial & Accounting Ledger sub-view (`?view=finance`): 5 dynamic KPI summary cards (Gross Sales, Net Revenue, Discounts Absorbed, Shipping Costs, Shaparak 1% Gateway Fees), date range filters (today, 7 days, this month, all time), Shaparak transaction registry with 12-digit RRN and masked bank card numbers, and CSV spreadsheet export / print summary triggers.
+  - Built Content Management System for Editorial Journal (`?view=articles`): articles management table, status toggle, and «+ نگارش / ویرایش مقاله» modal with live cover preview, excerpt, author, reading time, and instant publish / draft actions.
+  - Extended Playwright E2E test suite (`frontend/tests/e2e/05-internal-ops-nexus.spec.ts`) asserting product CRUD modal save, manual order creation, packing slip dialog, financial ledger KPIs & date filters, and CMS article publishing.
+  - All 22 Playwright E2E tests passing with Exit Code 0 across Desktop Chrome and Mobile Safari; 100% token and RTL lint compliance.
+
+- **2026-10-03 (`71e52b3`)**: `feat(core): implement dedicated account layout, guest checkout otp, and stealth super admin ops nexus`
   - Created stealth Super Admin Operations Command Center (`frontend/app/pages/internal-ops-nexus/index.vue`) protected by `ops-guard.ts` middleware throwing standard 404 Not Found error (`statusCode: 404`, `fatal: true`) for guests and regular customers to conceal existence from web scanners.
   - Built dedicated enterprise ops layout (`frontend/app/layouts/ops.vue`) in dark slate (`bg-ops-dark text-slate-100`) featuring collapsible operational sidebar, live server heartbeat monitor, Persian live clock, quick refresh, and session lock.
   - Implemented 5 operational command desks: Executive Analytics (Gross Revenue, Net Margin, AOV, Active Carts), Order Fulfillment Desk with Iran Post 24-digit barcode modal and status transitions, SKU Variant Stock Matrix with urgent low-stock alerts, and Discount Engine Management with voucher creation and toggling.

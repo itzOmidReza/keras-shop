@@ -93,4 +93,66 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     // بازگشت امن به صفحه اصلی فروشگاه
     await page.waitForURL('**/', { timeout: 10000 })
   })
+
+  test('should support full Product CRUD, Manual Order Entry, Packing Slip, Financial Ledger, and CMS Journal Editor in clean light theme', async ({ page }) => {
+    // ۱. ورود مستقیم مدیریت ارشد به بوم عملیات
+    await page.goto('/login?redirect=/internal-ops-nexus')
+    await page.waitForLoadState('networkidle')
+
+    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
+    await expect(adminBypassBtn).toBeVisible()
+    await adminBypassBtn.click()
+
+    await page.waitForURL('**/internal-ops-nexus**', { timeout: 10000 })
+    await page.waitForLoadState('networkidle')
+
+    // ۲. تست مدیریت محصولات و افزودن محصول جدید (Product CRUD)
+    await page.locator('[data-testid="tab-view-products"]').click()
+    await expect(page.locator('[data-testid="nexus-products-view"]')).toBeVisible()
+
+    await page.locator('[data-testid="add-product-btn"]').click()
+    await expect(page.locator('text=افزودن محصول جدید به کاتالوگ آتلیه')).toBeVisible()
+
+    // پر کردن اطلاعات کالا
+    await page.locator('input[placeholder*="کت پشمی"]').fill('پالتو کشمیر لیمیتد آتلیه')
+    await page.locator('[data-testid="save-product-btn"]').click()
+
+    // بررسی افزوده شدن کالا به جدول
+    await expect(page.getByTestId('nexus-products-view').locator('text=پالتو کشمیر لیمیتد آتلیه')).toBeVisible()
+
+    // ۳. تست ثبت سفارش دستی جدید و چاپ برگ ارسال (Manual Order & Packing Slip)
+    await page.locator('[data-testid="tab-view-fulfillment"]').click()
+    await expect(page.locator('[data-testid="nexus-fulfillment-view"]')).toBeVisible()
+
+    await page.locator('[data-testid="create-manual-order-btn"]').click()
+    await expect(page.getByRole('heading', { name: /ثبت سفارش دستی جدید/ })).toBeVisible()
+    await page.locator('[data-testid="submit-manual-order-btn"]').click()
+
+    // باز کردن و بررسی برگ ارسال مرسوله پستی
+    await page.locator('[data-testid="print-packing-slip-btn"]').first().click()
+    await expect(page.locator('text=برگ ارسال مرسوله پستی (Packing Slip)')).toBeVisible()
+    await page.locator('button:has-text("بستن")').click()
+
+    // ۴. تست امور مالی و دفتر کل شاپرک (Financial Ledger)
+    await page.locator('[data-testid="tab-view-finance"]').click()
+    await expect(page.locator('[data-testid="nexus-finance-view"]')).toBeVisible()
+    await expect(page.locator('text=فروش ناخالص (Gross)')).toBeVisible()
+    await expect(page.locator('text=982301449102')).toBeVisible()
+
+    // فیلتر زمانی
+    await page.locator('button:has-text("۷ روز گذشته")').click()
+    await expect(page.locator('[data-testid="export-finance-csv-btn"]')).toBeVisible()
+
+    // ۵. تست سیستم مدیریت محتوای ژورنال (CMS Journal Editor)
+    await page.locator('[data-testid="tab-view-articles"]').click()
+    await expect(page.locator('[data-testid="nexus-articles-view"]')).toBeVisible()
+
+    await page.locator('[data-testid="create-article-btn"]').click()
+    await expect(page.locator('text=نگارش مقاله جدید در مجله ادیتوریال کراس')).toBeVisible()
+
+    await page.locator('input[placeholder*="هنر لایه‌بندی"]').fill('راهنمای استایل پاییزه ۱۴۰۵')
+    await page.locator('[data-testid="publish-article-btn"]').click()
+
+    await expect(page.getByTestId('nexus-articles-view').locator('text=راهنمای استایل پاییزه ۱۴۰۵')).toBeVisible()
+  })
 })
