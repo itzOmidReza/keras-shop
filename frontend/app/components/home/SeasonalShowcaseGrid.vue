@@ -117,7 +117,7 @@ const seasons: SeasonCard[] = [
             <!-- لینک و پیکان اقدام -->
             <div class="pt-1 flex items-center gap-1.5 text-xs font-bold text-paper group-hover:text-rose transition-colors">
               <span>مشاهده کالکشن</span>
-              <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100 transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             </div>
           </div>
         </NuxtLink>

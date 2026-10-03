@@ -39,7 +39,7 @@ withDefaults(defineProps<Props>(), {
         class="inline-flex items-center gap-1 text-xs font-bold text-rose hover:underline shrink-0"
       >
         <span>مشاهده کل کاتالوگ</span>
-        <ArrowLeft class="w-3.5 h-3.5 me-1 rtl:-scale-x-100" />
+        <ArrowLeft class="w-3.5 h-3.5 ms-1" />
       </NuxtLink>
     </div>
 

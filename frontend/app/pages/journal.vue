@@ -335,7 +335,7 @@ const filteredItems = computed(() => {
                   class="text-[10px] font-bold text-muted-foreground hover:text-ink inline-flex items-center gap-0.5 mt-0.5"
                 >
                   <span>خرید</span>
-                  <ArrowLeft class="w-3 h-3 rtl:-scale-x-100" />
+                  <ArrowLeft class="w-3 h-3" />
                 </NuxtLink>
               </div>
             </div>

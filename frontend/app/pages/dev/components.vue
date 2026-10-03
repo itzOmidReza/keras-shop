@@ -63,7 +63,7 @@ const openSizeGuide = () => {
 
           <Button variant="ghost">
             دکمه بدون حاشیه
-            <ArrowLeft class="w-4 h-4 me-2 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4 ms-2" />
           </Button>
 
           <div class="flex items-center gap-2 border-s border-sand ps-4">

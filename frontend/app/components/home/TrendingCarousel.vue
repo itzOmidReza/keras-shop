@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from '@lucide/vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import type { Swiper as SwiperType } from 'swiper/types'
 import ProductCard from '~/components/product/ProductCard.vue'
 import type { ProductListItem } from '~/types/domain'
 
@@ -17,7 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
   products: () => [],
 })
 
-const carouselRef = ref<HTMLElement | null>(null)
+const swiperInstance = ref<SwiperType | null>(null)
 const activeCategoryTab = ref<'all' | 'shirts-blouses' | 'knitwear' | 'accessories'>('all')
 
 const tabs = [
@@ -40,16 +42,23 @@ const filteredProducts = computed(() => {
   return props.products
 })
 
-const scroll = (direction: 'next' | 'prev') => {
-  if (!carouselRef.value) return
-  const scrollAmount = 300
-  // در محیط RTL مرورگر، اسکرول به جلو در جهت منفی است
-  const multiplier = direction === 'next' ? -1 : 1
-  carouselRef.value.scrollBy({
-    left: multiplier * scrollAmount,
-    behavior: 'smooth',
-  })
+const onSwiper = (swiper: SwiperType) => {
+  swiperInstance.value = swiper
 }
+
+const scrollNext = () => {
+  swiperInstance.value?.slideNext()
+}
+
+const scrollPrev = () => {
+  swiperInstance.value?.slidePrev()
+}
+
+watch(activeCategoryTab, () => {
+  nextTick(() => {
+    swiperInstance.value?.slideTo(0)
+  })
+})
 </script>
 
 <template>
@@ -87,41 +96,51 @@ const scroll = (direction: 'next' | 'prev') => {
             </button>
           </div>
 
-          <!-- دکمه‌های ناوبری کاروسل -->
+          <!-- دکمه‌های ناوبری کاروسل (در RTL: قبلی راست، بعدی چپ) -->
           <div class="flex items-center gap-1.5">
             <button
               type="button"
               class="w-9 h-9 rounded-xl border border-sand bg-white text-ink hover:bg-rose hover:text-white hover:border-rose transition-colors flex items-center justify-center shadow-2xs cursor-pointer active:scale-95"
               aria-label="آیتم‌های قبلی"
-              @click="scroll('prev')"
+              @click="scrollPrev"
             >
-              <ChevronRight class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronRight class="w-4 h-4" />
             </button>
             <button
               type="button"
               class="w-9 h-9 rounded-xl border border-sand bg-white text-ink hover:bg-rose hover:text-white hover:border-rose transition-colors flex items-center justify-center shadow-2xs cursor-pointer active:scale-95"
               aria-label="آیتم‌های بعدی"
-              @click="scroll('next')"
+              @click="scrollNext"
             >
-              <ChevronLeft class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronLeft class="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ردیف تک‌خطی کاروسل با اسکرول اسنپ بدون اسکرول‌بار -->
-      <div
-        ref="carouselRef"
-        class="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-3 pt-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      <!-- کاروسل Swiper روان با قابلیت درگ لمسی و ریسپانسیو -->
+      <Swiper
+        :slides-per-view="'auto'"
+        :space-between="16"
+        dir="rtl"
+        :breakpoints="{
+          320: { slidesPerView: 1.25, spaceBetween: 12 },
+          480: { slidesPerView: 1.8, spaceBetween: 14 },
+          640: { slidesPerView: 2.25, spaceBetween: 16 },
+          1024: { slidesPerView: 3.5, spaceBetween: 20 },
+          1280: { slidesPerView: 4, spaceBetween: 24 }
+        }"
+        class="w-full !pb-3 !pt-1"
+        @swiper="onSwiper"
       >
-        <div
+        <SwiperSlide
           v-for="product in filteredProducts"
           :key="product.id"
-          class="shrink-0 w-[220px] sm:w-[260px] snap-start"
+          class="!h-auto"
         >
-          <ProductCard :product="product" />
-        </div>
-      </div>
+          <ProductCard :product="product" class="h-full" />
+        </SwiperSlide>
+      </Swiper>
 
       <!-- دکمه CTA زیر کاروسل برای مشاهده کل کاتالوگ -->
       <div class="pt-2 text-center">
@@ -130,7 +149,7 @@ const scroll = (direction: 'next' | 'prev') => {
           class="inline-flex items-center justify-center gap-2 rounded-2xl border border-sand bg-white hover:bg-sand/30 px-8 py-3.5 text-xs sm:text-sm font-bold text-ink shadow-2xs hover:shadow-xs transition-all"
         >
           <span>مشاهده تمامی محصولات در کاتالوگ فروشگاه</span>
-          <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4" />
         </NuxtLink>
       </div>
     </div>

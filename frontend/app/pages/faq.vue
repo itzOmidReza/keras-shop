@@ -240,7 +240,7 @@ const filteredFaqs = computed(() => {
           class="shrink-0 inline-flex items-center gap-2 rounded-xl bg-rose px-6 py-3 text-xs font-bold text-white hover:bg-rose/90 shadow-xs transition-colors cursor-pointer"
         >
           <span>ارتباط با پشتیبانی</span>
-          <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100" />
+          <ArrowLeft class="w-3.5 h-3.5" />
         </NuxtLink>
       </div>
     </section>

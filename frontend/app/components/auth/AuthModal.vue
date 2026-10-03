@@ -15,7 +15,7 @@ import {
 import {
   Phone,
   Sparkles,
-  ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   CheckCircle2,
   RefreshCw,
@@ -255,7 +255,7 @@ const handleBackToPhone = () => {
           <span v-if="authStore.isLoading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           <template v-else>
             <span>دریافت کد تایید</span>
-            <ArrowRight class="w-4 h-4 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4" />
           </template>
         </button>
 

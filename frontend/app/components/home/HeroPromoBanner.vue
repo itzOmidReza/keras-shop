@@ -86,7 +86,7 @@ const copyVoucher = async () => {
             class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-rose/90 transition-all cursor-pointer active:scale-95"
           >
             <span>مشاهده کالکشن پاییز</span>
-            <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4" />
           </NuxtLink>
 
           <NuxtLink

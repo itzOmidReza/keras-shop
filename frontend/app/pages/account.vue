@@ -230,7 +230,7 @@ const recentOrder = computed(() => authStore.orders[0] || null)
           @click="authStore.openAuthModal()"
         >
           <span>ورود یا عضویت با پیامک (OTP)</span>
-          <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -446,7 +446,7 @@ const recentOrder = computed(() => authStore.orders[0] || null)
                   class="text-[11px] font-bold text-rose hover:underline inline-flex items-center gap-1 mt-1"
                 >
                   <span>رهگیری مرسوله</span>
-                  <ArrowLeft class="w-3 h-3 rtl:-scale-x-100" />
+                  <ArrowLeft class="w-3 h-3" />
                 </NuxtLink>
               </div>
             </div>

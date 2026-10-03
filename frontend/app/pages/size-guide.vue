@@ -293,7 +293,7 @@ const measurementSteps = [
               class="w-full py-3 px-6 rounded-xl bg-ink hover:bg-rose text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
             >
               <span>مشاهده کالکشن با سایز {{ recommendation.recommendedSize }}</span>
-              <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+              <ArrowLeft class="w-4 h-4" />
             </NuxtLink>
           </div>
         </div>

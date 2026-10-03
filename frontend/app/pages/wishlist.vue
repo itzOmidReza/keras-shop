@@ -85,7 +85,7 @@ const quickAddToCart = (item: WishlistItem, size: string) => {
             class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-ink hover:text-rose transition-colors"
           >
             <span>ادامه خرید از کاتالوگ</span>
-            <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4" />
           </NuxtLink>
         </div>
       </div>

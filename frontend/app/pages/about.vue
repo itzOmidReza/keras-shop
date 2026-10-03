@@ -115,7 +115,7 @@ const milestones = [
               class="inline-flex items-center gap-2 text-xs font-bold text-rose hover:underline"
             >
               <span>مشاهده محصولات خط Move</span>
-              <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100" />
+              <ArrowLeft class="w-3.5 h-3.5" />
             </NuxtLink>
           </div>
         </div>
@@ -160,7 +160,7 @@ const milestones = [
               class="inline-flex items-center gap-2 text-xs font-bold text-sage hover:underline"
             >
               <span>مشاهده محصولات خط Calm</span>
-              <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100" />
+              <ArrowLeft class="w-3.5 h-3.5" />
             </NuxtLink>
           </div>
         </div>
@@ -227,7 +227,7 @@ const milestones = [
           class="inline-flex items-center gap-2 rounded-xl bg-rose px-8 py-3.5 text-xs font-bold text-white hover:bg-rose/90 shadow-xs transition-colors cursor-pointer"
         >
           <span>مشاهده تمامی کالکشن‌ها</span>
-          <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4" />
         </NuxtLink>
       </div>
     </section>

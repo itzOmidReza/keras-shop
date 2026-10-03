@@ -73,7 +73,7 @@ const smallCards: BentoCard[] = [
           class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-ink hover:text-rose transition-colors"
         >
           <span>مشاهده تمامی محصولات</span>
-          <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4" />
         </NuxtLink>
       </div>
 
@@ -111,7 +111,7 @@ const smallCards: BentoCard[] = [
 
             <div class="pt-2 flex items-center gap-2 text-xs sm:text-sm font-bold text-paper group-hover:text-rose transition-colors">
               <span>مشاهده کالکشن پوشاک</span>
-              <ArrowLeft class="w-4 h-4 rtl:-scale-x-100 transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft class="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             </div>
           </div>
         </NuxtLink>
@@ -137,7 +137,7 @@ const smallCards: BentoCard[] = [
 
               <div class="pt-2 flex items-center gap-1.5 text-xs font-bold text-ink group-hover:text-rose transition-colors">
                 <span>{{ card.ctaText }}</span>
-                <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100 transition-transform group-hover:-translate-x-0.5" />
+                <ArrowLeft class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               </div>
             </div>
 

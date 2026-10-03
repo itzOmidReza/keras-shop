@@ -348,7 +348,7 @@ const applyRecommendedSize = (size: string) => {
                 @click="applyRecommendedSize(recommendation.recommendedSize)"
               >
                 <span>انتخاب سایز {{ recommendation.recommendedSize }} و اعمال</span>
-                <ChevronLeft class="w-4 h-4 rtl:-scale-x-100" />
+                <ChevronLeft class="w-4 h-4" />
               </Button>
             </div>
           </div>

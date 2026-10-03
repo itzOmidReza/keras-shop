@@ -4,7 +4,6 @@ import {
   ShoppingBag,
   Truck,
   ArrowLeft,
-  ArrowRight,
   Trash2,
   Tag,
   ShieldCheck,
@@ -91,7 +90,7 @@ const proceedToCheckout = () => {
         class="hidden sm:flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-rose transition-colors"
       >
         <span>ادامه خرید از کاتالوگ</span>
-        <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+        <ArrowLeft class="w-4 h-4" />
       </NuxtLink>
     </div>
 
@@ -152,7 +151,7 @@ const proceedToCheckout = () => {
             to="/shop"
             class="inline-flex items-center gap-1.5 text-xs font-bold text-ink hover:text-rose transition-colors"
           >
-            <ArrowRight class="w-4 h-4 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4" />
             <span>افزودن محصولات بیشتر به سبد</span>
           </NuxtLink>
 
@@ -269,7 +268,7 @@ const proceedToCheckout = () => {
             @click="proceedToCheckout"
           >
             <span>ادامه جهت تسویه حساب</span>
-            <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+            <ArrowLeft class="w-4 h-4" />
           </Button>
 
           <!-- تضمین‌های کیفیت و خدمات -->

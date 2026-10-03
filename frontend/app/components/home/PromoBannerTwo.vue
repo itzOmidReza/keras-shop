@@ -59,7 +59,7 @@ import { ArrowLeft, ShieldCheck, Feather } from '@lucide/vue'
               class="inline-flex items-center gap-2 rounded-2xl border border-sand bg-white hover:bg-sand/30 px-6 py-3 text-xs sm:text-sm font-bold text-ink transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
             >
               <span>بررسی استانداردهای پارچه و دوخت</span>
-              <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+              <ArrowLeft class="w-4 h-4" />
             </NuxtLink>
           </div>
         </div>

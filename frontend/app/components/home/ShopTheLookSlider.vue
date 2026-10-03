@@ -8,6 +8,9 @@ import {
   Eye,
   ArrowLeft,
 } from '@lucide/vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Autoplay, Pagination } from 'swiper/modules'
+import type { Swiper as SwiperType } from 'swiper/types'
 import { formatToman } from '~/utils/format'
 import { useCartStore } from '~/stores/cart'
 import { toast } from 'vue-sonner'
@@ -33,7 +36,7 @@ interface OutfitLook {
 }
 
 const cartStore = useCartStore()
-const sliderRef = ref<HTMLElement | null>(null)
+const swiperInstance = ref<SwiperType | null>(null)
 const activeIndex = ref(0)
 
 const looks: OutfitLook[] = [
@@ -171,6 +174,8 @@ const selectedSizes = reactive<Record<number, string>>({
 const activeHotspotId = ref<number | null>(null)
 
 const toggleHotspot = (itemId: number) => {
+  // متوقف کردن اتوپلی در زمان تعامل کاربر با هات‌اسپات
+  swiperInstance.value?.autoplay?.stop()
   if (activeHotspotId.value === itemId) {
     activeHotspotId.value = null
   } else {
@@ -178,38 +183,25 @@ const toggleHotspot = (itemId: number) => {
   }
 }
 
-// اسکرول به اسلاید مشخص
-const scrollToSlide = (index: number) => {
-  if (!sliderRef.value) return
-  const slideWidth = sliderRef.value.clientWidth
-  // در RTL اسکرول به سمت منفی است
-  sliderRef.value.scrollTo({
-    left: -index * slideWidth,
-    behavior: 'smooth',
-  })
-  activeIndex.value = index
+const onSwiper = (swiper: SwiperType) => {
+  swiperInstance.value = swiper
 }
 
-// دکمه‌های ناوبری بعدی و قبلی
+const onSlideChange = (swiper: SwiperType) => {
+  activeIndex.value = swiper.realIndex ?? swiper.activeIndex
+  activeHotspotId.value = null
+}
+
+const scrollToSlide = (index: number) => {
+  swiperInstance.value?.slideToLoop(index)
+}
+
 const nextSlide = () => {
-  const next = (activeIndex.value + 1) % looks.length
-  scrollToSlide(next)
+  swiperInstance.value?.slideNext()
 }
 
 const prevSlide = () => {
-  const prev = (activeIndex.value - 1 + looks.length) % looks.length
-  scrollToSlide(prev)
-}
-
-// به‌روزرسانی شاخص در زمان اسکرول لمسی دستی
-const handleScroll = () => {
-  if (!sliderRef.value) return
-  const slideWidth = sliderRef.value.clientWidth
-  const currentScroll = Math.abs(sliderRef.value.scrollLeft)
-  const idx = Math.round(currentScroll / slideWidth)
-  if (idx >= 0 && idx < looks.length) {
-    activeIndex.value = idx
-  }
+  swiperInstance.value?.slidePrev()
 }
 
 // محاسبات تخفیف پکیج ست (۱۰٪ تخفیف باندل)
@@ -252,21 +244,24 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
 <template>
   <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
     <div class="space-y-6 sm:space-y-8">
-      <!-- هدر بخش استایل تن مدل با کنترلرهای ناوبری اسلایدر -->
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand/70 pb-4">
+      <!-- هدر بخش خرید ست با استایل ادیتوریال -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand/70 pb-5">
         <div class="space-y-1.5 text-start">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose/10 text-rose text-xs font-bold">
             <Sparkles class="w-3.5 h-3.5 text-rose" />
-            <span>پیشنهاد استایلینگ ادیتوریال</span>
+            <span>پیشنهاد استایلیست‌های کراس</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-            خرید ست کامل بر تن مدل (Shop The Look)
+            خرید ست کامل (Shop The Look)
           </h2>
+          <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            استایل‌های هماهنگ پاییز با ۱۰٪ تخفیف ویژه پکیج بر روی مجموع آیتم‌ها
+          </p>
         </div>
 
-        <!-- دکمه‌های ناوبری قبلی/بعدی اسلایدر و نشانگرها -->
-        <div class="flex items-center gap-3">
-          <!-- نقاط شاخص اسلاید (Dots) -->
+        <!-- دکمه‌های ناوبری اسلایدر و شاخص شماره اسلاید (در RTL: قبلی راست، بعدی چپ) -->
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <!-- ایندیکیتورهای دایره‌ای اسلایدها -->
           <div class="flex items-center gap-1.5">
             <button
               v-for="(_, idx) in looks"
@@ -286,7 +281,7 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
               aria-label="ست قبلی"
               @click="prevSlide"
             >
-              <ChevronRight class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronRight class="w-4 h-4" />
             </button>
             <button
               type="button"
@@ -294,188 +289,204 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
               aria-label="ست بعدی"
               @click="nextSlide"
             >
-              <ChevronLeft class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronLeft class="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      <!-- کانتینر کاروسل لمسی سواپ‌پذیر (Native CSS Snap Slider) -->
-      <div
-        ref="sliderRef"
-        class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-3xl"
-        @scroll.passive="handleScroll"
+      <!-- اسلایدر Swiper لوک‌های ادیتوریال همراه با اتوپلی نرم و سوایپ لمسی -->
+      <Swiper
+        :modules="[Autoplay, Pagination]"
+        :slides-per-view="1"
+        :loop="true"
+        :speed="600"
+        dir="rtl"
+        :autoplay="{
+          delay: 4500,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true
+        }"
+        class="w-full rounded-3xl"
+        @swiper="onSwiper"
+        @slide-change="onSlideChange"
       >
-        <!-- هر اسلاید نمایانگر یک لوک کامل است -->
-        <div
+        <SwiperSlide
           v-for="look in looks"
           :key="look.id"
-          class="w-full shrink-0 snap-center rounded-3xl border border-sand/80 bg-white p-5 sm:p-8 shadow-xs"
+          class="!h-auto"
         >
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-            <!-- ستون سمت راست بصری: تصویر مدل با هات‌اسپات‌های تعاملی پالس‌دار -->
-            <div class="lg:col-span-7 relative rounded-2xl overflow-hidden bg-sand/30 aspect-[4/5] sm:aspect-[16/11] lg:aspect-[4/3] max-h-[520px]">
-              <NuxtImg
-                :src="look.image"
-                :alt="look.title"
-                class="w-full h-full object-cover object-top"
-                loading="lazy"
-              />
-
-              <!-- گرادیان ملایم برای جلوه ادیتوریال -->
-              <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent pointer-events-none" />
-
-              <!-- هات‌اسپات‌های تعاملی روی تصویر -->
+          <div class="w-full rounded-3xl border border-sand/80 bg-white p-5 sm:p-8 shadow-xs">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+              <!-- ستون سمت راست بصری: تصویر مدل با هات‌اسپات‌های تعاملی پالس‌دار -->
               <div
-                v-for="item in look.items"
-                :key="item.id"
-                class="absolute -translate-x-1/2 -translate-y-1/2 z-20"
-                :style="{ top: `${item.hotspot.top}%`, right: `${item.hotspot.right}%` }"
+                class="lg:col-span-7 relative rounded-2xl bg-sand/30 aspect-[4/5] sm:aspect-[16/11] lg:aspect-[4/3] max-h-[520px]"
+                @click="activeHotspotId = null"
               >
-                <!-- دکمه هات‌اسپات با افکت پینگ -->
-                <button
-                  type="button"
-                  class="relative group/hotspot flex items-center justify-center w-8 h-8 rounded-full bg-white/90 text-rose shadow-md border-2 border-white cursor-pointer active:scale-90 transition-transform"
-                  :aria-label="`مشاهده آیتم ${item.title}`"
-                  @click="toggleHotspot(item.id)"
-                >
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose/60 opacity-75" />
-                  <span class="w-2.5 h-2.5 rounded-full bg-rose relative z-10" />
-                </button>
-
-                <!-- پاپ‌اور گلس‌مورفیسم اطلاعات محصول در هاور/کلیک -->
-                <div
-                  v-if="activeHotspotId === item.id"
-                  class="absolute bottom-10 inset-s-1/2 -translate-x-1/2 w-52 sm:w-60 p-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-sand shadow-lg text-start z-30 space-y-2 animate-in fade-in zoom-in-95 duration-200"
-                >
-                  <div class="flex items-center gap-2.5">
-                    <img
-                      :src="item.image"
-                      :alt="item.title"
-                      class="w-12 h-14 rounded-xl object-cover bg-sand/30 shrink-0"
-                    >
-                    <div class="space-y-0.5 overflow-hidden">
-                      <h4 class="text-xs font-bold text-ink truncate">
-                        {{ item.title }}
-                      </h4>
-                      <p class="text-xs font-bold text-rose">
-                        {{ formatToman(item.price) }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <NuxtLink
-                    :to="`/products/${item.slug}`"
-                    class="block text-center py-1 rounded-xl bg-sand/40 hover:bg-sand/70 text-[11px] font-bold text-ink transition-colors"
-                  >
-                    <span>مشاهده جزئیات آیتم</span>
-                  </NuxtLink>
+                <!-- کانتینر اختصاصی تصویر همراه با لبه‌های گرد -->
+                <div class="absolute inset-0 rounded-2xl overflow-hidden">
+                  <NuxtImg
+                    :src="look.image"
+                    :alt="look.title"
+                    class="w-full h-full object-cover object-top"
+                    loading="lazy"
+                  />
+                  <!-- گرادیان ملایم برای جلوه ادیتوریال -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent pointer-events-none" />
                 </div>
-              </div>
 
-              <!-- بج راهنمای کلیک روی هات‌اسپات‌ها -->
-              <div class="absolute bottom-3 inset-s-3 z-10 rounded-xl bg-white/85 backdrop-blur-md px-3 py-1.5 border border-sand/60 text-[10px] font-bold text-ink shadow-2xs flex items-center gap-1.5 pointer-events-none">
-                <Eye class="w-3.5 h-3.5 text-rose" />
-                <span>برای جزئیات، روی نقاط بزنید</span>
-              </div>
-            </div>
-
-            <!-- ستون سمت چپ: تفکیک آیتم‌های ست، انتخاب سایز و دکمه خرید باندل -->
-            <div class="lg:col-span-5 space-y-5 text-start">
-              <div>
-                <span class="text-xs font-bold text-rose uppercase tracking-wider">
-                  {{ look.subtitle }}
-                </span>
-                <h3 class="text-xl sm:text-2xl font-bold text-ink mt-0.5">
-                  {{ look.title }}
-                </h3>
-                <p class="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  {{ look.description }}
-                </p>
-              </div>
-
-              <!-- لیست ۳ آیتم تشکیل‌دهنده ست به همراه سلکتور سایز اختصاصی -->
-              <div class="space-y-2.5 divide-y divide-sand/60 border-y border-sand/60 py-2.5">
+                <!-- هات‌اسپات‌های تعاملی روی تصویر (بیرون از overflow-hidden برای جلوگیری از هرگونه برش پاپ‌اور) -->
                 <div
                   v-for="item in look.items"
                   :key="item.id"
-                  class="pt-2.5 first:pt-0 flex items-center justify-between gap-3"
+                  class="absolute -translate-x-1/2 -translate-y-1/2 z-30"
+                  :style="{ top: `${item.hotspot.top}%`, right: `${item.hotspot.right}%` }"
                 >
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <img
-                      :src="item.image"
-                      :alt="item.title"
-                      class="w-11 h-13 rounded-xl object-cover bg-sand/30 shrink-0 border border-sand/50"
-                    >
-                    <div class="space-y-0.5 min-w-0">
-                      <NuxtLink
-                        :to="`/products/${item.slug}`"
-                        class="text-xs font-bold text-ink hover:text-rose transition-colors truncate block"
-                      >
-                        {{ item.title }}
-                      </NuxtLink>
-                      <span class="text-xs font-bold text-rose block">
-                        {{ formatToman(item.price) }}
-                      </span>
-                    </div>
-                  </div>
+                  <!-- دکمه هات‌اسپات با افکت پینگ -->
+                  <button
+                    type="button"
+                    class="relative group/hotspot flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-rose shadow-md border-2 border-white cursor-pointer active:scale-90 transition-transform focus:outline-none focus:ring-2 focus:ring-rose/40"
+                    :aria-label="`مشاهده آیتم ${item.title}`"
+                    @click.stop="toggleHotspot(item.id)"
+                  >
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose/60 opacity-75 pointer-events-none" />
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose relative z-10 pointer-events-none" />
+                  </button>
 
-                  <!-- سلکتور سریع سایز برای این آیتم خاص -->
-                  <div class="shrink-0 flex items-center gap-1">
-                    <button
-                      v-for="size in item.sizes"
-                      :key="size"
-                      type="button"
-                      class="h-7 px-2 rounded-lg text-[10px] font-bold border transition-all cursor-pointer"
-                      :class="[
-                        selectedSizes[item.id] === size
-                          ? 'border-ink bg-ink text-paper shadow-2xs'
-                          : 'border-sand bg-white text-ink hover:bg-sand/30',
-                      ]"
-                      @click="selectedSizes[item.id] = size"
+                  <!-- پاپ‌اور گلس‌مورفیسم اطلاعات محصول با جهت‌یابی هوشمند (بالا یا پایین هات‌اسپات) -->
+                  <div
+                    v-if="activeHotspotId === item.id"
+                    class="absolute z-50 w-56 sm:w-64 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-sand shadow-2xl text-start pointer-events-auto space-y-2.5 animate-in fade-in zoom-in-95 duration-200"
+                    :class="item.hotspot.top <= 35 ? 'top-full mt-2.5' : 'bottom-full mb-2.5'"
+                    style="left: 50%; transform: translateX(-50%);"
+                    @click.stop
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <img
+                        :src="item.image"
+                        :alt="item.title"
+                        class="w-12 h-14 rounded-xl object-cover bg-sand/30 shrink-0 border border-sand/50"
+                      >
+                      <div class="space-y-0.5 overflow-hidden">
+                        <h4 class="text-xs font-bold text-ink truncate">
+                          {{ item.title }}
+                        </h4>
+                        <p class="text-xs font-bold text-rose">
+                          {{ formatToman(item.price) }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <NuxtLink
+                      :to="`/products/${item.slug}`"
+                      class="block text-center py-1.5 rounded-xl bg-ink text-paper hover:bg-rose text-[11px] font-bold transition-colors shadow-2xs"
                     >
-                      {{ size }}
-                    </button>
+                      <span>مشاهده و خرید محصول</span>
+                    </NuxtLink>
                   </div>
+                </div>
+
+                <!-- بج راهنمای کلیک روی هات‌اسپات‌ها -->
+                <div class="absolute bottom-3 inset-s-3 z-20 rounded-xl bg-white/85 backdrop-blur-md px-3 py-1.5 border border-sand/60 text-[10px] font-bold text-ink shadow-2xs flex items-center gap-1.5 pointer-events-none">
+                  <Eye class="w-3.5 h-3.5 text-rose" />
+                  <span>برای جزئیات، روی نقاط بزنید</span>
                 </div>
               </div>
 
-              <!-- خلاصه قیمت ست و تخفیف ۱۰٪ باندل -->
-              <div class="space-y-3 pt-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-muted-foreground font-medium">مجموع قیمت مجزا:</span>
-                  <span class="text-xs text-muted-foreground line-through">
-                    {{ formatToman(getRegularTotal(look)) }}
+              <!-- ستون سمت چپ: تفکیک آیتم‌های ست، انتخاب سایز و دکمه خرید باندل -->
+              <div class="lg:col-span-5 space-y-5 text-start">
+                <div>
+                  <span class="text-xs font-bold text-rose uppercase tracking-wider">
+                    {{ look.subtitle }}
                   </span>
+                  <h3 class="text-xl sm:text-2xl font-bold text-ink mt-0.5">
+                    {{ look.title }}
+                  </h3>
+                  <p class="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                    {{ look.description }}
+                  </p>
                 </div>
 
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs sm:text-sm font-bold text-ink">قیمت خرید پکیج ست:</span>
-                    <span class="px-2 py-0.5 rounded-full bg-rose/10 text-rose text-[10px] font-bold">
-                      ۱۰٪ تخفیف ست
+                <!-- لیست ۳ آیتم تشکیل‌دهنده ست به همراه سلکتور سایز اختصاصی -->
+                <div class="space-y-2.5 divide-y divide-sand/60 border-y border-sand/60 py-2.5">
+                  <div
+                    v-for="item in look.items"
+                    :key="item.id"
+                    class="pt-2.5 first:pt-0 flex items-center justify-between gap-3"
+                  >
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <img
+                        :src="item.image"
+                        :alt="item.title"
+                        class="w-11 h-13 rounded-xl object-cover bg-sand/30 shrink-0 border border-sand/50"
+                      >
+                      <div class="space-y-0.5 min-w-0">
+                        <NuxtLink
+                          :to="`/products/${item.slug}`"
+                          class="text-xs font-bold text-ink hover:text-rose transition-colors truncate block"
+                        >
+                          {{ item.title }}
+                        </NuxtLink>
+                        <span class="text-xs font-bold text-rose block">
+                          {{ formatToman(item.price) }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- انتخابگر سایز این محصول از ست -->
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button
+                        v-for="sz in item.sizes"
+                        :key="sz"
+                        type="button"
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer"
+                        :class="[
+                          selectedSizes[item.id] === sz
+                            ? 'bg-rose text-white border-rose shadow-2xs'
+                            : 'border-sand bg-sand/20 hover:bg-sand/50 text-ink',
+                        ]"
+                        @click="selectedSizes[item.id] = sz"
+                      >
+                        {{ sz }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- محاسبه قیمت پکیج و دکمه خرید ۱-کلیک کل ست -->
+                <div class="rounded-2xl bg-sand/30 border border-sand/70 p-4 space-y-3">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-muted-foreground">مجموع قیمت تکی آیتم‌ها:</span>
+                    <span class="line-through text-muted-foreground font-mono">
+                      {{ formatToman(getRegularTotal(look)) }}
                     </span>
                   </div>
-                  <span class="text-base sm:text-lg font-bold text-rose">
-                    {{ formatToman(getBundleTotal(look)) }}
-                  </span>
-                </div>
 
-                <!-- دکمه خرید یکپارچه کل ست -->
-                <button
-                  type="button"
-                  class="w-full py-3.5 px-6 rounded-2xl bg-ink text-paper hover:bg-rose transition-all flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-xs active:scale-98 cursor-pointer"
-                  @click="addEntireOutfitToCart(look)"
-                >
-                  <ShoppingBag class="w-4 h-4" />
-                  <span>افزودن کل ست به سبد خرید</span>
-                  <ArrowLeft class="w-4 h-4 rtl:-scale-x-100 ms-auto" />
-                </button>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs font-bold text-ink block">قیمت ویژه پکیج ست (۱۰٪ کسر):</span>
+                      <span class="text-xs text-sage font-medium">سود شما از خرید ست: {{ formatToman(getRegularTotal(look) - getBundleTotal(look)) }}</span>
+                    </div>
+                    <span class="text-base sm:text-lg font-black text-rose font-mono">
+                      {{ formatToman(getBundleTotal(look)) }}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="w-full py-3 px-4 rounded-xl bg-rose hover:bg-rose/90 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all active:scale-98 cursor-pointer"
+                    @click="addEntireOutfitToCart(look)"
+                  >
+                    <ShoppingBag class="w-4 h-4" />
+                    <span>افزودن کل ست به سبد خرید با ۱۰٪ تخفیف</span>
+                    <ArrowLeft class="w-4 h-4 ms-auto" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </SwiperSlide>
+      </Swiper>
     </div>
   </section>
 </template>

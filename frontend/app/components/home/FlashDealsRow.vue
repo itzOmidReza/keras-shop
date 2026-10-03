@@ -202,7 +202,7 @@ const getDiscountPercent = (base: number, compare?: number): number => {
           class="inline-flex items-center gap-2 text-xs font-bold text-rose hover:underline"
         >
           <span>مشاهده تمامی پیشنهادهای دارای تخفیف کراس</span>
-          <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100" />
+          <ArrowLeft class="w-3.5 h-3.5" />
         </NuxtLink>
       </div>
     </div>

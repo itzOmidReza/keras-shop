@@ -377,9 +377,9 @@ const handleSubscribe = () => {
 
           <div class="p-6 pt-0 border-t border-sand/40 flex items-center justify-between text-[11px] text-muted-foreground">
             <span class="font-medium text-ink">{{ article.author.name }}</span>
-            <span class="text-rose font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            <span class="text-rose font-bold flex items-center gap-1 group-hover:-translate-x-0.5 transition-transform">
               مطالعه مقاله
-              <ArrowLeft class="w-3 h-3 rtl:-scale-x-100" />
+              <ArrowLeft class="w-3 h-3" />
             </span>
           </div>
         </article>

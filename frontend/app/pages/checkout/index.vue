@@ -448,7 +448,7 @@ const handleFinalSubmit = async () => {
                 to="/cart"
                 class="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-ink transition-colors"
               >
-                <ArrowRight class="w-4 h-4 rtl:-scale-x-100" />
+                <ArrowRight class="w-4 h-4" />
                 <span>بازگشت به سبد خرید</span>
               </NuxtLink>
 
@@ -459,7 +459,7 @@ const handleFinalSubmit = async () => {
                 @click="goToStep2"
               >
                 <span>انتخاب شیوه ارسال و پرداخت</span>
-                <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+                <ArrowLeft class="w-4 h-4" />
               </Button>
             </div>
           </form>
@@ -653,7 +653,7 @@ const handleFinalSubmit = async () => {
                 class="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-ink transition-colors cursor-pointer"
                 @click="goToStep1"
               >
-                <ArrowRight class="w-4 h-4 rtl:-scale-x-100" />
+                <ArrowRight class="w-4 h-4" />
                 <span>مرحله قبل: ویرایش آدرس</span>
               </button>
 

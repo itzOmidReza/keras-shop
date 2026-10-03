@@ -129,7 +129,7 @@ watch(
           class="inline-flex items-center justify-center gap-2 rounded-2xl border border-sand bg-white hover:bg-sand/30 px-8 py-3.5 text-xs sm:text-sm font-bold text-ink shadow-2xs hover:shadow-xs transition-all"
         >
           <span>مشاهده تمامی محصولات در کاتالوگ فروشگاه</span>
-          <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4" />
         </NuxtLink>
       </div>
     </div>

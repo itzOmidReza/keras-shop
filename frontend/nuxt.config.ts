@@ -31,7 +31,10 @@ export default defineNuxtConfig({
   },
 
   // ۳. استایل و پیکربندی Vite
-  css: ['~/assets/css/tailwind.css'],
+  css: [
+    '~/assets/css/tailwind.css',
+    'swiper/css/bundle',
+  ],
 
   vite: {
     plugins: [tailwindcss()],

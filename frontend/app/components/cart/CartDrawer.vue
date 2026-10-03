@@ -169,7 +169,7 @@ const handleCheckout = () => {
           @click="handleCheckout"
         >
           <span>نهایی‌سازی و ثبت سفارش</span>
-          <ArrowLeft class="w-4 h-4 me-1 rtl:-scale-x-100" />
+          <ArrowLeft class="w-4 h-4 ms-1" />
         </Button>
 
         <div class="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground">

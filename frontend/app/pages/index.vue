@@ -2,10 +2,10 @@
 <script setup lang="ts">
 import { siteConfig } from '~/data'
 import HeroBoutique from '~/components/home/HeroBoutique.vue'
-import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
 import FlashDealsCarousel from '~/components/home/FlashDealsCarousel.vue'
-import PromoBannerOne from '~/components/home/PromoBannerOne.vue'
+import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
 import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
+import PromoBannerOne from '~/components/home/PromoBannerOne.vue'
 import TrendingCarousel from '~/components/home/TrendingCarousel.vue'
 import PromoBannerTwo from '~/components/home/PromoBannerTwo.vue'
 import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
@@ -31,22 +31,22 @@ const { data: featuredProducts } = await useAsyncData(
     <!-- بخش ۱: هیرو ادیتوریال بوتیک با سوشال پروف و نوار اعتماد (Hero Boutique with Social Proof) -->
     <HeroBoutique />
 
-    <!-- بخش ۲: شبکه بنتو دسته‌بندی‌های بصری (Visual Bento Category Grid) -->
-    <BentoCategoryGrid />
-
-    <!-- بخش ۳: کاروسل تک‌ردیفه حراج شتابان با تایمر زنده (Single-Row Flash Deals Carousel) -->
+    <!-- بخش ۲: کاروسل تک‌ردیفه روان تخفیف‌های شتابان پاییزه با Swiper.js (Fluid Swiper Flash Deals) -->
     <FlashDealsCarousel :products="featuredProducts || []" />
 
-    <!-- بخش ۴: بنر کمپین ویژه تخفیف ۱۵٪ اولین خرید (Mid-Page Campaign Banner 1) -->
-    <PromoBannerOne />
+    <!-- بخش ۳: شبکه بنتو دسته‌بندی‌های بصری کالکشن (Visual Bento Category Grid) -->
+    <BentoCategoryGrid />
 
-    <!-- بخش ۵: کاروسل سوایپ‌پذیر استایل تن مدل با هات‌اسپات (Swipeable Shop-The-Look Slider) -->
+    <!-- بخش ۴: اسلایدر اتوپلی لوک‌های تن مدل با هات‌اسپات‌های تعاملی (Autoplay Swiper Shop-The-Look) -->
     <ShopTheLookSlider />
 
-    <!-- بخش ۶: کاروسل ترندهای برتر سال با فیلترهای تب (Trending Products Carousel) -->
+    <!-- بخش ۵: نوار باریک ادیتوریال کوپن تخفیف خرید اول (Compact Editorial Promo Ribbon) -->
+    <PromoBannerOne />
+
+    <!-- بخش ۶: کاروسل ترندهای برتر سال با فیلترهای تب (Trending Products Carousel with Swiper) -->
     <TrendingCarousel :products="featuredProducts || []" />
 
-    <!-- بخش ۷: بنر لوک‌بوک استاندارد الیاف و دوخت (Mid-Page Lookbook Banner 2) -->
+    <!-- بخش ۷: بنر لوک‌بوک استاندارد الیاف و دوخت (Mid-Page Lookbook Banner) -->
     <PromoBannerTwo />
 
     <!-- بخش ۸: نوار شاخص‌های اعتماد و ضمانت خرید (Footer Trust Guarantee Bar) -->

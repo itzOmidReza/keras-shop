@@ -8,6 +8,9 @@ import {
   ChevronRight,
   ShoppingBag,
 } from '@lucide/vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Autoplay } from 'swiper/modules'
+import type { Swiper as SwiperType } from 'swiper/types'
 import { toFa, formatToman } from '~/utils/format'
 import { useCartStore } from '~/stores/cart'
 import type { ProductListItem } from '~/types/domain'
@@ -21,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const cartStore = useCartStore()
-const carouselRef = ref<HTMLElement | null>(null)
+const swiperInstance = ref<SwiperType | null>(null)
 
 // تایمر زنده ۲۴ ساعته حراج شتابان
 const remainingSeconds = ref(14 * 3600 + 45 * 60 + 20)
@@ -58,16 +61,19 @@ const dealProducts = computed(() => {
   return []
 })
 
-// ناوبری اسکرول افقی Native Carousel با پشتیبانی کامل از جهت RTL
-const scroll = (direction: 'next' | 'prev') => {
-  if (!carouselRef.value) return
-  const scrollAmount = 320
-  // در محیط RTL مرورگر، اسکرول به سمت چپ منفی است
-  const multiplier = direction === 'next' ? -1 : 1
-  carouselRef.value.scrollBy({
-    left: multiplier * scrollAmount,
-    behavior: 'smooth',
-  })
+const onSwiper = (swiper: SwiperType) => {
+  swiperInstance.value = swiper
+}
+
+// در جهت RTL:
+// دکمه بعدی (اسلایدها به سمت چپ پیش می‌روند): slideNext
+// دکمه قبلی (اسلایدها به سمت راست باز می‌گردند): slidePrev
+const scrollNext = () => {
+  swiperInstance.value?.slideNext()
+}
+
+const scrollPrev = () => {
+  swiperInstance.value?.slidePrev()
 }
 
 // افزودن سریع سایز به سبد خرید
@@ -100,7 +106,7 @@ const getDiscountPercent = (base: number, compare?: number): number => {
 </script>
 
 <template>
-  <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
     <!-- کادر اصلی بخش فروش ویژه با زمینه ادیتوریال و بردر ملایم -->
     <div class="rounded-3xl border border-rose/30 bg-gradient-to-b from-rose/5 via-sand/20 to-paper p-5 sm:p-8 space-y-6 shadow-xs">
       <!-- هدر شتابان با تایمر زنده و دکمه‌های ناوبری کاروسل -->
@@ -139,115 +145,129 @@ const getDiscountPercent = (base: number, compare?: number): number => {
             </div>
           </div>
 
-          <!-- دکمه‌های ناوبری اسکرول کاروسل -->
+          <!-- دکمه‌های ناوبری اسکرول کاروسل (در RTL: قبلی به راست، بعدی به چپ) -->
           <div class="flex items-center gap-2">
             <button
               type="button"
               class="w-9 h-9 rounded-xl border border-sand bg-white text-ink hover:bg-rose hover:text-white hover:border-rose transition-colors flex items-center justify-center shadow-2xs cursor-pointer active:scale-95"
               aria-label="آیتم‌های قبلی"
-              @click="scroll('prev')"
+              @click="scrollPrev"
             >
-              <ChevronRight class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronRight class="w-4 h-4" />
             </button>
             <button
               type="button"
               class="w-9 h-9 rounded-xl border border-sand bg-white text-ink hover:bg-rose hover:text-white hover:border-rose transition-colors flex items-center justify-center shadow-2xs cursor-pointer active:scale-95"
               aria-label="آیتم‌های بعدی"
-              @click="scroll('next')"
+              @click="scrollNext"
             >
-              <ChevronLeft class="w-4 h-4 rtl:-scale-x-100" />
+              <ChevronLeft class="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ردیف کاروسل با اسکرول اسنپ روان و مخفی بودن اسکرول‌بار (Native CSS Scroll Snap) -->
-      <div
-        ref="carouselRef"
-        class="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory pb-2 pt-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      <!-- کاروسل Swiper روان و لمسی با پشتیبانی کامل از RTL -->
+      <Swiper
+        :modules="[Autoplay]"
+        :slides-per-view="'auto'"
+        :space-between="16"
+        dir="rtl"
+        :autoplay="{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }"
+        :breakpoints="{
+          320: { slidesPerView: 1.25, spaceBetween: 12 },
+          480: { slidesPerView: 1.8, spaceBetween: 14 },
+          640: { slidesPerView: 2.3, spaceBetween: 16 },
+          1024: { slidesPerView: 3.5, spaceBetween: 20 },
+          1280: { slidesPerView: 4, spaceBetween: 24 }
+        }"
+        class="w-full !pb-3 !pt-1"
+        @swiper="onSwiper"
       >
-        <div
+        <SwiperSlide
           v-for="product in dealProducts"
           :key="product.id"
-          class="group relative flex flex-col shrink-0 w-[240px] sm:w-[270px] snap-start rounded-2xl bg-white border border-sand/70 p-3 shadow-2xs hover:shadow-md transition-all duration-300"
+          class="!h-auto"
         >
-          <!-- تصویر کالا و لایه هاور انتخاب سایز -->
-          <NuxtLink
-            :to="`/products/${product.slug}`"
-            class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-sand/30 block"
-          >
-            <NuxtImg
-              :src="product.images?.[0]?.url || '/placeholder.jpg'"
-              :alt="product.title"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-
-            <!-- بج درصد تخفیف -->
-            <div
-              v-if="getDiscountPercent(product.price ?? product.base_price, product.compare_at_price) > 0"
-              class="absolute inset-s-2.5 top-2.5 z-10 rounded-lg bg-rose text-paper px-2 py-0.5 text-xs font-bold shadow-xs"
-            >
-              {{ toFa(getDiscountPercent(product.price ?? product.base_price, product.compare_at_price)) }}٪ تخفیف
-            </div>
-
-            <!-- لایه انتخاب سریع سایز در هاور کارت -->
-            <div
-              class="absolute inset-x-2 bottom-2 z-20 rounded-xl bg-white/95 backdrop-blur-md p-2 shadow-xs border border-sand/60 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0"
-              @click.stop.prevent
-            >
-              <div class="text-[9px] font-bold text-muted-foreground mb-1 flex items-center justify-between">
-                <span>انتخاب سریع سایز:</span>
-                <ShoppingBag class="w-3 h-3 text-rose" />
-              </div>
-              <div class="flex items-center justify-center gap-1">
-                <button
-                  v-for="sz in (product.sizes || product.available_sizes || ['Free'])"
-                  :key="sz"
-                  type="button"
-                  class="flex-1 py-1 px-1 rounded-md text-[10px] font-bold border border-sand bg-sand/20 hover:bg-rose hover:text-white hover:border-rose text-ink transition-colors cursor-pointer"
-                  :title="`افزودن سایز ${sz} به سبد خرید`"
-                  @click.stop.prevent="handleQuickAdd(product, sz, $event)"
-                >
-                  {{ sz }}
-                </button>
-              </div>
-            </div>
-          </NuxtLink>
-
-          <!-- مشخصات متنی و قیمت محصول -->
-          <div class="mt-3 flex flex-col gap-1 text-start">
+          <div class="group relative flex flex-col h-full rounded-2xl bg-white border border-sand/70 p-3 shadow-2xs hover:shadow-md transition-all duration-300">
+            <!-- تصویر کالا و لایه هاور انتخاب سایز -->
             <NuxtLink
               :to="`/products/${product.slug}`"
-              class="text-xs sm:text-sm font-bold text-ink hover:text-rose transition-colors line-clamp-1"
+              class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-sand/30 block"
             >
-              {{ product.title }}
-            </NuxtLink>
+              <NuxtImg
+                :src="product.images?.[0]?.url || '/placeholder.jpg'"
+                :alt="product.title"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
 
-            <div class="flex items-center justify-between pt-1">
-              <div class="flex flex-col">
-                <span class="text-xs sm:text-sm font-bold text-ink">
-                  {{ formatToman(product.price ?? product.base_price) }}
-                </span>
-                <span
-                  v-if="product.compare_at_price"
-                  class="text-[11px] text-muted-foreground line-through decoration-rose/60"
-                >
-                  {{ formatToman(product.compare_at_price) }}
-                </span>
+              <!-- بج درصد تخفیف -->
+              <div
+                v-if="getDiscountPercent(product.price ?? product.base_price, product.compare_at_price) > 0"
+                class="absolute inset-s-2.5 top-2.5 z-10 rounded-lg bg-rose text-paper px-2 py-0.5 text-xs font-bold shadow-xs"
+              >
+                {{ toFa(getDiscountPercent(product.price ?? product.base_price, product.compare_at_price)) }}٪ تخفیف
               </div>
 
-              <!-- نشانگر شاخه کالا -->
-              <span
-                class="text-[10px] font-bold px-2 py-0.5 rounded-md"
-                :class="product.division === 'accessories' ? 'bg-sage/10 text-sage' : 'bg-rose/10 text-rose'"
+              <!-- لایه انتخاب سریع سایز در هاور کارت -->
+              <div
+                class="absolute inset-x-2 bottom-2 z-20 rounded-xl bg-white/95 backdrop-blur-md p-2 shadow-xs border border-sand/60 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0"
+                @click.stop.prevent
               >
-                {{ product.division === 'accessories' ? 'اکسسوری' : 'پوشاک' }}
-              </span>
+                <div class="text-[9px] font-bold text-muted-foreground mb-1 flex items-center justify-between">
+                  <span>انتخاب سریع سایز:</span>
+                  <ShoppingBag class="w-3 h-3 text-rose" />
+                </div>
+                <div class="flex items-center justify-center gap-1">
+                  <button
+                    v-for="sz in (product.sizes || product.available_sizes || ['Free'])"
+                    :key="sz"
+                    type="button"
+                    class="flex-1 py-1 px-1 rounded-md text-[10px] font-bold border border-sand bg-sand/20 hover:bg-rose hover:text-white hover:border-rose text-ink transition-colors cursor-pointer"
+                    :title="`افزودن سایز ${sz} به سبد خرید`"
+                    @click.stop.prevent="handleQuickAdd(product, sz, $event)"
+                  >
+                    {{ sz }}
+                  </button>
+                </div>
+              </div>
+            </NuxtLink>
+
+            <!-- مشخصات متنی و قیمت محصول -->
+            <div class="mt-3 flex flex-col flex-1 justify-between gap-1 text-start">
+              <NuxtLink
+                :to="`/products/${product.slug}`"
+                class="text-xs sm:text-sm font-bold text-ink hover:text-rose transition-colors line-clamp-1"
+              >
+                {{ product.title }}
+              </NuxtLink>
+
+              <div class="flex items-center justify-between pt-1 mt-auto">
+                <div class="flex flex-col">
+                  <span class="text-xs sm:text-sm font-bold text-ink">
+                    {{ formatToman(product.price ?? product.base_price) }}
+                  </span>
+                  <span
+                    v-if="product.compare_at_price"
+                    class="text-[11px] text-muted-foreground line-through decoration-rose/60"
+                  >
+                    {{ formatToman(product.compare_at_price) }}
+                  </span>
+                </div>
+
+                <!-- نشانگر شاخه کالا -->
+                <span
+                  class="text-[10px] font-bold px-2 py-0.5 rounded-md"
+                  :class="product.division === 'accessories' ? 'bg-sage/10 text-sage' : 'bg-rose/10 text-rose'"
+                >
+                  {{ product.division === 'accessories' ? 'اکسسوری' : 'پوشاک' }}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </SwiperSlide>
+      </Swiper>
 
       <!-- لینک پایین برای مشاهده همه پیشنهادهای تخفیف‌دار -->
       <div class="pt-2 text-center">
@@ -256,7 +276,7 @@ const getDiscountPercent = (base: number, compare?: number): number => {
           class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-rose hover:underline"
         >
           <span>مشاهده تمامی پیشنهادهای دارای تخفیف کراس</span>
-          <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100" />
+          <ArrowLeft class="w-3.5 h-3.5" />
         </NuxtLink>
       </div>
     </div>

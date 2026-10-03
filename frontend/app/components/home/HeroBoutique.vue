@@ -67,7 +67,7 @@ const trustBadges = [
                 class="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-7 py-3.5 text-xs sm:text-sm font-bold text-paper hover:bg-rose transition-all shadow-xs active:scale-95 cursor-pointer"
               >
                 <span>مشاهده و خرید کالکشن</span>
-                <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
+                <ArrowLeft class="w-4 h-4" />
               </NuxtLink>
 
               <NuxtLink

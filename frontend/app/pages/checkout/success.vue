@@ -7,7 +7,7 @@ import {
   MapPin,
   CreditCard,
   ShoppingBag,
-  ArrowRight,
+  ArrowLeft,
   Sparkles,
 } from '@lucide/vue'
 import { formatToman, formatDate } from '~/utils/format'
@@ -269,7 +269,7 @@ onMounted(() => {
         class="inline-flex items-center justify-center gap-2 bg-rose text-white hover:bg-rose/90 font-bold text-xs h-10 px-6 rounded-xl shadow-xs transition-all"
       >
         <span>مشاهده محصولات کراس</span>
-        <ArrowRight class="w-4 h-4 rtl:-scale-x-100" />
+        <ArrowLeft class="w-4 h-4" />
       </NuxtLink>
     </div>
   </div>
