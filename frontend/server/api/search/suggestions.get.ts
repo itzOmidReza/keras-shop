@@ -21,6 +21,29 @@ function normalize(str: string): string {
     .trim();
 }
 
+const categoryDisplayNames: Record<string, string> = {
+  'shirts-blouses': 'پیراهن و شومیز',
+  knitwear: 'بافت و پلیور',
+  'coats-jackets': 'پالتو و کاپشن',
+  pants: 'شلوار',
+  tops: 'تیشرت و تاپ',
+  'hair-accessories': 'اکسسوری مو',
+  bandanas: 'دستمال سر',
+  scarves: 'اسکارف و شال',
+};
+
+const divisionDisplayNames: Record<string, string> = {
+  apparel: 'پوشاک',
+  accessories: 'اکسسوری',
+};
+
+const seasonDisplayNames: Record<string, string> = {
+  'fall-1405': 'پاییز ۱۴۰۵',
+  'winter-1405': 'زمستان ۱۴۰۵',
+  'spring-1406': 'بهار ۱۴۰۶',
+  'summer-1405': 'تابستان ۱۴۰۵',
+};
+
 export default defineEventHandler(async (event): Promise<SearchSuggestionsResponse> => {
   const query = getQuery(event);
   const rawQ = typeof query.q === 'string' ? query.q : '';
@@ -53,11 +76,16 @@ export default defineEventHandler(async (event): Promise<SearchSuggestionsRespon
 
     const normTitle = normalize(product.title);
     const normSlug = normalize(product.slug);
-    const normCategoryTitle = normalize(product.category?.title || '');
-    const normCategorySlug = normalize(product.category?.slug || '');
-    const normLine = normalize(product.line);
+    const catTitle = categoryDisplayNames[product.category] || product.category;
+    const normCatTitle = normalize(catTitle);
+    const normCatSlug = normalize(product.category);
+    const divTitle = divisionDisplayNames[product.division] || product.division;
+    const normDivTitle = normalize(divTitle);
+    const normDivSlug = normalize(product.division);
+    const seaTitle = seasonDisplayNames[product.season] || product.season;
+    const normSeaTitle = normalize(seaTitle);
     const normDesc = normalize(product.description || '');
-    const normFabric = normalize(product.fabric_composition || '');
+    const normFabric = normalize(product.fabric?.composition || product.fabric_composition || '');
 
     let score = 0;
 
@@ -76,26 +104,33 @@ export default defineEventHandler(async (event): Promise<SearchSuggestionsRespon
     }
 
     // ۳. تطابق با دسته‌بندی
-    if (normCategoryTitle.includes(normalizedQuery) || normCategorySlug.includes(normalizedQuery)) {
+    if (normCatTitle.includes(normalizedQuery) || normCatSlug.includes(normalizedQuery)) {
+      score += 60;
+    }
+
+    // ۴. تطابق با شاخه اصلی (division)
+    if (normDivTitle.includes(normalizedQuery) || normDivSlug.includes(normalizedQuery)) {
       score += 50;
     }
 
-    // ۴. تطابق با لاین برند
-    if (normLine === normalizedQuery || normLine.includes(normalizedQuery)) {
-      score += 35;
+    // ۵. تطابق با فصل و کالکشن (season)
+    if (normSeaTitle.includes(normalizedQuery) || normalize(product.season).includes(normalizedQuery)) {
+      score += 45;
     }
 
-    // ۵. تطابق چند کلمه‌ای
+    // ۶. تطابق چند کلمه‌ای و توکن‌ها
     if (queryTokens.length > 1) {
       const allTokensMatch = queryTokens.every(
         (token) =>
           normTitle.includes(token) ||
-          normCategoryTitle.includes(token) ||
+          normCatTitle.includes(token) ||
+          normDivTitle.includes(token) ||
+          normSeaTitle.includes(token) ||
           normSlug.includes(token) ||
           normDesc.includes(token),
       );
       if (allTokensMatch) {
-        score += 60;
+        score += 70;
       }
     } else if (score === 0) {
       if (normDesc.includes(normalizedQuery) || normFabric.includes(normalizedQuery)) {
@@ -116,15 +151,15 @@ export default defineEventHandler(async (event): Promise<SearchSuggestionsRespon
   // استخراج دسته‌بندی‌های مرتبط با کالاهای یافته‌شده
   const categoryMap = new Map<string, { name: string; slug: string; count: number }>();
   for (const item of scoredList) {
-    const cat = item.product.category;
-    if (cat && cat.slug) {
-      const existing = categoryMap.get(cat.slug);
+    const catSlug = item.product.category;
+    if (catSlug) {
+      const existing = categoryMap.get(catSlug);
       if (existing) {
         existing.count += 1;
       } else {
-        categoryMap.set(cat.slug, {
-          name: cat.title,
-          slug: cat.slug,
+        categoryMap.set(catSlug, {
+          name: categoryDisplayNames[catSlug] || catSlug,
+          slug: catSlug,
           count: 1,
         });
       }
@@ -147,11 +182,13 @@ export default defineEventHandler(async (event): Promise<SearchSuggestionsRespon
       id: product.id,
       title: product.title,
       slug: product.slug,
-      price: product.base_price,
+      price: product.price ?? product.base_price,
       compare_at_price: product.compare_at_price,
       primary_image: product.images?.[0]?.url || '',
+      division: product.division,
+      category: categoryDisplayNames[product.category] || product.category,
+      season: product.season,
       line: product.line,
-      category: product.category?.title || '',
       inStock,
     };
   });

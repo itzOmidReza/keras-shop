@@ -128,6 +128,8 @@ const handleSizeSelectedFromGuide = (size: string) => {
           :images="product.images || []"
           :title="product.title"
           :line="product.line"
+          :season="product.season"
+          :badge="product.badge"
         />
       </div>
 
@@ -220,7 +222,7 @@ const handleSizeSelectedFromGuide = (size: string) => {
     <RelatedProducts
       v-if="relatedProducts && relatedProducts.length > 0"
       :products="relatedProducts"
-      :title="product.line === 'calm' ? 'تکمیل استایل با آیتم‌های آرامش' : 'محصولات مکمل برای عملکرد ورزشی'"
+      title="محصولات مکمل برای استایل چهارفصل"
     />
 
     <!-- نوار شناور موبایل -->

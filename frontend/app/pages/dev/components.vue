@@ -111,9 +111,9 @@ const openSizeGuide = () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <FabricMeters
             v-if="detailProduct"
-            :stretch="detailProduct.stretch"
-            :softness="detailProduct.softness"
-            :opacity="detailProduct.opacity"
+            :stretch="detailProduct.stretch ?? 3"
+            :softness="detailProduct.softness ?? 3"
+            :opacity="detailProduct.opacity ?? 5"
             :composition="detailProduct.fabric_composition"
             :gsm="detailProduct.fabric_gsm"
           />

@@ -1,6 +1,6 @@
 <!-- frontend/app/components/home/ShopByActivity.vue -->
 <script setup lang="ts">
-import { ArrowLeft, Dumbbell, Sparkles, Wind, Coffee } from '@lucide/vue'
+import { ArrowLeft, Sparkles, Wind, Coffee, Shirt } from '@lucide/vue'
 
 interface ActivityCard {
   id: string
@@ -9,45 +9,45 @@ interface ActivityCard {
   techBadge: string
   href: string
   image: string
-  icon: typeof Dumbbell
+  icon: typeof Sparkles
 }
 
 const activities: ActivityCard[] = [
   {
-    id: 'heavy-training',
-    title: 'تمرینات سنگین و بدنسازی',
-    subtitle: 'نگه‌دارندگی حداکثری عضلات در اسکات، ددلیفت و تمرینات پرفشار بدنسازی',
-    techBadge: 'Move Line • ۳۰۰ گرمی ضد دید (Squat-Proof)',
-    href: '/shop?line=move',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
-    icon: Dumbbell,
-  },
-  {
-    id: 'yoga-pilates',
-    title: 'یوگا، پیلاتس و ریکاوری',
-    subtitle: 'بافت بدون درز با حس سبکی و لطافت ابریشمی برای جریان آزاد حرکات کششی',
-    techBadge: 'Calm Line • ۲۲۰ گرمی حس پوست دوم',
-    href: '/shop?line=calm',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    id: 'fall-editorial',
+    title: 'استایل ادیتوریال پاییزه',
+    subtitle: 'پالتوهای فوتر، ترنچ کت‌های بارانی و شلوارهای واید لینن برای پاییز',
+    techBadge: 'پاییز ۱۴۰۵ • کالکشن جدید',
+    href: '/shop?season=fall-1405',
+    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
     icon: Sparkles,
   },
   {
-    id: 'running-cardio',
-    title: 'دویدن و تمرینات هوازی',
-    subtitle: 'انتقال سریع حرارت و رطوبت با ساختار مهندسی‌شده الیاف تنفس‌پذیر میکروفیبر',
-    techBadge: 'High Breathability • تخلیه فوق سریع رطوبت',
-    href: '/shop?category=running',
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
+    id: 'winter-warmth',
+    title: 'بافت و لایه‌لایه زمستانه',
+    subtitle: 'پلیورهای پشمی، ژاکت‌های بافت کشمیر و پالتوهای گرم برای زمستان',
+    techBadge: 'زمستان ۱۴۰۵ • الیاف پشمی و کشمیر',
+    href: '/shop?season=winter-1405',
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
     icon: Wind,
   },
   {
-    id: 'lifestyle-athleisure',
-    title: 'استایل ورزشی شهری و روزمره',
-    subtitle: 'زیبایی مینیمال ادیتوریال مناسب خیابان، کافه و ریکاوری با حداکثر راحتی',
-    techBadge: 'Athleisure • طراحی ارگونومیک تمام روز',
-    href: '/shop?category=lifestyle',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+    id: 'accessories-craft',
+    title: 'اکسسوری، اسکرانچی و شال',
+    subtitle: 'دستمال سرهای ژاکارد، اسکرانچی‌های ابریشم طبیعی و شال‌های دست‌دوز',
+    techBadge: 'اکسسوری • دست‌دوز و ابریشم طبیعی',
+    href: '/shop?division=accessories',
+    image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=800&q=80',
     icon: Coffee,
+  },
+  {
+    id: 'minimal-everyday',
+    title: 'شومیز و استایل روزمره',
+    subtitle: 'شومیزهای لینن اسلپ، تیشرت‌های پنبه سوپر شانه و پیراهن‌های دکمه‌دار',
+    techBadge: 'پوشاک پایه • لینن اسلپ و پنبه ارگانیک',
+    href: '/shop?category=shirts-blouses',
+    image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80',
+    icon: Shirt,
   },
 ]
 </script>
@@ -55,19 +55,19 @@ const activities: ActivityCard[] = [
 <template>
   <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     <div class="space-y-8">
-      <!-- هدر بخش تناسب فیزیولوژیک و رشته ورزشی -->
+      <!-- هدر بخش تناسب موقعیت و فصل -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand/70 pb-4">
         <div>
           <span class="text-xs font-bold uppercase tracking-wider text-rose">
-            انتخاب هوشمند بر اساس نوع تمرین
+            انتخاب هوشمند بر اساس موقعیت و فصل
           </span>
           <h2 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight mt-1">
-            خرید بر اساس فعالیت ورزشی
+            خرید بر اساس فصل و سبک استایل
           </h2>
         </div>
 
         <p class="text-xs sm:text-sm text-muted-foreground max-w-md text-start leading-relaxed">
-          هر بافت و گرماژ پارچه در کراس برای هدف مکانیکی مشخصی مهندسی شده است. بر اساس رشته ورزشی خود بپوشید.
+          تلفیق پارچه‌های الیاف طبیعی، برش‌های ارگونومیک و اکسسوری‌های مکمل برای هر فصل از سال.
         </p>
       </div>
 
@@ -110,7 +110,7 @@ const activities: ActivityCard[] = [
 
             <!-- لینک و پیکان اقدام -->
             <div class="pt-1 flex items-center gap-1.5 text-xs font-bold text-paper group-hover:text-rose transition-colors">
-              <span>مشاهده محصولات این رشته</span>
+              <span>مشاهده محصولات این دسته‌بندی</span>
               <ArrowLeft class="w-3.5 h-3.5 rtl:-scale-x-100 transition-transform group-hover:-translate-x-1" />
             </div>
           </div>

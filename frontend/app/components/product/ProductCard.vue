@@ -26,8 +26,29 @@ const hoverImage = computed(() => {
   return props.product.images?.[1]?.url || primaryImage.value
 })
 
-const currentLine = computed(() => {
-  return productLines[props.product.line as keyof typeof productLines]
+const productBadge = computed(() => {
+  if (props.product.badge) return props.product.badge
+  if (props.product.season === 'fall-1405') return 'پاییز ۱۴۰۵'
+  if (props.product.season === 'spring-1406') return 'بهار ۱۴۰۶'
+  if (props.product.season === 'winter-1405') return 'زمستان ۱۴۰۵'
+  if (props.product.season === 'summer-1405') return 'تابستان ۱۴۰۵'
+  if (props.product.line && productLines[props.product.line as keyof typeof productLines]) {
+    return productLines[props.product.line as keyof typeof productLines].badge
+  }
+  return null
+})
+
+const productBadgeClass = computed(() => {
+  if (props.product.badge === 'حراج' || props.product.badge === 'sale') {
+    return 'bg-rose text-white'
+  }
+  if (props.product.season === 'fall-1405') {
+    return 'bg-rose text-white'
+  }
+  if (props.product.season === 'spring-1406') {
+    return 'bg-sage text-white'
+  }
+  return 'bg-paper/85 text-ink border border-sand'
 })
 </script>
 
@@ -35,27 +56,33 @@ const currentLine = computed(() => {
   <div class="group relative flex flex-col overflow-hidden">
     <!-- ظرف تصویر با نسبت ۴:۵ -->
     <NuxtLink
-:to="`/products/${product.slug}`"
-      class="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-sand/30">
+      :to="`/products/${product.slug}`"
+      class="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-sand/30"
+    >
       <!-- تصویر اصلی -->
       <NuxtImg
-:src="primaryImage" :alt="product.title" :loading="priority ? 'eager' : 'lazy'"
-        class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+        :src="primaryImage"
+        :alt="product.title"
+        :loading="priority ? 'eager' : 'lazy'"
+        class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+      />
 
       <!-- تصویر ثانویه برای هاور -->
       <NuxtImg
-v-if="hoverImage !== primaryImage" :src="hoverImage" :alt="product.title" loading="lazy"
-        class="absolute inset-0 h-full w-full object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        v-if="hoverImage !== primaryImage"
+        :src="hoverImage"
+        :alt="product.title"
+        loading="lazy"
+        class="absolute inset-0 h-full w-full object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      />
 
-      <!-- بج لاین آرامش یا حرکت برگرفته از data -->
-      <div v-if="currentLine" class="absolute inset-s-3 top-3">
+      <!-- بج فصل یا کالکشن کالا -->
+      <div v-if="productBadge" class="absolute inset-s-3 top-3">
         <span
-class="rounded-full px-2.5 py-1 text-[10px] font-bold shadow-xs backdrop-blur-md" :class="[
-          product.line === 'calm'
-            ? 'bg-paper/85 text-ink border border-sand'
-            : 'bg-rose text-white',
-        ]">
-          {{ currentLine.badge }}
+          class="rounded-full px-2.5 py-1 text-[10px] font-bold shadow-xs backdrop-blur-md"
+          :class="productBadgeClass"
+        >
+          {{ productBadge }}
         </span>
       </div>
 

@@ -355,6 +355,31 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
+- **2026-10-03 (`HEAD`)**: `refactor(catalog): pivot domain to four-season apparel and accessories with 24 mock products`
+  - **Brand & Domain Pivot**: Transitioned Keras from purely athletic wear to a **Four-Season Lifestyle Fashion & Accessories Brand**.
+  - **FastAPI-Ready Domain Typing (`app/types/domain.ts`)**:
+    - Defined `ProductDivision`: `'apparel' | 'accessories'`.
+    - Defined `ProductCategory`: Apparel (`'shirts-blouses'`, `'knitwear'`, `'coats-jackets'`, `'pants'`, `'tops'`) and Accessories (`'hair-accessories'`, `'bandanas'`, `'scarves'`).
+    - Defined `ProductSeason`: `'fall-1405'` (Active Hero Drop), `'winter-1405'`, `'spring-1406'`, `'summer-1405'`.
+    - Updated `Product`, `ProductListItem`, `ProductDetail`, `ProductFilters`, `WishlistItem`, and `SearchSuggestionItem` contracts while preserving backwards compatibility.
+  - **Expanded Mock Catalog (`server/mock/products.ts`)**:
+    - Added **24 publication-grade, editorial lifestyle products** evenly distributed across all 4 seasons, divisions (16 apparel + 8 accessories), and categories with realistic Toman pricing, metric size charts, fabric specs, color swatches, and high-fashion imagery.
+  - **Server Endpoints & Scoring Alignment**:
+    - `GET /api/products`: Full query parameter filtering supporting `division`, `category`, `season`, `badge` (e.g. sale), `sizes`, `colors`, `min_price`/`max_price`, and `sort`.
+    - `GET /api/search/suggestions`: Multi-field scoring across title, division, category, season, description, and fabric with top 5 products and top 3 categories grouping.
+    - `GET /api/products/[slug]/related`: Prioritizes complementary items within the same category, division, and season.
+  - **Frontend Consumers & UI Overhaul**:
+    - `FilterPanel.vue`: Refactored accordions for Season (پاییز ۱۴۰۵، زمستان ۱۴۰۵، بهار ۱۴۰۶، تابستان ۱۴۰۵), Division (پوشاک، اکسسوری), and categorized apparel & accessory lists with 'Free' size support.
+    - `shop/index.vue`: 2-way query synchronization for `season`, `division`, `category`, `sizes`, `colors`, `badge`, and `sort`.
+    - `AppHeader.vue` & `MobileNav.vue`: Navigation links updated to `/shop?season=fall-1405`, `/shop?division=apparel`, `/shop?division=accessories`, and `/shop?badge=sale`.
+    - `ProductCard.vue` & `ProductGallery.vue`: Dynamic badges reflecting season drop and product badges with official brand tokens.
+    - Home sections (`CatalogDiscoveryTabs.vue`, `CategoryStories.vue`, `ShopTheLook.vue`, `ShopByActivity.vue`, `HeroPromoBanner.vue`, `FlashDealsRow.vue`, `SearchAutocomplete.vue`) updated to celebrate the four-season lifestyle catalog.
+  - **E2E Playwright Tests Updated**:
+    - `02-catalog-discovery.spec.ts`: Filters by season `fall-1405` and searches for `شومیز`.
+    - `03-pdp-to-cart.spec.ts`: Uses hero product `karen-slub-linen-blouse`, tests size selection, cart drawer, and wishlist toggle.
+    - `04-checkout-ipg-success.spec.ts`: Seamless 2-step checkout, Shaparak IPG simulation, and post-purchase tracking.
+    - All 8 tests passed across Desktop Chrome and Mobile Safari.
+  - **Quality Gates**: All 6 verification gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`, `test:e2e`).
 - **2026-10-02 (`4f124e9`)**: `fix(auth): resolve OTP countdown reset, address validation, and account hydration edge cases`
   - Fixed phone number and OTP input digit sanitization: automatically normalizes pasted Persian/Arabic digits (`۰-۹`) to English digits (`0-9`) via `toEn()` watchers.
   - Hardened OTP resend and error display: routed resend failures to `otpError` on Step 2 so users clearly see error messages below OTP slots.

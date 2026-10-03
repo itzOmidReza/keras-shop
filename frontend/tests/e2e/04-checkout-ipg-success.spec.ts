@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Full 2-Step Checkout & Simulated Shaparak IPG Flow', () => {
   test('should complete 2-step checkout, redirect to IPG gateway, simulate payment, verify callback, and track order', async ({ page }) => {
     // ۱. افزودن کالا به سبد خرید از طریق صفحه محصول
-    await page.goto('/products/calm-seamless-leggings-black')
+    await page.goto('/products/karen-slub-linen-blouse')
     const sizePill = page.getByRole('button', { name: 'M', exact: true }).first()
     await sizePill.click()
     const addToCartBtn = page.getByRole('button', { name: 'افزودن به سبد خرید' }).first()

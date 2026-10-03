@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test'
 test.describe('PDP, Metric Size Guide, Cart & Wishlist Flow', () => {
   test('should verify metric size guide, select size, add to cart, and toggle wishlist', async ({ page }) => {
     // ۱. ناوبری به صفحه محصول مشخص
-    await page.goto('/products/calm-seamless-leggings-black')
-    await expect(page.locator('h1')).toContainText('لگ')
+    await page.goto('/products/karen-slub-linen-blouse')
+    await expect(page.locator('h1')).toContainText('شومیز')
 
     // ۲. باز کردن مدال راهنمای سایز
     const sizeGuideBtn = page.getByRole('button', { name: /راهنمای سایز/i })
@@ -66,6 +66,6 @@ test.describe('PDP, Metric Size Guide, Cart & Wishlist Flow', () => {
     await page.goto('/wishlist')
     await expect(page.locator('h1')).toContainText('علاقه‌مندی‌ها')
     // وجود حداقل یک محصول ذخیره شده
-    await expect(page.locator('body')).toContainText('لگ')
+    await expect(page.locator('body')).toContainText('شومیز')
   })
 })

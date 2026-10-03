@@ -7,10 +7,22 @@ const props = defineProps<{
   images: ProductImage[]
   title: string
   line?: string
+  season?: string
+  badge?: string
 }>()
 
 const activeIndex = ref(0)
 const currentImage = computed(() => props.images[activeIndex.value]?.url || props.images[0]?.url || '/placeholder.jpg')
+
+const displayBadge = computed(() => {
+  if (props.badge) return props.badge
+  if (props.season === 'fall-1405') return 'پاییز ۱۴۰۵'
+  if (props.season === 'winter-1405') return 'زمستان ۱۴۰۵'
+  if (props.season === 'spring-1406') return 'بهار ۱۴۰۶'
+  if (props.season === 'summer-1405') return 'تابستان ۱۴۰۵'
+  if (props.line) return `لاین ${props.line.toUpperCase()}`
+  return null
+})
 </script>
 
 <template>
@@ -50,12 +62,12 @@ const currentImage = computed(() => props.images[activeIndex.value]?.url || prop
         class="w-full h-full object-cover object-center transition-all duration-300"
       />
 
-      <!-- بج لاین -->
+      <!-- بج کالکشن / فصل -->
       <span
-        v-if="line"
+        v-if="displayBadge"
         class="absolute top-4 inset-s-4 bg-paper/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-ink shadow-xs border border-sand/50"
       >
-        لاین {{ line.toUpperCase() }}
+        {{ displayBadge }}
       </span>
 
       <!-- برچسب تست شفافیت -->

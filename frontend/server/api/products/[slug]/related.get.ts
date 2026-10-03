@@ -9,53 +9,61 @@ export default defineEventHandler(async (event): Promise<ProductListItem[]> => {
   await new Promise((resolve) => setTimeout(resolve, 100));
 
   const current = mockProducts.find((p) => p.slug === slug);
-
-  // حذف محصول جاری از لیست پیشنهادات
   const others = mockProducts.filter((p) => p.slug !== slug);
 
-  if (!current) {
-    return others.slice(0, 4).map((p): ProductListItem => ({
-      id: p.id,
-      slug: p.slug,
-      title: p.title,
-      line: p.line,
-      base_price: p.base_price,
-      compare_at_price: p.compare_at_price,
-      images: p.images,
-      colors: p.colors,
-      rating_avg: p.rating_avg,
-      rating_count: p.rating_count,
-      is_active: p.is_active,
-      has_transparency_test: p.has_transparency_test,
-      stretch: p.stretch,
-      opacity: p.opacity,
-      available_sizes: p.available_sizes,
-    }));
-  }
-
-  // اولویت ۱: محصولات هم‌لاین (Move / Calm)
-  // اولویت ۲: محصولات با دسته‌بندی مکمل
-  const sorted = [...others].sort((a, b) => {
-    const aSameLine = a.line === current.line ? 1 : 0;
-    const bSameLine = b.line === current.line ? 1 : 0;
-    return bSameLine - aSameLine;
-  });
-
-  return sorted.slice(0, 4).map((p): ProductListItem => ({
+  const mapToListItem = (p: (typeof mockProducts)[0]): ProductListItem => ({
     id: p.id,
     slug: p.slug,
     title: p.title,
-    line: p.line,
-    base_price: p.base_price,
+    division: p.division,
+    category: p.category,
+    season: p.season,
+    price: p.price ?? p.base_price,
+    base_price: p.base_price ?? p.price,
     compare_at_price: p.compare_at_price,
     images: p.images,
+    sizes: p.sizes ?? p.available_sizes,
+    available_sizes: p.available_sizes ?? p.sizes,
     colors: p.colors,
-    rating_avg: p.rating_avg,
-    rating_count: p.rating_count,
+    inStock: p.inStock,
+    rating: p.rating ?? p.rating_avg,
+    rating_avg: p.rating_avg ?? p.rating,
+    reviewCount: p.reviewCount ?? p.rating_count,
+    rating_count: p.rating_count ?? p.reviewCount,
+    description: p.description,
+    fabric: p.fabric,
+    fabric_composition: p.fabric_composition,
+    fabric_gsm: p.fabric_gsm,
     is_active: p.is_active,
+    badge: p.badge,
     has_transparency_test: p.has_transparency_test,
     stretch: p.stretch,
+    softness: p.softness,
     opacity: p.opacity,
-    available_sizes: p.available_sizes,
-  }));
+    line: p.line,
+  });
+
+  if (!current) {
+    return others.slice(0, 4).map(mapToListItem);
+  }
+
+  // اولویت ۱: محصولات هم‌دسته
+  // اولویت ۲: محصولات با همان شاخه (پوشاک / اکسسوری) یا فصل
+  const sorted = [...others].sort((a, b) => {
+    let scoreA = 0;
+    let scoreB = 0;
+
+    if (a.category === current.category) scoreA += 10;
+    if (b.category === current.category) scoreB += 10;
+
+    if (a.division === current.division) scoreA += 5;
+    if (b.division === current.division) scoreB += 5;
+
+    if (a.season === current.season) scoreA += 3;
+    if (b.season === current.season) scoreB += 3;
+
+    return scoreB - scoreA;
+  });
+
+  return sorted.slice(0, 4).map(mapToListItem);
 });

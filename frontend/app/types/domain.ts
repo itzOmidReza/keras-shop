@@ -6,7 +6,7 @@ export interface Variant {
   sku: string;
   color: string;
   color_hex: string;
-  size: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL';
+  size: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | 'Free';
   price_override?: number; // به تومان
   compare_at_price?: number; // به تومان
   stock: number;
@@ -30,33 +30,73 @@ export interface SizeChartEntry {
 
 export type SizeChart = Record<string, SizeChartEntry>;
 
-export interface ProductListItem {
+export type ProductDivision = 'apparel' | 'accessories';
+
+export type ApparelCategory =
+  | 'shirts-blouses'
+  | 'knitwear'
+  | 'coats-jackets'
+  | 'pants'
+  | 'tops';
+
+export type AccessoriesCategory =
+  | 'hair-accessories'
+  | 'bandanas'
+  | 'scarves';
+
+export type ProductCategory = ApparelCategory | AccessoriesCategory;
+
+export type ProductSeason =
+  | 'fall-1405'
+  | 'winter-1405'
+  | 'spring-1406'
+  | 'summer-1405';
+
+export interface ProductFabric {
+  composition: string;
+  gsm?: number;
+  care: string;
+}
+
+export interface Product {
   id: number;
   slug: string;
   title: string;
-  line: 'move' | 'calm';
-  base_price: number; // به تومان
-  compare_at_price?: number; // به تومان (قیمت قبل از تخفیف)
+  division: ProductDivision;
+  category: ProductCategory;
+  season: ProductSeason;
+  price: number;
+  base_price: number;
+  compare_at_price?: number;
   images: ProductImage[];
-  colors: { name: string; hex: string }[];
-  rating_avg: number;
-  rating_count: number;
-  is_active: boolean;
-  has_transparency_test: boolean;
-  stretch: number;
-  opacity: number;
+  sizes: string[];
   available_sizes: string[];
+  colors: { name: string; hex: string }[];
+  inStock: boolean;
+  rating: number;
+  rating_avg: number;
+  reviewCount: number;
+  rating_count: number;
+  description: string;
+  fabric: ProductFabric;
+  fabric_composition?: string;
+  fabric_gsm?: number;
+  is_active: boolean;
+  badge?: string;
+  has_transparency_test?: boolean;
+  stretch?: number;
+  softness?: number;
+  opacity?: number;
+  line?: 'move' | 'calm';
 }
 
-export interface ProductDetail extends ProductListItem {
-  description: string;
-  category: { id: number; title: string; slug: string };
-  fabric_composition: string;
-  fabric_gsm?: number;
-  softness: number;
-  activities: ActivityType[];
-  size_chart: SizeChart;
-  fit_note: string;
+export type ProductListItem = Product;
+
+export interface ProductDetail extends Product {
+  category_info?: { id: number; title: string; slug: string };
+  activities?: ActivityType[];
+  size_chart?: SizeChart;
+  fit_note?: string;
   variants: Variant[];
 }
 
@@ -91,13 +131,18 @@ export interface ProductReviewsResponse {
 
 export interface ProductFilters {
   q?: string;
-  line?: 'move' | 'calm';
+  division?: ProductDivision;
   category?: string;
+  season?: ProductSeason;
+  line?: 'move' | 'calm';
   size?: string;
   color?: string;
   sort?: 'bestseller' | 'newest' | 'price_asc' | 'price_desc';
   min_price?: number;
   max_price?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  badge?: string;
 }
 
 export interface CartItem {
@@ -190,8 +235,10 @@ export interface WishlistItem {
   price: number;
   compare_at_price?: number;
   primary_image: string;
-  line: 'move' | 'calm';
-  category: string;
+  division?: ProductDivision;
+  category: ProductCategory | string;
+  season?: ProductSeason;
+  line?: 'move' | 'calm';
   addedAt: string;
 }
 
@@ -318,8 +365,10 @@ export interface SearchSuggestionItem {
   price: number;
   compare_at_price?: number;
   primary_image: string;
-  line: 'move' | 'calm';
-  category: string;
+  division: ProductDivision;
+  category: ProductCategory | string;
+  season: ProductSeason;
+  line?: 'move' | 'calm';
   inStock: boolean;
 }
 

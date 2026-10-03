@@ -13,6 +13,7 @@ import type {
   SearchCategorySuggestion,
 } from '~/types/domain'
 import { toFa, toEn, formatToman } from '~/utils/format'
+import { getCategoryLabel, getSeasonLabel } from '~/data'
 
 interface Props {
   placeholder?: string
@@ -22,7 +23,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'جست‌وجوی محصولات ورزشی کراس...',
+  placeholder: 'جست‌وجوی استایل و اکسسوری کراس...',
   autoFocus: false,
   showCloseButton: false,
   initialQuery: '',
@@ -329,14 +330,17 @@ onUnmounted(() => {
 
                 <span
                   class="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                  :class="product.line === 'calm' ? 'bg-sand/60 text-ink' : 'bg-rose/10 text-rose'"
+                  :class="product.division === 'accessories' ? 'bg-sage/10 text-sage' : 'bg-rose/10 text-rose'"
                 >
-                  {{ product.line === 'calm' ? 'آرامش' : 'حرکت' }}
+                  {{ product.division === 'accessories' ? 'اکسسوری' : 'پوشاک' }}
                 </span>
               </div>
 
               <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span>{{ product.category }}</span>
+                <span>{{ getCategoryLabel(product.category) }}</span>
+                <span v-if="product.season" class="text-[9px] text-muted-foreground/80">
+                  ({{ getSeasonLabel(product.season) }})
+                </span>
                 <span
                   v-if="!product.inStock"
                   class="text-[9px] font-medium text-destructive bg-destructive/10 px-1.5 py-0.2 rounded-full"

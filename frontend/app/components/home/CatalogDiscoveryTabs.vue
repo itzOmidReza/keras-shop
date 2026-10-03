@@ -12,28 +12,32 @@ const props = withDefaults(defineProps<Props>(), {
   initialProducts: () => [],
 })
 
-const activeTab = ref<'bestseller' | 'move' | 'calm'>('bestseller')
+const activeTab = ref<'all' | 'fall-1405' | 'apparel' | 'accessories'>('all')
 const isLoading = ref(false)
 const localProducts = ref<ProductListItem[]>(props.initialProducts)
 
 const tabs = [
-  { id: 'bestseller', label: 'پرفروش‌ترین‌های هفته', description: 'محبوب‌ترین انتخاب‌های بانوان ورزشکار کراس' },
-  { id: 'move', label: 'کالکشن حرکت (Move)', description: 'پرفورمنس و فشرده‌سازی ۳۰۰ گرمی ضد دید' },
-  { id: 'calm', label: 'کالکشن آرامش (Calm)', description: 'بافت سبک ۲۲۰ گرمی با حس پوست دوم' },
+  { id: 'all', label: 'همه کالکشن‌ها', description: 'نمای کامل محصولات و اکسسوری کراس' },
+  { id: 'fall-1405', label: 'کالکشن جدید (پاییز ۱۴۰۵)', description: 'دراپ فصلی پاییزی با بافت‌های گرم و پالتوهای فوتر' },
+  { id: 'apparel', label: 'پوشاک ادیتوریال', description: 'شومیز، بافت، پالتو و شلوارهای مینیمال' },
+  { id: 'accessories', label: 'اکسسوری و شال', description: 'دستمال سر، اسکرانچی و شال‌های ابریشمی و پشمی' },
 ] as const
 
 const filteredProducts = computed(() => {
-  if (activeTab.value === 'move') {
-    return localProducts.value.filter(p => p.line === 'move')
+  if (activeTab.value === 'fall-1405') {
+    return localProducts.value.filter(p => p.season === 'fall-1405')
   }
-  if (activeTab.value === 'calm') {
-    return localProducts.value.filter(p => p.line === 'calm')
+  if (activeTab.value === 'apparel') {
+    return localProducts.value.filter(p => p.division === 'apparel')
+  }
+  if (activeTab.value === 'accessories') {
+    return localProducts.value.filter(p => p.division === 'accessories')
   }
   return localProducts.value
 })
 
 // سوییچ تب با دریافت داده در صورت نیاز
-const selectTab = async (tabId: 'bestseller' | 'move' | 'calm') => {
+const selectTab = async (tabId: 'all' | 'fall-1405' | 'apparel' | 'accessories') => {
   activeTab.value = tabId
   if (localProducts.value.length === 0) {
     isLoading.value = true

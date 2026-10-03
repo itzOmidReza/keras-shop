@@ -5,32 +5,38 @@ import {
   Sparkles,
   X,
 } from '@lucide/vue'
-import type { ProductFilters } from '~/types/domain'
+import type { ProductFilters, ProductSeason, ProductDivision, ProductCategory } from '~/types/domain'
 import type { FilterState } from '~/components/catalog/FilterPanel.vue'
 
 useSeoMeta({
-  title: 'کاتالوگ و فروشگاه پوشاک ورزشی | کراس',
-  description: 'مجموعه تخصصی پوشاک تمرین و آرامش کراس با بافت بدون درز و آزادی حرکت کامل.',
+  title: 'کاتالوگ و فروشگاه چهارفصل پوشاک و اکسسوری | کراس',
+  description: 'مجموعه پوشاک ادیتوریال، بافت، پالتو، شومیز و اکسسوری‌های دست‌ساز چهارفصل کراس.',
 })
 
 const route = useRoute()
 const router = useRouter()
 const { getProducts } = useProducts()
 
-const DEFAULT_MIN_PRICE = 500000
-const DEFAULT_MAX_PRICE = 3500000
+const DEFAULT_MIN_PRICE = 300000
+const DEFAULT_MAX_PRICE = 5500000
 
 // تجزیه پارامترهای URL به استیت فیلترها
 const parseFiltersFromQuery = (): FilterState => {
   const q = route.query
+  const season = q.season && typeof q.season === 'string' ? (q.season as ProductSeason) : null
+  const division = q.division && typeof q.division === 'string' ? (q.division as ProductDivision) : null
   const line = q.line === 'move' || q.line === 'calm' ? q.line : null
-  const categories = q.category ? String(q.category).split(',').filter(Boolean) : []
+  const categories = q.category
+    ? (String(q.category).split(',').filter(Boolean) as ProductCategory[])
+    : []
   const sizes = q.size ? String(q.size).split(',').filter(Boolean) : []
   const colors = q.color ? String(q.color).split(',').filter(Boolean) : []
   const min = q.min_price ? Number(q.min_price) : DEFAULT_MIN_PRICE
   const max = q.max_price ? Number(q.max_price) : DEFAULT_MAX_PRICE
 
   return {
+    season,
+    division,
     line,
     categories,
     sizes,
@@ -56,7 +62,12 @@ const apiFilters = computed<ProductFilters>(() => {
   if (route.query.q && typeof route.query.q === 'string' && route.query.q.trim()) {
     params.q = route.query.q.trim()
   }
+  if (filters.value.season) params.season = filters.value.season
+  if (filters.value.division) params.division = filters.value.division
   if (filters.value.line) params.line = filters.value.line
+  if (route.query.badge && typeof route.query.badge === 'string') {
+    params.badge = route.query.badge
+  }
   if (filters.value.categories.length > 0) params.category = filters.value.categories.join(',')
   if (filters.value.sizes.length > 0) params.size = filters.value.sizes.join(',')
   if (filters.value.colors.length > 0) params.color = filters.value.colors.join(',')
@@ -70,6 +81,9 @@ const apiFilters = computed<ProductFilters>(() => {
 const activeFilterCount = computed(() => {
   let count = 0
   if (route.query.q) count++
+  if (route.query.badge) count++
+  if (filters.value.season) count++
+  if (filters.value.division) count++
   if (filters.value.line) count++
   count += filters.value.categories.length
   count += filters.value.sizes.length
@@ -90,6 +104,11 @@ const syncToUrl = () => {
   if (route.query.q && typeof route.query.q === 'string' && route.query.q.trim()) {
     nextQuery.q = route.query.q.trim()
   }
+  if (route.query.badge && typeof route.query.badge === 'string') {
+    nextQuery.badge = route.query.badge
+  }
+  if (filters.value.season) nextQuery.season = filters.value.season
+  if (filters.value.division) nextQuery.division = filters.value.division
   if (filters.value.line) nextQuery.line = filters.value.line
   if (filters.value.categories.length > 0) nextQuery.category = filters.value.categories.join(',')
   if (filters.value.sizes.length > 0) nextQuery.size = filters.value.sizes.join(',')
@@ -140,8 +159,16 @@ const clearSearch = () => {
   router.replace({ query: next })
 }
 
+const clearBadge = () => {
+  const next = { ...route.query }
+  delete next.badge
+  router.replace({ query: next })
+}
+
 const resetFilters = () => {
   filters.value = {
+    season: null,
+    division: null,
     line: null,
     categories: [],
     sizes: [],
@@ -150,9 +177,8 @@ const resetFilters = () => {
   }
   sort.value = 'bestseller'
   isMobileFilterOpen.value = false
-  if (route.query.q) {
-    clearSearch()
-  }
+  const next: Record<string, string> = {}
+  router.replace({ query: next })
 }
 </script>
 
@@ -164,34 +190,48 @@ const resetFilters = () => {
         <div class="flex items-center gap-2 mb-1">
           <span class="text-xs font-bold uppercase tracking-wider text-rose flex items-center gap-1">
             <Sparkles class="w-3.5 h-3.5" />
-            کالکشن کامل پوشاک کراس
+            کالکشن چهارفصل کراس (Keras Four-Season)
           </span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-          فروشگاه و محصولات ورزشی
+          فروشگاه پوشاک و اکسسوری لایف‌استایل
         </h1>
         <p class="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-          طراحی‌شده برای تعادل میان عملکرد ورزشی در تمرینات پرفشار و حس پوست دوم در راحتی روزمره.
+          طراحی‌شده برای چهارفصل سال با الیاف طبیعی لینن، بافت کشمیر و پشم مرینوس، و اکسسوری‌های دست‌ساز.
         </p>
 
         <!-- بج جست‌وجوی فعال با امکان حذف -->
-        <div v-if="route.query.q" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-sand/60 px-3 py-1.5 text-xs text-ink">
-          <span>نتایج جست‌وجو برای: <strong class="text-rose font-bold">«{{ route.query.q }}»</strong></span>
-          <button
-            type="button"
-            class="text-muted-foreground hover:text-rose cursor-pointer"
-            aria-label="حذف جست‌وجو"
-            @click="clearSearch"
-          >
-            <X class="w-3.5 h-3.5" />
-          </button>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <div v-if="route.query.q" class="inline-flex items-center gap-2 rounded-xl bg-sand/60 px-3 py-1.5 text-xs text-ink">
+            <span>نتایج جست‌وجو برای: <strong class="text-rose font-bold">«{{ route.query.q }}»</strong></span>
+            <button
+              type="button"
+              class="text-muted-foreground hover:text-rose cursor-pointer"
+              aria-label="حذف جست‌وجو"
+              @click="clearSearch"
+            >
+              <X class="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div v-if="route.query.badge" class="inline-flex items-center gap-2 rounded-xl bg-rose/10 px-3 py-1.5 text-xs text-rose font-bold">
+            <span>فیلتر: <strong>{{ route.query.badge === 'sale' ? 'حراج فصل' : route.query.badge }}</strong></span>
+            <button
+              type="button"
+              class="text-rose hover:text-ink cursor-pointer"
+              aria-label="حذف فیلتر نشان"
+              @click="clearBadge"
+            >
+              <X class="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="text-xs text-muted-foreground font-medium">
         <span>نمایش </span>
         <span class="font-bold text-ink">{{ products?.length || 0 }}</span>
-        <span> کالا از مجموعه کراس</span>
+        <span> کالا در کاتالوگ کراس</span>
       </div>
     </header>
 
@@ -278,7 +318,7 @@ const resetFilters = () => {
               <span>فیلترهای کاتالوگ</span>
             </SheetTitle>
             <SheetDescription class="sr-only">
-              پنل فیلتر کاتالوگ پوشاک ورزشی کراس
+              پنل فیلتر کاتالوگ پوشاک و اکسسوری کراس
             </SheetDescription>
           </SheetHeader>
 

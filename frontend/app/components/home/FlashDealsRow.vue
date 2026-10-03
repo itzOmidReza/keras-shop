@@ -183,12 +183,12 @@ const getDiscountPercent = (base: number, compare?: number): number => {
                 </span>
               </div>
 
-              <!-- نشانگر لاین کالا -->
+              <!-- نشانگر شاخه کالا -->
               <span
                 class="text-[10px] font-bold px-2 py-0.5 rounded-md"
-                :class="product.line === 'move' ? 'bg-rose/10 text-rose' : 'bg-sand/60 text-ink'"
+                :class="product.division === 'accessories' ? 'bg-sage/10 text-sage' : 'bg-rose/10 text-rose'"
               >
-                {{ product.line === 'move' ? 'لاین حرکت' : 'لاین آرامش' }}
+                {{ product.division === 'accessories' ? 'اکسسوری' : 'پوشاک' }}
               </span>
             </div>
           </div>

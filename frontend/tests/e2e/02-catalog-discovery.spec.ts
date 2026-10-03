@@ -15,13 +15,13 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
       }
     }
 
-    // کلیک روی دکمه Move در فیلتر کالکشن
-    const moveFilterBtn = page.getByRole('button', { name: 'Move', exact: true }).first()
-    await expect(moveFilterBtn).toBeVisible()
-    await moveFilterBtn.click()
+    // کلیک روی دکمه کالکشن پاییز ۱۴۰۵ در فیلتر فصل
+    const seasonFilterBtn = page.getByRole('button', { name: /پاییز ۱۴۰۵/ }).first()
+    await expect(seasonFilterBtn).toBeVisible()
+    await seasonFilterBtn.click()
 
     // بررسی به‌روزرسانی URL
-    await expect(page).toHaveURL(/.*line=move/)
+    await expect(page).toHaveURL(/.*season=fall-1405/)
 
     // بستن دراور فیلتر در صورت موبایل
     if (isMobile) {
@@ -37,7 +37,7 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
 
     const searchInput = page.locator('#keras-search-autocomplete-input')
     await expect(searchInput).toBeVisible()
-    await searchInput.fill('لگ')
+    await searchInput.fill('شومیز')
 
     // ۴. بررسی ظاهر شدن دراپ‌داون نتایج هوشمند با دسته‌بندی و قیمت‌ها
     const dropdown = page.locator('header').locator('div.divide-y')

@@ -78,15 +78,16 @@ export const useWishlistStore = defineStore('wishlist', () => {
     // استخراج عنوان دسته‌بندی
     let categoryName = ''
     if ('category' in product) {
-      if (typeof product.category === 'object' && product.category !== null) {
-        categoryName = product.category.title
-      } else if (typeof product.category === 'string') {
-        categoryName = product.category
+      const rawCategory = (product as unknown as Record<string, unknown>).category
+      if (typeof rawCategory === 'object' && rawCategory !== null && 'title' in rawCategory) {
+        categoryName = String((rawCategory as { title: string }).title)
+      } else if (typeof rawCategory === 'string') {
+        categoryName = rawCategory
       }
     }
 
     // استخراج قیمت مبنا
-    const price = 'base_price' in product ? product.base_price : product.price
+    const price = 'base_price' in product && typeof product.base_price === 'number' ? product.base_price : (product.price ?? 0)
 
     const newItem: WishlistItem = {
       id: product.id,
@@ -95,6 +96,8 @@ export const useWishlistStore = defineStore('wishlist', () => {
       price,
       compare_at_price: product.compare_at_price,
       primary_image: primaryImage,
+      division: 'division' in product && product.division ? product.division : 'apparel',
+      season: 'season' in product && product.season ? product.season : 'fall-1405',
       line: product.line,
       category: categoryName,
       addedAt: new Date().toISOString(),

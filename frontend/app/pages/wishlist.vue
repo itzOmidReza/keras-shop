@@ -8,13 +8,14 @@ import {
   ShoppingBag,
 } from '@lucide/vue'
 import { toFa } from '~/utils/format'
+import { getSeasonLabel } from '~/data'
 import { useWishlistStore } from '~/stores/wishlist'
 import { useCartStore } from '~/stores/cart'
 import type { WishlistItem } from '~/types/domain'
 
 useSeoMeta({
   title: 'علاقه‌مندی‌ها | کراس',
-  description: 'لیست محصولات برگزیده و نشان‌شده شما در برند پوشاک ورزشی کراس',
+  description: 'لیست محصولات برگزیده و نشان‌شده شما در برند کراس',
 })
 
 const wishlistStore = useWishlistStore()
@@ -108,17 +109,17 @@ const quickAddToCart = (item: WishlistItem, size: string) => {
                 />
               </NuxtLink>
 
-              <!-- بج لاین آرامش یا حرکت -->
+              <!-- بج شاخه یا کالکشن -->
               <div class="absolute inset-s-2.5 top-2.5">
                 <span
                   class="rounded-full px-2 py-0.5 text-[10px] font-bold shadow-xs backdrop-blur-md"
                   :class="[
-                    item.line === 'calm'
+                    item.division === 'accessories'
                       ? 'bg-paper/90 text-ink border border-sand'
                       : 'bg-rose text-white',
                   ]"
                 >
-                  {{ item.line === 'calm' ? 'آرامش' : 'حرکت' }}
+                  {{ item.division === 'accessories' ? 'اکسسوری' : (item.season ? getSeasonLabel(item.season) : 'پوشاک') }}
                 </span>
               </div>
 

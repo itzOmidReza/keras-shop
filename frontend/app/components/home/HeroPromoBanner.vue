@@ -27,8 +27,8 @@ const copyVoucher = async () => {
     <!-- پس‌زمینه تصویر و گرادیان پوششی -->
     <div class="absolute inset-0 z-0">
       <NuxtImg
-        src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1800&q=80"
-        alt="کالکشن تخصصی پوشاک ورزشی کراس"
+        src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1800&q=80"
+        alt="کالکشن تخصصی چهارفصل و اکسسوری کراس"
         class="h-full w-full object-cover object-center opacity-45 scale-105 transition-transform duration-1000 ease-out"
         loading="eager"
         fetchpriority="high"
@@ -43,17 +43,17 @@ const copyVoucher = async () => {
         <!-- بج معرفی دراپ فصلی -->
         <div class="inline-flex items-center gap-2 rounded-full bg-paper/10 backdrop-blur-md px-3.5 py-1.5 border border-paper/20 shadow-xs">
           <Sparkles class="h-3.5 w-3.5 text-rose" />
-          <span class="text-xs font-bold text-paper">دراپ فصلی ۲۰۲۶ | معماری بدون درز بدن</span>
+          <span class="text-xs font-bold text-paper">دراپ پاییز ۱۴۰۵ | کالکشن جدید ادیتوریال</span>
         </div>
 
         <!-- عنوان اصلی کمپین -->
         <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-paper leading-[1.15] sm:leading-[1.15]">
-          تلاقی پرفورمنس ورزشی و طراحی مینیمال
+          تلاقی ظرافت مدرن و استایل چهارفصل
         </h1>
 
         <!-- توضیحات کوتاه -->
         <p class="text-sm sm:text-base leading-relaxed text-sand/90 max-w-xl">
-          طراحی‌شده برای تعادل میان تمرینات پرفشار و راحتی روزمره؛ ساخته‌شده از بافت‌های فشرده‌ساز ۳۰۰ گرمی کاملاً ضد دید (Squat-Proof) و حس پوست دوم.
+          کالکشن جدید کراس با تلفیق شومیزهای لینن، بافت‌های چندلایه پشمی، پالتوهای فوتر و اکسسوری‌های دست‌ساز؛ امضای استایل مینیمال شما برای تمام فصول.
         </p>
 
         <!-- باکس کوپن تخفیف تعاملی (Interactive Voucher Pill) -->
@@ -82,18 +82,18 @@ const copyVoucher = async () => {
         <!-- دکمه‌های فراخوان به اقدام ۲ گانه (Dual CTA Buttons) -->
         <div class="flex flex-wrap items-center gap-4 pt-2">
           <NuxtLink
-            to="/shop?line=move"
+            to="/shop?season=fall-1405"
             class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-rose/90 transition-all cursor-pointer active:scale-95"
           >
-            <span>کالکشن حرکت (Move)</span>
+            <span>کالکشن جدید (پاییز ۱۴۰۵)</span>
             <ArrowLeft class="w-4 h-4 rtl:-scale-x-100" />
           </NuxtLink>
 
           <NuxtLink
-            to="/shop?line=calm"
+            to="/shop?division=accessories"
             class="inline-flex items-center justify-center gap-2 rounded-xl border border-paper/40 bg-paper/10 backdrop-blur-xs px-6 py-3.5 text-xs sm:text-sm font-bold text-paper hover:bg-paper hover:text-ink transition-all cursor-pointer active:scale-95"
           >
-            <span>کالکشن آرامش (Calm)</span>
+            <span>اکسسوری و شال</span>
           </NuxtLink>
         </div>
 
@@ -101,7 +101,7 @@ const copyVoucher = async () => {
         <div class="flex flex-wrap items-center gap-5 pt-4 text-[11px] text-sand/80 border-t border-paper/15">
           <div class="flex items-center gap-1.5">
             <ShieldCheck class="w-4 h-4 text-sage" />
-            <span>تست اسکات و تراکم ۱۰۰٪</span>
+            <span>پارچه‌های طبیعی و دوخت مزونی</span>
           </div>
           <span class="text-paper/30">•</span>
           <div class="flex items-center gap-1.5">
@@ -109,7 +109,7 @@ const copyVoucher = async () => {
           </div>
           <span class="text-paper/30">•</span>
           <div class="flex items-center gap-1.5">
-            <span>۷ روز تعویض رایگان سایز</span>
+            <span>۷ روز ضمانت تعویض و مرجوعی</span>
           </div>
         </div>
       </div>

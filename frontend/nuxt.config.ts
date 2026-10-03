@@ -9,6 +9,7 @@ export default defineNuxtConfig({
 
   typescript: {
     typeCheck: true,
+    shim: true,
     tsConfig: {
       compilerOptions: {
         libReplacement: undefined,
@@ -61,8 +62,7 @@ export default defineNuxtConfig({
 
   image: {
     domains: ['images.unsplash.com'],
-    // در محیط توسعه نیازی به پردازش از طریق سرور پروکسی Nitro نیست
-    provider: 'ipx',
+    provider: 'none',
   },
   // خاموش کردن چک آنلاین فونت یا رندرهای خارجی سئو در محیط لوکال
   seo: {
