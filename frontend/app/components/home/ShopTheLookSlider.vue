@@ -2,185 +2,33 @@
 <script setup lang="ts">
 import {
   Sparkles,
-  ShoppingBag,
   ChevronLeft,
   ChevronRight,
   Eye,
-  ArrowLeft,
 } from '@lucide/vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper/types'
-import { formatToman } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
-import { toast } from 'vue-sonner'
+import { useShopTheLook } from '~/composables/home/useShopTheLook'
+import HomeLookHotspot from '~/components/home/HomeLookHotspot.vue'
+import HomeLookBundleCard from '~/components/home/HomeLookBundleCard.vue'
 
-interface LookItem {
-  id: number
-  slug: string
-  title: string
-  price: number
-  compareAtPrice?: number
-  image: string
-  hotspot: { top: number; right: number }
-  sizes: string[]
-}
+const {
+  looks,
+  selectedSizes,
+  activeHotspotId,
+  toggleHotspot,
+  getRegularTotal,
+  getBundleTotal,
+  addEntireOutfitToCart,
+} = useShopTheLook()
 
-interface OutfitLook {
-  id: string
-  title: string
-  subtitle: string
-  description: string
-  image: string
-  items: LookItem[]
-}
-
-const cartStore = useCartStore()
 const swiperInstance = ref<SwiperType | null>(null)
 const activeIndex = ref(0)
 
-const looks: OutfitLook[] = [
-  {
-    id: 'look-autumn',
-    title: 'استایل ادیتوریال پاییزه',
-    subtitle: 'کالکشن جدید — پاییز ۱۴۰۵',
-    description: 'ترکیب شومیز لینن اسلپ مدل کارن، شلوار واید لینن پاییزه و دستمال سر ژاکارد؛ هارمونی چشم‌نواز تنالیته شنی و خاکی برای استایل روزمره ادیتوریال.',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80',
-    items: [
-      {
-        id: 1,
-        slug: 'karen-slub-linen-blouse',
-        title: 'شومیز لینن اسلپ مدل کارن',
-        price: 1850000,
-        compareAtPrice: 2200000,
-        image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 38, right: 48 },
-        sizes: ['S', 'M', 'L', 'XL'],
-      },
-      {
-        id: 12,
-        slug: 'wide-leg-autumn-linen-pants',
-        title: 'شلوار واید لینن پاییزه',
-        price: 1950000,
-        compareAtPrice: 2350000,
-        image: 'https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 72, right: 48 },
-        sizes: ['XS', 'S', 'M', 'L', 'XL'],
-      },
-      {
-        id: 20,
-        slug: 'cotton-jacquard-bandana',
-        title: 'دستمال سر ژاکارد نخ پنبه',
-        price: 390000,
-        compareAtPrice: 480000,
-        image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 16, right: 50 },
-        sizes: ['Free'],
-      },
-    ],
-  },
-  {
-    id: 'look-winter',
-    title: 'استایل لایه‌لایه گرم زمستانه',
-    subtitle: 'کالکشن زمستان ۱۴۰۵',
-    description: 'هارمونی شیک پالتو فوتر پشمی آستردار با پلیور بافت کرکی یقه اسکی و شال پشمی ضخیم؛ گرما، راحتی و وقار مینیمال در روزهای خنک.',
-    image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1000&q=80',
-    items: [
-      {
-        id: 9,
-        slug: 'long-lined-wool-fouter-coat',
-        title: 'پالتو فوتر پشمی بلند آستردار',
-        price: 4850000,
-        compareAtPrice: 5600000,
-        image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 40, right: 50 },
-        sizes: ['S', 'M', 'L', 'XL'],
-      },
-      {
-        id: 5,
-        slug: 'fluffy-turtleneck-knit-sweater',
-        title: 'پلیور بافت کرکی یقه اسکی',
-        price: 2450000,
-        compareAtPrice: 2850000,
-        image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 60, right: 48 },
-        sizes: ['XS', 'S', 'M', 'L', 'XL'],
-      },
-      {
-        id: 24,
-        slug: 'thick-knit-wool-long-scarf',
-        title: 'شال بلند پشمی بافت ضخیم',
-        price: 1250000,
-        compareAtPrice: 1550000,
-        image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 22, right: 52 },
-        sizes: ['Free'],
-      },
-    ],
-  },
-  {
-    id: 'look-accessories',
-    title: 'ست اکسسوری و شال مکمل',
-    subtitle: 'اکسسوری‌های دست‌ساز کراس',
-    description: 'هماهنگی شال بلند پشمی بافت ضخیم، اسکرانچی ابریشم طبیعی و دستمال سر ژاکارد برای تکمیل استایل‌های پاییزی و روزمره.',
-    image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80',
-    items: [
-      {
-        id: 17,
-        slug: 'natural-silk-autumn-scrunchie',
-        title: 'اسکرانچی ابریشم طبیعی پالت پاییزه',
-        price: 280000,
-        compareAtPrice: 350000,
-        image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 20, right: 52 },
-        sizes: ['Free'],
-      },
-      {
-        id: 24,
-        slug: 'thick-knit-wool-long-scarf',
-        title: 'شال بلند پشمی بافت ضخیم',
-        price: 1250000,
-        compareAtPrice: 1550000,
-        image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 46, right: 48 },
-        sizes: ['Free'],
-      },
-      {
-        id: 20,
-        slug: 'cotton-jacquard-bandana',
-        title: 'دستمال سر ژاکارد نخ پنبه',
-        price: 390000,
-        compareAtPrice: 480000,
-        image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80',
-        hotspot: { top: 72, right: 50 },
-        sizes: ['Free'],
-      },
-    ],
-  },
-]
-
-// سایزهای انتخاب‌شده برای هر آیتم
-const selectedSizes = reactive<Record<number, string>>({
-  1: 'M',
-  5: 'M',
-  9: 'M',
-  12: 'M',
-  17: 'Free',
-  20: 'Free',
-  24: 'Free',
-})
-
-// هات‌اسپات فعال برای پاپ‌اور
-const activeHotspotId = ref<number | null>(null)
-
-const toggleHotspot = (itemId: number) => {
-  // متوقف کردن اتوپلی در زمان تعامل کاربر با هات‌اسپات
+const toggleHotspotWithAutoplay = (itemId: number) => {
   swiperInstance.value?.autoplay?.stop()
-  if (activeHotspotId.value === itemId) {
-    activeHotspotId.value = null
-  } else {
-    activeHotspotId.value = itemId
-  }
+  toggleHotspot(itemId)
 }
 
 const onSwiper = (swiper: SwiperType) => {
@@ -197,47 +45,11 @@ const scrollToSlide = (index: number) => {
 }
 
 const nextSlide = () => {
-  swiperInstance.value?.slideNext()
-}
-
-const prevSlide = () => {
   swiperInstance.value?.slidePrev()
 }
 
-// محاسبات تخفیف پکیج ست (۱۰٪ تخفیف باندل)
-const getRegularTotal = (look: OutfitLook) => {
-  return look.items.reduce((sum, item) => sum + item.price, 0)
-}
-
-const getBundleTotal = (look: OutfitLook) => {
-  return Math.round(getRegularTotal(look) * 0.9)
-}
-
-// افزودن تمام آیتم‌های ست به سبد خرید با ۱۰٪ تخفیف
-const addEntireOutfitToCart = (look: OutfitLook) => {
-  for (const item of look.items) {
-    const size = selectedSizes[item.id] || item.sizes[0] || 'Free'
-    const bundleDiscountedPrice = Math.round(item.price * 0.9)
-
-    cartStore.addItem(
-      {
-        productId: item.id,
-        title: item.title,
-        slug: item.slug,
-        size,
-        price: bundleDiscountedPrice,
-        compareAtPrice: item.price,
-        maxStock: 10,
-        image: item.image,
-        color: 'رنگ ست ادیتوریال',
-      },
-      1,
-    )
-  }
-
-  toast.success(
-    `ست کامل «${look.title}» با ۱۰٪ تخفیف باندل به سبد خرید شما افزوده شد!`,
-  )
+const prevSlide = () => {
+  swiperInstance.value?.slideNext()
 }
 </script>
 
@@ -305,7 +117,7 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
         :autoplay="{
           delay: 4500,
           disableOnInteraction: false,
-          pauseOnMouseEnter: true
+          pauseOnMouseEnter: true,
         }"
         class="w-full rounded-3xl"
         @swiper="onSwiper"
@@ -335,56 +147,14 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
                   <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent pointer-events-none" />
                 </div>
 
-                <!-- هات‌اسپات‌های تعاملی روی تصویر (بیرون از overflow-hidden برای جلوگیری از هرگونه برش پاپ‌اور) -->
-                <div
+                <!-- هات‌اسپات‌های تعاملی روی تصویر -->
+                <HomeLookHotspot
                   v-for="item in look.items"
                   :key="item.id"
-                  class="absolute -translate-x-1/2 -translate-y-1/2 z-30"
-                  :style="{ top: `${item.hotspot.top}%`, right: `${item.hotspot.right}%` }"
-                >
-                  <!-- دکمه هات‌اسپات با افکت پینگ -->
-                  <button
-                    type="button"
-                    class="relative group/hotspot flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-rose shadow-md border-2 border-white cursor-pointer active:scale-90 transition-transform focus:outline-none focus:ring-2 focus:ring-rose/40"
-                    :aria-label="`مشاهده آیتم ${item.title}`"
-                    @click.stop="toggleHotspot(item.id)"
-                  >
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose/60 opacity-75 pointer-events-none" />
-                    <span class="w-2.5 h-2.5 rounded-full bg-rose relative z-10 pointer-events-none" />
-                  </button>
-
-                  <!-- پاپ‌اور گلس‌مورفیسم اطلاعات محصول با جهت‌یابی هوشمند (بالا یا پایین هات‌اسپات) -->
-                  <div
-                    v-if="activeHotspotId === item.id"
-                    class="absolute z-50 w-56 sm:w-64 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-sand shadow-2xl text-start pointer-events-auto space-y-2.5 animate-in fade-in zoom-in-95 duration-200"
-                    :class="item.hotspot.top <= 35 ? 'top-full mt-2.5' : 'bottom-full mb-2.5'"
-                    style="left: 50%; transform: translateX(-50%);"
-                    @click.stop
-                  >
-                    <div class="flex items-center gap-2.5">
-                      <img
-                        :src="item.image"
-                        :alt="item.title"
-                        class="w-12 h-14 rounded-xl object-cover bg-sand/30 shrink-0 border border-sand/50"
-                      >
-                      <div class="space-y-0.5 overflow-hidden">
-                        <h4 class="text-xs font-bold text-ink truncate">
-                          {{ item.title }}
-                        </h4>
-                        <p class="text-xs font-bold text-rose">
-                          {{ formatToman(item.price) }}
-                        </p>
-                      </div>
-                    </div>
-
-                    <NuxtLink
-                      :to="`/products/${item.slug}`"
-                      class="block text-center py-1.5 rounded-xl bg-ink text-paper hover:bg-rose text-[11px] font-bold transition-colors shadow-2xs"
-                    >
-                      <span>مشاهده و خرید محصول</span>
-                    </NuxtLink>
-                  </div>
-                </div>
+                  :item="item"
+                  :is-active="activeHotspotId === item.id"
+                  @toggle="toggleHotspotWithAutoplay(item.id)"
+                />
 
                 <!-- بج راهنمای کلیک روی هات‌اسپات‌ها -->
                 <div class="absolute bottom-3 inset-s-3 z-20 rounded-xl bg-white/85 backdrop-blur-md px-3 py-1.5 border border-sand/60 text-[10px] font-bold text-ink shadow-2xs flex items-center gap-1.5 pointer-events-none">
@@ -394,94 +164,15 @@ const addEntireOutfitToCart = (look: OutfitLook) => {
               </div>
 
               <!-- ستون سمت چپ: تفکیک آیتم‌های ست، انتخاب سایز و دکمه خرید باندل -->
-              <div class="lg:col-span-5 space-y-5 text-start">
-                <div>
-                  <span class="text-xs font-bold text-rose uppercase tracking-wider">
-                    {{ look.subtitle }}
-                  </span>
-                  <h3 class="text-xl sm:text-2xl font-bold text-ink mt-0.5">
-                    {{ look.title }}
-                  </h3>
-                  <p class="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {{ look.description }}
-                  </p>
-                </div>
-
-                <!-- لیست ۳ آیتم تشکیل‌دهنده ست به همراه سلکتور سایز اختصاصی -->
-                <div class="space-y-2.5 divide-y divide-sand/60 border-y border-sand/60 py-2.5">
-                  <div
-                    v-for="item in look.items"
-                    :key="item.id"
-                    class="pt-2.5 first:pt-0 flex items-center justify-between gap-3"
-                  >
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <img
-                        :src="item.image"
-                        :alt="item.title"
-                        class="w-11 h-13 rounded-xl object-cover bg-sand/30 shrink-0 border border-sand/50"
-                      >
-                      <div class="space-y-0.5 min-w-0">
-                        <NuxtLink
-                          :to="`/products/${item.slug}`"
-                          class="text-xs font-bold text-ink hover:text-rose transition-colors truncate block"
-                        >
-                          {{ item.title }}
-                        </NuxtLink>
-                        <span class="text-xs font-bold text-rose block">
-                          {{ formatToman(item.price) }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <!-- انتخابگر سایز این محصول از ست -->
-                    <div class="flex items-center gap-1 shrink-0">
-                      <button
-                        v-for="sz in item.sizes"
-                        :key="sz"
-                        type="button"
-                        class="px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer"
-                        :class="[
-                          selectedSizes[item.id] === sz
-                            ? 'bg-rose text-white border-rose shadow-2xs'
-                            : 'border-sand bg-sand/20 hover:bg-sand/50 text-ink',
-                        ]"
-                        @click="selectedSizes[item.id] = sz"
-                      >
-                        {{ sz }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- محاسبه قیمت پکیج و دکمه خرید ۱-کلیک کل ست -->
-                <div class="rounded-2xl bg-sand/30 border border-sand/70 p-4 space-y-3">
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="text-muted-foreground">مجموع قیمت تکی آیتم‌ها:</span>
-                    <span class="line-through text-muted-foreground font-mono">
-                      {{ formatToman(getRegularTotal(look)) }}
-                    </span>
-                  </div>
-
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <span class="text-xs font-bold text-ink block">قیمت ویژه پکیج ست (۱۰٪ کسر):</span>
-                      <span class="text-xs text-sage font-medium">سود شما از خرید ست: {{ formatToman(getRegularTotal(look) - getBundleTotal(look)) }}</span>
-                    </div>
-                    <span class="text-base sm:text-lg font-black text-rose font-mono">
-                      {{ formatToman(getBundleTotal(look)) }}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    class="w-full py-3 px-4 rounded-xl bg-rose hover:bg-rose/90 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all active:scale-98 cursor-pointer"
-                    @click="addEntireOutfitToCart(look)"
-                  >
-                    <ShoppingBag class="w-4 h-4" />
-                    <span>افزودن کل ست به سبد خرید با ۱۰٪ تخفیف</span>
-                    <ArrowLeft class="w-4 h-4 ms-auto" />
-                  </button>
-                </div>
+              <div class="lg:col-span-5">
+                <HomeLookBundleCard
+                  :look="look"
+                  :selected-sizes="selectedSizes"
+                  :regular-total="getRegularTotal(look)"
+                  :bundle-total="getBundleTotal(look)"
+                  @update-size="(itemId, sz) => (selectedSizes[itemId] = sz)"
+                  @add-to-cart="addEntireOutfitToCart"
+                />
               </div>
             </div>
           </div>
