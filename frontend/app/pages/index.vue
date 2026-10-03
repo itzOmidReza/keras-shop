@@ -2,12 +2,12 @@
 <script setup lang="ts">
 import { siteConfig } from '~/data'
 import HeroBoutique from '~/components/home/HeroBoutique.vue'
-import FlashDealsCarousel from '~/components/home/FlashDealsCarousel.vue'
+import BrandLogosMarquee from '~/components/home/BrandLogosMarquee.vue'
 import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
-import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
-import PromoBannerOne from '~/components/home/PromoBannerOne.vue'
+import FlashDealsCarousel from '~/components/home/FlashDealsCarousel.vue'
 import TrendingCarousel from '~/components/home/TrendingCarousel.vue'
-import PromoBannerTwo from '~/components/home/PromoBannerTwo.vue'
+import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
+import AccessoriesCarousel from '~/components/home/AccessoriesCarousel.vue'
 import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
 
 useSeoMeta({
@@ -27,27 +27,27 @@ const { data: featuredProducts } = await useAsyncData(
 </script>
 
 <template>
-  <div class="space-y-6 sm:space-y-12 pb-16 overflow-hidden">
-    <!-- بخش ۱: هیرو ادیتوریال بوتیک با سوشال پروف و نوار اعتماد (Hero Boutique with Social Proof) -->
+  <div class="space-y-16 lg:space-y-24 pb-16 overflow-hidden">
+    <!-- بخش ۱: هیرو ادیتوریال بوتیک با سوشال پروف و نوار اعتماد (Hero Boutique) -->
     <HeroBoutique />
 
-    <!-- بخش ۲: کاروسل تک‌ردیفه روان تخفیف‌های شتابان پاییزه با Swiper.js (Fluid Swiper Flash Deals) -->
-    <FlashDealsCarousel :products="featuredProducts || []" />
+    <!-- بخش ۲: مارکی بی‌نهایت برندها و شرکای ادیتوریال مد (Brand & Partners Marquee) -->
+    <BrandLogosMarquee />
 
     <!-- بخش ۳: شبکه بنتو دسته‌بندی‌های بصری کالکشن (Visual Bento Category Grid) -->
     <BentoCategoryGrid />
 
-    <!-- بخش ۴: اسلایدر اتوپلی لوک‌های تن مدل با هات‌اسپات‌های تعاملی (Autoplay Swiper Shop-The-Look) -->
-    <ShopTheLookSlider />
+    <!-- بخش ۴: کاروسل تک‌ردیفه روان تخفیف‌های شتابان با Swiper.js (Flash Deals Carousel) -->
+    <FlashDealsCarousel :products="featuredProducts || []" />
 
-    <!-- بخش ۵: نوار باریک ادیتوریال کوپن تخفیف خرید اول (Compact Editorial Promo Ribbon) -->
-    <PromoBannerOne />
-
-    <!-- بخش ۶: کاروسل ترندهای برتر سال با فیلترهای تب (Trending Products Carousel with Swiper) -->
+    <!-- بخش ۵: کاروسل ترندهای برتر سال با فیلترهای تب (Trending Products Carousel) -->
     <TrendingCarousel :products="featuredProducts || []" />
 
-    <!-- بخش ۷: بنر لوک‌بوک استاندارد الیاف و دوخت (Mid-Page Lookbook Banner) -->
-    <PromoBannerTwo />
+    <!-- بخش ۶: اسلایدر اتوپلی لوک‌های تن مدل با هات‌اسپات‌های تعاملی (Shop-The-Look Slider) -->
+    <ShopTheLookSlider />
+
+    <!-- بخش ۷: کاروسل اختصاصی اکسسوری و شال پاییزه (Dedicated Accessories Carousel) -->
+    <AccessoriesCarousel :products="featuredProducts || []" />
 
     <!-- بخش ۸: نوار شاخص‌های اعتماد و ضمانت خرید (Footer Trust Guarantee Bar) -->
     <StorefrontTrustBar />

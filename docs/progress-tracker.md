@@ -56,7 +56,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 |  #  | Route               | File Path                        |    Status    | Lines | Details / Current Capability                                                                                                                   | Missing / Next Steps                                                       |
 | :-: | :------------------ | :------------------------------- | :----------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  75   | Boutique luxury landing architecture with 8 coordinated sections: split HeroBoutique with social proof badge & trust bar, BentoCategoryGrid asymmetric category showcase, FlashDealsCarousel with 24h timer & quick-add, PromoBannerOne with 15% coupon & 3-step micro-flow, ShopTheLookSlider with pulsing hotspots & 10% bundle, TrendingCarousel with category tabs, PromoBannerTwo lookbook banner, StorefrontTrustBar | Dynamic CMS banner integration                                             |
+|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  56   | Boutique luxury landing architecture with 8 unified sections: HeroBoutique with social proof, BrandLogosMarquee infinite ticker, BentoCategoryGrid, FlashDealsCarousel (Swiper), TrendingCarousel (Swiper), ShopTheLookSlider (Swiper Autoplay), AccessoriesCarousel (Swiper), and StorefrontTrustBar | Dynamic CMS banner integration                                             |
 |  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
@@ -114,13 +114,13 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Tracking**: `TrackingTimeline.vue` (responsive horizontal/vertical timeline, Iran Post barcode, step indicator)
 - [x] **Search**: `SearchAutocomplete.vue` (debounced autocomplete dropdown in header and mobile nav, category pills, keyboard navigation)
 - [x] **Home**: `HeroBoutique.vue` (Split editorial hero with Fall 1405 drop tag, avatar cluster social proof badge, and 4-item trust micro-bar)
+- [x] **Home**: `BrandLogosMarquee.vue` (Infinite subtle luxury brand/editorial partners ticker with Vogue, Loro Piana, Oeko-Tex, GOTS, Keras Atelier)
 - [x] **Home**: `BentoCategoryGrid.vue` (Asymmetric Bento grid: 2-row feature card for Fall Drop / Apparel, and 4 cards for Blouses, Knitwear, Scarves, Hair Accessories)
-- [x] **Home**: `FlashDealsCarousel.vue` (Single-row CSS snap carousel with 24h countdown timer, next/prev arrow controls, discount tags, and hover size quick-add pills)
-- [x] **Home**: `PromoBannerOne.vue` (Mid-page campaign banner with 15% discount coupon `KERAS15`, 1-click clipboard copy + Sonner toast, and 3-step micro-flow)
-- [x] **Home**: `ShopTheLookSlider.vue` (Touch/swipeable carousel with 3 curated looks, pulsing hotspots, glassmorphic product popovers, individual size selectors, and 10% bundle add-to-cart)
-- [x] **Home**: `TrendingCarousel.vue` (Single-row CSS snap carousel with 4 filter tabs [«همه»، «شومیز و پیراهن»، «بافت»، «اکسسوری»] and ProductCard items)
-- [x] **Home**: `PromoBannerTwo.vue` (Split lookbook banner highlighting natural fabric philosophy, OEKO-TEX badge, and `/fabric-standards` CTA)
-- [x] **Home**: `StorefrontTrustBar.vue` (4-pillar trust assurance grid: express shipping, 7-day guarantee, Shaparak payment, concierge support)
+- [x] **Home**: `FlashDealsCarousel.vue` (Swiper-powered single-row carousel with 24h countdown timer, next/prev arrow controls, discount tags, and hover size quick-add pills)
+- [x] **Home**: `TrendingCarousel.vue` (Swiper-powered carousel with 4 filter tabs [«همه»، «شومیز و پیراهن»، «بافت»، «اکسسوری»] and ProductCard items)
+- [x] **Home**: `ShopTheLookSlider.vue` (Swiper Autoplay carousel with 3 curated looks, unclipped floating hotspots with product popovers, individual size selectors, and 10% bundle add-to-cart)
+- [x] **Home**: `AccessoriesCarousel.vue` (Swiper-powered dedicated carousel for scarves, bandanas, and hair accessories with ProductCard grid)
+- [x] **Home**: `StorefrontTrustBar.vue` (4-pillar boutique service guarantee grid: express shipping, 7-day guarantee, Shaparak payment, concierge support)
 
 ### 4.2 State Management (`app/stores/`)
 
@@ -356,7 +356,13 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
-- **2026-10-03 (`HEAD`)**: `fix(home): integrate swiper js, fix hotspot popover layering, correct rtl arrows, and refine layout rhythm`
+- **2026-10-03 (`HEAD`)**: `feat(home): finalize boutique layout with brand marquee, accessories carousel, and banner cleanup`
+  - **Final Boutique Layout Sequence (`index.vue`)**: Reordered storefront into the exact 8-step luxury flow: `HeroBoutique` -> `BrandLogosMarquee` -> `BentoCategoryGrid` -> `FlashDealsCarousel` -> `TrendingCarousel` -> `ShopTheLookSlider` -> `AccessoriesCarousel` -> `StorefrontTrustBar`.
+  - **Brand & Partners Marquee (`BrandLogosMarquee.vue`)**: Built infinite continuous Swiper ticker (`speed: 6000`, `delay: 0`, linear easing, pause-on-hover) highlighting editorial partners and certifications: Vogue Scandinavia, Loro Piana Mills, Oeko-Tex Standard 100, GOTS Certified Organic, and Keras Atelier with hairline dividers (`border-y border-sand/60`).
+  - **Dedicated Accessories Carousel (`AccessoriesCarousel.vue`)**: Implemented dedicated Swiper carousel focused exclusively on impulse-buy items where `division === 'accessories'` (silk scrunchies, jacquard bandanas, thick wool scarves), with `ProductCard.vue`, responsive breakpoints, and direct catalog CTA.
+  - **Banner Cleanup**: Completely removed and unmounted legacy promo banners (`PromoBannerOne.vue` and `PromoBannerTwo.vue`) for clean editorial visual breathing room and uniform vertical spacing (`space-y-16 lg:space-y-24`).
+  - **Quality Gates**: All 6 verification gates passed cleanly with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e`, `build`).
+- **2026-10-03 (`2da31bc`)**: `fix(home): integrate swiper js, fix hotspot popover layering, correct rtl arrows, and refine layout rhythm`
   - **Swiper.js Integration**: Installed official `swiper` library and integrated `swiper/vue` across all three storefront carousels (`FlashDealsCarousel.vue`, `ShopTheLookSlider.vue`, `TrendingCarousel.vue`) with full RTL support (`dir="rtl"`), elastic swipe touch dragging, responsive breakpoints, and imported bundle CSS.
   - **ShopTheLookSlider Swiper & Hotspot Fix**: Enabled Autoplay (`delay: 4500`, pause-on-hover, loop), silky slide transitions between the 3 editorial fall looks, and resolved hotspot popover clipping. Decoupled `overflow-hidden` so it only bounds the image, while floating popovers anchor intelligently (`z-50 pointer-events-auto`, rendering downwards if `top <= 35` and upwards if `top > 35`).
   - **RTL Arrow Direction Audit**: Eliminated inverted `rtl:-scale-x-100` classes across all buttons and links in the storefront and brand pages. Enforced standard forward direction (`ArrowLeft` / `←`) for Persian reading flow and fixed carousel prev/next controls (Prev: `ChevronRight` / Next: `ChevronLeft`).
