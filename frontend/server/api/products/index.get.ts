@@ -12,6 +12,7 @@ export default defineEventHandler(async (event): Promise<ProductListItem[]> => {
     id: p.id,
     slug: p.slug,
     title: p.title,
+    brand: p.brand,
     division: p.division,
     category: p.category,
     season: p.season,
@@ -64,6 +65,12 @@ export default defineEventHandler(async (event): Promise<ProductListItem[]> => {
   if (query.season && typeof query.season === 'string') {
     const targetSeason = query.season.toLowerCase().trim() as ProductSeason;
     items = items.filter((p) => p.season === targetSeason);
+  }
+
+  // ۳.۵. فیلتر برند لوکس (brand: keras-atelier, toteme, massimo-dutti, cos, zara, mango)
+  if (query.brand && typeof query.brand === 'string') {
+    const targetBrand = query.brand.toLowerCase().trim();
+    items = items.filter((p) => p.brand?.toLowerCase() === targetBrand);
   }
 
   // ۴. فیلتر دسته‌بندی کالا (category - تک‌دسته یا چنددسته با کاما)

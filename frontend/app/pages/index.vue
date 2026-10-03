@@ -2,12 +2,13 @@
 <script setup lang="ts">
 import { siteConfig } from '~/data'
 import HeroBoutique from '~/components/home/HeroBoutique.vue'
-import BrandLogosMarquee from '~/components/home/BrandLogosMarquee.vue'
-import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
 import FlashDealsCarousel from '~/components/home/FlashDealsCarousel.vue'
+import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
+import AccessoriesCarousel from '~/components/home/AccessoriesCarousel.vue'
 import TrendingCarousel from '~/components/home/TrendingCarousel.vue'
 import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
-import AccessoriesCarousel from '~/components/home/AccessoriesCarousel.vue'
+import BrandLogosMarquee from '~/components/home/BrandLogosMarquee.vue'
+import StoreJournalGrid from '~/components/home/StoreJournalGrid.vue'
 import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
 
 useSeoMeta({
@@ -31,14 +32,14 @@ const { data: featuredProducts } = await useAsyncData(
     <!-- بخش ۱: هیرو ادیتوریال بوتیک با سوشال پروف و نوار اعتماد (Hero Boutique) -->
     <HeroBoutique />
 
-    <!-- بخش ۲: مارکی بی‌نهایت برندها و شرکای ادیتوریال مد (Brand & Partners Marquee) -->
-    <BrandLogosMarquee />
+    <!-- بخش ۲: کاروسل تک‌ردیفه روان تخفیف‌های شتابان با Swiper.js (Flash Deals Carousel) — ایجاد تنفس بصری بین هیرو و بنتو -->
+    <FlashDealsCarousel :products="featuredProducts || []" />
 
     <!-- بخش ۳: شبکه بنتو دسته‌بندی‌های بصری کالکشن (Visual Bento Category Grid) -->
     <BentoCategoryGrid />
 
-    <!-- بخش ۴: کاروسل تک‌ردیفه روان تخفیف‌های شتابان با Swiper.js (Flash Deals Carousel) -->
-    <FlashDealsCarousel :products="featuredProducts || []" />
+    <!-- بخش ۴: کاروسل اختصاصی اکسسوری و شال پاییزه (Dedicated Accessories Carousel) — جایگاه ارتقایافته در میانه بالا -->
+    <AccessoriesCarousel :products="featuredProducts || []" />
 
     <!-- بخش ۵: کاروسل ترندهای برتر سال با فیلترهای تب (Trending Products Carousel) -->
     <TrendingCarousel :products="featuredProducts || []" />
@@ -46,10 +47,13 @@ const { data: featuredProducts } = await useAsyncData(
     <!-- بخش ۶: اسلایدر اتوپلی لوک‌های تن مدل با هات‌اسپات‌های تعاملی (Shop-The-Look Slider) -->
     <ShopTheLookSlider />
 
-    <!-- بخش ۷: کاروسل اختصاصی اکسسوری و شال پاییزه (Dedicated Accessories Carousel) -->
-    <AccessoriesCarousel :products="featuredProducts || []" />
+    <!-- بخش ۷: مارکی بی‌نهایت لوگوتایپ‌های مونوکروم برندهای همکار با فیلتر اختصاصی کاتالوگ (Brand Logos Marquee) -->
+    <BrandLogosMarquee />
 
-    <!-- بخش ۸: نوار شاخص‌های اعتماد و ضمانت خرید (Footer Trust Guarantee Bar) -->
+    <!-- بخش ۸: شبکه ۳ ستونه مجله و ژورنال ادیتوریال مد (Editorial Store Journal Grid) -->
+    <StoreJournalGrid />
+
+    <!-- بخش ۹: نوار شاخص‌های اعتماد و ضمانت خرید (Footer Trust Guarantee Bar) -->
     <StorefrontTrustBar />
   </div>
 </template>

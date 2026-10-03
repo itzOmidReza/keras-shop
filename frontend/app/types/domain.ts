@@ -62,6 +62,7 @@ export interface Product {
   id: number;
   slug: string;
   title: string;
+  brand?: string;
   division: ProductDivision;
   category: ProductCategory;
   season: ProductSeason;
@@ -134,6 +135,7 @@ export interface ProductFilters {
   division?: ProductDivision;
   category?: string;
   season?: ProductSeason;
+  brand?: string;
   line?: 'move' | 'calm';
   size?: string;
   color?: string;

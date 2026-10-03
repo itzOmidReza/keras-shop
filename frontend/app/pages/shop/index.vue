@@ -68,6 +68,9 @@ const apiFilters = computed<ProductFilters>(() => {
   if (route.query.badge && typeof route.query.badge === 'string') {
     params.badge = route.query.badge
   }
+  if (route.query.brand && typeof route.query.brand === 'string') {
+    params.brand = route.query.brand
+  }
   if (filters.value.categories.length > 0) params.category = filters.value.categories.join(',')
   if (filters.value.sizes.length > 0) params.size = filters.value.sizes.join(',')
   if (filters.value.colors.length > 0) params.color = filters.value.colors.join(',')
@@ -82,6 +85,7 @@ const activeFilterCount = computed(() => {
   let count = 0
   if (route.query.q) count++
   if (route.query.badge) count++
+  if (route.query.brand) count++
   if (filters.value.season) count++
   if (filters.value.division) count++
   if (filters.value.line) count++
@@ -106,6 +110,9 @@ const syncToUrl = () => {
   }
   if (route.query.badge && typeof route.query.badge === 'string') {
     nextQuery.badge = route.query.badge
+  }
+  if (route.query.brand && typeof route.query.brand === 'string') {
+    nextQuery.brand = route.query.brand
   }
   if (filters.value.season) nextQuery.season = filters.value.season
   if (filters.value.division) nextQuery.division = filters.value.division
@@ -165,6 +172,21 @@ const clearBadge = () => {
   router.replace({ query: next })
 }
 
+const brandLabels: Record<string, string> = {
+  'keras-atelier': 'کراس آتلیه (Keras Atelier)',
+  'toteme': 'توتِم (Totême)',
+  'massimo-dutti': 'ماسیمو دوتی (Massimo Dutti)',
+  'cos': 'کاس (COS)',
+  'zara': 'زارا (Zara)',
+  'mango': 'منگو (Mango)',
+}
+
+const clearBrand = () => {
+  const next = { ...route.query }
+  delete next.brand
+  router.replace({ query: next })
+}
+
 const resetFilters = () => {
   filters.value = {
     season: null,
@@ -221,6 +243,18 @@ const resetFilters = () => {
               class="text-rose hover:text-ink cursor-pointer"
               aria-label="حذف فیلتر نشان"
               @click="clearBadge"
+            >
+              <X class="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div v-if="route.query.brand" class="inline-flex items-center gap-2 rounded-xl bg-sand/80 border border-sand px-3 py-1.5 text-xs text-ink font-medium">
+            <span>برند: <strong>{{ brandLabels[String(route.query.brand)] || route.query.brand }}</strong></span>
+            <button
+              type="button"
+              class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+              aria-label="حذف فیلتر برند"
+              @click="clearBrand"
             >
               <X class="w-3.5 h-3.5" />
             </button>
