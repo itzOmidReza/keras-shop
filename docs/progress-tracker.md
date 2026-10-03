@@ -56,7 +56,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 |  #  | Route               | File Path                        |    Status    | Lines | Details / Current Capability                                                                                                                   | Missing / Next Steps                                                       |
 | :-: | :------------------ | :------------------------------- | :----------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  45   | 7-step high-converting e-commerce UX funnel (HeroPromoBanner, CategoryStories, FlashDealsRow with Quick-Add, ShopByActivity, ShopTheLook with hotspots & 10% bundle, CatalogDiscoveryTabs, StorefrontTrustBar) | Dynamic CMS banner integration                                             |
+|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  75   | Boutique luxury landing architecture with 8 coordinated sections: split HeroBoutique with social proof badge & trust bar, BentoCategoryGrid asymmetric category showcase, FlashDealsCarousel with 24h timer & quick-add, PromoBannerOne with 15% coupon & 3-step micro-flow, ShopTheLookSlider with pulsing hotspots & 10% bundle, TrendingCarousel with category tabs, PromoBannerTwo lookbook banner, StorefrontTrustBar | Dynamic CMS banner integration                                             |
 |  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
@@ -113,13 +113,14 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Account**: Built-in tabs inside `app/pages/account.vue` (Overview metrics, Orders, Addresses dialog, Profile)
 - [x] **Tracking**: `TrackingTimeline.vue` (responsive horizontal/vertical timeline, Iran Post barcode, step indicator)
 - [x] **Search**: `SearchAutocomplete.vue` (debounced autocomplete dropdown in header and mobile nav, category pills, keyboard navigation)
-- [x] **Home**: `HeroPromoBanner.vue` (campaign banner with 1-click voucher copy pill `KERAS-PRO` and dual Move/Calm CTAs)
-- [x] **Home**: `CategoryStories.vue` (Instagram-style circular category bubbles with native CSS scroll snap)
-- [x] **Home**: `FlashDealsRow.vue` (live animated countdown timer, discount badges, 1-click Quick-Add size overlay to mini cart)
-- [x] **Home**: `ShopByActivity.vue` (4-discipline physiological fit grid: Move 300 GSM, Calm 220 GSM, Running, Athleisure)
-- [x] **Home**: `ShopTheLook.vue` (multi-look switcher, pulsing hotspots with product popovers, 1-click 10% bundle purchase)
-- [x] **Home**: `CatalogDiscoveryTabs.vue` (smart catalog feed with bestseller/move/calm tabs and ProductCard grid)
-- [x] **Home**: `StorefrontTrustBar.vue` (4-pillar trust assurance grid: 7-day returns, squat-proof, free express shipping, Shaparak)
+- [x] **Home**: `HeroBoutique.vue` (Split editorial hero with Fall 1405 drop tag, avatar cluster social proof badge, and 4-item trust micro-bar)
+- [x] **Home**: `BentoCategoryGrid.vue` (Asymmetric Bento grid: 2-row feature card for Fall Drop / Apparel, and 4 cards for Blouses, Knitwear, Scarves, Hair Accessories)
+- [x] **Home**: `FlashDealsCarousel.vue` (Single-row CSS snap carousel with 24h countdown timer, next/prev arrow controls, discount tags, and hover size quick-add pills)
+- [x] **Home**: `PromoBannerOne.vue` (Mid-page campaign banner with 15% discount coupon `KERAS15`, 1-click clipboard copy + Sonner toast, and 3-step micro-flow)
+- [x] **Home**: `ShopTheLookSlider.vue` (Touch/swipeable carousel with 3 curated looks, pulsing hotspots, glassmorphic product popovers, individual size selectors, and 10% bundle add-to-cart)
+- [x] **Home**: `TrendingCarousel.vue` (Single-row CSS snap carousel with 4 filter tabs [«همه»، «شومیز و پیراهن»، «بافت»، «اکسسوری»] and ProductCard items)
+- [x] **Home**: `PromoBannerTwo.vue` (Split lookbook banner highlighting natural fabric philosophy, OEKO-TEX badge, and `/fabric-standards` CTA)
+- [x] **Home**: `StorefrontTrustBar.vue` (4-pillar trust assurance grid: express shipping, 7-day guarantee, Shaparak payment, concierge support)
 
 ### 4.2 State Management (`app/stores/`)
 
@@ -355,7 +356,17 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Structured formal Iranian eCommerce legal terms in `/terms` and data protection standards in `/privacy`.
   - Documented 7-day exchange and hygiene protocol in `/returns`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion reached **~90%**.
-- **2026-10-03 (`HEAD`)**: `feat(home): polish editorial four-season lifestyle landing page with shop-the-look and category stories`
+- **2026-10-03 (`HEAD`)**: `feat(home): redesign boutique landing page with bento category grid, carousels, and promo banners`
+  - **Boutique Architecture Pivot**: Overhauled `app/pages/index.vue` according to boutique reference designs (Luxora & ChicWave), removing circular story avatars in favor of an editorial Bento showcase and native snap-scrolling carousels focused exclusively on the active Fall 1405 drop («کالکشن جدید پاییز ۱۴۰۵»).
+  - **Editorial Hero (`HeroBoutique.vue`)**: Split editorial layout featuring high-contrast typography, Fall 1405 drop tag, CTA linking to `/shop?season=fall-1405`, social proof badge with avatar cluster and 5-star rating («بیش از ۲۰ هزار مشتری راضی»), and 4-item horizontal trust micro-bar.
+  - **Bento Category Grid (`BentoCategoryGrid.vue`)**: Asymmetric 5-column bento grid featuring a 2-row feature card for the Fall Drop/Apparel and 4 visual cards for Blouses, Knitwear, Scarves, and Hair Accessories.
+  - **Flash Deals Carousel (`FlashDealsCarousel.vue`)**: Single-row snap-scrolling carousel with animated 24-hour countdown timer, next/prev arrow navigation, discount percentage badges, and desktop hover quick-add size pills for 1-click cart addition.
+  - **Mid-Page Campaign Banner (`PromoBannerOne.vue`)**: Editorial campaign banner with 15% discount coupon (`KERAS15`), 1-click clipboard copy with Sonner toast feedback, and 3-step micro-flow (انتخاب آیتم‌ها، ثبت کد تخفیف، دریافت بسته با بسته‌بندی ادیتوریال).
+  - **Swipeable Shop-The-Look Carousel (`ShopTheLookSlider.vue`)**: Native snap slider with 3 curated lifestyle looks (پاییزه کژوال لینن، پالتو پشمی و پلیور کشمیر، کپسول اکسسوری ابریشم), pulsing interactive hotspots, glassmorphic item popovers, individual size selectors, dynamic 10% bundle pricing calculation, and 1-click bundle add-to-cart into `useCartStore`.
+  - **Trending Collection Carousel (`TrendingCarousel.vue`)**: Single-row snap carousel featuring `ProductCard.vue` items with 4 category filter tabs («همه»، «شومیز و پیراهن»، «بافت و پلیور»، «اکسسوری و شال»).
+  - **Fabric Philosophy Lookbook (`PromoBannerTwo.vue`)**: Split lookbook banner highlighting sustainable linen, merino wool, and silk craftsmanship with OEKO-TEX badge and direct link to `/fabric-standards`.
+  - **Quality Gates**: All 6 verification gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e`, `build`).
+- **2026-10-03 (`90e1f74`)**: `feat(home): polish editorial four-season lifestyle landing page with shop-the-look and category stories`
   - **Editorial Landing Polish**: Updated `HeroPromoBanner.vue` with Fall 1405 drop hero photography, interactive voucher pill with 1-click clipboard copy and toast feedback, and dual CTAs («مشاهده کالکشن پاییز» and «بررسی اکسسوری‌ها»).
   - **Category Stories**: Upgraded `CategoryStories.vue` with 7 circular category avatars styled with luxury gradient borders (`bg-gradient-to-tr from-rose via-clay to-sand`) and direct links to active drops and categories.
   - **Shop The Look**: Enhanced `ShopTheLook.vue` featuring 3 curated lifestyle outfits (Blouse + Pants + Bandana; Coat + Sweater + Scarf; Scrunchie + Scarf + Bandana) with precise pulsing hotspots, popovers, dynamic 10% bundle pricing, and 1-click bundle add-to-cart.
