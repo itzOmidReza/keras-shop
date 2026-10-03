@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const sortOptions = [
-  { value: 'bestseller', label: 'محبوب‌ترین و پرفروش' },
+  { value: 'bestseller', label: 'محبوب‌ترین' },
   { value: 'newest', label: 'جدیدترین‌ها' },
   { value: 'price_asc', label: 'ارزان‌ترین' },
   { value: 'price_desc', label: 'گران‌ترین' },
@@ -29,16 +29,16 @@ const sortOptions = [
       :model-value="props.modelValue"
       @update:model-value="(val) => emit('update:modelValue', String(val))"
     >
-      <SelectTrigger class="h-10 w-44 gap-2 text-xs font-bold rounded-xl border-sand bg-white text-ink shadow-2xs cursor-pointer hover:border-sand/80 focus:ring-rose/20">
+      <SelectTrigger class="h-10 w-44 gap-2 text-xs font-bold rounded-xl border-sand bg-white text-ink shadow-2xs cursor-pointer hover:border-sand/80 focus:ring-rose/20 text-start">
         <ArrowUpDown class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         <SelectValue placeholder="مرتب‌سازی" />
       </SelectTrigger>
-      <SelectContent class="rounded-xl border-sand bg-white shadow-xl">
+      <SelectContent class="rounded-xl border-sand bg-white shadow-xl text-start" dir="rtl">
         <SelectItem
           v-for="opt in sortOptions"
           :key="opt.value"
           :value="opt.value"
-          class="text-xs font-medium cursor-pointer focus:bg-sand/40 focus:text-rose"
+          class="text-xs font-medium cursor-pointer focus:bg-sand/40 focus:text-rose text-start"
         >
           {{ opt.label }}
         </SelectItem>

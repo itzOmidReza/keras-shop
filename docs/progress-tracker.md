@@ -57,7 +57,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 |  #  | Route               | File Path                        |    Status    | Lines | Details / Current Capability                                                                                                                   | Missing / Next Steps                                                       |
 | :-: | :------------------ | :------------------------------- | :----------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
 |  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  52   | Clean 8-section storefront architecture: HeroBoutique (authentic atelier drop badge & autumn visual), FlashDealsCarousel (Swiper), BentoCategoryGrid, AccessoriesCarousel (Swiper elevated), TrendingCarousel (Swiper), ShopTheLookSlider (Swiper Autoplay), BrandLogosMarquee (pure monochrome floating typographic SVGs), and StoreJournalGrid (3-card magazine preview) | Dynamic CMS banner integration                                             |
-|  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
+|  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  350  | 12-item commercial pagination, 2-way query sync (`?page=2`), sticky luxury filter sidebar with Accordion collections & live counts, size pills, color swatches with checkmarks, min/max price inputs, brand filter pills, and 1/2/3/4-col responsive grid | Infinite scroll alternative toggle                                         |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
 |  5  | `/checkout`         | `app/pages/checkout/index.vue`   | **Complete** |  562  | 2-step validated funnel, Zod Iranian mobile & postal regex, shipping select, in-place guest OTP registration dialog (`InlineCheckoutOtp.vue`), gateway forwarding | User saved-address autofill                                                |
@@ -249,7 +249,30 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
-- **2026-10-03 (`HEAD`)**: `feat(ops): overhaul internal ops nexus to clean light theme with product crud, manual order entry, finance ledger, and cms editor`
+- **2026-10-03 (`a4de8ad`)**: `feat(shop): implement 12-item pagination, sticky luxury filter sidebar, and responsive catalog grid`
+  - **12-Item Commercial Pagination System (`app/pages/shop/index.vue`)**:
+    - Partitioned catalog into 12 items per page by default, forming balanced 3x4 (desktop) and 4x3 (wide) responsive grids.
+    - Dynamic bottom pagination controls: numbered pagination pills with active state, ellipsis for large ranges (`…`), and strict RTL arrow direction compliance (`ChevronRight` for previous page, `ChevronLeft` for next page).
+    - Full 2-way URL synchronization (`/shop?page=2`) with auto-scroll to catalog top (`window.scrollTo({ top: 0, behavior: 'smooth' })`).
+    - Smart filter-driven page reset: modifying filters (season, division, brand, size, color, price range, search query) automatically resets pagination back to page 1.
+    - Implemented `isFiltersEqual` deep comparison guard to prevent Vue reactivity loops between `route.query` and `filters` state.
+  - **Luxury Sticky Filter Sidebar (`FilterPanel.vue`)**:
+    - Desktop sidebar container: `w-72 shrink-0 sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto ps-1 pe-2` with luxury white card styling.
+    - Active Filter Chips Bar: Header with total active filter count badge and single-click «پاک کردن همه فیلترها» (Reset All) button, plus dismissible chips for active season, division, brand, categories, sizes, colors, and price.
+    - Collections & Division Accordion: Dual expandable/collapsible sections for Apparel (پوشاک - ۱۶ کالا) and Accessories (اکسسوری و شال‌ها - ۸ کالا) with live product counts and category checkboxes.
+    - Size Pill Selector: High-end pill buttons (`XS`, `S`, `M`, `L`, `XL`, `Free Size`) with active rose states, normalizing `Free Size` <-> `Free` in API filters.
+    - Color Swatch Selector: Circular visual swatches (`bg-ink`, `bg-sage`, `bg-clay`, `bg-rose`, `bg-sand`, `bg-paper`) with checkmark icons (`Check`) and zero 6-digit hex tokens.
+    - Interactive Price Range: Dual `<Slider>` with side-by-side formatted Toman display boxes («از حداقل» / «تا حداکثر») using `formatToman` and `toFa`.
+    - Partner Brands Filter: 2-column interactive pills for 6 high-fashion houses (Keras Atelier, Totême, Massimo Dutti, COS, Zara, Mango) with Persian & English typography.
+    - Mobile Filter Drawer: Retained full filter functionality inside `<Sheet>` slide-over drawer with bottom result count button.
+  - **Catalog Header & Grid Polish (`shop/index.vue` & `SortSelect.vue`)**:
+    - Top action bar counter: «نمایش ۱–۱۲ از ۲۴ محصول» using Persian digits via `toFa`.
+    - Sort dropdown (`SortSelect.vue`) with RTL styling: «جدیدترین‌ها»، «ارزان‌ترین»، «گران‌ترین»، «محبوب‌ترین».
+    - Responsive grid: 1 col on mobile (`grid-cols-1`), 2 col on tablet (`sm:grid-cols-2`), 3 col on standard desktop (`lg:grid-cols-3`), 4 col on wide screens (`xl:grid-cols-4`).
+  - **E2E Playwright Suite Expansion (`02-catalog-discovery.spec.ts`)**: Added dedicated automated test asserting 12-item initial count, pagination bar presence, page 2 click & URL sync, previous page navigation, and automatic reset to page 1 on filter modification.
+  - **Quality Gates**: All 6 verification gates passed cleanly with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e` [24/24], `build`).
+
+- **2026-10-03 (`277d0a1`)**: `feat(ops): overhaul internal ops nexus to clean light theme with product crud, manual order entry, finance ledger, and cms editor`
   - Re-architected `/internal-ops-nexus` into a clean luxury light SaaS backoffice (`bg-slate-50`, crisp white cards `bg-white border border-slate-200/80 shadow-xs rounded-2xl`, and refined Keras palette) eliminating the dark monitor aesthetic.
   - Grouped ops sidebar navigation (`frontend/app/layouts/ops.vue`) into 5 dedicated operational domains: کاتالوگ و انبارداری, فروش و سفارشات, امور مالی و حسابداری, محتوا و ژورنال, دیده‌بان و اعضا.
   - Built Full Product Management & Catalog CRUD sub-view (`?view=products`): search & filters by division/season, thumbnail and stock metrics, active/inactive toggle switch, comprehensive «+ افزودن / ویرایش محصول» modal (titles, slugs, base/sale prices with auto-discount calculator, fabric GSM & composition, gallery URLs, and 6-size variant stock matrix), and soft-delete confirmation dialog.

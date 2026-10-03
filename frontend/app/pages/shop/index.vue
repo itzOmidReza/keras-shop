@@ -4,7 +4,10 @@ import {
   SlidersHorizontal,
   Sparkles,
   X,
+  ChevronRight,
+  ChevronLeft,
 } from '@lucide/vue'
+import { toFa } from '~/utils/format'
 import type { ProductFilters, ProductSeason, ProductDivision, ProductCategory } from '~/types/domain'
 import type { FilterState } from '~/components/catalog/FilterPanel.vue'
 
@@ -19,6 +22,7 @@ const { getProducts } = useProducts()
 
 const DEFAULT_MIN_PRICE = 300000
 const DEFAULT_MAX_PRICE = 5500000
+const ITEMS_PER_PAGE = 12
 
 // تجزیه پارامترهای URL به استیت فیلترها
 const parseFiltersFromQuery = (): FilterState => {
@@ -26,6 +30,7 @@ const parseFiltersFromQuery = (): FilterState => {
   const season = q.season && typeof q.season === 'string' ? (q.season as ProductSeason) : null
   const division = q.division && typeof q.division === 'string' ? (q.division as ProductDivision) : null
   const line = q.line === 'move' || q.line === 'calm' ? q.line : null
+  const brand = q.brand && typeof q.brand === 'string' ? q.brand : null
   const categories = q.category
     ? (String(q.category).split(',').filter(Boolean) as ProductCategory[])
     : []
@@ -38,6 +43,7 @@ const parseFiltersFromQuery = (): FilterState => {
     season,
     division,
     line,
+    brand,
     categories,
     sizes,
     colors,
@@ -48,10 +54,16 @@ const parseFiltersFromQuery = (): FilterState => {
   }
 }
 
+const parsePageFromQuery = (): number => {
+  const p = parseInt(String(route.query.page || '1'), 10)
+  return isNaN(p) || p < 1 ? 1 : p
+}
+
 const filters = ref<FilterState>(parseFiltersFromQuery())
 const sort = ref<string>(
   typeof route.query.sort === 'string' ? route.query.sort : 'bestseller',
 )
+const currentPage = ref<number>(parsePageFromQuery())
 const isMobileFilterOpen = ref(false)
 
 // تبدیل فیلترها به پارامترهای درخواست API
@@ -68,7 +80,9 @@ const apiFilters = computed<ProductFilters>(() => {
   if (route.query.badge && typeof route.query.badge === 'string') {
     params.badge = route.query.badge
   }
-  if (route.query.brand && typeof route.query.brand === 'string') {
+  if (filters.value.brand) {
+    params.brand = filters.value.brand
+  } else if (route.query.brand && typeof route.query.brand === 'string') {
     params.brand = route.query.brand
   }
   if (filters.value.categories.length > 0) params.category = filters.value.categories.join(',')
@@ -80,12 +94,12 @@ const apiFilters = computed<ProductFilters>(() => {
   return params
 })
 
-// تعداد فیلترهای فعال برای بج دکمه موبایل
+// تعداد فیلترهای فعال برای بج دکمه موبایل و پنل
 const activeFilterCount = computed(() => {
   let count = 0
   if (route.query.q) count++
   if (route.query.badge) count++
-  if (route.query.brand) count++
+  if (filters.value.brand || route.query.brand) count++
   if (filters.value.season) count++
   if (filters.value.division) count++
   if (filters.value.line) count++
@@ -101,6 +115,21 @@ const activeFilterCount = computed(() => {
   return count
 })
 
+const isFiltersEqual = (a: FilterState, b: FilterState): boolean => {
+  if (a.season !== b.season) return false
+  if (a.division !== b.division) return false
+  if (a.line !== b.line) return false
+  if (a.brand !== b.brand) return false
+  if (a.categories.length !== b.categories.length) return false
+  if (!a.categories.every((c, i) => c === b.categories[i])) return false
+  if (a.sizes.length !== b.sizes.length) return false
+  if (!a.sizes.every((s, i) => s === b.sizes[i])) return false
+  if (a.colors.length !== b.colors.length) return false
+  if (!a.colors.every((c, i) => c === b.colors[i])) return false
+  if (a.priceRange[0] !== b.priceRange[0] || a.priceRange[1] !== b.priceRange[1]) return false
+  return true
+}
+
 // همگام‌سازی تغییرات فیلتر با کوئری‌های URL
 const syncToUrl = () => {
   const nextQuery: Record<string, string> = {}
@@ -111,7 +140,9 @@ const syncToUrl = () => {
   if (route.query.badge && typeof route.query.badge === 'string') {
     nextQuery.badge = route.query.badge
   }
-  if (route.query.brand && typeof route.query.brand === 'string') {
+  if (filters.value.brand) {
+    nextQuery.brand = filters.value.brand
+  } else if (route.query.brand && typeof route.query.brand === 'string') {
     nextQuery.brand = route.query.brand
   }
   if (filters.value.season) nextQuery.season = filters.value.season
@@ -123,6 +154,9 @@ const syncToUrl = () => {
   if (filters.value.priceRange[0] > DEFAULT_MIN_PRICE) nextQuery.min_price = String(filters.value.priceRange[0])
   if (filters.value.priceRange[1] < DEFAULT_MAX_PRICE) nextQuery.max_price = String(filters.value.priceRange[1])
   if (sort.value && sort.value !== 'bestseller') nextQuery.sort = sort.value
+
+  // هنگام تغییر فیلترها، صفحه به ۱ بازنشانی می‌شود
+  currentPage.value = 1
 
   const currentQuery = route.query
   const isSame =
@@ -141,18 +175,22 @@ watch([filters, sort], () => {
 watch(
   () => route.query,
   () => {
-    filters.value = parseFiltersFromQuery()
+    const parsed = parseFiltersFromQuery()
+    if (!isFiltersEqual(filters.value, parsed)) {
+      filters.value = parsed
+    }
     if (typeof route.query.sort === 'string') {
       sort.value = route.query.sort
     } else {
       sort.value = 'bestseller'
     }
+    currentPage.value = parsePageFromQuery()
   },
   { deep: true },
 )
 
 // واکشی داده‌ها از نیترو با ری‌اکتیویتی خودکار
-const { data: products, pending } = await useAsyncData(
+const { data: rawProducts, pending } = await useAsyncData(
   'catalog-products',
   () => getProducts(apiFilters.value),
   {
@@ -160,15 +198,75 @@ const { data: products, pending } = await useAsyncData(
   },
 )
 
+const products = computed(() => rawProducts.value || [])
+const totalItems = computed(() => products.value.length)
+const totalPages = computed(() => Math.max(1, Math.ceil(totalItems.value / ITEMS_PER_PAGE)))
+
+// اعتبارسنجی شماره صفحه فعلی
+watch(
+  [() => route.query.page, totalPages],
+  () => {
+    const p = parsePageFromQuery()
+    currentPage.value = Math.min(Math.max(1, p), totalPages.value)
+  },
+  { immediate: true },
+)
+
+// محاسبه محدوده محصولات صفحه جاری
+const startIndex = computed(() => (currentPage.value - 1) * ITEMS_PER_PAGE)
+const endIndex = computed(() => Math.min(startIndex.value + ITEMS_PER_PAGE, totalItems.value))
+
+const paginatedProducts = computed(() => {
+  return products.value.slice(startIndex.value, endIndex.value)
+})
+
+// جابه‌جایی به صفحه مشخص و اسکرول نرم به بالا
+const changePage = (pageNumber: number) => {
+  if (pageNumber < 1 || pageNumber > totalPages.value || pageNumber === currentPage.value) return
+  currentPage.value = pageNumber
+  const nextQuery = { ...route.query }
+  if (pageNumber > 1) {
+    nextQuery.page = String(pageNumber)
+  } else {
+    delete nextQuery.page
+  }
+  router.replace({ query: nextQuery })
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+// ساخت آرایه دکمه‌های صفحه‌بندی با رعایت Ellipsis
+const paginationPages = computed<(number | 'ellipsis')[]>(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  const pages: (number | 'ellipsis')[] = []
+  if (current <= 3) {
+    pages.push(1, 2, 3, 4, 'ellipsis', total)
+  } else if (current >= total - 2) {
+    pages.push(1, 'ellipsis', total - 3, total - 2, total - 1, total)
+  } else {
+    pages.push(1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total)
+  }
+  return pages
+})
+
 const clearSearch = () => {
+  currentPage.value = 1
   const next = { ...route.query }
   delete next.q
+  delete next.page
   router.replace({ query: next })
 }
 
 const clearBadge = () => {
+  currentPage.value = 1
   const next = { ...route.query }
   delete next.badge
+  delete next.page
   router.replace({ query: next })
 }
 
@@ -182,8 +280,11 @@ const brandLabels: Record<string, string> = {
 }
 
 const clearBrand = () => {
+  currentPage.value = 1
+  filters.value.brand = null
   const next = { ...route.query }
   delete next.brand
+  delete next.page
   router.replace({ query: next })
 }
 
@@ -192,12 +293,14 @@ const resetFilters = () => {
     season: null,
     division: null,
     line: null,
+    brand: null,
     categories: [],
     sizes: [],
     colors: [],
     priceRange: [DEFAULT_MIN_PRICE, DEFAULT_MAX_PRICE],
   }
   sort.value = 'bestseller'
+  currentPage.value = 1
   isMobileFilterOpen.value = false
   const next: Record<string, string> = {}
   router.replace({ query: next })
@@ -228,7 +331,7 @@ const resetFilters = () => {
             <span>نتایج جست‌وجو برای: <strong class="text-rose font-bold">«{{ route.query.q }}»</strong></span>
             <button
               type="button"
-              class="text-muted-foreground hover:text-rose cursor-pointer"
+              class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
               aria-label="حذف جست‌وجو"
               @click="clearSearch"
             >
@@ -240,7 +343,7 @@ const resetFilters = () => {
             <span>فیلتر: <strong>{{ route.query.badge === 'sale' ? 'حراج فصل' : route.query.badge }}</strong></span>
             <button
               type="button"
-              class="text-rose hover:text-ink cursor-pointer"
+              class="text-rose hover:text-ink cursor-pointer transition-colors"
               aria-label="حذف فیلتر نشان"
               @click="clearBadge"
             >
@@ -248,8 +351,8 @@ const resetFilters = () => {
             </button>
           </div>
 
-          <div v-if="route.query.brand" class="inline-flex items-center gap-2 rounded-xl bg-sand/80 border border-sand px-3 py-1.5 text-xs text-ink font-medium">
-            <span>برند: <strong>{{ brandLabels[String(route.query.brand)] || route.query.brand }}</strong></span>
+          <div v-if="filters.brand || route.query.brand" class="inline-flex items-center gap-2 rounded-xl bg-sand/80 border border-sand px-3 py-1.5 text-xs text-ink font-medium">
+            <span>برند: <strong>{{ brandLabels[String(filters.brand || route.query.brand)] || (filters.brand || route.query.brand) }}</strong></span>
             <button
               type="button"
               class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
@@ -264,14 +367,14 @@ const resetFilters = () => {
 
       <div class="text-xs text-muted-foreground font-medium">
         <span>نمایش </span>
-        <span class="font-bold text-ink">{{ products?.length || 0 }}</span>
+        <span class="font-bold text-ink">{{ toFa(totalItems) }}</span>
         <span> کالا در کاتالوگ کراس</span>
       </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- سایدبار فیلترها (دسکتاپ استیکی) -->
-      <aside class="hidden lg:block lg:col-span-3 rounded-2xl border border-sand bg-white p-5 sm:p-6 shadow-2xs sticky top-24">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+      <!-- سایدبار فیلترها (دسکتاپ استیکی با حداکثر ارتفاع و اسکرول داخلی) -->
+      <aside class="hidden lg:block w-72 shrink-0 sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto ps-1 pe-2 rounded-2xl border border-sand bg-white p-5 shadow-2xs">
         <FilterPanel
           v-model="filters"
           :min-price="DEFAULT_MIN_PRICE"
@@ -280,12 +383,12 @@ const resetFilters = () => {
         />
       </aside>
 
-      <!-- ستون محصولات -->
-      <main class="lg:col-span-9 space-y-6">
-        <!-- نوار کنترل بالای محصولات (مرتب‌سازی و دکمه موبایل) -->
+      <!-- ستون اصلی محصولات و صفحه‌بندی -->
+      <main class="flex-1 min-w-0 space-y-6">
+        <!-- نوار کنترل بالای محصولات (مرتب‌سازی، دکمه موبایل و شمارنده تجاری) -->
         <div class="flex items-center justify-between border-b border-sand/70 pb-4">
-          <!-- دکمه فیلتر در موبایل -->
-          <div class="flex items-center gap-2">
+          <!-- دکمه فیلتر در موبایل و شمارنده آیتم‌ها -->
+          <div class="flex items-center gap-3">
             <Button
               variant="outline"
               class="lg:hidden h-10 px-3.5 gap-2 text-xs font-bold rounded-xl border-sand text-ink hover:bg-sand/30 cursor-pointer shadow-2xs"
@@ -297,12 +400,18 @@ const resetFilters = () => {
                 v-if="activeFilterCount > 0"
                 class="rounded-full bg-rose text-white text-[10px] px-1.5 py-0.2 font-bold"
               >
-                {{ activeFilterCount }}
+                {{ toFa(activeFilterCount) }}
               </span>
             </Button>
 
-            <span class="text-xs text-muted-foreground hidden sm:inline-block">
-              نمایش {{ products?.length || 0 }} محصول
+            <!-- شمارنده تعداد و بازه محصولات به فارسی -->
+            <span class="text-xs text-muted-foreground font-medium">
+              <template v-if="totalItems > 0">
+                نمایش <strong class="text-ink font-bold">{{ toFa(startIndex + 1) }}</strong>–<strong class="text-ink font-bold">{{ toFa(endIndex) }}</strong> از <strong class="text-ink font-bold">{{ toFa(totalItems) }}</strong> محصول
+              </template>
+              <template v-else>
+                هیچ کالایی یافت نشد
+              </template>
             </span>
           </div>
 
@@ -310,25 +419,89 @@ const resetFilters = () => {
           <SortSelect v-model="sort" />
         </div>
 
-        <!-- لودینگ اسکلتون (هنگام تغییر فیلتر و بارگذاری بدون پرش چیدمان) -->
+        <!-- لودینگ اسکلتون (هنگام تغییر فیلتر و بارگذاری ۱۲ آیتم متقارن) -->
         <div
           v-if="pending"
-          class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         >
-          <CatalogSkeleton v-for="i in 6" :key="i" />
+          <CatalogSkeleton v-for="i in 12" :key="i" />
         </div>
 
-        <!-- گرید محصولات کاتالوگ -->
+        <!-- گرید محصولات کاتالوگ (ریسپانسیو ۱/۲/۳/۴ ستونه متقارن) -->
         <div
-          v-else-if="products && products.length > 0"
-          class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+          v-else-if="paginatedProducts && paginatedProducts.length > 0"
+          class="space-y-8"
         >
-          <ProductCard
-            v-for="(product, idx) in products"
-            :key="product.id"
-            :product="product"
-            :priority="idx < 3"
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <ProductCard
+              v-for="(product, idx) in paginatedProducts"
+              :key="product.id"
+              :product="product"
+              :priority="idx < 4"
+            />
+          </div>
+
+          <!-- کنترل‌های صفحه‌بندی تجاری کاتالوگ (Pagination) -->
+          <nav
+            v-if="totalPages > 1"
+            aria-label="صفحه‌بندی محصولات"
+            class="pt-6 border-t border-sand/70 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div class="text-xs text-muted-foreground font-medium">
+              صفحه <strong class="text-ink font-bold">{{ toFa(currentPage) }}</strong> از <strong class="text-ink font-bold">{{ toFa(totalPages) }}</strong>
+            </div>
+
+            <div class="flex items-center gap-1.5" dir="rtl">
+              <!-- دکمه صفحه قبل: در RTL اشاره به راست دارد -->
+              <button
+                type="button"
+                :disabled="currentPage === 1"
+                class="h-10 px-3 rounded-xl border border-sand bg-white text-ink text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-sand/30 hover:border-sand/80 shadow-2xs"
+                aria-label="صفحه قبل"
+                @click="changePage(currentPage - 1)"
+              >
+                <ChevronRight class="w-4 h-4" />
+                <span class="hidden sm:inline">قبلی</span>
+              </button>
+
+              <!-- قرص‌های شماره صفحه -->
+              <template v-for="(p, idx) in paginationPages" :key="idx">
+                <span
+                  v-if="p === 'ellipsis'"
+                  class="px-2 text-xs font-bold text-muted-foreground select-none"
+                >
+                  …
+                </span>
+                <button
+                  v-else
+                  type="button"
+                  class="w-10 h-10 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center border shadow-2xs"
+                  :class="[
+                    p === currentPage
+                      ? 'bg-ink text-white border-ink shadow-xs scale-105'
+                      : 'bg-white text-ink border-sand hover:bg-sand/30 hover:border-sand/80',
+                  ]"
+                  :aria-current="p === currentPage ? 'page' : undefined"
+                  :aria-label="`صفحه ${toFa(p)}`"
+                  @click="changePage(p)"
+                >
+                  {{ toFa(p) }}
+                </button>
+              </template>
+
+              <!-- دکمه صفحه بعد: در RTL اشاره به چپ دارد -->
+              <button
+                type="button"
+                :disabled="currentPage === totalPages"
+                class="h-10 px-3 rounded-xl border border-sand bg-white text-ink text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-sand/30 hover:border-sand/80 shadow-2xs"
+                aria-label="صفحه بعد"
+                @click="changePage(currentPage + 1)"
+              >
+                <span class="hidden sm:inline">بعدی</span>
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+            </div>
+          </nav>
         </div>
 
         <!-- وضعیت عدم تطابق فیلترها (Empty State) -->
@@ -369,7 +542,7 @@ const resetFilters = () => {
             class="w-full h-12 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs shadow-xs cursor-pointer"
             @click="isMobileFilterOpen = false"
           >
-            مشاهده نتایج ({{ products?.length || 0 }} محصول)
+            مشاهده نتایج ({{ toFa(totalItems) }} محصول)
           </Button>
         </div>
       </SheetContent>

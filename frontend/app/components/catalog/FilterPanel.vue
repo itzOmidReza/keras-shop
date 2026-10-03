@@ -1,7 +1,13 @@
 <!-- frontend/app/components/catalog/FilterPanel.vue -->
 <script setup lang="ts">
-import { formatToman } from '~/utils/format'
-import { RotateCcw, X, SlidersHorizontal } from '@lucide/vue'
+import { formatToman, toFa } from '~/utils/format'
+import { RotateCcw, X, SlidersHorizontal, Check } from '@lucide/vue'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion'
 import type { ProductDivision, ProductCategory, ProductSeason } from '~/types/domain'
 
 export interface FilterState {
@@ -12,6 +18,7 @@ export interface FilterState {
   colors: string[]
   priceRange: [number, number]
   line?: 'move' | 'calm' | null
+  brand?: string | null
 }
 
 const props = withDefaults(
@@ -19,10 +26,25 @@ const props = withDefaults(
     modelValue: FilterState
     minPrice?: number
     maxPrice?: number
+    apparelCount?: number
+    accessoriesCount?: number
+    categoryCounts?: Record<string, number>
   }>(),
   {
     minPrice: 300000,
     maxPrice: 5500000,
+    apparelCount: 16,
+    accessoriesCount: 8,
+    categoryCounts: () => ({
+      'shirts-blouses': 4,
+      'knitwear': 4,
+      'coats-jackets': 3,
+      'pants': 3,
+      'tops': 2,
+      'hair-accessories': 3,
+      'bandanas': 3,
+      'scarves': 2,
+    }),
   },
 )
 
@@ -31,7 +53,7 @@ const emit = defineEmits<{
   'reset': []
 }>()
 
-// فصل‌ها و کالکشن‌ها
+// ۱. فصل‌ها و کالکشن‌ها
 const availableSeasons: { id: ProductSeason; label: string; badge?: string }[] = [
   { id: 'fall-1405', label: 'پاییز ۱۴۰۵', badge: 'جدید' },
   { id: 'winter-1405', label: 'زمستان ۱۴۰۵' },
@@ -39,13 +61,23 @@ const availableSeasons: { id: ProductSeason; label: string; badge?: string }[] =
   { id: 'summer-1405', label: 'تابستان ۱۴۰۵', badge: 'آرشیو' },
 ]
 
-// شاخه‌های اصلی
-const availableDivisions: { id: ProductDivision; label: string }[] = [
-  { id: 'apparel', label: 'پوشاک' },
-  { id: 'accessories', label: 'اکسسوری' },
+// ۲. برندهای معتبر بین‌المللی و آتلیه کراس
+const partnerBrands = [
+  { slug: 'keras-atelier', fa: 'کراس آتلیه', en: 'Keras Atelier' },
+  { slug: 'toteme', fa: 'توتِم', en: 'Totême' },
+  { slug: 'massimo-dutti', fa: 'ماسیمو دوتی', en: 'Massimo Dutti' },
+  { slug: 'cos', fa: 'کاس', en: 'COS' },
+  { slug: 'zara', fa: 'زارا', en: 'Zara' },
+  { slug: 'mango', fa: 'منگو', en: 'Mango' },
 ]
 
-// دسته‌بندی‌های پوشاک و اکسسوری
+// ۳. شاخه‌های اصلی
+const availableDivisions: { id: ProductDivision; label: string; count: number }[] = [
+  { id: 'apparel', label: 'پوشاک', count: 16 },
+  { id: 'accessories', label: 'اکسسوری', count: 8 },
+]
+
+// ۴. دسته‌بندی‌های پوشاک و اکسسوری
 const apparelCategories: { slug: ProductCategory; label: string }[] = [
   { slug: 'shirts-blouses', label: 'پیراهن و شومیز' },
   { slug: 'knitwear', label: 'بافت و پلیور' },
@@ -60,18 +92,20 @@ const accessoryCategories: { slug: ProductCategory; label: string }[] = [
   { slug: 'scarves', label: 'اسکارف و شال' },
 ]
 
-const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'Free']
+// ۵. سایزبندی لوکس
+const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'Free Size']
 
+// ۶. رنگ‌بندی‌های طبیعی (بدون هگز ۶ رقمی خام)
 const availableColors = [
-  { name: 'مشکی موکا', bgClass: 'bg-ink' },
-  { name: 'سبز مریم‌گلی', bgClass: 'bg-sage' },
-  { name: 'خاک رس', bgClass: 'bg-clay' },
-  { name: 'رز کراس', bgClass: 'bg-rose' },
-  { name: 'شنی نچرال', bgClass: 'bg-sand' },
-  { name: 'عاجی روشن', bgClass: 'bg-paper' },
+  { name: 'مشکی موکا', bgClass: 'bg-ink', checkClass: 'text-white' },
+  { name: 'سبز مریم‌گلی', bgClass: 'bg-sage', checkClass: 'text-ink' },
+  { name: 'خاک رس', bgClass: 'bg-clay', checkClass: 'text-white' },
+  { name: 'رز کراس', bgClass: 'bg-rose', checkClass: 'text-white' },
+  { name: 'شنی نچرال', bgClass: 'bg-sand', checkClass: 'text-ink' },
+  { name: 'عاجی روشن', bgClass: 'bg-paper border border-sand/80', checkClass: 'text-ink' },
 ]
 
-// ۱. تنظیم فصل و کالکشن
+// متدهای تغییر استیت
 const setSeason = (season: ProductSeason | null) => {
   emit('update:modelValue', {
     ...props.modelValue,
@@ -79,7 +113,6 @@ const setSeason = (season: ProductSeason | null) => {
   })
 }
 
-// ۲. تنظیم شاخه اصلی (پوشاک / اکسسوری)
 const setDivision = (division: ProductDivision | null) => {
   emit('update:modelValue', {
     ...props.modelValue,
@@ -87,7 +120,13 @@ const setDivision = (division: ProductDivision | null) => {
   })
 }
 
-// ۳. تغییر دسته‌بندی (چندگانه)
+const setBrand = (brand: string | null) => {
+  emit('update:modelValue', {
+    ...props.modelValue,
+    brand,
+  })
+}
+
 const toggleCategory = (slug: ProductCategory) => {
   const current = [...props.modelValue.categories]
   const idx = current.indexOf(slug)
@@ -102,7 +141,6 @@ const toggleCategory = (slug: ProductCategory) => {
   })
 }
 
-// ۴. تغییر سایز
 const toggleSize = (size: string) => {
   const current = [...props.modelValue.sizes]
   const idx = current.indexOf(size)
@@ -117,7 +155,6 @@ const toggleSize = (size: string) => {
   })
 }
 
-// ۵. تغییر رنگ
 const toggleColor = (colorName: string) => {
   const current = [...props.modelValue.colors]
   const idx = current.indexOf(colorName)
@@ -132,7 +169,6 @@ const toggleColor = (colorName: string) => {
   })
 }
 
-// ۶. بازه قیمت
 const updatePrice = (val: number[] | undefined) => {
   if (!val || val.length < 2) return
   const [min, max] = val
@@ -140,6 +176,13 @@ const updatePrice = (val: number[] | undefined) => {
   emit('update:modelValue', {
     ...props.modelValue,
     priceRange: [min, max],
+  })
+}
+
+const resetPrice = () => {
+  emit('update:modelValue', {
+    ...props.modelValue,
+    priceRange: [props.minPrice, props.maxPrice],
   })
 }
 
@@ -154,11 +197,17 @@ const getSeasonName = (season: ProductSeason): string => {
   return found ? found.label : season
 }
 
+const getBrandName = (brandSlug: string): string => {
+  const found = partnerBrands.find(b => b.slug === brandSlug)
+  return found ? found.fa : brandSlug
+}
+
 // تعداد کل فیلترهای فعال
 const activeFilterCount = computed(() => {
   let count = 0
   if (props.modelValue.season) count++
   if (props.modelValue.division) count++
+  if (props.modelValue.brand) count++
   count += props.modelValue.categories.length
   count += props.modelValue.sizes.length
   count += props.modelValue.colors.length
@@ -174,7 +223,7 @@ const activeFilterCount = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <!-- هدر فیلتر و دکمه بازنشانی -->
+    <!-- هدر فیلتر و دکمه بازنشانی (Active Filter Chips Bar Header) -->
     <div class="flex items-center justify-between border-b border-sand pb-4">
       <div class="flex items-center gap-2">
         <SlidersHorizontal class="w-4 h-4 text-rose" />
@@ -185,96 +234,133 @@ const activeFilterCount = computed(() => {
           v-if="activeFilterCount > 0"
           class="rounded-full bg-rose/10 text-rose px-2 py-0.5 text-[10px] font-bold"
         >
-          {{ activeFilterCount }}
+          {{ toFa(activeFilterCount) }}
         </span>
       </div>
 
       <button
         v-if="activeFilterCount > 0"
         type="button"
-        class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-rose transition-colors cursor-pointer"
+        class="inline-flex items-center gap-1 text-xs font-medium text-rose hover:text-rose/80 transition-colors cursor-pointer"
         @click="emit('reset')"
       >
         <RotateCcw class="h-3 w-3" />
-        <span>پاک کردن همه</span>
+        <span>پاک کردن همه فیلترها</span>
       </button>
     </div>
 
-    <!-- بج‌های فیلترهای فعال (Active Badges Bar) -->
-    <div v-if="activeFilterCount > 0" class="flex flex-wrap gap-1.5 pb-2">
-      <!-- بج فصل -->
+    <!-- چیپ‌های فیلترهای فعال (Active Filter Chips Bar) -->
+    <div v-if="activeFilterCount > 0" class="flex flex-wrap gap-1.5 pb-2 border-b border-sand/60">
+      <!-- چیپ فصل -->
       <span
         v-if="modelValue.season"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-bold text-ink"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
       >
         <span>فصل: {{ getSeasonName(modelValue.season) }}</span>
         <button
           type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          aria-label="حذف فیلتر فصل"
           @click="setSeason(null)"
         >
           <X class="w-3 h-3" />
         </button>
       </span>
 
-      <!-- بج شاخه اصلی -->
+      <!-- چیپ شاخه اصلی -->
       <span
         v-if="modelValue.division"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-bold text-ink"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
       >
         <span>شاخه: {{ modelValue.division === 'apparel' ? 'پوشاک' : 'اکسسوری' }}</span>
         <button
           type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          aria-label="حذف فیلتر شاخه"
           @click="setDivision(null)"
         >
           <X class="w-3 h-3" />
         </button>
       </span>
 
-      <!-- بج دسته‌بندی‌ها -->
+      <!-- چیپ برند -->
+      <span
+        v-if="modelValue.brand"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
+      >
+        <span>برند: {{ getBrandName(modelValue.brand) }}</span>
+        <button
+          type="button"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          aria-label="حذف فیلتر برند"
+          @click="setBrand(null)"
+        >
+          <X class="w-3 h-3" />
+        </button>
+      </span>
+
+      <!-- چیپ دسته‌بندی‌ها -->
       <span
         v-for="cat in modelValue.categories"
         :key="cat"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-bold text-ink"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
       >
         <span>{{ getCategoryName(cat) }}</span>
         <button
           type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          :aria-label="`حذف فیلتر ${getCategoryName(cat)}`"
           @click="toggleCategory(cat)"
         >
           <X class="w-3 h-3" />
         </button>
       </span>
 
-      <!-- بج سایزها -->
+      <!-- چیپ سایزها -->
       <span
         v-for="size in modelValue.sizes"
         :key="size"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-bold text-ink"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
       >
         <span>سایز {{ size }}</span>
         <button
           type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          :aria-label="`حذف فیلتر سایز ${size}`"
           @click="toggleSize(size)"
         >
           <X class="w-3 h-3" />
         </button>
       </span>
 
-      <!-- بج رنگ‌ها -->
+      <!-- چیپ رنگ‌ها -->
       <span
         v-for="color in modelValue.colors"
         :key="color"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-bold text-ink"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
       >
         <span>{{ color }}</span>
         <button
           type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          :aria-label="`حذف فیلتر رنگ ${color}`"
           @click="toggleColor(color)"
+        >
+          <X class="w-3 h-3" />
+        </button>
+      </span>
+
+      <!-- چیپ بازه قیمت -->
+      <span
+        v-if="modelValue.priceRange[0] > minPrice || modelValue.priceRange[1] < maxPrice"
+        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
+      >
+        <span>قیمت: {{ toFa(formatToman(modelValue.priceRange[0])) }} تا {{ toFa(formatToman(modelValue.priceRange[1])) }}</span>
+        <button
+          type="button"
+          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
+          aria-label="حذف فیلتر قیمت"
+          @click="resetPrice"
         >
           <X class="w-3 h-3" />
         </button>
@@ -311,11 +397,16 @@ const activeFilterCount = computed(() => {
       </div>
     </div>
 
-    <!-- ۲. شاخه اصلی (Division: پوشاک / اکسسوری) -->
-    <div class="space-y-2.5 border-t border-sand/60 pt-4">
-      <h4 class="text-xs font-bold text-ink">
-        شاخه اصلی
-      </h4>
+    <!-- ۲. شاخه اصلی و آکاردئون دسته‌بندی‌ها (Collections & Division Accordion) -->
+    <div class="space-y-3 border-t border-sand/60 pt-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xs font-bold text-ink">
+          شاخه و دسته‌بندی‌ها
+        </h4>
+        <span class="text-[10px] text-muted-foreground">شامل {{ toFa(apparelCount + accessoriesCount) }} کالا</span>
+      </div>
+
+      <!-- کنترل تب شاخه اصلی -->
       <div class="grid grid-cols-3 gap-1 rounded-xl bg-sand/30 p-1 border border-sand/60">
         <button
           type="button"
@@ -333,7 +424,7 @@ const activeFilterCount = computed(() => {
           v-for="div in availableDivisions"
           :key="div.id"
           type="button"
-          class="rounded-lg py-1.5 text-xs font-bold transition-all cursor-pointer"
+          class="rounded-lg py-1.5 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
           :class="[
             modelValue.division === div.id
               ? 'bg-rose text-white shadow-2xs'
@@ -341,70 +432,134 @@ const activeFilterCount = computed(() => {
           ]"
           @click="setDivision(modelValue.division === div.id ? null : div.id)"
         >
-          {{ div.label }}
+          <span>{{ div.label }}</span>
+          <span class="text-[10px] opacity-80">({{ toFa(div.count) }})</span>
+        </button>
+      </div>
+
+      <!-- آکاردئون اختصاصی پوشاک و اکسسوری با شمارنده‌های زنده -->
+      <Accordion type="multiple" :default-value="['apparel', 'accessories']" class="w-full">
+        <!-- بخش پوشاک -->
+        <AccordionItem
+          v-if="!modelValue.division || modelValue.division === 'apparel'"
+          value="apparel"
+          class="border-b border-sand/50"
+        >
+          <AccordionTrigger class="py-2.5 text-xs font-bold text-ink hover:no-underline text-start">
+            <div class="flex items-center gap-2">
+              <span>پوشاک (Apparel)</span>
+              <span class="rounded-full bg-sand/60 text-muted-foreground px-2 py-0.5 text-[10px] font-bold">
+                {{ toFa(apparelCount) }} کالا
+              </span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent class="pt-1 pb-3 space-y-2">
+            <div
+              v-for="cat in apparelCategories"
+              :key="cat.slug"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center gap-2">
+                <Checkbox
+                  :id="`cat-${cat.slug}`"
+                  :checked="modelValue.categories.includes(cat.slug)"
+                  @update:checked="() => toggleCategory(cat.slug)"
+                />
+                <Label
+                  :for="`cat-${cat.slug}`"
+                  class="text-xs font-medium cursor-pointer text-ink select-none"
+                >
+                  {{ cat.label }}
+                </Label>
+              </div>
+              <span class="text-[10px] text-muted-foreground font-medium">
+                {{ toFa(categoryCounts[cat.slug] || 0) }}
+              </span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <!-- بخش اکسسوری -->
+        <AccordionItem
+          v-if="!modelValue.division || modelValue.division === 'accessories'"
+          value="accessories"
+          class="border-b border-sand/50"
+        >
+          <AccordionTrigger class="py-2.5 text-xs font-bold text-ink hover:no-underline text-start">
+            <div class="flex items-center gap-2">
+              <span>اکسسوری و شال‌ها (Accessories)</span>
+              <span class="rounded-full bg-sand/60 text-muted-foreground px-2 py-0.5 text-[10px] font-bold">
+                {{ toFa(accessoriesCount) }} کالا
+              </span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent class="pt-1 pb-3 space-y-2">
+            <div
+              v-for="cat in accessoryCategories"
+              :key="cat.slug"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center gap-2">
+                <Checkbox
+                  :id="`cat-${cat.slug}`"
+                  :checked="modelValue.categories.includes(cat.slug)"
+                  @update:checked="() => toggleCategory(cat.slug)"
+                />
+                <Label
+                  :for="`cat-${cat.slug}`"
+                  class="text-xs font-medium cursor-pointer text-ink select-none"
+                >
+                  {{ cat.label }}
+                </Label>
+              </div>
+              <span class="text-[10px] text-muted-foreground font-medium">
+                {{ toFa(categoryCounts[cat.slug] || 0) }}
+              </span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+
+    <!-- ۳. فیلتر برندهای همکار (Partner Brands) -->
+    <div class="space-y-2.5 border-t border-sand/60 pt-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xs font-bold text-ink">
+          برندهای همکار و آتلیه
+        </h4>
+        <span
+          v-if="modelValue.brand"
+          class="text-[10px] text-rose font-medium cursor-pointer"
+          @click="setBrand(null)"
+        >
+          حذف فیلتر برند
+        </span>
+      </div>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button
+          v-for="b in partnerBrands"
+          :key="b.slug"
+          type="button"
+          class="flex flex-col items-start rounded-xl px-2.5 py-2 text-start transition-all cursor-pointer border"
+          :class="[
+            modelValue.brand === b.slug
+              ? 'border-rose bg-rose text-white shadow-xs font-bold'
+              : 'border-sand bg-white text-ink hover:border-sand/80 hover:bg-sand/20',
+          ]"
+          @click="setBrand(modelValue.brand === b.slug ? null : b.slug)"
+        >
+          <span class="text-xs font-bold">{{ b.fa }}</span>
+          <span
+            class="text-[10px] tracking-wider transition-colors"
+            :class="modelValue.brand === b.slug ? 'text-white/80' : 'text-muted-foreground'"
+          >
+            {{ b.en }}
+          </span>
         </button>
       </div>
     </div>
 
-    <!-- ۳. دسته‌بندی کالاها (پوشاک) -->
-    <div
-      v-if="!modelValue.division || modelValue.division === 'apparel'"
-      class="space-y-2.5 border-t border-sand/60 pt-4"
-    >
-      <h4 class="text-xs font-bold text-ink">
-        دسته‌بندی پوشاک
-      </h4>
-      <div class="space-y-2">
-        <div
-          v-for="cat in apparelCategories"
-          :key="cat.slug"
-          class="flex items-center gap-2"
-        >
-          <Checkbox
-            :id="`cat-${cat.slug}`"
-            :checked="modelValue.categories.includes(cat.slug)"
-            @update:checked="() => toggleCategory(cat.slug)"
-          />
-          <Label
-            :for="`cat-${cat.slug}`"
-            class="text-xs font-medium cursor-pointer text-ink select-none"
-          >
-            {{ cat.label }}
-          </Label>
-        </div>
-      </div>
-    </div>
-
-    <!-- ۴. دسته‌بندی اکسسوری -->
-    <div
-      v-if="!modelValue.division || modelValue.division === 'accessories'"
-      class="space-y-2.5 border-t border-sand/60 pt-4"
-    >
-      <h4 class="text-xs font-bold text-ink">
-        دسته‌بندی اکسسوری
-      </h4>
-      <div class="space-y-2">
-        <div
-          v-for="cat in accessoryCategories"
-          :key="cat.slug"
-          class="flex items-center gap-2"
-        >
-          <Checkbox
-            :id="`cat-${cat.slug}`"
-            :checked="modelValue.categories.includes(cat.slug)"
-            @update:checked="() => toggleCategory(cat.slug)"
-          />
-          <Label
-            :for="`cat-${cat.slug}`"
-            class="text-xs font-medium cursor-pointer text-ink select-none"
-          >
-            {{ cat.label }}
-          </Label>
-        </div>
-      </div>
-    </div>
-
-    <!-- ۵. پیل‌های سایزبندی -->
+    <!-- ۴. پیل‌های سایزبندی لوکس -->
     <div class="space-y-2.5 border-t border-sand/60 pt-4">
       <h4 class="text-xs font-bold text-ink">
         سایزبندی
@@ -414,7 +569,7 @@ const activeFilterCount = computed(() => {
           v-for="size in availableSizes"
           :key="size"
           type="button"
-          class="h-9 min-w-9 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center justify-center shadow-2xs"
+          class="h-9 min-w-9 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center justify-center shadow-2xs"
           :class="[
             modelValue.sizes.includes(size)
               ? 'border-rose bg-rose text-white shadow-xs'
@@ -427,7 +582,7 @@ const activeFilterCount = computed(() => {
       </div>
     </div>
 
-    <!-- ۶. پالت رنگ‌ها -->
+    <!-- ۵. پالت رنگ‌های طبیعی با چک‌مارک و تولتیپ -->
     <div class="space-y-2.5 border-t border-sand/60 pt-4">
       <h4 class="text-xs font-bold text-ink">
         رنگ‌بندی طبیعی
@@ -437,29 +592,52 @@ const activeFilterCount = computed(() => {
           v-for="color in availableColors"
           :key="color.name"
           type="button"
-          class="w-7 h-7 rounded-full border border-sand/70 shadow-2xs transition-all cursor-pointer relative"
+          class="w-7 h-7 rounded-full border border-sand/70 shadow-2xs transition-all cursor-pointer relative flex items-center justify-center"
           :class="[
             color.bgClass,
             modelValue.colors.includes(color.name)
-              ? 'ring-2 ring-rose ring-offset-2'
+              ? 'ring-2 ring-rose ring-offset-2 scale-105'
               : 'hover:scale-110',
           ]"
           :title="color.name"
+          :aria-label="color.name"
           @click="toggleColor(color.name)"
         >
-          <span class="sr-only">{{ color.name }}</span>
+          <Check
+            v-if="modelValue.colors.includes(color.name)"
+            class="w-3.5 h-3.5 stroke-[2.5]"
+            :class="color.checkClass"
+          />
         </button>
       </div>
     </div>
 
-    <!-- ۷. اسلایدر محدوده قیمت -->
+    <!-- ۶. اسلایدر و باکس‌های قیمت تومان -->
     <div class="space-y-3 border-t border-sand/60 pt-4">
       <div class="flex items-center justify-between text-xs">
         <span class="font-bold text-ink">محدوده قیمت</span>
-        <span class="text-muted-foreground text-[11px]">
-          {{ formatToman(modelValue.priceRange[0]) }} تا {{ formatToman(modelValue.priceRange[1]) }}
-        </span>
+        <button
+          v-if="modelValue.priceRange[0] > minPrice || modelValue.priceRange[1] < maxPrice"
+          type="button"
+          class="text-[10px] text-rose font-medium hover:underline cursor-pointer"
+          @click="resetPrice"
+        >
+          بازنشانی قیمت
+        </button>
       </div>
+
+      <!-- باکس‌های نمایش مبالغ تومان -->
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="rounded-xl border border-sand/80 bg-sand/20 p-2 text-center">
+          <span class="block text-[10px] text-muted-foreground font-medium mb-0.5">از حداقل</span>
+          <span class="font-bold text-ink">{{ toFa(formatToman(modelValue.priceRange[0])) }}</span>
+        </div>
+        <div class="rounded-xl border border-sand/80 bg-sand/20 p-2 text-center">
+          <span class="block text-[10px] text-muted-foreground font-medium mb-0.5">تا حداکثر</span>
+          <span class="font-bold text-ink">{{ toFa(formatToman(modelValue.priceRange[1])) }}</span>
+        </div>
+      </div>
+
       <div class="pt-2 px-1">
         <Slider
           :model-value="[modelValue.priceRange[0], modelValue.priceRange[1]]"

@@ -96,9 +96,15 @@ export default defineEventHandler(async (event): Promise<ProductListItem[]> => {
 
   // ۶. فیلتر سایز (پشتیبانی از تک‌سایز و چندسایز با کاما)
   if (query.size && typeof query.size === 'string') {
-    const targetSizes = query.size.split(',').map((s) => s.trim().toUpperCase());
+    const targetSizes = query.size.split(',').map((s) => {
+      const u = s.trim().toUpperCase();
+      return u === 'FREE SIZE' ? 'FREE' : u;
+    });
     items = items.filter((p) =>
-      p.available_sizes.some((sz) => targetSizes.includes(sz.toUpperCase())),
+      p.available_sizes.some((sz) => {
+        const u = sz.toUpperCase();
+        return targetSizes.includes(u) || (u === 'FREE' && targetSizes.includes('FREE SIZE'));
+      }),
     );
   }
 

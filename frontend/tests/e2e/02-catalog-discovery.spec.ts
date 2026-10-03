@@ -81,4 +81,56 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     const productsCount = page.getByText(/نمایش/i).first()
     await expect(productsCount).toBeVisible()
   })
+
+  test('should handle 12-item pagination, page 2 URL sync, and reset to page 1 on filter modification', async ({ page, isMobile }) => {
+    // ۱. ناوبری به صفحه فروشگاه
+    await page.goto('/shop')
+    await page.waitForLoadState('networkidle')
+
+    // ۲. بررسی شمارنده صفحه اول (نمایش ۱–۱۲ از ۲۴ محصول)
+    const counterText = page.getByText(/نمایش.*۱–۱۲.*از.*۲۴.*محصول/i).first()
+    await expect(counterText).toBeVisible()
+
+    // ۳. بررسی حضور کنترل‌های صفحه‌بندی
+    const paginationNav = page.locator('nav[aria-label="صفحه‌بندی محصولات"]')
+    await expect(paginationNav).toBeVisible()
+
+    // دکمه صفحه ۲ را کلیک می‌کنیم
+    const page2Btn = paginationNav.getByRole('button', { name: 'صفحه ۲' })
+    await expect(page2Btn).toBeVisible()
+    await page2Btn.click()
+
+    // ۴. بررسی به‌روزرسانی URL به page=2 و تغییر شمارنده به ۱۳–۲۴
+    await expect(page).toHaveURL(/.*page=2/)
+    const page2Counter = page.getByText(/نمایش.*۱۳–۲۴.*از.*۲۴.*محصول/i).first()
+    await expect(page2Counter).toBeVisible()
+
+    // ۵. کلیک روی دکمه قبلی (RTL ChevronRight) برای برگشت به صفحه ۱
+    const prevBtn = paginationNav.getByRole('button', { name: 'صفحه قبل' })
+    await expect(prevBtn).toBeVisible()
+    await prevBtn.click()
+
+    await expect(page).not.toHaveURL(/.*page=2/)
+    await expect(counterText).toBeVisible()
+
+    // ۶. رفتن مجدد به صفحه ۲ و سپس تغییر فیلتر برای بررسی ریست خودکار صفحه به ۱
+    await page2Btn.click()
+    await expect(page).toHaveURL(/.*page=2/)
+
+    // فیلتر کردن کالکشن زمستان (در موبایل ابتدا دراور باز می‌شود)
+    if (isMobile) {
+      const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
+      await expect(filterDrawerBtn).toBeVisible()
+      await filterDrawerBtn.click()
+      await page.waitForTimeout(300)
+    }
+
+    const winterBtn = page.getByRole('button', { name: /زمستان ۱۴۰۵/ }).first()
+    await expect(winterBtn).toBeVisible()
+    await winterBtn.click()
+
+    // بررسی اینکه فیلتر اعمال شده و صفحه به ۱ ریست شده و page=2 از URL حذف شده است
+    await expect(page).toHaveURL(/.*season=winter-1405/)
+    await expect(page).not.toHaveURL(/.*page=2/)
+  })
 })
