@@ -56,6 +56,25 @@ test.describe('Full 2-Step Checkout & Simulated Shaparak IPG Flow', () => {
     const submitOrderBtn = page.getByRole('button', { name: /ثبت نهایی سفارش و پرداخت/i })
     await submitOrderBtn.click()
 
+    // بررسی و تایید شماره همراه کاربر مهمان با کد یک‌بار مصرف OTP درون‌برنامه‌ای
+    const otpDialog = page.locator('[data-testid="checkout-otp-dialog"]')
+    await expect(otpDialog).toBeVisible({ timeout: 10000 })
+
+    const bypassBtn = otpDialog.locator('[data-testid="checkout-otp-bypass"]')
+    if (await bypassBtn.isVisible()) {
+      await bypassBtn.click()
+    } else {
+      const otpInput = otpDialog.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+      if (await otpInput.isVisible()) {
+        await otpInput.focus()
+        await page.keyboard.type('12345', { delay: 50 })
+      }
+      const confirmOtpBtn = otpDialog.getByRole('button', { name: /تایید و ادامه پرداخت/i })
+      if (await confirmOtpBtn.isVisible()) {
+        await confirmOtpBtn.click()
+      }
+    }
+
     // ۴. هدایت به درگاه پرداخت شاپرک (/checkout/gateway?token=...)
     await expect(page).toHaveURL(/.*\/checkout\/gateway\?token=.+/, { timeout: 15000 })
 

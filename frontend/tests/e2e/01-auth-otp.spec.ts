@@ -113,4 +113,36 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
     await expect(modal).not.toBeVisible()
     await expect(page.locator('body')).toContainText('سارا رادمنش')
   })
+
+  test('should render standalone /login page, support demo login and preserve redirect query', async ({ page }) => {
+    // ۱. باز کردن مسیر مستقل /login با پارامتر ریدایرکت
+    await page.goto('/login?redirect=/account')
+    await page.waitForLoadState('networkidle')
+    await expect(page).toHaveURL(/.*\/login\?redirect=.+/)
+
+    // ۲. بررسی وجود عناصر ادیتوریال صفحه لاگین
+    await expect(page.locator('h1')).toContainText('ورود یا ثبت‌نام')
+    await expect(page.getByText('باشگاه مشتریان کراس', { exact: true })).toBeVisible()
+
+    const demoLoginBtn = page.locator('[data-testid="login-demo-btn"]')
+    await expect(demoLoginBtn).toBeVisible()
+
+    // ۳. ورود سریع از طریق دکمه دمو
+    await demoLoginBtn.click()
+
+    // ۴. هدایت به آدرس تعیین‌شده در کوئری (/account) و نمایش داشبورد با سایدبار اختصاصی
+    await expect(page).toHaveURL(/.*\/account/)
+    await expect(page.locator('body')).toContainText('سارا رادمنش')
+    await expect(page.locator('h1')).toContainText('پیشخوان')
+    const isDesktop = (page.viewportSize()?.width ?? 1280) >= 1024
+    if (isDesktop) {
+      await expect(page.locator('[data-testid="tab-overview"]')).toBeVisible()
+      await expect(page.locator('[data-testid="tab-orders"]')).toBeVisible()
+      await expect(page.locator('[data-testid="tab-addresses"]')).toBeVisible()
+      await expect(page.locator('[data-testid="tab-profile"]')).toBeVisible()
+    } else {
+      await expect(page.locator('[data-testid="mobile-tab-overview"]')).toBeVisible()
+      await expect(page.locator('[data-testid="mobile-tab-orders"]')).toBeVisible()
+    }
+  })
 })

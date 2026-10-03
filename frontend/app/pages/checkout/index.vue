@@ -19,6 +19,7 @@ import { useCartStore } from '~/stores/cart'
 import { useAuthStore } from '~/stores/auth'
 import type { ShippingMethod, PaymentMethod, OrderReceipt, UserAddress } from '~/types/domain'
 import { toast } from 'vue-sonner'
+import InlineCheckoutOtp from '~/components/checkout/InlineCheckoutOtp.vue'
 
 useSeoMeta({
   title: 'تسویه حساب و ثبت سفارش | کراس',
@@ -30,6 +31,9 @@ const router = useRouter()
 
 const currentStep = ref<1 | 2>(1)
 const isSubmittingOrder = ref(false)
+const acceptTerms = ref(true)
+const termsError = ref('')
+const isInlineOtpOpen = ref(false)
 
 // بررسی وضعیت سبد خرید و هدایت در صورت خالی بودن پس از هیدراتاسیون
 watch(
@@ -116,6 +120,11 @@ const handleShippingChange = (method: ShippingMethod) => {
 }
 
 const goToStep2 = handleSubmit(() => {
+  if (!acceptTerms.value) {
+    termsError.value = 'پذیرش شرایط و قوانین جهت ثبت سفارش در کراس الزامی است.'
+    return
+  }
+  termsError.value = ''
   currentStep.value = 2
   if (import.meta.client) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -129,7 +138,7 @@ const goToStep1 = () => {
   }
 }
 
-// ارسال نهایی سفارش
+// ثبت نهایی سفارش
 const handleFinalSubmit = async () => {
   const result = await validate()
   if (!result.valid) {
@@ -138,6 +147,48 @@ const handleFinalSubmit = async () => {
     return
   }
 
+  if (!acceptTerms.value) {
+    currentStep.value = 1
+    termsError.value = 'پذیرش شرایط و قوانین جهت ثبت سفارش در کراس الزامی است.'
+    toast.error(termsError.value)
+    return
+  }
+
+  // در صورت عدم احراز هویت، فعال‌سازی مدال تایید شماره همراه درون‌برنامه‌ای (OTP)
+  if (!authStore.isAuthenticated) {
+    isInlineOtpOpen.value = true
+    return
+  }
+
+  await executeOrderCreation()
+}
+
+// پس از تایید موفقیت‌آمیز شماره همراه مهمان
+const onInlineOtpSuccess = async () => {
+  // ذخیره آدرس سفارش در دفترچه نشانی‌های حساب در صورت خالی بودن
+  if (authStore.isAuthenticated && authStore.addresses.length === 0 && values.exactAddress) {
+    try {
+      await authStore.addAddress({
+        title: 'منزل',
+        fullName: values.fullName || authStore.user?.fullName || '',
+        phoneNumber: toEn((values.phoneNumber || authStore.user?.phoneNumber || '').trim()),
+        province: values.province || 'تهران',
+        city: values.city || 'تهران',
+        postalCode: toEn((values.postalCode || '').trim()),
+        exactAddress: values.exactAddress || '',
+        buildingNumber: values.buildingNumber || undefined,
+        unit: values.unit || undefined,
+        isDefault: true,
+      })
+    } catch {
+      // نادیده گرفتن خطای ذخیره جانبی
+    }
+  }
+
+  await executeOrderCreation()
+}
+
+const executeOrderCreation = async () => {
   isSubmittingOrder.value = true
   try {
     const receipt = await $fetch<OrderReceipt>('/api/orders/create', {
@@ -442,6 +493,25 @@ const handleFinalSubmit = async () => {
               >
             </div>
 
+            <!-- شرایط و قوانین خرید از کراس -->
+            <div class="pt-2">
+              <label class="flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  id="checkout-accept-terms"
+                  v-model="acceptTerms"
+                  type="checkbox"
+                  class="mt-0.5 h-4 w-4 rounded border-sand text-rose focus:ring-rose/40 cursor-pointer accent-rose"
+                >
+                <span class="leading-relaxed">
+                  <NuxtLink to="/terms" target="_blank" class="text-rose font-bold hover:underline">قوانین و مقررات</NuxtLink>
+                  خرید از کراس را مطالعه کرده و می‌پذیرم.
+                </span>
+              </label>
+              <p v-if="termsError" class="text-[11px] text-destructive font-medium pt-1">
+                {{ termsError }}
+              </p>
+            </div>
+
             <!-- دکمه ادامه به مرحله بعد -->
             <div class="pt-4 flex items-center justify-between border-t border-sand/70">
               <NuxtLink
@@ -677,5 +747,13 @@ const handleFinalSubmit = async () => {
         <CheckoutOrderSummary />
       </div>
     </div>
+
+    <!-- مدال تایید شماره موبایل درون‌برنامه‌ای مهمان -->
+    <InlineCheckoutOtp
+      v-model:open="isInlineOtpOpen"
+      :phone-number="values.phoneNumber || ''"
+      :full-name="values.fullName || ''"
+      @success="onInlineOtpSuccess"
+    />
   </div>
 </template>

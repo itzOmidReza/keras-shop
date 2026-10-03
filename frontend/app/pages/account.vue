@@ -4,15 +4,12 @@ import {
   User,
   Package,
   MapPin,
-  Settings,
-  LogOut,
   Plus,
   Trash2,
   CheckCircle2,
   Clock,
   ArrowLeft,
   Sparkles,
-  Phone,
   Mail,
   X,
   ShoppingBag,
@@ -30,6 +27,10 @@ import { toEn, toFa, formatToman, formatDate } from '~/utils/format'
 import { IRAN_PROVINCES, iranianMobileRegex, iranianPostalCodeRegex } from '~/utils/validation'
 import type { UserOrderSummary } from '~/types/domain'
 
+definePageMeta({
+  layout: 'account',
+})
+
 useSeoMeta({
   title: 'حساب کاربری | کراس',
   description: 'مدیریت حساب کاربری، سفارش‌ها و نشانی‌های شما در برند پوشاک ورزشی کراس',
@@ -38,6 +39,24 @@ useSeoMeta({
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+
+const activeTabTitle = computed(() => {
+  switch (activeTab.value) {
+    case 'orders': return 'سفارش‌های من'
+    case 'addresses': return 'دفترچه نشانی‌ها'
+    case 'profile': return 'اطلاعات فردی و امنیت'
+    default: return 'پیشخوان حساب کاربری'
+  }
+})
+
+const activeTabDescription = computed(() => {
+  switch (activeTab.value) {
+    case 'orders': return 'مشاهده و پیگیری تمام سفارش‌های ثبت‌شده در استودیو کراس'
+    case 'addresses': return 'مدیریت و ثبت آدرس‌های تحویل مرسوله‌های پستی'
+    case 'profile': return 'مشخصات هویتی، راه‌های ارتباطی و امنیت حساب کاربری'
+    default: return 'خلاصه وضعیت، سفارش‌های اخیر و امتیازات باشگاه مشتریان کراس'
+  }
+})
 
 // تازه نگه‌داشتن داده‌های حساب کاربری
 onMounted(async () => {
@@ -192,7 +211,7 @@ const recentOrder = computed(() => authStore.orders[0] || null)
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8 lg:py-12 max-w-5xl">
+  <div :class="authStore.isAuthenticated ? 'w-full' : 'container mx-auto px-4 py-8 lg:py-12 max-w-5xl'">
     <!-- وضعیت در حال هیدراتاسیون اولیه -->
     <div v-if="!authStore.isHydrated" class="py-24 text-center space-y-3">
       <div class="w-10 h-10 border-2 border-sand border-t-rose rounded-full animate-spin mx-auto" />
@@ -245,118 +264,28 @@ const recentOrder = computed(() => authStore.orders[0] || null)
       </div>
     </div>
 
-    <!-- ۲. حالت احراز هویت شده: داشبورد جامع کاربری -->
-    <div v-else class="space-y-8">
-      <!-- هدر خوش‌آمدگویی کاربر -->
-      <div class="rounded-3xl border border-sand bg-white p-6 sm:p-8 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 rounded-2xl bg-sand/40 text-rose flex items-center justify-center font-bold text-xl border border-sand shrink-0">
-            <User class="w-8 h-8 text-rose" />
+    <!-- ۲. حالت احراز هویت شده: بوم اصلی داشبورد (Main Canvas) -->
+    <div v-else class="space-y-6">
+      <!-- هدر سربرگ ادیتوریال تب جاری -->
+      <div class="rounded-3xl border border-sand bg-white p-6 sm:p-7 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
+              {{ activeTabTitle }}
+            </h1>
+            <span class="rounded-full bg-sage/15 text-sage text-[10px] font-bold px-2.5 py-0.5">
+              عضو رسمی
+            </span>
           </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg sm:text-2xl font-bold text-ink tracking-tight">
-                {{ authStore.user?.fullName || 'کاربر گرامی کراس' }}
-              </h1>
-              <span class="rounded-full bg-sage/15 text-sage text-[10px] font-bold px-2.5 py-0.5">
-                عضو رسمی
-              </span>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-mono">
-              <span class="flex items-center gap-1">
-                <Phone class="w-3.5 h-3.5 text-sand" />
-                <span>{{ toFa(authStore.user?.phoneNumber || '') }}</span>
-              </span>
-              <span v-if="authStore.user?.email" class="hidden sm:inline text-sand">|</span>
-              <span v-if="authStore.user?.email" class="flex items-center gap-1 font-sans">
-                <Mail class="w-3.5 h-3.5 text-sand" />
-                <span>{{ authStore.user.email }}</span>
-              </span>
-            </div>
-          </div>
+          <p class="text-xs text-muted-foreground">
+            {{ activeTabDescription }}
+          </p>
         </div>
 
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-destructive transition-colors cursor-pointer self-end sm:self-auto"
-          @click="authStore.logout()"
-        >
-          <LogOut class="w-4 h-4" />
-          <span>خروج از حساب</span>
-        </button>
-      </div>
-
-      <!-- ناوبری تب‌های داشبورد -->
-      <div class="border-b border-sand flex items-center gap-2 sm:gap-6 overflow-x-auto pb-px">
-        <button
-          type="button"
-          class="py-3 px-2 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap cursor-pointer flex items-center gap-2"
-          :class="activeTab === 'overview' ? 'text-rose' : 'text-muted-foreground hover:text-ink'"
-          @click="switchTab('overview')"
-        >
-          <Sparkles class="w-4 h-4" />
-          <span>پیشخوان</span>
-          <span
-            v-if="activeTab === 'overview'"
-            class="absolute inset-x-0 bottom-0 h-0.5 bg-rose"
-          />
-        </button>
-
-        <button
-          type="button"
-          class="py-3 px-2 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap cursor-pointer flex items-center gap-2"
-          :class="activeTab === 'orders' ? 'text-rose' : 'text-muted-foreground hover:text-ink'"
-          @click="switchTab('orders')"
-        >
-          <Package class="w-4 h-4" />
-          <span>سفارش‌های من</span>
-          <span
-            v-if="authStore.orders.length > 0"
-            class="w-5 h-5 rounded-full bg-sand text-ink text-[10px] font-bold flex items-center justify-center font-mono"
-          >
-            {{ toFa(authStore.orders.length) }}
-          </span>
-          <span
-            v-if="activeTab === 'orders'"
-            class="absolute inset-x-0 bottom-0 h-0.5 bg-rose"
-          />
-        </button>
-
-        <button
-          type="button"
-          class="py-3 px-2 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap cursor-pointer flex items-center gap-2"
-          :class="activeTab === 'addresses' ? 'text-rose' : 'text-muted-foreground hover:text-ink'"
-          @click="switchTab('addresses')"
-        >
-          <MapPin class="w-4 h-4" />
-          <span>دفترچه نشانی‌ها</span>
-          <span
-            v-if="authStore.addresses.length > 0"
-            class="w-5 h-5 rounded-full bg-sand text-ink text-[10px] font-bold flex items-center justify-center font-mono"
-          >
-            {{ toFa(authStore.addresses.length) }}
-          </span>
-          <span
-            v-if="activeTab === 'addresses'"
-            class="absolute inset-x-0 bottom-0 h-0.5 bg-rose"
-          />
-        </button>
-
-        <button
-          type="button"
-          class="py-3 px-2 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap cursor-pointer flex items-center gap-2"
-          :class="activeTab === 'profile' ? 'text-rose' : 'text-muted-foreground hover:text-ink'"
-          @click="switchTab('profile')"
-        >
-          <Settings class="w-4 h-4" />
-          <span>اطلاعات فردی</span>
-          <span
-            v-if="activeTab === 'profile'"
-            class="absolute inset-x-0 bottom-0 h-0.5 bg-rose"
-          />
-        </button>
+        <div v-if="authStore.user?.email" class="flex items-center gap-1.5 text-xs text-muted-foreground font-mono bg-sand/20 px-3.5 py-2 rounded-xl border border-sand/60 w-fit">
+          <Mail class="w-3.5 h-3.5 text-sand" />
+          <span>{{ authStore.user.email }}</span>
+        </div>
       </div>
 
       <!-- محتوای تب ۱: پیشخوان (Overview) -->

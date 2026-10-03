@@ -22,10 +22,10 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)          |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
-| **Total Route Pages**   | **25** (22 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
-| **Domain Components**   | **30** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
+| **Total Route Pages**   | **26** (23 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
+| **Domain Components**   | **32** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
-| **Overall Completion**  | **100%** (Production-Ready Storefront, All 25 Routes Complete)       |
+| **Overall Completion**  | **100%** (Production-Ready Storefront, All 26 Routes Complete)       |
 
 ```
 Overall Progress:       [████████████████████] 100%
@@ -60,13 +60,13 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 |  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
-|  5  | `/checkout`         | `app/pages/checkout.vue`         | **Complete** |  562  | 2-step validated funnel, Zod Iranian mobile & postal regex, shipping select                                                                    | User saved-address autofill                                                |
+|  5  | `/checkout`         | `app/pages/checkout/index.vue`   | **Complete** |  562  | 2-step validated funnel, Zod Iranian mobile & postal regex, shipping select, in-place guest OTP registration dialog (`InlineCheckoutOtp.vue`), gateway forwarding | User saved-address autofill                                                |
 |  6  | `/checkout/success` | `app/pages/checkout/success.vue` | **Complete** |  232  | Order confirmation receipt, delivery timeline, direct tracking CTA                                                                             | PDF receipt download                                                       |
 |  7  | `/wishlist`         | `app/pages/wishlist.vue`         | **Complete** |  218  | Responsive grid, quick add-to-cart size pills, clear all, empty state                                                                          | Shareable public wishlist link                                             |
 |  8  | `/products`         | `app/pages/products/index.vue`   | **Redirect** |   7   | Seamlessly redirects to `/shop`                                                                                                                | None (intended architectural redirect)                                     |
 |  9  | `/search`           | `app/pages/search.vue`           | **Redirect** |  14   | Preserves query params and redirects to `/shop?q=...`                                                                                          | None (intended architectural redirect)                                     |
 | 10  | `/dev/components`   | `app/pages/dev/components.vue`   | **Internal** |  174  | Dev showcase for design tokens and UI components                                                                                               | Non-production tool                                                        |
-| 11  | `/account`          | `app/pages/account.vue`          | **Complete** |  863  | Guest Auth Guard card, Overview metrics & recent order, Orders tab with status chips, Address Book with create/delete dialog, Profile settings | Avatar upload (future backend integration)                                 |
+| 11  | `/account`          | `app/pages/account.vue`          | **Complete** |  863  | Dedicated 2-column layout (`layouts/account.vue`) with sticky right profile sidebar, Overview metrics & recent order, Orders tab, Address Book with dialog, Profile settings | Avatar upload (future backend integration)                                 |
 | 12  | `/tracking`         | `app/pages/tracking.vue`         | **Complete** |  471  | Order code / mobile lookup form, quick test pills, live status badge, TrackingTimeline component, 24-digit Iran Post barcode with 1-click copy & external portal link, recipient info, itemized order breakdown | SMS status notification toggle                                             |
 | 13  | `/size-guide`       | `app/pages/size-guide.vue`       | **Complete** |  457  | Standalone metric size guide with Move vs Calm anatomical comparison, interactive metric fit calculator (CM/KG), women's & men's metric sizing tables, 4-step measurement guide, and 7-day free exchange promise | Printable PDF export                                                       |
 | 14  | `/about`            | `app/pages/about.vue`            | **Complete** |  235  | Editorial brand storytelling, Move vs Calm dual philosophy cards, manifesto quote, 3 core values, milestones                                   | Dynamic CMS founder stories                                                |
@@ -81,6 +81,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 23  | `/careers`          | `app/pages/careers.vue`          | **Complete** |  628  | Brand culture & core pillars, 6 employee perks/benefits cards, 4 open positions with accordion details, and interactive application drawer with Iranian mobile validation and resume upload | Greenhouse / Lever API ATS integration                                     |
 | 24  | `/checkout/gateway` | `app/pages/checkout/gateway.vue` | **Complete** |  365  | Dedicated minimal Shaparak gateway portal, 10-min countdown timer, card 4-slot grouping, bank BIN detection, dynamic OTP, and dev simulation buttons | Live banking switch API connection                                         |
 | 25  | `/checkout/callback`| `app/pages/checkout/callback.vue`| **Complete** |  225  | Animated verification spinner, verify API call, auto-redirect to success receipt, preserved-cart retry flow on failure                         | Multi-acquirer fallback                                                    |
+| 26  | `/login`            | `app/pages/login.vue`            | **Complete** |  320  | Standalone split editorial login page with 11-digit Iranian mobile input, terms agreement, 5-slot InputOTP, 120s timer, dev demo bypass, and redirect preservation | Social login providers (future)                                            |
 
 ---
 
@@ -91,6 +92,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Layout**: `AppHeader.vue` (sticky, scroll-aware, cart/wishlist counters, mobile trigger)
 - [x] **Layout**: `AppFooter.vue` (brand links, newsletter subscription, copyright)
 - [x] **Layout**: `MobileNav.vue` (drawer navigation with quick links and badges)
+- [x] **Layout**: `layouts/account.vue` (Dedicated 2-column luxury account layout with sticky right profile card, vertical navigation, and responsive mobile scroll tabs)
 - [x] **Product**: `ProductCard.vue` (dual image hover, floating heart toggle, line pill)
 - [x] **Product**: `ProductGallery.vue` (multi-image thumbnail carousel & view)
 - [x] **Product**: `ProductTabs.vue` (description, technical details, care instructions)
@@ -106,6 +108,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Cart**: `CartItemRow.vue` (quantity controls, size badge, remove item)
 - [x] **Checkout**: `CheckoutOrderSummary.vue` (price summary, voucher input, items preview)
 - [x] **Checkout**: `CheckoutSteps.vue` (step indicator: Shipping Info -> Payment Method)
+- [x] **Checkout**: `InlineCheckoutOtp.vue` (In-place guest OTP registration dialog with 5-slot InputOTP, dev bypass, and seamless checkout continuation)
 - [x] **Catalog**: `SortSelect.vue` (sort order dropdown with RTL alignment)
 - [x] **Catalog**: `FilterPanel.vue` (accordion filters: line, category, size, color, price)
 - [x] **Catalog**: `CatalogSkeleton.vue` & `CatalogEmptyState.vue` (loading and empty states)
@@ -242,6 +245,15 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-03 (`45f853b`)**: `feat(account): implement dedicated account layout, standalone login page, and in-checkout guest otp registration`
+  - Implemented bespoke 2-column luxury Account layout (`frontend/app/layouts/account.vue`): sticky right profile sidebar with monogram avatar, customer club tier badge («باشگاه مشتریان کراس»), vertical navigation tabs with Lucide icons, ghost logout button, and responsive mobile horizontal scroll tabs (`data-testid="mobile-tab-*"`).
+  - Upgraded `frontend/app/pages/account.vue` to use `definePageMeta({ layout: 'account' })` and streamlined the main canvas header with dynamic titles and descriptions across all tabs (Overview, Orders, Addresses, Profile).
+  - Created standalone editorial split login page (`frontend/app/pages/login.vue`): Side A autumn lookbook visual and Atelier quote; Side B luxury auth card with 11-digit Iranian mobile input, terms agreement checkbox, 5-slot `InputOTP`, test code hints (`12345`/`1234`), 120s countdown timer, one-click dev demo login bypass, and preserved query redirects (`?redirect=/...`).
+  - Implemented seamless guest checkout registration (`frontend/app/components/checkout/InlineCheckoutOtp.vue` & `frontend/app/pages/checkout/index.vue`): guests fill shipping address and accept terms; upon proceeding to payment, an in-place OTP verification dialog triggers, persists the session and shipping address into the user profile, and advances seamlessly to the Shaparak gateway without cart reset.
+  - Extended E2E Playwright test suite (`tests/e2e/01-auth-otp.spec.ts` & `04-checkout-ipg-success.spec.ts`) asserting standalone login page, redirect query handling, demo login bypass, and guest checkout OTP registration.
+  - All 16 Playwright E2E tests passed across Desktop Chrome and Mobile Safari.
+  - All 6 quality verification gates passed cleanly with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`, `test:e2e`).
 
 - **2026-10-03 (`f9aec7f`)**: `feat(home): redesign high-conversion storefront landing page with shop-the-look and category stories`
   - Completely redesigned `app/pages/index.vue` into a product-focused, 7-step high-converting e-commerce UX funnel, replacing text manifestos with immediate product discoverability, micro-interactions, and visual shopping.
