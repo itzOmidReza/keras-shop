@@ -54,7 +54,7 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
           </div>
           <div>
             <DialogTitle class="text-base font-bold text-ink">
-              {{ step === 'phone' ? 'ورود به حساب کاربری' : 'تایید شماره موبایل' }}
+              {{ step === 'phone' ? 'ورود یا ثبت‌نام' : 'تایید شماره موبایل' }}
             </DialogTitle>
             <DialogDescription class="text-2xs text-muted-foreground mt-0.5">
               {{ step === 'phone' ? 'ورود امن با شماره موبایل و کد یک‌بار مصرف' : `کد تایید ارسال‌شده به ${toFa(phoneNumber)}` }}
@@ -79,9 +79,9 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
           :phone-error="phoneError"
           :is-loading="authStore.isLoading"
           :require-terms="false"
-          demo-test-id="auth-modal-demo-btn"
-          admin-test-id="auth-modal-admin-btn"
-          phone-input-id="auth-modal-phone-input"
+          demo-test-id="modal-demo-login-btn"
+          admin-test-id="modal-admin-login-btn"
+          phone-input-id="auth-phone-input"
           @submit="handleSendOtp"
           @demo-login="handleDemoLogin"
           @admin-login="handleAdminLogin"
@@ -97,8 +97,8 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
           :countdown="countdown"
           :formatted-countdown="formattedCountdown"
           otp-test-id="auth-modal-otp-input"
-          demo-test-id="auth-modal-demo-btn-step2"
-          admin-test-id="auth-modal-admin-btn-step2"
+          demo-test-id="modal-demo-login-btn"
+          admin-test-id="modal-admin-login-btn"
           @back-to-phone="handleBackToPhone"
           @verify="handleVerifyOtp"
           @resend="handleResendOtp"
