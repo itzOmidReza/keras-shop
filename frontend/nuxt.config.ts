@@ -47,8 +47,13 @@ export default defineNuxtConfig({
     { path: '~/components/cart', pathPrefix: false },
     { path: '~/components/checkout', pathPrefix: false },
     { path: '~/components/catalog', pathPrefix: false },
+    { path: '~/components/ops', pathPrefix: false },
     '~/components',
   ],
+
+  imports: {
+    dirs: ['composables/**', 'utils/**'],
+  },
 
   shadcn: {
     prefix: '',

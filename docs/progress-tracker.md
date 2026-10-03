@@ -249,6 +249,26 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-04 (`refactor`)**: `refactor(ops): decompose internal ops nexus into modular views, lazy dialogs, and domain composables`
+  - **Monolithic Component Deconstruction (`app/pages/internal-ops-nexus/index.vue`)**:
+    - Reduced file size from **2,814 lines** down to **142 lines** (95% line reduction), transforming it into a lean view orchestrator powered by `route.query.view`.
+    - Maintained security guard (throwing 404 for unauthorized visitors), `ops` layout, SEO meta, top tab buttons with Persian labels, and lazy dialog mounting.
+  - **Scoped Domain Composables (`app/composables/ops/`)**:
+    - `useOpsProducts.ts`: Catalog CRUD, filtering, auto-discount calculator, variant stock matrix, and product delete confirmation.
+    - `useOpsOrders.ts`: Orders pipeline, inline status updater, 24-digit Iran Post barcode generator, manual order pre-invoice calculator, and packing slip dialog state.
+    - `useOpsFinance.ts`: Financial ledger KPIs, date range filters, Shaparak transactions table, and UTF-8 BOM CSV export.
+    - `useOpsArticles.ts`: CMS editorial journal articles state, authoring form, and draft/publish status toggles.
+    - `useOpsInventory.ts`: Variant SKU inventory matrix with urgent low stock indicators and discount voucher campaign toggles.
+  - **Atomic Domain Views & Lazy Dialogs (`app/components/ops/`)**:
+    - Created 8 focused view components: `OpsAnalyticsView.vue`, `OpsProductsView.vue`, `OpsOrdersView.vue`, `OpsInventoryView.vue`, `OpsFinanceView.vue`, `OpsArticlesView.vue`, `OpsVouchersView.vue`, `OpsCrmView.vue`.
+    - Created 6 lazy dialogs: `OpsProductModal.vue`, `OpsProductDeleteDialog.vue`, `OpsBarcodeModal.vue`, `OpsManualOrderModal.vue`, `OpsPackingSlipModal.vue`, `OpsArticleModal.vue`.
+  - **Quality Gates & Test Compliance**:
+    - Zero regressions across the entire Playwright test suite: all 24 tests passed cleanly in 46s (`05-internal-ops-nexus.spec.ts` passing 100%).
+    - Zero non-logical directional classes (`lint:rtl` passed).
+    - Zero unlisted 6-digit hex tokens (`lint:tokens` passed).
+    - ESLint and `nuxi typecheck` passed with 0 errors.
+    - Nuxt Nitro production build passed.
+
 - **2026-10-03 (`a4de8ad`)**: `feat(shop): implement 12-item pagination, sticky luxury filter sidebar, and responsive catalog grid`
   - **12-Item Commercial Pagination System (`app/pages/shop/index.vue`)**:
     - Partitioned catalog into 12 items per page by default, forming balanced 3x4 (desktop) and 4x3 (wide) responsive grids.
