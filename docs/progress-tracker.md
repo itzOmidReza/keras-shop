@@ -23,7 +23,7 @@
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                             |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                         |
 | **Total Route Pages**   | **25** (22 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)       |
-| **Domain Components**   | **23** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
+| **Domain Components**   | **30** Custom Domain Components + 28 shadcn/Reka UI Primitives       |
 | **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe            |
 | **Overall Completion**  | **100%** (Production-Ready Storefront, All 25 Routes Complete)       |
 
@@ -56,7 +56,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 |  #  | Route               | File Path                        |    Status    | Lines | Details / Current Capability                                                                                                                   | Missing / Next Steps                                                       |
 | :-: | :------------------ | :------------------------------- | :----------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  114  | Hero, Move/Calm lines, bestsellers carousel, value props, newsletter                                                                           | Dynamic CMS banner integration                                             |
+|  1  | `/`                 | `app/pages/index.vue`            | **Complete** |  45   | 7-step high-converting e-commerce UX funnel (HeroPromoBanner, CategoryStories, FlashDealsRow with Quick-Add, ShopByActivity, ShopTheLook with hotspots & 10% bundle, CatalogDiscoveryTabs, StorefrontTrustBar) | Dynamic CMS banner integration                                             |
 |  2  | `/shop`             | `app/pages/shop/index.vue`       | **Complete** |  304  | Multi-criteria filters, 2-way URL sync, sort, skeletons, chips                                                                                 | Infinite scroll / pagination                                               |
 |  3  | `/products/[slug]`  | `app/pages/products/[slug].vue`  | **Complete** |  246  | Gallery, size guide modal (CM only), fabric meters, reviews, related                                                                           | Social share drawer, stock urgency                                         |
 |  4  | `/cart`             | `app/pages/cart.vue`             | **Complete** |  319  | Item list, coupon code validator, free shipping meter, full summary                                                                            | Multi-voucher support                                                      |
@@ -113,6 +113,13 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Account**: Built-in tabs inside `app/pages/account.vue` (Overview metrics, Orders, Addresses dialog, Profile)
 - [x] **Tracking**: `TrackingTimeline.vue` (responsive horizontal/vertical timeline, Iran Post barcode, step indicator)
 - [x] **Search**: `SearchAutocomplete.vue` (debounced autocomplete dropdown in header and mobile nav, category pills, keyboard navigation)
+- [x] **Home**: `HeroPromoBanner.vue` (campaign banner with 1-click voucher copy pill `KERAS-PRO` and dual Move/Calm CTAs)
+- [x] **Home**: `CategoryStories.vue` (Instagram-style circular category bubbles with native CSS scroll snap)
+- [x] **Home**: `FlashDealsRow.vue` (live animated countdown timer, discount badges, 1-click Quick-Add size overlay to mini cart)
+- [x] **Home**: `ShopByActivity.vue` (4-discipline physiological fit grid: Move 300 GSM, Calm 220 GSM, Running, Athleisure)
+- [x] **Home**: `ShopTheLook.vue` (multi-look switcher, pulsing hotspots with product popovers, 1-click 10% bundle purchase)
+- [x] **Home**: `CatalogDiscoveryTabs.vue` (smart catalog feed with bestseller/move/calm tabs and ProductCard grid)
+- [x] **Home**: `StorefrontTrustBar.vue` (4-pillar trust assurance grid: 7-day returns, squat-proof, free express shipping, Shaparak)
 
 ### 4.2 State Management (`app/stores/`)
 
@@ -233,6 +240,19 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-03 (`f9aec7f`)**: `feat(home): redesign high-conversion storefront landing page with shop-the-look and category stories`
+  - Completely redesigned `app/pages/index.vue` into a product-focused, 7-step high-converting e-commerce UX funnel, replacing text manifestos with immediate product discoverability, micro-interactions, and visual shopping.
+  - Implemented 7 modular domain components in `frontend/app/components/home/` (1,090 lines):
+    - `HeroPromoBanner.vue`: Full-bleed campaign banner with interactive voucher pill (1-click copy of `KERAS-PRO` with Sonner toast) and dual Move/Calm action buttons.
+    - `CategoryStories.vue`: Instagram-style circular category bubbles with gradient border rings, live ping animation badge on hot offers, and native CSS scroll snap (`overflow-x-auto snap-x`).
+    - `FlashDealsRow.vue`: 24-hour flash sale banner with animated countdown timer (Hours:Minutes:Seconds in Persian digits) and 1-click Quick-Add size overlay directly adding items to `cartStore` and opening `CartDrawer`.
+    - `ShopByActivity.vue`: 4-item visual responsive grid categorizing gear by workout discipline (Move 300 GSM Squat-Proof, Calm 220 GSM Second-Skin, Running High-Breathability, Urban Athleisure).
+    - `ShopTheLook.vue`: Multi-look switcher tabs, high-res model photography with pulsing hotspots (`animate-ping`) revealing popovers, individual size selectors per item, dynamic bundle discount calculator, and 1-click CTA adding the entire bundle to `cartStore` with a 10% discount.
+    - `CatalogDiscoveryTabs.vue`: Smart catalog feed with instant tab triggers («پرفروش‌ترین‌های هفته»، «کالکشن حرکت»، «کالکشن آرامش») rendering `ProductCard.vue` without page reloads.
+    - `StorefrontTrustBar.vue`: Minimalist 4-pillar trust assurance grid (7-day returns with concierge, 100% squat-proof guarantee, free express shipping above 1.5M Toman, official Shaparak payment).
+  - Strictly enforced RTL logical CSS properties (`ms-*`, `ps-*`, `inset-s-*`, `text-start`), luxury brand tokens (`ink`, `sand`, `paper`, `rose`, `sage`, `clay`), and strict metric units (CM/KG) & Persian currency (`formatToman()`).
+  - Passed all verification linters and test suites: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (ESLint 0 errors), `typecheck` (vue-tsc 0 errors), `build` (Nitro clean bundle), and Playwright E2E suite (8/8 tests passed).
 
 - **2026-10-02 (`7fb49d4`)**: `test(e2e): implement playwright automated testing suite for core commerce, auth, and ipg funnel`
   - Setup and configured Playwright test runner (`@playwright/test` v1.63.0) with multi-device coverage (`Desktop Chrome` 1280x800 and `Mobile Safari` iPhone 14 touch & viewport emulation).

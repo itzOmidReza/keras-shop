@@ -1,114 +1,51 @@
-<!-- app/pages/index.vue -->
+<!-- frontend/app/pages/index.vue -->
 <script setup lang="ts">
-import { heroContent, brandPerks, siteConfig } from '~/data'
-import { ArrowLeft, Sparkles, Truck, RotateCcw, ShieldCheck } from '@lucide/vue'
+import { siteConfig } from '~/data'
+import HeroPromoBanner from '~/components/home/HeroPromoBanner.vue'
+import CategoryStories from '~/components/home/CategoryStories.vue'
+import FlashDealsRow from '~/components/home/FlashDealsRow.vue'
+import ShopByActivity from '~/components/home/ShopByActivity.vue'
+import ShopTheLook from '~/components/home/ShopTheLook.vue'
+import CatalogDiscoveryTabs from '~/components/home/CatalogDiscoveryTabs.vue'
+import StorefrontTrustBar from '~/components/home/StorefrontTrustBar.vue'
 
 useSeoMeta({
-  title: `${siteConfig.name} | ${siteConfig.slogan}`,
-  description: siteConfig.subSlogan,
+  title: `${siteConfig.name} | پوشاک ورزشی تخصصی و طراحی مینیمال`,
+  description: 'فروشگاه تخصصی پوشاک ورزشی و اتلژر کراس؛ بافت‌های فشرده‌ساز ۳۰۰ گرمی ضد دید، فناوری بدون درز و حس پوست دوم.',
+  ogTitle: `${siteConfig.name} | پوشاک ورزشی تخصصی و طراحی مینیمال`,
+  ogDescription: 'فروشگاه تخصصی پوشاک ورزشی و اتلژر کراس؛ بافت‌های فشرده‌ساز ۳۰۰ گرمی ضد دید، فناوری بدون درز و حس پوست دوم.',
 })
 
 const { getProducts } = useProducts()
 
+// دریافت محصولات برگزیده و کاتالوگ با کش SWR از لایه Mock API
 const { data: featuredProducts } = await useAsyncData(
   'home-featured-products',
-  () => getProducts({ sort: 'bestseller' }),
+  () => getProducts(),
 )
-
-const perkIcons = {
-  Truck,
-  RotateCcw,
-  ShieldCheck,
-  Sparkles,
-}
 </script>
 
 <template>
-  <div class="space-y-16 lg:space-y-24 pb-16">
-    <!-- بخش Hero با داده‌های استاتیک از ~/data -->
-    <section class="relative overflow-hidden bg-sand/30 border-b border-sand/60 py-16 sm:py-24">
-      <div class="container mx-auto px-4 max-w-5xl text-center space-y-6">
-        <div class="inline-flex items-center gap-2 rounded-full bg-paper px-4 py-1.5 border border-sand shadow-2xs">
-          <Sparkles class="h-4 w-4 text-rose" />
-          <span class="text-xs font-bold text-ink">{{ heroContent.badge }}</span>
-        </div>
+  <div class="space-y-6 sm:space-y-10 pb-16 overflow-hidden">
+    <!-- بخش ۱: هیرو ادیتوریال و انگیزاننده فوری خرید (Hero & Immediate Incentive) -->
+    <HeroPromoBanner />
 
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-ink leading-tight">
-          {{ heroContent.title }}
-        </h1>
+    <!-- بخش ۲: استوری‌های دایره‌ای دسته‌بندی با اسنپ اسکرول (Category Stories) -->
+    <CategoryStories />
 
-        <p class="mx-auto max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-          {{ heroContent.subtitle }}
-        </p>
+    <!-- بخش ۳: حراج شتابان و دسترسی سریع به سایزها (Flash Sale with Quick-Add) -->
+    <FlashDealsRow :products="featuredProducts || []" />
 
-        <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-          <Button as-child size="lg" class="bg-rose text-white hover:bg-rose/90 rounded-xl font-bold h-12 px-6">
-            <NuxtLink :to="heroContent.primaryCta.href">
-              <span>{{ heroContent.primaryCta.label }}</span>
-              <ArrowLeft class="h-4 w-4 me-1 rtl:-scale-x-100" />
-            </NuxtLink>
-          </Button>
+    <!-- بخش ۴: انتخاب بر اساس فعالیت فیزیولوژیک و نوع تمرین (Shop By Activity) -->
+    <ShopByActivity />
 
-          <Button as-child variant="outline" size="lg" class="border-sand bg-white hover:bg-sand/40 rounded-xl font-bold h-12 px-6 text-ink">
-            <NuxtLink :to="heroContent.secondaryCta.href">
-              <span>{{ heroContent.secondaryCta.label }}</span>
-            </NuxtLink>
-          </Button>
-        </div>
-      </div>
-    </section>
+    <!-- بخش ۵: استایل تن مدل با هات‌اسپات‌های تعاملی و تخفیف باندل (Shop The Look) -->
+    <ShopTheLook />
 
-    <!-- بخش مزایای برند کراس -->
-    <section class="container mx-auto px-4 max-w-6xl">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div
-          v-for="perk in brandPerks"
-          :key="perk.title"
-          class="rounded-2xl border border-sand bg-white/60 p-5 text-center space-y-2 shadow-2xs"
-        >
-          <component
-            :is="perkIcons[perk.icon as keyof typeof perkIcons]"
-            class="mx-auto h-5 w-5 text-rose"
-          />
-          <h3 class="text-xs font-bold text-ink">
-            {{ perk.title }}
-          </h3>
-          <p class="text-[11px] text-muted-foreground leading-relaxed">
-            {{ perk.description }}
-          </p>
-        </div>
-      </div>
-    </section>
+    <!-- بخش ۶: تب‌های کاتالوگ هوشمند (Catalog Discovery Tabs) -->
+    <CatalogDiscoveryTabs :initial-products="featuredProducts || []" />
 
-    <!-- بخش محصولات برگزیده متصل به Mock Service Layer -->
-    <section v-if="featuredProducts && featuredProducts.length > 0" class="container mx-auto px-4 max-w-6xl space-y-8">
-      <div class="flex items-end justify-between border-b border-sand pb-4">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            انتخاب ورزشکاران
-          </span>
-          <h2 class="text-2xl font-bold text-ink tracking-tight mt-1">
-            محبوب‌ترین محصولات کراس
-          </h2>
-        </div>
-
-        <NuxtLink
-          to="/shop"
-          class="inline-flex items-center gap-1 text-xs font-bold text-rose hover:underline"
-        >
-          <span>مشاهده همه</span>
-          <span>←</span>
-        </NuxtLink>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <ProductCard
-          v-for="(product, idx) in featuredProducts.slice(0, 4)"
-          :key="product.id"
-          :product="product"
-          :priority="idx < 2"
-        />
-      </div>
-    </section>
+    <!-- بخش ۷: شاخص‌های اعتماد، ضمانت تعویض و ارسال (Storefront Trust Bar) -->
+    <StorefrontTrustBar />
   </div>
 </template>
