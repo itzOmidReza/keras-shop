@@ -7,6 +7,7 @@ import type { ProductDetail, Variant, ProductImage, ProductCategory, ProductSeas
 export interface StudioMediaItem {
   id: number
   url: string
+  alt?: string
   colorName?: string
   kind: 'photo' | 'video'
   position: number
@@ -99,6 +100,13 @@ export function useOpsProductStudio() {
   })
   const crossSellProductIds = ref<number[]>([])
 
+  // مشخصات تخصصی زنانه و مد آتلیه (Atelier Fashion Specs)
+  const silhouette = ref<'relaxed' | 'straight' | 'oversized' | 'fitted' | 'flared'>('relaxed')
+  const neckline = ref('یقه انگلیسی')
+  const sleeveLength = ref('آستین بلند')
+  const occasion = ref('daily')
+  const packageWeightGrams = ref(450)
+
   // Block 5: Size Chart Builder
   const sizeChartTemplateId = ref('tpl_blouse')
   const sizeChartRows = ref<StudioSizeRow[]>([
@@ -118,6 +126,11 @@ export function useOpsProductStudio() {
   const seoTitle = ref('')
   const seoDescription = ref('')
 
+  // وضعیت ذخیره‌نشده / بازبینی (Dirty Tracking)
+  const isDirty = ref(false)
+  const markDirty = () => { isDirty.value = true }
+  const resetDirty = () => { isDirty.value = false }
+
   // محاسبات سئو
   const serpPreviewTitle = computed(() => {
     return seoTitle.value.trim() || `${title.value || 'عنوان اثر'} | آتلیه مد کراس`
@@ -135,6 +148,48 @@ export function useOpsProductStudio() {
     if (lookbookNotes.value.length > 30) score += 10
     if (seoDescription.value.length > 20) score += 10
     return Math.min(score, 100)
+  })
+
+  const seoIssues = computed(() => {
+    const issues: string[] = []
+    if (!seoTitle.value.trim() && !title.value.trim()) issues.push('عنوان اثر یا عنوان متا وارد نشده است')
+    if (!seoDescription.value.trim() && !lookbookNotes.value.trim()) issues.push('توضیحات متا خالی است')
+    if (mediaList.value.length < 2) issues.push('حداقل ۲ تصویر برای گالری اثر بارگذاری کنید')
+    if (lookbookNotes.value.length < 30) issues.push('روایت ادیتوریال و یادداشت لوک‌بوک کوتاه است')
+    return issues
+  })
+
+  const autoGenerateSeo = () => {
+    if (!title.value.trim()) {
+      toast.error('ابتدا عنوان اثر را وارد نمایید.')
+      return
+    }
+    seoTitle.value = `${title.value.trim()} | آتلیه مد کراس`
+    seoDescription.value = `${title.value.trim()} دوخته‌شده از ${fiberComposition.value} با طراحی انحصاری آتلیه کراس. ارسال رایگان به سراسر کشور.`
+    markDirty()
+    toast.success('عنوان و توضیحات سئو به‌صورت هوشمند تکمیل شدند.')
+  }
+
+  // وضعیت تکمیل بخش‌های فرم (Section Completion for Inspector)
+  const isIdentityComplete = computed(() => Boolean(title.value.trim().length >= 3 && category.value))
+  const isMediaComplete = computed(() => mediaList.value.length >= 1)
+  const isVariantsComplete = computed(() => variants.value.length >= 1 && selectedColors.value.length >= 1)
+  const isSpecsComplete = computed(() => Boolean(fiberComposition.value.trim().length >= 3 && fabricGsm.value > 0))
+  const isSizeChartComplete = computed(() => sizeChartRows.value.length >= 1)
+  const isStrategyComplete = computed(() => Boolean(purchaseLimit.value > 0 && scheduledDropDate.value.trim().length > 0))
+
+  const sectionStatuses = computed(() => [
+    { id: 'identity', title: 'شناسنامه و هویت', complete: isIdentityComplete.value, anchor: '#section-identity' },
+    { id: 'media', title: 'تصاویر و رنگ‌ها', complete: isMediaComplete.value, anchor: '#section-media' },
+    { id: 'variants', title: 'ماتریس تنوع', complete: isVariantsComplete.value, anchor: '#section-variants' },
+    { id: 'specs', title: 'مشخصات متریال', complete: isSpecsComplete.value, anchor: '#section-specs' },
+    { id: 'sizechart', title: 'جدول سایز', complete: isSizeChartComplete.value, anchor: '#section-sizechart' },
+    { id: 'strategy', title: 'استراتژی و سئو', complete: isStrategyComplete.value, anchor: '#section-strategy' },
+  ])
+
+  const completionPercentage = computed(() => {
+    const completedCount = sectionStatuses.value.filter((s) => s.complete).length
+    return Math.round((completedCount / sectionStatuses.value.length) * 100)
   })
 
   // خودکارسازی اسلاگ
@@ -242,6 +297,7 @@ export function useOpsProductStudio() {
     selectedColors.value = ['مشکی زغالی', 'کرم شنی']
     selectedSizes.value = ['XS', 'S', 'M', 'L', 'XL']
     generateCartesianVariants()
+    isDirty.value = false
   }
 
   // بارگذاری داده‌ها برای ویرایش محصول موجود
@@ -296,6 +352,7 @@ export function useOpsProductStudio() {
     } else {
       generateCartesianVariants()
     }
+    isDirty.value = false
   }
 
   // ذخیره محصول استودیو
@@ -412,6 +469,7 @@ export function useOpsProductStudio() {
 
     productsList.value.unshift(newProduct)
     toast.success(`محصول جدید «${title.value}» با موفقیت در کاتالوگ ثبت گردید.`)
+    isDirty.value = false
     return newProduct
   }
 
@@ -439,6 +497,11 @@ export function useOpsProductStudio() {
     careChecklist,
     modelMetrics,
     crossSellProductIds,
+    silhouette,
+    neckline,
+    sleeveLength,
+    occasion,
+    packageWeightGrams,
     sizeChartTemplateId,
     sizeChartRows,
     sizeToleranceNote,
@@ -451,6 +514,13 @@ export function useOpsProductStudio() {
     serpPreviewTitle,
     serpPreviewDescription,
     seoScore,
+    seoIssues,
+    autoGenerateSeo,
+    isDirty,
+    markDirty,
+    resetDirty,
+    sectionStatuses,
+    completionPercentage,
     autoGenerateSlug,
     generateCartesianVariants,
     bulkApplyPricing,

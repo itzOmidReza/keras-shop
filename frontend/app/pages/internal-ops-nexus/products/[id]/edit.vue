@@ -10,6 +10,7 @@ import ProductStudioVariants from '~/components/ops/product-studio/ProductStudio
 import ProductStudioSpecs from '~/components/ops/product-studio/ProductStudioSpecs.vue'
 import ProductStudioSizeChart from '~/components/ops/product-studio/ProductStudioSizeChart.vue'
 import ProductStudioStrategy from '~/components/ops/product-studio/ProductStudioStrategy.vue'
+import ProductStudioInspector from '~/components/ops/product-studio/ProductStudioInspector.vue'
 import ProductStudioActionBar from '~/components/ops/product-studio/ProductStudioActionBar.vue'
 
 definePageMeta({
@@ -26,6 +27,7 @@ const {
   title,
   loadProduct,
   saveStudioProduct,
+  isDirty,
 } = useOpsProductStudio()
 
 const productId = computed(() => route.params.id as string)
@@ -41,6 +43,16 @@ onMounted(() => {
   loadProduct(p)
 })
 
+onBeforeRouteLeave((_to, _from, next) => {
+  if (isDirty.value) {
+    const confirmLeave = window.confirm('تغییرات ذخیره‌نشده‌ای در استودیو اثر وجود دارد. آیا از خروج اطمینان دارید؟')
+    if (confirmLeave) next()
+    else next(false)
+  } else {
+    next()
+  }
+})
+
 const handleSave = () => {
   isSaving.value = true
   try {
@@ -52,10 +64,27 @@ const handleSave = () => {
     isSaving.value = false
   }
 }
+
+const handleSaveDraft = () => {
+  const saved = saveStudioProduct()
+  if (saved) {
+    toast.success('تغییرات اثر در وضعیت پیش‌نویس ذخیره گردید.')
+  }
+}
+
+const handlePreview = () => {
+  toast.info('پیش‌نمایش زنده در پنل ناظر سمت چپ فعال است.')
+}
+
+const handlePrintHangtag = () => {
+  if (typeof window !== 'undefined') {
+    window.print()
+  }
+}
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto space-y-6 pb-28 font-sans">
+  <div class="max-w-7xl mx-auto space-y-6 pb-28 font-sans">
     <!-- هدر صفحه و دکمه بازگشت -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200/80">
       <div class="flex items-center gap-3">
@@ -77,14 +106,22 @@ const handleSave = () => {
       </div>
     </div>
 
-    <!-- بلوک‌های ۶ گانه استودیو طراحی محصول -->
-    <div class="space-y-6">
-      <ProductStudioIdentity />
-      <ProductStudioMedia />
-      <ProductStudioVariants />
-      <ProductStudioSpecs />
-      <ProductStudioSizeChart />
-      <ProductStudioStrategy />
+    <!-- چیدمان ۲ ستونه آتلیه: ستون فرم اصلی + ستون ناظر چسبان -->
+    <div class="grid grid-cols-12 gap-6 items-start">
+      <!-- ستون فرم‌های اصلی (۸ ستون) -->
+      <div class="col-span-12 xl:col-span-8 space-y-6">
+        <ProductStudioIdentity />
+        <ProductStudioMedia />
+        <ProductStudioVariants />
+        <ProductStudioSpecs />
+        <ProductStudioSizeChart />
+        <ProductStudioStrategy />
+      </div>
+
+      <!-- ستون ناظر و پیشرفت چسبان (۴ ستون) -->
+      <div class="col-span-12 xl:col-span-4 sticky top-20 self-start">
+        <ProductStudioInspector />
+      </div>
     </div>
 
     <!-- نوار چسبان اکشن ذخیره -->
@@ -92,6 +129,10 @@ const handleSave = () => {
       :is-saving="isSaving"
       :is-editing="true"
       @save="handleSave"
+      @save-draft="handleSaveDraft"
+      @preview="handlePreview"
+      @print-hangtag="handlePrintHangtag"
     />
   </div>
 </template>
+

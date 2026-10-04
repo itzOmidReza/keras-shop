@@ -3,6 +3,8 @@
 import { Grid, RefreshCw, Plus, Trash2, Check, ArrowRightLeft } from '@lucide/vue'
 import { useOpsProductStudio } from '~/composables/ops/useOpsProductStudio'
 import { useOpsTaxonomy, type ColorSwatch } from '~/composables/ops/useOpsTaxonomy'
+import { useAuthStore } from '~/stores/auth'
+import { toFa } from '~/utils/format'
 import OpsQuickAddAttributeModal from '~/components/ops/taxonomy/OpsQuickAddAttributeModal.vue'
 
 const {
@@ -13,9 +15,11 @@ const {
   generateCartesianVariants,
   bulkApplyPricing,
   bulkApplyStock,
+  markDirty,
 } = useOpsProductStudio()
 
 const { colorSwatches } = useOpsTaxonomy()
+const authStore = useAuthStore()
 
 const isQuickAddColorOpen = ref(false)
 
@@ -23,6 +27,12 @@ const isQuickAddColorOpen = ref(false)
 const bulkRegularPriceInput = ref<number>(2450000)
 const bulkSalePriceInput = ref<number>(2450000)
 const bulkStockInput = ref<number>(10)
+
+// سطح دسترسی به قیمت تمام‌شده
+const canViewCostPrice = computed(() => {
+  const role = authStore.user?.role as string | undefined
+  return !role || role === 'super_admin' || role === 'accountant'
+})
 
 const availableSizesList = computed(() => {
   if (division.value === 'accessories') {
@@ -40,6 +50,7 @@ const toggleColor = (colorName: string) => {
   } else {
     selectedColors.value.push(colorName)
   }
+  markDirty()
 }
 
 const toggleSize = (size: string) => {
@@ -51,18 +62,41 @@ const toggleSize = (size: string) => {
   } else {
     selectedSizes.value.push(size)
   }
+  markDirty()
+}
+
+// تولید خودکار ترکیبات دکارتی هنگام تغییر کالیته رنگ یا سایز
+watch(
+  [selectedColors, selectedSizes],
+  () => {
+    generateCartesianVariants()
+  },
+  { deep: true },
+)
+
+// تولید مجدد دستی با اخطار تأییدیه
+const handleManualRegenerate = () => {
+  if (typeof window !== 'undefined') {
+    const ok = window.confirm('آیا از بازسازی ماتریس متغیرها اطمینان دارید؟ تغییرات دستی پیشین حفظ اما ردیف‌های ترکیبی بازتولید می‌شوند.')
+    if (!ok) return
+  }
+  generateCartesianVariants()
+  markDirty()
 }
 
 const applyBulkPricingAction = () => {
   bulkApplyPricing(bulkRegularPriceInput.value, bulkSalePriceInput.value)
+  markDirty()
 }
 
 const applyBulkStockAction = () => {
   bulkApplyStock(bulkStockInput.value)
+  markDirty()
 }
 
 const removeVariantRow = (idx: number) => {
   variants.value.splice(idx, 1)
+  markDirty()
 }
 
 const totalStockCount = computed(() => {
@@ -73,13 +107,14 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
   if (payload.type === 'color' && payload.item && typeof payload.item === 'object' && 'name' in payload.item) {
     selectedColors.value.push((payload.item as ColorSwatch).name)
     generateCartesianVariants()
+    markDirty()
   }
   isQuickAddColorOpen.value = false
 }
 </script>
 
 <template>
-  <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
+  <section id="section-variants" class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
       <div class="flex items-center gap-2">
         <div class="p-1.5 rounded-lg bg-emerald-50 text-emerald-700">
@@ -87,22 +122,22 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900">
-            ماتریس چندبعدی متغیرها و انبارداری (Dynamic Variant Matrix)
+            ماتریس متغیرها و انبارداری
           </h2>
           <p class="text-[11px] text-slate-500">
-            ترکیب دکارتی کالیته رنگ و سایز، کد بارکد ملی و موجودی تفکیکی
+            تولید هوشمند دکارتی کالیته رنگ و سایز، کد بارکد ملی و موجودی تفکیکی
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
         <span class="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg tabular-nums">
-          {{ variants.length }} ردیف متغیر | کل موجودی: {{ totalStockCount }}
+          {{ toFa(variants.length) }} متغیر | کل موجودی: {{ toFa(totalStockCount) }}
         </span>
         <button
           type="button"
           class="h-8 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-          @click="generateCartesianVariants"
+          @click="handleManualRegenerate"
         >
           <RefreshCw class="w-3.5 h-3.5" />
           <span>تولید مجدد ماتریس</span>
@@ -113,7 +148,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
     <!-- انتخاب رنگ‌های کاتالوگ -->
     <div class="space-y-2">
       <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-        <span>۱. انتخاب رنگ‌های مجاز این محصول:</span>
+        <span>۱. انتخاب رنگ‌های فعال برای این محصول:</span>
         <button
           type="button"
           class="text-ink hover:underline flex items-center gap-1 text-[11px] font-medium cursor-pointer"
@@ -168,7 +203,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <!-- قیمت پایه -->
+        <!-- قیمت پایه و فروش -->
         <div class="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-slate-200">
           <span class="text-[10px] text-slate-400">فروش:</span>
           <input
@@ -210,8 +245,8 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
       </div>
     </div>
 
-    <!-- جدول ماتریس متغیرها -->
-    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+    <!-- جدول ماتریس متغیرها با پیام وضعیت خالی دوستانه -->
+    <div v-if="variants.length > 0" class="overflow-x-auto border border-slate-200 rounded-xl">
       <table class="w-full text-start text-xs border-collapse">
         <thead>
           <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
@@ -222,7 +257,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
             <th class="py-2.5 px-3 text-start">موجودی انبار</th>
             <th class="py-2.5 px-3 text-start">قیمت پایه (تومان)</th>
             <th class="py-2.5 px-3 text-start">قیمت نهایی فروش</th>
-            <th class="py-2.5 px-3 text-start">قیمت تمام‌شده (بهای تمام‌شده)</th>
+            <th v-if="canViewCostPrice" class="py-2.5 px-3 text-start">قیمت تمام‌شده (تولید)</th>
             <th class="py-2.5 px-2 text-center w-10">حذف</th>
           </tr>
         </thead>
@@ -255,6 +290,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
                 type="text"
                 dir="ltr"
                 class="w-28 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-800 outline-hidden focus:bg-white focus:border-ink"
+                @input="markDirty"
               >
             </td>
 
@@ -271,6 +307,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
                 min="0"
                 class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono font-bold text-center text-xs outline-hidden focus:bg-white focus:border-ink tabular-nums"
                 :class="row.stock <= 2 ? 'text-rose-600 bg-rose-50/50 border-rose-200' : 'text-slate-900'"
+                @input="markDirty"
               >
             </td>
 
@@ -280,6 +317,7 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
                 v-model.number="row.regularPrice"
                 type="number"
                 class="w-24 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                @input="markDirty"
               >
             </td>
 
@@ -289,15 +327,17 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
                 v-model.number="row.salePrice"
                 type="number"
                 class="w-24 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono font-bold text-xs text-ink outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                @input="markDirty"
               >
             </td>
 
-            <!-- قیمت تمام‌شده -->
-            <td class="py-2 px-3">
+            <!-- قیمت تمام‌شده (فقط مجاز برای سوپرادمین و حسابداری) -->
+            <td v-if="canViewCostPrice" class="py-2 px-3">
               <input
                 v-model.number="row.costPrice"
                 type="number"
                 class="w-20 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-600 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                @input="markDirty"
               >
             </td>
 
@@ -315,6 +355,17 @@ const onColorCreated = (payload: { type: string, item: unknown }) => {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- وضعیت خالی دوستانه -->
+    <div v-else class="p-8 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+      <Grid class="w-8 h-8 text-slate-300 mx-auto mb-2" />
+      <p class="text-xs text-slate-600 font-medium">
+        حداقل یک رنگ و یک سایز را در بالا انتخاب کنید تا جدول ماتریس متغیرها خودکار تشکیل شود.
+      </p>
+      <p class="text-[11px] text-slate-400 mt-1">
+        با فعال‌سازی هر مشخصه، بارکد و ردیف‌های انبارداری بلافاصله ایجاد خواهند شد.
+      </p>
     </div>
 
     <!-- میکرو مودال رنگ -->

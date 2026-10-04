@@ -1,6 +1,6 @@
 <!-- frontend/app/components/ops/product-studio/ProductStudioSizeChart.vue -->
 <script setup lang="ts">
-import { Ruler, Sparkles, Plus, Trash2, Info } from '@lucide/vue'
+import { Ruler, Sparkles, Plus, Trash2, Info, RefreshCw } from '@lucide/vue'
 import { useOpsProductStudio } from '~/composables/ops/useOpsProductStudio'
 import { useOpsTaxonomy } from '~/composables/ops/useOpsTaxonomy'
 
@@ -8,12 +8,15 @@ const {
   sizeChartTemplateId,
   sizeChartRows,
   sizeToleranceNote,
+  selectedSizes,
+  markDirty,
 } = useOpsProductStudio()
 
 const { sizeTemplates } = useOpsTaxonomy()
 
 // بارگذاری الگوی سایز
 const applySizeTemplate = () => {
+  markDirty()
   const tpl = sizeTemplates.value.find((t) => t.id === sizeChartTemplateId.value)
   if (tpl && tpl.rows && tpl.rows.length > 0) {
     sizeChartRows.value = tpl.rows.map((r) => {
@@ -31,7 +34,27 @@ const applySizeTemplate = () => {
   }
 }
 
+// همگام‌سازی سطرهای جدول با سایزهای فعال کالا
+const syncWithSelectedSizes = () => {
+  markDirty()
+  const currentMap = new Map(sizeChartRows.value.map((r) => [r.size, r]))
+  const newRows = selectedSizes.value.map((sz) => {
+    const existing = currentMap.get(sz)
+    if (existing) return existing
+    return {
+      size: sz,
+      chest: 90,
+      waist: 70,
+      hip: 95,
+      length: 65,
+      sleeve: 60,
+    }
+  })
+  sizeChartRows.value = newRows
+}
+
 const addRow = () => {
+  markDirty()
   sizeChartRows.value.push({
     size: 'سایز جدید',
     chest: 90,
@@ -43,12 +66,16 @@ const addRow = () => {
 }
 
 const removeRow = (idx: number) => {
+  markDirty()
   sizeChartRows.value.splice(idx, 1)
 }
 </script>
 
 <template>
-  <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
+  <section
+    id="section-sizechart"
+    class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans scroll-mt-20"
+  >
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
       <div class="flex items-center gap-2">
         <div class="p-1.5 rounded-lg bg-amber-50 text-amber-700">
@@ -56,16 +83,27 @@ const removeRow = (idx: number) => {
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900">
-            جدول تطبیق و ابعاد اندازه‌گیری (Interactive Size Chart Builder)
+            جدول تطبیق و ابعاد اندازه‌گیری
           </h2>
           <p class="text-[11px] text-slate-500">
-            ابعاد بر اساس سانتیمتر (CM)، تعیین تلرانس خطای دوخت و فراخوانی الگوهای آماده
+            ابعاد دقیق بر اساس سانتیمتر، تعیین تلرانس خطای دوخت و فراخوانی الگوهای آماده
           </p>
         </div>
       </div>
 
-      <!-- فراخوانی الگو -->
-      <div class="flex items-center gap-2 text-xs">
+      <!-- فراخوانی الگو و همگام‌سازی با سایزها -->
+      <div class="flex items-center gap-2 text-xs flex-wrap">
+        <button
+          v-if="selectedSizes.length > 0"
+          type="button"
+          class="h-8 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+          title="تطبیق جدول با سایزهای انتخاب‌شده برای این اثر"
+          @click="syncWithSelectedSizes"
+        >
+          <RefreshCw class="w-3 h-3 text-slate-500" />
+          <span>تطبیق با سایزها</span>
+        </button>
+
         <select
           v-model="sizeChartTemplateId"
           class="h-8 px-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-[11px] outline-hidden focus:border-ink"
@@ -85,7 +123,7 @@ const removeRow = (idx: number) => {
           @click="applySizeTemplate"
         >
           <Sparkles class="w-3.5 h-3.5" />
-          <span>بارگذاری</span>
+          <span>بارگذاری الگو</span>
         </button>
       </div>
     </div>
@@ -116,6 +154,7 @@ const removeRow = (idx: number) => {
                 v-model="row.size"
                 type="text"
                 class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono font-bold text-center text-xs text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+                @input="markDirty"
               >
             </td>
 
@@ -124,7 +163,8 @@ const removeRow = (idx: number) => {
               <input
                 v-model.number="row.chest"
                 type="number"
-                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                @input="markDirty"
               >
             </td>
 
@@ -133,7 +173,8 @@ const removeRow = (idx: number) => {
               <input
                 v-model.number="row.waist"
                 type="number"
-                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                @input="markDirty"
               >
             </td>
 
@@ -142,7 +183,8 @@ const removeRow = (idx: number) => {
               <input
                 v-model.number="row.hip"
                 type="number"
-                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                @input="markDirty"
               >
             </td>
 
@@ -151,7 +193,8 @@ const removeRow = (idx: number) => {
               <input
                 v-model.number="row.length"
                 type="number"
-                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                @input="markDirty"
               >
             </td>
 
@@ -160,7 +203,8 @@ const removeRow = (idx: number) => {
               <input
                 v-model.number="row.sleeve"
                 type="number"
-                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums"
+                class="w-16 h-7 px-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-center text-xs text-slate-800 outline-hidden focus:bg-white focus:border-ink tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                @input="markDirty"
               >
             </td>
 
@@ -197,6 +241,7 @@ const removeRow = (idx: number) => {
           v-model="sizeToleranceNote"
           type="text"
           class="w-64 h-8 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-[11px] outline-hidden focus:bg-white focus:border-ink"
+          @input="markDirty"
         >
       </div>
     </div>
@@ -204,8 +249,9 @@ const removeRow = (idx: number) => {
     <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 flex items-start gap-2 text-xs text-amber-800">
       <Info class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
       <span class="text-[11px] leading-relaxed">
-        جدول سایز استاندارد مستقیماً در برگه جزییات محصول (PDP) برای مشتریان باز خواهد شد و ابعاد الگو را به صورت تعاملی نمایش می‌دهد.
+        جدول سایز استاندارد مستقیماً در برگه جزییات محصول برای مشتریان باز خواهد شد و ابعاد الگو را به صورت تعاملی نمایش می‌دهد.
       </span>
     </div>
   </section>
 </template>
+

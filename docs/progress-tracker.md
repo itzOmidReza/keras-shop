@@ -638,6 +638,17 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion increased from ~70% to **~82%**.
+- **2026-10-04 (`feat-ops-studio-overhaul`)**: `feat(ops): overhaul product studio with 2-column layout, sticky section inspector, and auto-variant matrix`
+  - Restructured Product Management Studio into an asymmetric 2-column luxury workspace (`col-span-12 xl:col-span-8` main flow and `col-span-12 xl:col-span-4 sticky top-20` inspector).
+  - Built `ProductStudioInspector.vue` featuring interactive section completion navigator with smooth scroll anchors, real-time live boutique card preview, and SEO health meter with 1-click auto-generation.
+  - Enhanced `ProductStudioActionBar.vue` with fixed `lg:ps-60` right-sidebar offset, reactive dirty state badge, physical atelier hangtag print CTA, live preview CTA, save draft, and primary catalog publish action.
+  - Added route navigation guard (`onBeforeRouteLeave`) to both `products/new.vue` and `products/[id]/edit.vue` to safeguard uncommitted edits.
+  - Upgraded `ProductStudioVariants.vue` with automated Cartesian variant matrix generation upon color/size changes while preserving custom row pricing/stock, confirmation prompt on regeneration, and role-guarded cost price column.
+  - Enhanced `ProductStudioMedia.vue` with direct drag-and-drop file upload (`FileReader` to DataURL), client reordering, dropzone card, per-image alt text, and inline vertical Reels video preview.
+  - Enhanced `ProductStudioSpecs.vue` with atelier women's fashion specs (silhouette, neckline, sleeve length, occasion, packaging weight), official SVG ISO 3758 international laundry care symbols with Persian tooltips, and searchable "Complete the Look" cross-sell modal.
+  - Refined `ProductStudioSizeChart.vue` with stepper-free tabular numeric inputs, template loader renamed to «بارگذاری الگو», and instant synchronization with active product sizes.
+  - Locked ops layout sidebar height cleanly to viewport with `h-[calc(100vh-3.5rem)]` and right-edge alignment.
+  - All 6 quality gates passed cleanly: `lint:rtl`, `lint:tokens`, `lint` (0 errors), `typecheck` (0 errors), `test:e2e` (26/26 tests passing), and production `build`.
 - **2026-10-04 (`feat-ops-studio`)**: `feat(ops): implement flush fixed sidebar, unified products terminology, product studio, and taxonomy hub`
   - Re-architected `app/layouts/ops.vue` into a flush full-height fixed layout (`fixed top-14 end-0 bottom-0 w-60 z-30`) with unified «کاتالوگ محصولات» terminology and added «ویژگی‌ها و دسته‌بندی» navigation.
   - Implemented the full-scale Fashion Product Studio decomposed into 7 atomic sub-components in `app/components/ops/product-studio/`:

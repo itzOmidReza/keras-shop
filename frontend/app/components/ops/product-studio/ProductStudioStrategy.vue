@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { Globe, Printer, Search, CheckCircle, AlertTriangle } from '@lucide/vue'
 import { useOpsProductStudio } from '~/composables/ops/useOpsProductStudio'
+import { toFa } from '~/utils/format'
 
 const {
   title,
@@ -17,6 +18,7 @@ const {
   serpPreviewTitle,
   serpPreviewDescription,
   seoScore,
+  markDirty,
 } = useOpsProductStudio()
 
 const showHangtagPreview = ref(false)
@@ -29,7 +31,10 @@ const triggerPrintHangtag = () => {
 </script>
 
 <template>
-  <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
+  <section
+    id="section-strategy"
+    class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans scroll-mt-20"
+  >
     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
       <div class="flex items-center gap-2">
         <div class="p-1.5 rounded-lg bg-purple-50 text-purple-700">
@@ -37,10 +42,10 @@ const triggerPrintHangtag = () => {
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900">
-            استراتژی تجاری، چاپ بارکد و سئو ادیتوریال (Strategy, Hangtag & SEO)
+            استراتژی تجاری و سئو ادیتوریال
           </h2>
           <p class="text-[11px] text-slate-500">
-            مدل زنجیره تأمین، سقف خرید مشتری، شبیه‌ساز نتایج گوگل و چاپ اتیکت فیزیکی
+            مدل تأمین، سقف سفارش کاربر، شبیه‌ساز نتایج گوگل و چاپ اتیکت فیزیکی
           </p>
         </div>
       </div>
@@ -53,9 +58,10 @@ const triggerPrintHangtag = () => {
         <select
           v-model="supplyModel"
           class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+          @change="markDirty"
         >
-          <option value="in_stock">موجودی آماده تحویل انبار (In Stock)</option>
-          <option value="made_to_order">سفارشی‌دوز مزونی (Made to Order)</option>
+          <option value="in_stock">موجودی آماده تحویل انبار</option>
+          <option value="made_to_order">سفارشی‌دوز مزونی و اختصاصی</option>
         </select>
       </div>
 
@@ -67,6 +73,7 @@ const triggerPrintHangtag = () => {
             type="number"
             min="1"
             class="w-24 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono font-bold text-center outline-hidden focus:bg-white focus:border-ink tabular-nums"
+            @input="markDirty"
           >
           <span class="text-slate-500 text-[11px]">روز کاری تا تحویل به پست</span>
         </div>
@@ -81,6 +88,7 @@ const triggerPrintHangtag = () => {
             min="1"
             max="10"
             class="w-24 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono font-bold text-center outline-hidden focus:bg-white focus:border-ink tabular-nums"
+            @input="markDirty"
           >
           <span class="text-slate-500 text-[11px]">عدد به ازای هر کاربر</span>
         </div>
@@ -94,17 +102,18 @@ const triggerPrintHangtag = () => {
             type="text"
             placeholder="۱۴۰۵/۰۷/۱۵"
             class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-center outline-hidden focus:bg-white focus:border-ink"
+            @input="markDirty"
           >
         </div>
       </div>
     </div>
 
-    <!-- چاپ اتیکت فیزیکی آتلیه و بارکد حرارتی (Hangtag & Barcode) -->
+    <!-- چاپ اتیکت فیزیکی آتلیه و بارکد حرارتی -->
     <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3 text-xs">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Printer class="w-4 h-4 text-slate-700" />
-          <span class="font-bold text-slate-800">چاپ اتیکت لباس و لیبل حرارتی انبار (Hangtag Printer)</span>
+          <span class="font-bold text-slate-800">چاپ اتیکت لباس و لیبل حرارتی انبار</span>
         </div>
         <div class="flex items-center gap-2">
           <button
@@ -144,12 +153,12 @@ const triggerPrintHangtag = () => {
       </div>
     </div>
 
-    <!-- تنظیمات و تحلیل سئو (SEO Score & SERP Preview) -->
+    <!-- تنظیمات و تحلیل سئو -->
     <div class="border-t border-slate-100 pt-4 space-y-4 text-xs">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Search class="w-4 h-4 text-slate-600" />
-          <span class="font-bold text-slate-800">تنظیمات بهینه‌سازی موتورهای جستجو (Google SEO & Meta)</span>
+          <span class="font-bold text-slate-800">تنظیمات بهینه‌سازی موتورهای جستجو</span>
         </div>
         <!-- نشانگر نمره سئو -->
         <div class="flex items-center gap-2">
@@ -160,34 +169,36 @@ const triggerPrintHangtag = () => {
           >
             <CheckCircle v-if="seoScore >= 80" class="w-3.5 h-3.5" />
             <AlertTriangle v-else class="w-3.5 h-3.5" />
-            <span class="tabular-nums">{{ seoScore }} / ۱۰۰</span>
+            <span class="tabular-nums">{{ toFa(seoScore) }} / ۱۰۰</span>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block font-bold text-slate-700 mb-1.5">عنوان متا برای گوگل (Meta Title)</label>
+          <label class="block font-bold text-slate-700 mb-1.5">عنوان متا در نتایج جستجو</label>
           <input
             v-model="seoTitle"
             type="text"
             :placeholder="title ? `${title} | خرید آنلاین آتلیه کراس` : 'عنوان بهینه‌شده سئو'"
             class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink transition-colors"
+            @input="markDirty"
           >
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1.5">توضیحات متا در نتایج جستجو (Meta Description)</label>
+          <label class="block font-bold text-slate-700 mb-1.5">توضیحات متا در نتایج موتورهای جستجو</label>
           <input
             v-model="seoDescription"
             type="text"
             placeholder="خلاصه جذاب و بهینه‌شده برای جذب کلیک در صفحه نتایج موتورهای جستجو..."
             class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink transition-colors"
+            @input="markDirty"
           >
         </div>
       </div>
 
-      <!-- شبیه‌ساز کارت گوگل (Google SERP Snippet Preview) -->
+      <!-- شبیه‌ساز کارت گوگل -->
       <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-start font-sans">
         <div class="flex items-center gap-1.5 text-[11px] text-slate-500 font-mono" dir="ltr">
           <span class="text-emerald-700">https://keras-shop.ir</span>
@@ -203,3 +214,4 @@ const triggerPrintHangtag = () => {
     </div>
   </section>
 </template>
+

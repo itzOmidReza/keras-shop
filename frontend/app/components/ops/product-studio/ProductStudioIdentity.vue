@@ -16,6 +16,7 @@ const {
   highlights,
   lookbookNotes,
   autoGenerateSlug,
+  markDirty,
 } = useOpsProductStudio()
 
 const { categoryTree, collectionDrops } = useOpsTaxonomy()
@@ -23,15 +24,25 @@ const { categoryTree, collectionDrops } = useOpsTaxonomy()
 const isQuickAddOpen = ref(false)
 const newHighlightInput = ref('')
 
+const badgeOptions = [
+  { label: 'عادی', value: '' },
+  { label: 'جدید', value: 'جدید' },
+  { label: 'لیمیتد', value: 'لیمیتد' },
+  { label: 'دست‌دوز', value: 'دست‌دوز' },
+  { label: 'سفارشی', value: 'سفارشی' },
+]
+
 const addHighlight = () => {
   if (newHighlightInput.value.trim()) {
     highlights.value.push(newHighlightInput.value.trim())
     newHighlightInput.value = ''
+    markDirty()
   }
 }
 
 const removeHighlight = (idx: number) => {
   highlights.value.splice(idx, 1)
+  markDirty()
 }
 
 const filteredCategories = computed(() => {
@@ -40,7 +51,7 @@ const filteredCategories = computed(() => {
 </script>
 
 <template>
-  <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
+  <section id="section-identity" class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5 font-sans">
     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
       <div class="flex items-center gap-2">
         <div class="p-1.5 rounded-lg bg-sand-100 text-ink">
@@ -48,10 +59,10 @@ const filteredCategories = computed(() => {
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900">
-            شناسنامه، رده‌بندی و هویت اثر (Identity & Codes)
+            شناسنامه، رده‌بندی و هویت اثر
           </h2>
           <p class="text-[11px] text-slate-500">
-            عنوان رسمی، کد سبک آتلیه، دسته‌بندی و روایت ادیتوریال
+            عنوان رسمی، کد سبک آتلیه، دسته‌بندی تخصصی و روایت ادیتوریال
           </p>
         </div>
       </div>
@@ -76,6 +87,7 @@ const filteredCategories = computed(() => {
           type="text"
           placeholder="مثال: کت پشمی دبل‌برست پاییزه"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-ink outline-hidden transition-colors"
+          @input="markDirty"
           @blur="!slug && autoGenerateSlug()"
         >
       </div>
@@ -86,7 +98,7 @@ const filteredCategories = computed(() => {
           <button
             type="button"
             class="text-[11px] text-ink hover:underline flex items-center gap-1 font-medium cursor-pointer"
-            @click="autoGenerateSlug"
+            @click="autoGenerateSlug(); markDirty()"
           >
             <Sparkles class="w-3 h-3" />
             <span>تولید خودکار</span>
@@ -98,6 +110,7 @@ const filteredCategories = computed(() => {
           dir="ltr"
           placeholder="keras-coat-wool-tailored"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-start outline-hidden focus:bg-white focus:border-ink transition-colors"
+          @input="markDirty"
         >
       </div>
     </div>
@@ -112,6 +125,7 @@ const filteredCategories = computed(() => {
           dir="ltr"
           placeholder="KER-1405-BLZ"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-start outline-hidden focus:bg-white focus:border-ink"
+          @input="markDirty"
         >
       </div>
 
@@ -120,9 +134,10 @@ const filteredCategories = computed(() => {
         <select
           v-model="division"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+          @change="markDirty"
         >
-          <option value="apparel">پوشاک آتلیه (Apparel)</option>
-          <option value="accessories">اکسسوری و کیف (Accessories)</option>
+          <option value="apparel">پوشاک آتلیه</option>
+          <option value="accessories">اکسسوری و کیف</option>
         </select>
       </div>
 
@@ -131,6 +146,7 @@ const filteredCategories = computed(() => {
         <select
           v-model="category"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+          @change="markDirty"
         >
           <option
             v-for="cat in filteredCategories"
@@ -148,6 +164,7 @@ const filteredCategories = computed(() => {
         <select
           v-model="season"
           class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+          @change="markDirty"
         >
           <option
             v-for="drop in collectionDrops"
@@ -165,29 +182,22 @@ const filteredCategories = computed(() => {
       </div>
     </div>
 
-    <!-- بج و برچسب تجاری -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+    <!-- نشان ویژه (Segmented Control) و هایلایت‌ها -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
       <div>
-        <label class="block font-bold text-slate-700 mb-1.5">نشان ویژه (Badge)</label>
-        <div class="flex items-center gap-2">
-          <input
-            v-model="badge"
-            type="text"
-            placeholder="مثال: لیمیتد، جدید، دست‌دوز"
-            class="flex-1 h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink"
+        <label class="block font-bold text-slate-700 mb-1.5">نشان ویژه محصول (Badge)</label>
+        <!-- Segmented Control لوکس -->
+        <div class="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1">
+          <button
+            v-for="b in badgeOptions"
+            :key="b.value"
+            type="button"
+            class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer"
+            :class="badge === b.value ? 'bg-ink text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'"
+            @click="badge = b.value; markDirty()"
           >
-          <div class="flex items-center gap-1">
-            <button
-              v-for="b in ['جدید', 'لیمیتد', 'دست‌دوز', 'سفارشی']"
-              :key="b"
-              type="button"
-              class="px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer"
-              :class="badge === b ? 'bg-ink text-white border-ink' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'"
-              @click="badge = b"
-            >
-              {{ b }}
-            </button>
-          </div>
+            {{ b.label }}
+          </button>
         </div>
       </div>
 
@@ -237,13 +247,14 @@ const filteredCategories = computed(() => {
     <div class="text-xs">
       <label class="block font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
         <BookOpen class="w-3.5 h-3.5 text-slate-500" />
-        <span>روایت اثر و یادداشت لوک‌بوک (Lookbook & Editorial Story)</span>
+        <span>روایت اثر و یادداشت لوک‌بوک</span>
       </label>
       <textarea
         v-model="lookbookNotes"
         rows="3"
         placeholder="شرح متریال، فلسفه الگوسازی و تجربه لمس الیاف در این اثر..."
         class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:bg-white focus:border-ink transition-colors leading-relaxed"
+        @input="markDirty"
       />
     </div>
 

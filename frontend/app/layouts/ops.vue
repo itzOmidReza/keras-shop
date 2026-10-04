@@ -312,7 +312,7 @@ const breadcrumb = computed(() => {
 
     <!-- سایدبار ثابت راست کاملاً متصل به لبه (Flush Fixed Right Sidebar) -->
     <aside
-      class="hidden lg:flex flex-col fixed top-14 start-0 bottom-0 z-30 bg-white border-e border-slate-200/80 overflow-y-auto transition-all duration-200"
+      class="hidden lg:flex flex-col fixed top-14 start-0 bottom-0 h-[calc(100vh-3.5rem)] z-30 bg-white border-e border-slate-200/80 overflow-y-auto transition-all duration-200"
       :class="isSidebarCollapsed ? 'w-[72px]' : 'w-60'"
     >
       <!-- عنوان سایدبار -->
