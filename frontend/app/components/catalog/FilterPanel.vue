@@ -65,7 +65,7 @@ const {
   modelValue: toRef(props, 'modelValue'),
   minPrice: props.minPrice,
   maxPrice: props.maxPrice,
-  onApply: (newFilters) => {
+  onApply: (newFilters: FilterState) => {
     emit('update:modelValue', newFilters)
     emit('applied')
   },
