@@ -1,6 +1,6 @@
+<!-- frontend/app/components/catalog/CatalogMobileFilterSheet.vue -->
 <script setup lang="ts">
 import { SlidersHorizontal } from '@lucide/vue'
-import { toFa } from '~/utils/format'
 import {
   Sheet,
   SheetContent,
@@ -8,7 +8,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '~/components/ui/sheet'
-import { Button } from '~/components/ui/button'
 import FilterPanel, { type FilterState } from '~/components/catalog/FilterPanel.vue'
 
 defineProps<{
@@ -43,22 +42,15 @@ const emit = defineEmits<{
           </SheetDescription>
         </SheetHeader>
 
+        <!-- پنل فیلتر همراه با نوار استیکی مشترک اعمال فیلترها و ریست -->
         <FilterPanel
           :model-value="modelValue"
           :min-price="minPrice"
           :max-price="maxPrice"
           @update:model-value="val => emit('update:modelValue', val)"
           @reset="emit('reset')"
+          @applied="emit('update:open', false)"
         />
-      </div>
-
-      <div class="pt-6 border-t border-sand sticky bottom-0 bg-paper py-3 mt-4">
-        <Button
-          class="w-full h-12 rounded-xl bg-rose text-white hover:bg-rose/90 font-bold text-xs shadow-xs cursor-pointer"
-          @click="emit('update:open', false)"
-        >
-          مشاهده نتایج ({{ toFa(totalItems) }} محصول)
-        </Button>
       </div>
     </SheetContent>
   </Sheet>

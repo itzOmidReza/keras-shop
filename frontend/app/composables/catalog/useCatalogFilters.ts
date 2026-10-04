@@ -1,4 +1,6 @@
 import type { ProductDivision, ProductCategory, ProductSeason } from '~/types/domain'
+import { toast } from 'vue-sonner'
+import { toFa } from '~/utils/format'
 
 export interface FilterState {
   season: ProductSeason | null
@@ -118,4 +120,201 @@ export function countActiveFilters(
     count++
   }
   return count
+}
+
+export function cloneFilterState(state: FilterState): FilterState {
+  return {
+    season: state.season,
+    division: state.division,
+    line: state.line,
+    brand: state.brand,
+    categories: [...state.categories],
+    sizes: [...state.sizes],
+    colors: [...state.colors],
+    priceRange: [state.priceRange[0], state.priceRange[1]],
+  }
+}
+
+export function areFiltersEqual(a: FilterState, b: FilterState): boolean {
+  if (a.season !== b.season) return false
+  if (a.division !== b.division) return false
+  if (a.line !== b.line) return false
+  if (a.brand !== b.brand) return false
+  if (a.categories.length !== b.categories.length) return false
+  if (!a.categories.every((c, i) => c === b.categories[i])) return false
+  if (a.sizes.length !== b.sizes.length) return false
+  if (!a.sizes.every((s, i) => s === b.sizes[i])) return false
+  if (a.colors.length !== b.colors.length) return false
+  if (!a.colors.every((c, i) => c === b.colors[i])) return false
+  if (a.priceRange[0] !== b.priceRange[0] || a.priceRange[1] !== b.priceRange[1]) return false
+  return true
+}
+
+export interface UseCatalogFiltersOptions {
+  modelValue: Ref<FilterState>
+  minPrice?: number
+  maxPrice?: number
+  onApply?: (filters: FilterState) => void
+  onReset?: () => void
+}
+
+export function useCatalogFilters(options: UseCatalogFiltersOptions) {
+  const {
+    modelValue,
+    minPrice = 300000,
+    maxPrice = 5500000,
+    onApply,
+    onReset,
+  } = options
+
+  // حالت پیش‌نویس موقت فیلترها قبل از اعمال قطعی
+  const draftFilters = ref<FilterState>(cloneFilterState(modelValue.value))
+
+  // همگام‌سازی پیش‌نویس با تغییرات خارجی (مانند تغییر URL، یا پاک کردن فیلترها از بیرون)
+  watch(
+    modelValue,
+    (newVal) => {
+      if (!areFiltersEqual(draftFilters.value, newVal)) {
+        draftFilters.value = cloneFilterState(newVal)
+      }
+    },
+    { deep: true },
+  )
+
+  // تعداد فیلترهای فعال در حالت پیش‌نویس
+  const draftActiveCount = computed(() =>
+    countActiveFilters(draftFilters.value, minPrice, maxPrice),
+  )
+
+  // بررسی وجود تغییرات اعمال‌نشده بین پیش‌نویس و حالت فعال فعلی
+  const hasUnappliedChanges = computed(() =>
+    !areFiltersEqual(draftFilters.value, modelValue.value),
+  )
+
+  // ویرایشگرهای فیلدها در پیش‌نویس
+  const setSeason = (val: ProductSeason | null) => {
+    draftFilters.value.season = val
+  }
+
+  const setDivision = (val: ProductDivision | null) => {
+    draftFilters.value.division = val
+  }
+
+  const setBrand = (val: string | null) => {
+    draftFilters.value.brand = val
+  }
+
+  const setCategories = (val: ProductCategory[]) => {
+    draftFilters.value.categories = [...val]
+  }
+
+  const setSizes = (val: string[]) => {
+    draftFilters.value.sizes = [...val]
+  }
+
+  const setColors = (val: string[]) => {
+    draftFilters.value.colors = [...val]
+  }
+
+  const setPriceRange = (val: [number, number]) => {
+    draftFilters.value.priceRange = [val[0], val[1]]
+  }
+
+  // متدهای حذف آیتم‌های تکی در پیش‌نویس
+  const removeSeason = () => {
+    draftFilters.value.season = null
+  }
+
+  const removeDivision = () => {
+    draftFilters.value.division = null
+  }
+
+  const removeBrand = () => {
+    draftFilters.value.brand = null
+  }
+
+  const removeCategory = (slug: ProductCategory) => {
+    draftFilters.value.categories = draftFilters.value.categories.filter(c => c !== slug)
+  }
+
+  const removeSize = (size: string) => {
+    draftFilters.value.sizes = draftFilters.value.sizes.filter(s => s !== size)
+  }
+
+  const removeColor = (color: string) => {
+    draftFilters.value.colors = draftFilters.value.colors.filter(c => c !== color)
+  }
+
+  const resetPrice = () => {
+    draftFilters.value.priceRange = [minPrice, maxPrice]
+  }
+
+  // اعمال پیش‌نویس فیلترها (Commit Draft to Active)
+  const applyFilters = () => {
+    const committed = cloneFilterState(draftFilters.value)
+
+    if (onApply) {
+      onApply(committed)
+    }
+
+    if (import.meta.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    const count = draftActiveCount.value
+    if (count > 0) {
+      toast.success(`${toFa(count)} فیلتر با موفقیت اعمال شد`)
+    } else {
+      toast.info('تمامی فیلترها پاک شدند')
+    }
+  }
+
+  // بازنشانی کامل (Reset All)
+  const resetAllFilters = () => {
+    const emptyState: FilterState = {
+      season: null,
+      division: null,
+      line: null,
+      brand: null,
+      categories: [],
+      sizes: [],
+      colors: [],
+      priceRange: [minPrice, maxPrice],
+    }
+    draftFilters.value = cloneFilterState(emptyState)
+
+    if (onReset) {
+      onReset()
+    } else if (onApply) {
+      onApply(emptyState)
+    }
+
+    if (import.meta.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    toast.info('تمامی فیلترها بازنشانی شدند')
+  }
+
+  return {
+    draftFilters,
+    draftActiveCount,
+    hasUnappliedChanges,
+    setSeason,
+    setDivision,
+    setBrand,
+    setCategories,
+    setSizes,
+    setColors,
+    setPriceRange,
+    removeSeason,
+    removeDivision,
+    removeBrand,
+    removeCategory,
+    removeSize,
+    removeColor,
+    resetPrice,
+    applyFilters,
+    resetAllFilters,
+  }
 }
