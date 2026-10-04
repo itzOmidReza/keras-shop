@@ -17,6 +17,7 @@ import {
   Search,
   Bell,
   LogOut,
+  Tags,
 } from '@lucide/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useOpsModals } from '~/composables/ops/useOpsModals'
@@ -56,10 +57,17 @@ const navItems: NavItem[] = [
   },
   {
     id: 'products',
-    title: 'کاتالوگ پوشاک',
+    title: 'کاتالوگ محصولات',
     path: '/internal-ops-nexus/products',
     icon: Package,
     testId: 'ops-nav-products',
+  },
+  {
+    id: 'attributes',
+    title: 'ویژگی‌ها و دسته‌بندی',
+    path: '/internal-ops-nexus/attributes',
+    icon: Tags,
+    testId: 'ops-nav-attributes',
   },
   {
     id: 'orders',
@@ -117,13 +125,16 @@ const navigateToDomain = (item: NavItem) => {
 const breadcrumb = computed(() => {
   const path = route.path
   if (path === '/internal-ops-nexus/products/new') {
-    return 'کاتالوگ پوشاک / افزودن لباس جدید'
+    return 'کاتالوگ محصولات / استودیو خلق محصول'
   }
   if (path.startsWith('/internal-ops-nexus/products/') && path.endsWith('/edit')) {
-    return 'کاتالوگ پوشاک / ویرایش مشخصات کالا'
+    return 'کاتالوگ محصولات / استودیو ویرایش کالا'
   }
   if (path === '/internal-ops-nexus/products' || route.query.view === 'products') {
-    return 'کاتالوگ پوشاک / لیست محصولات'
+    return 'کاتالوگ محصولات / لیست محصولات'
+  }
+  if (path.startsWith('/internal-ops-nexus/attributes')) {
+    return 'کاتالوگ محصولات / ویژگی‌ها و دسته‌بندی'
   }
   if (path === '/internal-ops-nexus/orders' || route.query.view === 'fulfillment' || route.query.view === 'orders') {
     return 'فروش و مرسوله‌ها / میز سفارش‌ها'
@@ -142,9 +153,9 @@ const breadcrumb = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900" dir="rtl">
-    <!-- هدر باریک ۵۶ پیکسلی ارگونومیک (Slim Top Header - 56px) -->
-    <header class="h-14 border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-3 sm:px-5 flex items-center justify-between shadow-2xs">
+  <div class="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-amber-100 selection:text-amber-900" dir="rtl">
+    <!-- هدر باریک ۵۶ پیکسلی ثابت (Fixed Top Header - 56px) -->
+    <header class="fixed top-0 inset-x-0 h-14 z-40 bg-white border-b border-slate-200/80 px-3 sm:px-5 flex items-center justify-between shadow-2xs">
       <!-- سمت راست: دکمه تاگل سایدبار و مسیر ناوبری (Breadcrumb) -->
       <div class="flex items-center gap-2.5 min-w-0">
         <!-- دکمه منوی موبایل -->
@@ -299,143 +310,146 @@ const breadcrumb = computed(() => {
       </div>
     </header>
 
-    <div class="flex-1 flex overflow-hidden">
-      <!-- سایدبار ثابت راست ۲۴۰ پیکسلی (Fixed Right Sidebar - 240px) -->
-      <aside
-        class="hidden lg:flex flex-col border-s border-slate-200/80 bg-white transition-all duration-200 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)]"
-        :class="isSidebarCollapsed ? 'w-[72px]' : 'w-60'"
-      >
-        <!-- عنوان سایدبار -->
-        <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
-          <span v-if="!isSidebarCollapsed" class="text-[11px] font-bold text-slate-500 px-2 uppercase tracking-wider">
-            دامنه‌های اصلی کسب‌وکار
+    <!-- سایدبار ثابت راست کاملاً متصل به لبه (Flush Fixed Right Sidebar) -->
+    <aside
+      class="hidden lg:flex flex-col fixed top-14 end-0 bottom-0 z-30 bg-white border-s border-slate-200/80 overflow-y-auto transition-all duration-200"
+      :class="isSidebarCollapsed ? 'w-[72px]' : 'w-60'"
+    >
+      <!-- عنوان سایدبار -->
+      <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+        <span v-if="!isSidebarCollapsed" class="text-[11px] font-bold text-slate-500 px-2 uppercase tracking-wider">
+          دامنه‌های اصلی کسب‌وکار
+        </span>
+        <span v-else class="text-[10px] font-mono font-bold text-slate-400 mx-auto">
+          HQ
+        </span>
+      </div>
+
+      <!-- ناوبری عمودی دامنه‌ها -->
+      <nav class="flex-1 p-2.5 space-y-1.5 overflow-y-auto">
+        <button
+          v-for="item in navItems"
+          :key="item.id"
+          type="button"
+          :data-testid="item.testId"
+          class="w-full rounded-xl transition-all flex items-center cursor-pointer group text-start relative"
+          :class="[
+            isItemActive(item)
+              ? 'bg-ink text-white shadow-2xs font-bold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium',
+            isSidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2.5 gap-2.5',
+          ]"
+          :title="isSidebarCollapsed ? item.title : undefined"
+          @click="navigateToDomain(item)"
+        >
+          <component
+            :is="item.icon"
+            class="w-4 h-4 shrink-0 transition-colors"
+            :class="isItemActive(item) ? 'text-amber-300' : 'text-slate-500 group-hover:text-slate-800'"
+          />
+          <span v-if="!isSidebarCollapsed" class="text-xs truncate flex-1 leading-tight">
+            {{ item.title }}
           </span>
-          <span v-else class="text-[10px] font-mono font-bold text-slate-400 mx-auto">
-            HQ
+          <span
+            v-if="!isSidebarCollapsed && item.badge"
+            class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold shrink-0"
+            :class="isItemActive(item) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'"
+          >
+            {{ item.badge }}
           </span>
+        </button>
+      </nav>
+
+      <!-- بخش پایین سایدبار: پیوند به فروشگاه و قفل جلسه -->
+      <div class="p-2.5 border-t border-slate-200/80 space-y-1 bg-slate-50/50">
+        <NuxtLink
+          to="/"
+          target="_blank"
+          class="w-full rounded-xl transition-all flex items-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 p-2 text-xs font-bold cursor-pointer"
+          :class="isSidebarCollapsed ? 'justify-center' : 'gap-2'"
+          title="مشاهده ویترین فروشگاه"
+        >
+          <ExternalLink class="w-4 h-4 shrink-0 text-slate-500" />
+          <span v-if="!isSidebarCollapsed">مشاهده فروشگاه</span>
+        </NuxtLink>
+
+        <button
+          type="button"
+          class="w-full rounded-xl transition-all flex items-center text-rose hover:bg-rose-50 p-2 text-xs font-bold cursor-pointer"
+          :class="isSidebarCollapsed ? 'justify-center' : 'gap-2'"
+          title="قفل جلسه کاری"
+          @click="handleLockSession"
+        >
+          <Lock class="w-4 h-4 shrink-0" />
+          <span v-if="!isSidebarCollapsed">قفل جلسه</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- دراور موبایل برای سایدبار -->
+    <div
+      v-if="isMobileSidebarOpen"
+      class="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex"
+      @click.self="isMobileSidebarOpen = false"
+    >
+      <div class="w-64 bg-white h-full border-s border-slate-200 flex flex-col p-4 space-y-4 shadow-xl">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <span class="text-xs font-bold text-slate-900">مرکز فرماندهی آتلیه کراس</span>
+          <button
+            type="button"
+            class="p-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer"
+            @click="isMobileSidebarOpen = false"
+          >
+            <X class="w-4 h-4" />
+          </button>
         </div>
 
-        <!-- ناوبری عمودی ۶ دامنه اصلی -->
-        <nav class="flex-1 p-2.5 space-y-1.5 overflow-y-auto">
+        <nav class="flex-1 space-y-1.5 overflow-y-auto">
           <button
             v-for="item in navItems"
             :key="item.id"
             type="button"
-            :data-testid="item.testId"
-            class="w-full rounded-xl transition-all flex items-center cursor-pointer group text-start relative"
-            :class="[
-              isItemActive(item)
-                ? 'bg-ink text-white shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium',
-              isSidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2.5 gap-2.5',
-            ]"
-            :title="isSidebarCollapsed ? item.title : undefined"
+            class="w-full px-3 py-2.5 rounded-xl transition-all flex items-center gap-2.5 cursor-pointer text-start"
+            :class="isItemActive(item) ? 'bg-ink text-white font-bold' : 'text-slate-600 hover:bg-slate-100 font-medium'"
             @click="navigateToDomain(item)"
           >
-            <component
-              :is="item.icon"
-              class="w-4 h-4 shrink-0 transition-colors"
-              :class="isItemActive(item) ? 'text-amber-300' : 'text-slate-500 group-hover:text-slate-800'"
-            />
-            <span v-if="!isSidebarCollapsed" class="text-xs truncate flex-1 leading-tight">
-              {{ item.title }}
-            </span>
-            <span
-              v-if="!isSidebarCollapsed && item.badge"
-              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold shrink-0"
-              :class="isItemActive(item) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'"
-            >
+            <component :is="item.icon" class="w-4 h-4 shrink-0" />
+            <span class="text-xs flex-1">{{ item.title }}</span>
+            <span v-if="item.badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-slate-100 text-slate-700">
               {{ item.badge }}
             </span>
           </button>
         </nav>
 
-        <!-- بخش پایین سایدبار: پیوند به فروشگاه و قفل جلسه -->
-        <div class="p-2.5 border-t border-slate-200/80 space-y-1 bg-slate-50/50">
+        <div class="pt-3 border-t border-slate-200 space-y-1.5">
           <NuxtLink
             to="/"
-            target="_blank"
-            class="w-full rounded-xl transition-all flex items-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 p-2 text-xs font-bold cursor-pointer"
-            :class="isSidebarCollapsed ? 'justify-center' : 'gap-2'"
-            title="مشاهده ویترین فروشگاه"
+            class="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-slate-700 hover:bg-slate-100 font-bold"
           >
-            <ExternalLink class="w-4 h-4 shrink-0 text-slate-500" />
-            <span v-if="!isSidebarCollapsed">مشاهده فروشگاه</span>
+            <ExternalLink class="w-4 h-4 text-slate-500" />
+            <span>مشاهده فروشگاه</span>
           </NuxtLink>
-
           <button
             type="button"
-            class="w-full rounded-xl transition-all flex items-center text-rose hover:bg-rose-50 p-2 text-xs font-bold cursor-pointer"
-            :class="isSidebarCollapsed ? 'justify-center' : 'gap-2'"
-            title="قفل جلسه کاری"
+            class="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-rose hover:bg-rose-50 font-bold"
             @click="handleLockSession"
           >
-            <Lock class="w-4 h-4 shrink-0" />
-            <span v-if="!isSidebarCollapsed">قفل جلسه</span>
+            <Lock class="w-4 h-4" />
+            <span>قفل جلسه کاری</span>
           </button>
         </div>
-      </aside>
-
-      <!-- دراور موبایل برای سایدبار -->
-      <div
-        v-if="isMobileSidebarOpen"
-        class="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex"
-        @click.self="isMobileSidebarOpen = false"
-      >
-        <div class="w-64 bg-white h-full border-s border-slate-200 flex flex-col p-4 space-y-4 shadow-xl">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-            <span class="text-xs font-bold text-slate-900">مرکز فرماندهی آتلیه کراس</span>
-            <button
-              type="button"
-              class="p-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer"
-              @click="isMobileSidebarOpen = false"
-            >
-              <X class="w-4 h-4" />
-            </button>
-          </div>
-
-          <nav class="flex-1 space-y-1.5 overflow-y-auto">
-            <button
-              v-for="item in navItems"
-              :key="item.id"
-              type="button"
-              class="w-full px-3 py-2.5 rounded-xl transition-all flex items-center gap-2.5 cursor-pointer text-start"
-              :class="isItemActive(item) ? 'bg-ink text-white font-bold' : 'text-slate-600 hover:bg-slate-100 font-medium'"
-              @click="navigateToDomain(item)"
-            >
-              <component :is="item.icon" class="w-4 h-4 shrink-0" />
-              <span class="text-xs flex-1">{{ item.title }}</span>
-              <span v-if="item.badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-slate-100 text-slate-700">
-                {{ item.badge }}
-              </span>
-            </button>
-          </nav>
-
-          <div class="pt-3 border-t border-slate-200 space-y-1.5">
-            <NuxtLink
-              to="/"
-              class="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-slate-700 hover:bg-slate-100 font-bold"
-            >
-              <ExternalLink class="w-4 h-4 text-slate-500" />
-              <span>مشاهده فروشگاه</span>
-            </NuxtLink>
-            <button
-              type="button"
-              class="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-rose hover:bg-rose-50 font-bold"
-              @click="handleLockSession"
-            >
-              <Lock class="w-4 h-4" />
-              <span>قفل جلسه کاری</span>
-            </button>
-          </div>
-        </div>
       </div>
-
-      <!-- بوم اصلی و فضای کاری (Workspace Area) -->
-      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 min-w-0 font-sans">
-        <slot />
-      </main>
     </div>
+
+    <!-- بوم اصلی و فضای کاری (Workspace Canvas - Clean Flush Padding) -->
+    <main
+      class="min-h-screen bg-slate-50 pt-14 transition-all duration-200 font-sans"
+      :class="isSidebarCollapsed ? 'lg:pe-[72px]' : 'lg:pe-60'"
+    >
+      <div class="p-4 sm:p-6 lg:p-7 min-w-0">
+        <slot />
+      </div>
+    </main>
 
     <!-- پالت دستورات سراسری ⌘K -->
     <OpsCommandPalette v-model:open="isCommandPaletteOpen" @navigate="path => router.push(path)" />

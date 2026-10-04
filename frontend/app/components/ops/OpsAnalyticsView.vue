@@ -67,12 +67,12 @@ const navigateTo = (path: string) => {
 
     <!-- ۵. کارت‌های دسترسی مستقیم به دپارتمان‌های اصلی (Direct Quick-Links) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- کاتالوگ پوشاک -->
+      <!-- کاتالوگ محصولات -->
       <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all">
         <div>
           <div class="flex items-center gap-2 text-ink font-bold text-xs">
             <Package class="w-4 h-4" />
-            <span>کاتالوگ پوشاک</span>
+            <span>کاتالوگ محصولات</span>
           </div>
           <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
             مدیریت محصولات، قیمت‌گذاری و ماتریس ۶ سایزی موجودی انبار.

@@ -638,6 +638,20 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion increased from ~70% to **~82%**.
+- **2026-10-04 (`feat-ops-studio`)**: `feat(ops): implement flush fixed sidebar, unified products terminology, product studio, and taxonomy hub`
+  - Re-architected `app/layouts/ops.vue` into a flush full-height fixed layout (`fixed top-14 end-0 bottom-0 w-60 z-30`) with unified «کاتالوگ محصولات» terminology and added «ویژگی‌ها و دسته‌بندی» navigation.
+  - Implemented the full-scale Fashion Product Studio decomposed into 7 atomic sub-components in `app/components/ops/product-studio/`:
+    - `ProductStudioIdentity.vue`: Title, Persian slug auto-generator, master SKU/style code, division, category tree selector, season drop, badges, bullet highlights, and lookbook notes.
+    - `ProductStudioMedia.vue`: Multi-image preview grid with order rearrangement, color-linked images for PDP switching, and vertical reels video URL.
+    - `ProductStudioVariants.vue`: Dynamic Cartesian variant matrix with swatches, size selection, auto-generated SKUs and Iran barcodes, and bulk pricing/stock controls.
+    - `ProductStudioSpecs.vue`: Garment engineering specs including fiber composition, GSM weight, stretch/breathability metrics, sheerness, international care laundry checklist, model dimensions, and cross-sell complete look picker.
+    - `ProductStudioSizeChart.vue`: Interactive CM measurement matrix with template loader and sewing tolerance notice.
+    - `ProductStudioStrategy.vue`: Commercial strategy (in-stock vs. made-to-order prep days), purchase limits, drop dates, printable thermal hangtag card preview, SEO score meter, and Google SERP snippet preview.
+    - `ProductStudioActionBar.vue`: Sticky bottom bar with `data-testid="save-product-btn"`, return link, and state counters.
+  - Refactored `products/new.vue` (< 90 LOC), `products/[id]/edit.vue` (< 100 LOC), and `products/index.vue` (< 180 LOC) to strict Nuxt 4 modular architectures.
+  - Engineered the Taxonomy & Attributes Hub at `/internal-ops-nexus/attributes/index.vue` backed by `useOpsTaxonomy.ts`, including color swatches manager with safe deletion and attribute merger modal, category tree manager, brands manager, collection drops manager, and master size templates manager.
+  - Created inline dual-entry micro-modal `OpsQuickAddAttributeModal.vue` for rapid addition of colors and categories directly from dropdowns.
+  - Successfully passed all 6 quality gates: `lint:rtl`, `lint:tokens`, `lint`, `typecheck`, all 26 `test:e2e` specs, and production `build`.
 - **2026-10-02 (`scan`)**: `docs: exhaustive repository scan, page-by-page inventory, and master progress checklist`
   - Conducted full audit of all 23 route pages, 48 components, 2 stores, and Nitro API routes.
   - Categorized pages: 7 fully built, 3 redirects, 13 stubs/placeholders.

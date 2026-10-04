@@ -15,30 +15,23 @@ definePageMeta({
   middleware: ['ops-guard'],
 })
 
-useSeoMeta({ title: 'کاتالوگ پوشاک | مرکز عملیات کراس', robots: 'noindex, nofollow' })
+useSeoMeta({ title: 'کاتالوگ محصولات | مرکز عملیات کراس', robots: 'noindex, nofollow' })
 
 const router = useRouter()
 const {
-  productsList,
-  productSearchQuery,
-  selectedProductDivision,
-  selectedProductSeason,
-  filteredProducts,
-  toggleProductActive,
-  isDeleteProductDialogOpen,
-  productToDelete,
+  productsList, productSearchQuery, selectedProductDivision, selectedProductSeason,
+  filteredProducts, toggleProductActive, isDeleteProductDialogOpen, productToDelete,
 } = useOpsProducts()
 
 const { isMatrixOpen } = useOpsModals()
-
 const activeSubTab = ref<'list' | 'matrix' | 'spreadsheet'>('list')
 const subNavTabs = [
-  { id: 'list', label: 'لیست پوشاک' },
+  { id: 'list', label: 'لیست محصولات' },
   { id: 'matrix', label: 'ماتریس سایز و انبارداری' },
   { id: 'spreadsheet', label: 'ویرایشگر اکسل کاتالوگ' },
 ]
 
-// صفحه‌بندی (Pagination)
+// صفحه‌بندی
 const currentPage = ref(1)
 const itemsPerPage = 10
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage) || 1)
@@ -46,12 +39,9 @@ const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return filteredProducts.value.slice(start, start + itemsPerPage)
 })
+watch([productSearchQuery, selectedProductDivision, selectedProductSeason], () => { currentPage.value = 1 })
 
-watch([productSearchQuery, selectedProductDivision, selectedProductSeason], () => {
-  currentPage.value = 1
-})
-
-// مودال ویرایش سریع قیمت و موجودی
+// مودال ویرایش سریع
 const isQuickEditOpen = ref(false)
 const quickEditProduct = ref<ProductDetail | null>(null)
 const handleOpenQuickEdit = (p: ProductDetail) => {
@@ -67,11 +57,9 @@ const handleOpenQuickEdit = (p: ProductDetail) => {
 
     <!-- تب ۲: ماتریس سایز و انبارداری -->
     <OpsInventoryView v-if="activeSubTab === 'matrix'" />
-
     <!-- تب ۳: ویرایشگر اکسل کاتالوگ -->
     <OpsCatalogSpreadsheet v-else-if="activeSubTab === 'spreadsheet'" @close="activeSubTab = 'list'" />
-
-    <!-- تب ۱: لیست اصلی پوشاک -->
+    <!-- تب ۱: لیست اصلی کاتالوگ -->
     <div v-else class="space-y-4">
       <!-- نوار عنوان، آمار کالاها و دکمه‌های اکشن -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
@@ -79,7 +67,7 @@ const handleOpenQuickEdit = (p: ProductDetail) => {
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-lg font-black text-slate-900 tracking-tight">
-                کاتالوگ پوشاک و کالکشن
+                کاتالوگ جامع محصولات و اکسسوری
               </h1>
               <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-bold tabular-nums">
                 {{ productsList.length }} قلم
@@ -91,7 +79,7 @@ const handleOpenQuickEdit = (p: ProductDetail) => {
           </div>
         </div>
 
-        <!-- دکمه افزودن لباس جدید -->
+        <!-- دکمه افزودن محصول جدید -->
         <div class="flex items-center gap-2">
           <NuxtLink
             to="/internal-ops-nexus/products/new"
@@ -99,7 +87,7 @@ const handleOpenQuickEdit = (p: ProductDetail) => {
             class="h-9 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
           >
             <Plus class="w-4 h-4" />
-            <span>افزودن لباس جدید</span>
+            <span>افزودن محصول جدید</span>
           </NuxtLink>
         </div>
       </div>
@@ -181,11 +169,7 @@ const handleOpenQuickEdit = (p: ProductDetail) => {
     </div>
 
     <!-- مودال‌های کمکی -->
-    <OpsQuickEditModal
-      v-model:open="isQuickEditOpen"
-      :product="quickEditProduct"
-      @saved="() => {}"
-    />
+    <OpsQuickEditModal v-model:open="isQuickEditOpen" :product="quickEditProduct" @saved="() => {}" />
     <LazyOpsProductDeleteDialog />
     <LazyOpsCatalogMatrixModal v-model:open="isMatrixOpen" />
   </div>

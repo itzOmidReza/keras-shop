@@ -1,8 +1,16 @@
 <!-- frontend/app/pages/internal-ops-nexus/products/[id]/edit.vue -->
 <script setup lang="ts">
-import { ArrowRight, Check, Sparkles, Layers, Image as ImageIcon, Ruler } from '@lucide/vue'
-import { useOpsProducts } from '~/composables/ops/useOpsProducts'
+import { ArrowRight } from '@lucide/vue'
 import { toast } from 'vue-sonner'
+import { useOpsProducts } from '~/composables/ops/useOpsProducts'
+import { useOpsProductStudio } from '~/composables/ops/useOpsProductStudio'
+import ProductStudioIdentity from '~/components/ops/product-studio/ProductStudioIdentity.vue'
+import ProductStudioMedia from '~/components/ops/product-studio/ProductStudioMedia.vue'
+import ProductStudioVariants from '~/components/ops/product-studio/ProductStudioVariants.vue'
+import ProductStudioSpecs from '~/components/ops/product-studio/ProductStudioSpecs.vue'
+import ProductStudioSizeChart from '~/components/ops/product-studio/ProductStudioSizeChart.vue'
+import ProductStudioStrategy from '~/components/ops/product-studio/ProductStudioStrategy.vue'
+import ProductStudioActionBar from '~/components/ops/product-studio/ProductStudioActionBar.vue'
 
 definePageMeta({
   layout: 'ops',
@@ -13,15 +21,15 @@ useSeoMeta({ title: 'ویرایش مشخصات کالا | کاتالوگ آتل�
 
 const route = useRoute()
 const router = useRouter()
+const { getProductById } = useOpsProducts()
 const {
-  productForm,
-  autoDiscountPercent,
-  saveProduct,
-  getProductById,
-  initFormForProduct,
-} = useOpsProducts()
+  title,
+  loadProduct,
+  saveStudioProduct,
+} = useOpsProductStudio()
 
 const productId = computed(() => route.params.id as string)
+const isSaving = ref(false)
 
 onMounted(() => {
   const p = getProductById(productId.value)
@@ -30,20 +38,16 @@ onMounted(() => {
     router.push('/internal-ops-nexus/products')
     return
   }
-  initFormForProduct(p)
+  loadProduct(p)
 })
 
-const isSaving = ref(false)
-
 const handleSave = () => {
-  if (!productForm.value.title.trim()) {
-    toast.error('لطفاً عنوان کالا را وارد نمایید.')
-    return
-  }
   isSaving.value = true
   try {
-    saveProduct()
-    router.push('/internal-ops-nexus/products')
+    const saved = saveStudioProduct()
+    if (saved) {
+      router.push('/internal-ops-nexus/products')
+    }
   } finally {
     isSaving.value = false
   }
@@ -51,267 +55,43 @@ const handleSave = () => {
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto space-y-6 pb-20 font-sans">
+  <div class="max-w-5xl mx-auto space-y-6 pb-28 font-sans">
     <!-- هدر صفحه و دکمه بازگشت -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200/80">
       <div class="flex items-center gap-3">
         <NuxtLink
           to="/internal-ops-nexus/products"
-          class="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
-          title="بازگشت به کاتالوگ"
+          class="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+          title="بازگشت به کاتالوگ محصولات"
         >
           <ArrowRight class="w-4 h-4" />
         </NuxtLink>
         <div>
           <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            ویرایش شناسنامه کالا: {{ productForm.title || 'در حال بارگذاری...' }}
+            ویرایش شناسنامه اثر: {{ title || 'در حال بارگذاری...' }}
           </h1>
           <p class="text-xs text-slate-500 mt-0.5">
-            به‌روزرسانی قیمت‌گذاری، تصاویر و متغیرهای سایزبندی انبار
+            به‌روزرسانی قیمت‌گذاری، تصاویر، ماتریس متغیرها و مشخصات مهندسی پارچه
           </p>
         </div>
       </div>
     </div>
 
-    <!-- فرم چندبخشی ویرایش محصول -->
+    <!-- بلوک‌های ۶ گانه استودیو طراحی محصول -->
     <div class="space-y-6">
-      <!-- ۱. اطلاعات پایه و شناسنامه -->
-      <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div class="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">
-          <Layers class="w-4 h-4 text-slate-500" />
-          <span>شناسنامه اثر و دسته‌بندی</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">عنوان فارسی کالا</label>
-            <input
-              v-model="productForm.title"
-              type="text"
-              class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-ink outline-hidden"
-            >
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">شناسه یکتا (Slug)</label>
-            <input
-              v-model="productForm.slug"
-              type="text"
-              class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-start outline-hidden focus:bg-white focus:border-ink"
-            >
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">بخش محصول</label>
-            <select
-              v-model="productForm.division"
-              class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
-            >
-              <option value="apparel">پوشاک (Apparel)</option>
-              <option value="accessories">اکسسوری (Accessories)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">دسته‌بندی</label>
-            <select
-              v-model="productForm.category"
-              class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
-            >
-              <option value="shirts-blouses">شومیز و پیراهن</option>
-              <option value="knitwear">بافت و پلیور</option>
-              <option value="coats-jackets">پالتو و بارانی</option>
-              <option value="pants">شلوار</option>
-              <option value="scarves">شال و روسری</option>
-              <option value="hair-accessories">اکسسوری مو</option>
-              <option value="bandanas">باندانا</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">فصل و کالکشن</label>
-            <select
-              v-model="productForm.season"
-              class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-ink outline-hidden"
-            >
-              <option value="fall-1405">پاییز ۱۴۰۵</option>
-              <option value="winter-1405">زمستان ۱۴۰۵</option>
-              <option value="spring-1406">بهار ۱۴۰۶</option>
-              <option value="four-season">چهار فصل</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">بج نمایش (Badge)</label>
-            <input
-              v-model="productForm.badge"
-              type="text"
-              class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-ink outline-hidden"
-            >
-          </div>
-        </div>
-      </section>
-
-      <!-- ۲. قیمت‌گذاری و تخفیف -->
-      <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div class="flex items-center gap-2 text-sm font-bold text-slate-900">
-            <Sparkles class="w-4 h-4 text-amber-500" />
-            <span>قیمت‌گذاری و تخفیف</span>
-          </div>
-          <span
-            v-if="autoDiscountPercent > 0"
-            class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-50 text-rose border border-rose/30"
-          >
-            {{ autoDiscountPercent }}٪ تخفیف
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">قیمت پایه (تومان)</label>
-            <input
-              v-model.number="productForm.basePrice"
-              type="number"
-              class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono tabular-nums outline-hidden focus:bg-white focus:border-ink"
-            >
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">قیمت فروش نقدی (تومان)</label>
-            <input
-              v-model.number="productForm.salePrice"
-              type="number"
-              class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono tabular-nums outline-hidden focus:bg-white focus:border-ink"
-            >
-          </div>
-        </div>
-      </section>
-
-      <!-- ۳. ماتریس موجودی انبار -->
-      <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div class="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">
-          <Ruler class="w-4 h-4 text-slate-500" />
-          <span>جدول موجودی انبار به تفکیک سایز</span>
-        </div>
-
-        <div v-if="productForm.division === 'accessories'" class="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
-          <label class="block font-bold text-slate-700 mb-1 text-xs">موجودی سایز آزاد (Free Size)</label>
-          <input
-            v-model.number="productForm.stockFree"
-            type="number"
-            min="0"
-            class="w-32 h-10 px-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-mono tabular-nums text-xs outline-hidden focus:border-ink"
-          >
-        </div>
-
-        <div v-else class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-          <div
-            v-for="sz in [
-              { key: 'stockXS', label: 'XS (۳۴)' },
-              { key: 'stockS', label: 'S (۳۶)' },
-              { key: 'stockM', label: 'M (۳۸)' },
-              { key: 'stockL', label: 'L (۴۰)' },
-              { key: 'stockXL', label: 'XL (۴۲)' },
-            ]"
-            :key="sz.key"
-            class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-center"
-          >
-            <span class="font-bold text-slate-700 block mb-1.5">{{ sz.label }}</span>
-            <input
-              v-model.number="(productForm as any)[sz.key]"
-              type="number"
-              min="0"
-              class="w-full h-9 px-2 rounded-lg bg-white border border-slate-200 text-center font-mono tabular-nums text-slate-900 outline-hidden focus:border-ink"
-            >
-          </div>
-        </div>
-      </section>
-
-      <!-- ۴. تصاویر و مشخصات فنی پارچه -->
-      <section class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div class="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">
-          <ImageIcon class="w-4 h-4 text-slate-500" />
-          <span>گالری تصاویر و مشخصات فنی متریال</span>
-        </div>
-
-        <div class="space-y-4 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">تصویر شاخص (URL)</label>
-            <input
-              v-model="productForm.mainImage"
-              type="text"
-              class="w-full h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-start outline-hidden focus:bg-white focus:border-ink"
-            >
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">تصاویر تکمیلی گالری (هر سطر یک URL)</label>
-            <textarea
-              v-model="productForm.galleryImages"
-              rows="3"
-              class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-start outline-hidden focus:bg-white focus:border-ink"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1.5">گرماژ پارچه (GSM)</label>
-              <input
-                v-model.number="productForm.fabricGsm"
-                type="number"
-                class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono tabular-nums outline-hidden focus:border-ink"
-              >
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1.5">ترکیب الیاف</label>
-              <input
-                v-model="productForm.fabricComposition"
-                type="text"
-                class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:border-ink"
-              >
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1.5">دستورالعمل شست‌وشو</label>
-              <input
-                v-model="productForm.fabricCare"
-                type="text"
-                class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-hidden focus:border-ink"
-              >
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductStudioIdentity />
+      <ProductStudioMedia />
+      <ProductStudioVariants />
+      <ProductStudioSpecs />
+      <ProductStudioSizeChart />
+      <ProductStudioStrategy />
     </div>
 
-    <!-- نوار چسبان پایین برای ذخیره (Sticky Bottom Action Bar) -->
-    <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 sm:px-6 z-30 shadow-lg">
-      <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
-        <span class="text-xs text-slate-500 hidden sm:inline">
-          تغییرات به صورت آنی در کاتالوگ فروشگاه بازتاب داده می‌شود.
-        </span>
-
-        <div class="flex items-center gap-2.5 ms-auto">
-          <NuxtLink
-            to="/internal-ops-nexus/products"
-            class="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors"
-          >
-            انصراف
-          </NuxtLink>
-
-          <button
-            type="button"
-            data-testid="save-product-btn"
-            class="h-9 px-5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
-            :disabled="isSaving"
-            @click="handleSave"
-          >
-            <Check class="w-4 h-4" />
-            <span>{{ isSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات کالا' }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- نوار چسبان اکشن ذخیره -->
+    <ProductStudioActionBar
+      :is-saving="isSaving"
+      :is-editing="true"
+      @save="handleSave"
+    />
   </div>
 </template>
