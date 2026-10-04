@@ -249,6 +249,20 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-04 (`fix`)**: `fix(catalog): move apply filters to top header, eliminate horizontal scroll, and remove counter text`
+  - **Catalog Filter Sidebar UX Ergonomics & Layout Polish**:
+    - Relocated «اعمال فیلترها» (Apply Filters) and «حذف همه» (Reset All) actions directly to a sticky top toolbar (`sticky top-0 z-20`) at the very head of `FilterPanel.vue`, removing the bottom dock completely so filter application is immediately visible without scrolling.
+    - Completely purged negative horizontal margins (`-mx-*`) and added `overflow-x-hidden` on both desktop `<aside>` and mobile `SheetContent`, eliminating unwanted horizontal scrollbars.
+    - Removed paginated counter text («نمایش ۱–۱۲ از ۲۴ محصول») from `shop/index.vue`, cleanly aligning sort dropdown to logical inline-end (`ms-auto`).
+    - Updated `02-catalog-discovery.spec.ts` to assert pagination page indicators instead of removed counter text.
+  - **Full Quality Verification Gates Passed (All Exit Code 0)**:
+    - RTL Directional Class Lint (`bun run lint:rtl`): 0 physical violations.
+    - Design Token Lint (`bun run lint:tokens`): 0 raw hex color literals.
+    - ESLint Static Analysis (`bun run lint`): 0 errors, 0 warnings.
+    - TypeScript Typecheck (`bun run typecheck`): 0 errors.
+    - Playwright E2E Suite (`bun run test:e2e`): **26 of 26 tests passed** (43.6s).
+    - Nitro Server Production Build (`bun run build`): compiled cleanly to `.output/server/index.mjs`.
+
 - **2026-10-04 (`feat`)**: `feat(shop): add explicit apply filters button and draft state control in catalog sidebar`
   - **Catalog Filter Sidebar UX Polish & Draft State Synchronization**:
     - Implemented client-side draft filter state mechanism (`draftFilters`, `draftActiveCount`, `hasUnappliedChanges`, `cloneFilterState`, `areFiltersEqual`) in `useCatalogFilters.ts`.

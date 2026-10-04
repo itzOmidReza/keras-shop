@@ -27,8 +27,6 @@ const {
   pending,
   totalItems,
   totalPages,
-  startIndex,
-  endIndex,
   paginatedProducts,
   activeFilterCount,
   paginationPages,
@@ -60,7 +58,7 @@ const activeBrandQuery = computed<string | null>(() => {
 
     <div class="flex flex-col lg:flex-row gap-8 items-start">
       <!-- سایدبار فیلترها (دسکتاپ استیکی) -->
-      <aside class="hidden lg:block w-72 shrink-0 sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto ps-1 pe-2 rounded-2xl border border-sand bg-white p-5 shadow-2xs">
+      <aside class="hidden lg:block w-72 xl:w-80 shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto overflow-x-hidden rounded-2xl border border-sand bg-white shadow-2xs">
         <FilterPanel
           v-model="filters"
           :min-price="DEFAULT_MIN_PRICE"
@@ -73,35 +71,23 @@ const activeBrandQuery = computed<string | null>(() => {
       <main class="flex-1 min-w-0 space-y-6">
         <!-- نوار کنترل بالای محصولات -->
         <div class="flex items-center justify-between border-b border-sand/70 pb-4">
-          <div class="flex items-center gap-3">
-            <Button
-              variant="outline"
-              class="lg:hidden h-10 px-3.5 gap-2 text-xs font-bold rounded-xl border-sand text-ink hover:bg-sand/30 cursor-pointer shadow-2xs"
-              @click="isMobileFilterOpen = true"
+          <Button
+            variant="outline"
+            class="lg:hidden h-10 px-3.5 gap-2 text-xs font-bold rounded-xl border-sand text-ink hover:bg-sand/30 cursor-pointer shadow-2xs"
+            @click="isMobileFilterOpen = true"
+          >
+            <SlidersHorizontal class="w-4 h-4 text-rose" />
+            <span>فیلترها</span>
+            <span
+              v-if="activeFilterCount > 0"
+              class="rounded-full bg-rose text-white text-[10px] px-1.5 py-0.2 font-bold"
             >
-              <SlidersHorizontal class="w-4 h-4 text-rose" />
-              <span>فیلترها</span>
-              <span
-                v-if="activeFilterCount > 0"
-                class="rounded-full bg-rose text-white text-[10px] px-1.5 py-0.2 font-bold"
-              >
-                {{ toFa(activeFilterCount) }}
-              </span>
-            </Button>
-
-            <!-- شمارنده تعداد و بازه محصولات به فارسی -->
-            <span class="text-xs text-muted-foreground font-medium">
-              <template v-if="totalItems > 0">
-                نمایش <strong class="text-ink font-bold">{{ toFa(startIndex + 1) }}</strong>–<strong class="text-ink font-bold">{{ toFa(endIndex) }}</strong> از <strong class="text-ink font-bold">{{ toFa(totalItems) }}</strong> محصول
-              </template>
-              <template v-else>
-                هیچ کالایی یافت نشد
-              </template>
+              {{ toFa(activeFilterCount) }}
             </span>
-          </div>
+          </Button>
 
           <!-- دراپ‌داون مرتب‌سازی -->
-          <SortSelect v-model="sort" />
+          <SortSelect v-model="sort" class="ms-auto" />
         </div>
 
         <!-- لودینگ اسکلتون -->

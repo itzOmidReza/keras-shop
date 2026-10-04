@@ -89,33 +89,31 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await page.goto('/shop')
     await page.waitForLoadState('networkidle')
 
-    // ۲. بررسی شمارنده صفحه اول (نمایش ۱–۱۲ از ۲۴ محصول)
-    const counterText = page.getByText(/نمایش.*۱–۱۲.*از.*۲۴.*محصول/i).first()
-    await expect(counterText).toBeVisible()
-
-    // ۳. بررسی حضور کنترل‌های صفحه‌بندی
+    // ۲. بررسی حضور کنترل‌های صفحه‌بندی و وضعیت اولیه صفحه ۱
     const paginationNav = page.locator('nav[aria-label="صفحه‌بندی محصولات"]')
     await expect(paginationNav).toBeVisible()
+    const page1Indicator = paginationNav.getByText(/صفحه.*۱.*از.*۲/i)
+    await expect(page1Indicator).toBeVisible()
 
     // دکمه صفحه ۲ را کلیک می‌کنیم
     const page2Btn = paginationNav.getByRole('button', { name: 'صفحه ۲' })
     await expect(page2Btn).toBeVisible()
     await page2Btn.click()
 
-    // ۴. بررسی به‌روزرسانی URL به page=2 و تغییر شمارنده به ۱۳–۲۴
+    // ۳. بررسی به‌روزرسانی URL به page=2 و تغییر شاخص صفحه‌بندی به صفحه ۲
     await expect(page).toHaveURL(/.*page=2/)
-    const page2Counter = page.getByText(/نمایش.*۱۳–۲۴.*از.*۲۴.*محصول/i).first()
-    await expect(page2Counter).toBeVisible()
+    const page2Indicator = paginationNav.getByText(/صفحه.*۲.*از.*۲/i)
+    await expect(page2Indicator).toBeVisible()
 
-    // ۵. کلیک روی دکمه قبلی (RTL ChevronRight) برای برگشت به صفحه ۱
+    // ۴. کلیک روی دکمه قبلی (RTL ChevronRight) برای برگشت به صفحه ۱
     const prevBtn = paginationNav.getByRole('button', { name: 'صفحه قبل' })
     await expect(prevBtn).toBeVisible()
     await prevBtn.click()
 
     await expect(page).not.toHaveURL(/.*page=2/)
-    await expect(counterText).toBeVisible()
+    await expect(page1Indicator).toBeVisible()
 
-    // ۶. رفتن مجدد به صفحه ۲ و سپس تغییر فیلتر برای بررسی ریست خودکار صفحه به ۱
+    // ۵. رفتن مجدد به صفحه ۲ و سپس تغییر فیلتر برای بررسی ریست خودکار صفحه به ۱
     await page2Btn.click()
     await expect(page).toHaveURL(/.*page=2/)
 

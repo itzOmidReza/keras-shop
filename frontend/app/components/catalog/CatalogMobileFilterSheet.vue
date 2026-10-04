@@ -29,10 +29,10 @@ const emit = defineEmits<{
   <Sheet :open="open" @update:open="(val: boolean) => emit('update:open', val)">
     <SheetContent
       side="start"
-      class="w-full sm:max-w-md p-6 bg-paper border-sand overflow-y-auto flex flex-col justify-between"
+      class="w-full sm:max-w-md p-0 bg-paper border-sand overflow-y-auto overflow-x-hidden flex flex-col justify-between"
     >
-      <div class="space-y-6">
-        <SheetHeader class="text-start pb-2 border-b border-sand">
+      <div class="space-y-0">
+        <SheetHeader class="text-start px-5 py-4 border-b border-sand">
           <SheetTitle class="text-base font-bold text-ink flex items-center gap-2">
             <SlidersHorizontal class="w-4 h-4 text-rose" />
             <span>فیلترهای کاتالوگ</span>
