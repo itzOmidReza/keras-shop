@@ -29,7 +29,7 @@ const totalStock = computed(() => {
 </script>
 
 <template>
-  <div class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 sm:px-6 shadow-lg font-sans">
+  <div class="fixed bottom-0 inset-x-0 z-30 lg:ps-60 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 sm:px-6 shadow-lg font-sans">
     <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
       <!-- آمار خلاصه وضعیت اثر -->
       <div class="hidden sm:flex items-center gap-4 text-xs">

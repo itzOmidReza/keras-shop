@@ -177,8 +177,8 @@ const breadcrumb = computed(() => {
           :title="isSidebarCollapsed ? 'گسترش منو' : 'جمع کردن منو'"
           @click="isSidebarCollapsed = !isSidebarCollapsed"
         >
-          <ChevronLeft v-if="!isSidebarCollapsed" class="w-4 h-4" />
-          <ChevronRight v-else class="w-4 h-4" />
+          <ChevronRight v-if="!isSidebarCollapsed" class="w-4 h-4" />
+          <ChevronLeft v-else class="w-4 h-4" />
         </button>
 
         <!-- مسیر ناوبری (Breadcrumb) -->
@@ -312,7 +312,7 @@ const breadcrumb = computed(() => {
 
     <!-- سایدبار ثابت راست کاملاً متصل به لبه (Flush Fixed Right Sidebar) -->
     <aside
-      class="hidden lg:flex flex-col fixed top-14 end-0 bottom-0 z-30 bg-white border-s border-slate-200/80 overflow-y-auto transition-all duration-200"
+      class="hidden lg:flex flex-col fixed top-14 start-0 bottom-0 z-30 bg-white border-e border-slate-200/80 overflow-y-auto transition-all duration-200"
       :class="isSidebarCollapsed ? 'w-[72px]' : 'w-60'"
     >
       <!-- عنوان سایدبار -->
@@ -392,7 +392,7 @@ const breadcrumb = computed(() => {
       class="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex"
       @click.self="isMobileSidebarOpen = false"
     >
-      <div class="w-64 bg-white h-full border-s border-slate-200 flex flex-col p-4 space-y-4 shadow-xl">
+      <div class="w-64 bg-white h-full border-e border-slate-200 flex flex-col p-4 space-y-4 shadow-xl">
         <div class="flex items-center justify-between pb-3 border-b border-slate-200">
           <span class="text-xs font-bold text-slate-900">مرکز فرماندهی آتلیه کراس</span>
           <button
@@ -444,7 +444,7 @@ const breadcrumb = computed(() => {
     <!-- بوم اصلی و فضای کاری (Workspace Canvas - Clean Flush Padding) -->
     <main
       class="min-h-screen bg-slate-50 pt-14 transition-all duration-200 font-sans"
-      :class="isSidebarCollapsed ? 'lg:pe-[72px]' : 'lg:pe-60'"
+      :class="isSidebarCollapsed ? 'lg:ps-[72px]' : 'lg:ps-60'"
     >
       <div class="p-4 sm:p-6 lg:p-7 min-w-0">
         <slot />

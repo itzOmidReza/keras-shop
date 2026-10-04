@@ -20,8 +20,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'update:open', val: boolean): void
-  (e: 'update:modelValue', val: boolean): void
+  (e: 'update:open' | 'update:modelValue', val: boolean): void
   (e: 'created', payload: { type: 'color' | 'category' | 'brand'; item: unknown }): void
 }>()
 
