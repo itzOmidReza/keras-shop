@@ -5,7 +5,11 @@ import {
   Copy,
   Truck,
   Printer,
+  ScanBarcode,
+  RotateCcw,
 } from '@lucide/vue'
+import { useOpsOrders } from '~/composables/ops/useOpsOrders'
+import { useOpsModals } from '~/composables/ops/useOpsModals'
 
 const {
   ordersList,
@@ -19,6 +23,8 @@ const {
   copyToClipboard,
   openPackingSlip,
 } = useOpsOrders()
+
+const { isPackingScanOpen, isRmaOpen } = useOpsModals()
 </script>
 
 <template>
@@ -33,15 +39,35 @@ const {
         </p>
       </div>
 
-      <button
-        type="button"
-        data-testid="create-manual-order-btn"
-        class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
-        @click="openManualOrderModal"
-      >
-        <Plus class="w-4 h-4" />
-        <span>+ ثبت سفارش دستی جدید</span>
-      </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isPackingScanOpen = true"
+        >
+          <ScanBarcode class="w-4 h-4 text-rose" />
+          <span>میز اسکن بارکد اقلام</span>
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isRmaOpen = true"
+        >
+          <RotateCcw class="w-4 h-4 text-slate-600" />
+          <span>بازرسی مرجوعی (RMA)</span>
+        </button>
+
+        <button
+          type="button"
+          data-testid="create-manual-order-btn"
+          class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
+          @click="openManualOrderModal"
+        >
+          <Plus class="w-4 h-4" />
+          <span>+ ثبت سفارش دستی جدید</span>
+        </button>
+      </div>
     </div>
 
     <!-- فیلترهای وضعیت سفارش -->

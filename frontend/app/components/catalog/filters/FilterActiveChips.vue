@@ -90,7 +90,7 @@ function resetPrice() {
         @click="emit('reset')"
       >
         <RotateCcw class="h-3 w-3" />
-        <span>پاک کردن همه فیلترها</span>
+        <span>پاک کردن همه</span>
       </button>
     </div>
 

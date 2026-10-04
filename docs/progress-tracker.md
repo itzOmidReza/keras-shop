@@ -82,7 +82,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 24  | `/checkout/gateway`   | `app/pages/checkout/gateway.vue`         | **Complete** |  78   | Lean payment gateway orchestrator (`useShaparakGateway`) with header, merchant info card, 4-slot card form, and dev simulation toolbar                                                                                                                                                                                                                                     | Live banking switch API connection         |
 | 25  | `/checkout/callback`  | `app/pages/checkout/callback.vue`        | **Complete** |  269  | Animated verification spinner, verify API call, auto-redirect to success receipt, preserved-cart retry flow on failure                                                                                                                                                                                                                                                     | Multi-acquirer fallback                    |
 | 26  | `/login`              | `app/pages/login.vue`                    | **Complete** |  115  | Editorial split login page composing unified `useAuthFlow`, `AuthBrandingHero.vue`, `OtpPhoneStep.vue`, and `OtpCodeStep.vue`                                                                                                                                                                                                                                              | Social login providers (future)            |
-| 27  | `/internal-ops-nexus` | `app/pages/internal-ops-nexus/index.vue` | **Complete** |  145  | Lean command center orchestrator composing 8 domain views (`app/components/ops/`) and 6 lazy dialogs under `ops-guard` protection                                                                                                                                                                                                                                          | Multi-warehouse inventory sync             |
+| 27  | `/internal-ops-nexus` | `app/pages/internal-ops-nexus/index.vue` | **Complete** |  127  | Enterprise operations command center (< 180 LOC) featuring 6 domains: RBAC sentinel & 2FA, multi-warehouse stock transfer & matrix builder, order state machine & packing barcode scan, RMA refund routing, Chart.js BI analytics, and global command palette | Real-time WebSocket sync (future) |
 
 ---
 
@@ -248,20 +248,6 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
-
-- **2026-10-04 (`fix`)**: `fix(catalog): move apply filters to top header, eliminate horizontal scroll, and remove counter text`
-  - **Catalog Filter Sidebar UX Ergonomics & Layout Polish**:
-    - Relocated «اعمال فیلترها» (Apply Filters) and «حذف همه» (Reset All) actions directly to a sticky top toolbar (`sticky top-0 z-20`) at the very head of `FilterPanel.vue`, removing the bottom dock completely so filter application is immediately visible without scrolling.
-    - Completely purged negative horizontal margins (`-mx-*`) and added `overflow-x-hidden` on both desktop `<aside>` and mobile `SheetContent`, eliminating unwanted horizontal scrollbars.
-    - Removed paginated counter text («نمایش ۱–۱۲ از ۲۴ محصول») from `shop/index.vue`, cleanly aligning sort dropdown to logical inline-end (`ms-auto`).
-    - Updated `02-catalog-discovery.spec.ts` to assert pagination page indicators instead of removed counter text.
-  - **Full Quality Verification Gates Passed (All Exit Code 0)**:
-    - RTL Directional Class Lint (`bun run lint:rtl`): 0 physical violations.
-    - Design Token Lint (`bun run lint:tokens`): 0 raw hex color literals.
-    - ESLint Static Analysis (`bun run lint`): 0 errors, 0 warnings.
-    - TypeScript Typecheck (`bun run typecheck`): 0 errors.
-    - Playwright E2E Suite (`bun run test:e2e`): **26 of 26 tests passed** (43.6s).
-    - Nitro Server Production Build (`bun run build`): compiled cleanly to `.output/server/index.mjs`.
 
 - **2026-10-04 (`feat`)**: `feat(shop): add explicit apply filters button and draft state control in catalog sidebar`
   - **Catalog Filter Sidebar UX Polish & Draft State Synchronization**:
@@ -550,6 +536,36 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - **Trending Collection Carousel (`TrendingCarousel.vue`)**: Single-row snap carousel featuring `ProductCard.vue` items with 4 category filter tabs («همه»، «شومیز و پیراهن»، «بافت و پلیور»، «اکسسوری و شال»).
   - **Fabric Philosophy Lookbook (`PromoBannerTwo.vue`)**: Split lookbook banner highlighting sustainable linen, merino wool, and silk craftsmanship with OEKO-TEX badge and direct link to `/fabric-standards`.
   - **Quality Gates**: All 6 verification gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `test:e2e`, `build`).
+- **2026-10-04 (`feat`)**: `feat(ops): implement comprehensive enterprise backoffice command center across 6 mission-critical operational modules`
+  - **Module 1 (Auth, Granular RBAC, Audit Trail & Session Sentinel)**:
+    - Built Pinia RBAC store (`stores/ops/authGuard.ts`) supporting 4 granular roles (`super_admin`, `warehouse_manager`, `accountant`, `support_agent`) and role simulation.
+    - Implemented `OpsRbacBar.vue` with active operator credentials, permission chips, and quick security controls.
+    - Implemented `OpsTwoFactorModal.vue` for TOTP (Google Authenticator) and SMS OTP 2FA setup and verification.
+    - Implemented `OpsSessionSentinelModal.vue` active session monitor with 1-click revoke capabilities across devices.
+    - Implemented `useOpsAudit.ts` and `OpsAuditTrailTable.vue` for searchable, severity-tagged tamper-evident audit logs with CSV export.
+  - **Module 2 (Catalog, Variant Matrix, Multi-Warehouse & Spreadsheet Mode)**:
+    - Built `useOpsCatalogMatrix.ts` and `OpsCatalogMatrixModal.vue` multi-dimensional variant generator (Color x Size x Line) with automated SKU and EAN-13 barcode generation.
+    - Built `useOpsWarehouses.ts` and `OpsWarehouseTransferModal.vue` for multi-warehouse management (`wh-tehran`, `wh-atelier`, `wh-tajrish`), stratified stock allocation (`onHand`, `reserved`, `available`), and inter-warehouse transfer dockets.
+    - Built `OpsCatalogSpreadsheet.vue` for inline bulk Excel-style pricing and inventory modifications with dirty-state cell tracking and batch save.
+  - **Module 3 (Order State Machine, Logistics, RMA & Barcode Packing Scan)**:
+    - Built `useOpsOrderStateMachine.ts` handling order transitions (`registered` -> `paid` -> `packing` -> `shipped` -> `delivered` / `canceled`) with automated side effects (commercial invoice creation, 24-digit Iran Post tracking, SMS dispatch).
+    - Implemented `OpsPackingBarcodeScanModal.vue` barcode verification desk preventing packing slip creation until all physical garment SKUs are verified.
+    - Built `useOpsRMA.ts` and `OpsRmaModal.vue` return merchandise authorization desk with hygiene checklist (perfume/wear test, seals) and refund routing (customer wallet vs Shaparak gateway).
+  - **Module 4 (Business Intelligence, Cohort Analytics & Chart.js Engine)**:
+    - Integrated `chart.js` (`^4.5.1`) and `vue-chartjs` (`^5.3.4`) with SSR-safe `OpsChartCard.vue` client component and brand design tokens.
+    - Built `useOpsAnalyticsBI.ts`, `OpsRevenueChart.vue` (30-day / 12-month linear revenue trends), and `OpsCategoryDoughnut.vue` (category sales distribution).
+    - Implemented `useOpsRFM.ts` and `OpsRfmCohortTable.vue` for customer cohort analysis (Champions, Loyalists, At-Risk, Hibernating).
+    - Built `OpsDeadStockAnalyzer.vue` for stagnant stock alerts and inventory turnover rates.
+    - Built `OpsExecutiveDigestCard.vue` daily Persian AI executive summary generator.
+  - **Module 5 & Module 6 (Admin Ergonomics, Command Palette, Tabbed Workspace & Conflict Safeguards)**:
+    - Built `useOpsTabs.ts` and `OpsTabBar.vue` multi-tabbed workspace engine with pin, close, and add actions.
+    - Built `OpsCommandPalette.vue` global omnisearch (`⌘K` / `Ctrl+K`) for rapid navigation and action execution.
+    - Built `OpsQuickPeekDrawer.vue` for instant non-destructive entity preview without leaving active views.
+    - Built `useOpsUndo.ts` 6-second grace period toast engine, `useOpsDraftStore.ts` local storage auto-save, `OpsDestructiveConfirmModal.vue` safety confirm modal, and `OpsConflictBanner.vue` concurrent edit conflict banner.
+  - **Orchestration & Code Quality**:
+    - Reduced `internal-ops-nexus/index.vue` orchestrator to **127 LOC** (strictly < 180 LOC).
+    - Preserved 100% of existing Playwright test contracts and selectors.
+    - All 6 quality gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`, `test:e2e` [all 26 tests passed]).
 - **2026-10-03 (`90e1f74`)**: `feat(home): polish editorial four-season lifestyle landing page with shop-the-look and category stories`
   - **Editorial Landing Polish**: Updated `HeroPromoBanner.vue` with Fall 1405 drop hero photography, interactive voucher pill with 1-click clipboard copy and toast feedback, and dual CTAs («مشاهده کالکشن پاییز» and «بررسی اکسسوری‌ها»).
   - **Category Stories**: Upgraded `CategoryStories.vue` with 7 circular category avatars styled with luxury gradient borders (`bg-gradient-to-tr from-rose via-clay to-sand`) and direct links to active drops and categories.

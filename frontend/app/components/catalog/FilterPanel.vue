@@ -121,8 +121,8 @@ const {
           type="button"
           data-testid="reset-filters-btn"
           class="h-10 px-3 rounded-xl border border-sand bg-sand/20 hover:bg-sand/50 text-ink text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-2xs hover:text-rose active:scale-98"
-          title="حذف همه فیلترها"
-          aria-label="حذف همه فیلترها"
+          title="حذف همه"
+          aria-label="حذف همه"
           @click="resetAllFilters"
         >
           <RotateCcw class="w-3.5 h-3.5" />

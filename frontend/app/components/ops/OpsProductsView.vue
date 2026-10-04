@@ -5,9 +5,14 @@ import {
   Search,
   Edit3,
   Trash2,
+  TableProperties,
+  Grid,
+  ArrowLeftRight,
 } from '@lucide/vue'
 import { formatToman } from '~/utils/format'
 import { useOpsProducts } from '~/composables/ops/useOpsProducts'
+import { useOpsModals } from '~/composables/ops/useOpsModals'
+import OpsCatalogSpreadsheet from '~/components/ops/catalog/OpsCatalogSpreadsheet.vue'
 
 const {
   productSearchQuery,
@@ -21,6 +26,8 @@ const {
   isDeleteProductDialogOpen,
   productToDelete,
 } = useOpsProducts()
+
+const { isSpreadsheetOpen, isMatrixOpen, isTransferOpen } = useOpsModals()
 </script>
 
 <template>
@@ -35,16 +42,48 @@ const {
         </p>
       </div>
 
-      <button
-        type="button"
-        data-testid="add-product-btn"
-        class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
-        @click="openAddProductModal"
-      >
-        <Plus class="w-4 h-4" />
-        <span>افزودن محصول جدید</span>
-      </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isSpreadsheetOpen = !isSpreadsheetOpen"
+        >
+          <TableProperties class="w-4 h-4 text-emerald-700" />
+          <span>{{ isSpreadsheetOpen ? 'بستن اکسل' : 'نمای اکسل کاتالوگ' }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isMatrixOpen = true"
+        >
+          <Grid class="w-4 h-4 text-rose" />
+          <span>ماتریس متغیرها</span>
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isTransferOpen = true"
+        >
+          <ArrowLeftRight class="w-4 h-4 text-slate-600" />
+          <span>حواله انبار</span>
+        </button>
+
+        <button
+          type="button"
+          data-testid="add-product-btn"
+          class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs"
+          @click="openAddProductModal"
+        >
+          <Plus class="w-4 h-4" />
+          <span>افزودن محصول جدید</span>
+        </button>
+      </div>
     </div>
+
+    <!-- ویرایشگر اکسل کاتالوگ -->
+    <OpsCatalogSpreadsheet v-if="isSpreadsheetOpen" @close="isSpreadsheetOpen = false" />
 
     <!-- فیلترها و جستجوی کالاها -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">

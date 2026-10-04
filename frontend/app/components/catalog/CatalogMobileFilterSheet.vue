@@ -28,6 +28,7 @@ const emit = defineEmits<{
 <template>
   <Sheet :open="open" @update:open="(val: boolean) => emit('update:open', val)">
     <SheetContent
+      v-if="open"
       side="start"
       class="w-full sm:max-w-md p-0 bg-paper border-sand overflow-y-auto overflow-x-hidden flex flex-col justify-between"
     >
