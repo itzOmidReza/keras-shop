@@ -118,7 +118,7 @@ export function useOpsProducts() {
     )
   })
 
-  const openAddProductModal = () => {
+  const initFormForNew = () => {
     editingProduct.value = null
     productForm.value = {
       title: '',
@@ -141,10 +141,14 @@ export function useOpsProducts() {
       stockXL: 4,
       stockFree: 0,
     }
+  }
+
+  const openAddProductModal = () => {
+    initFormForNew()
     isProductModalOpen.value = true
   }
 
-  const openEditProductModal = (p: ProductDetail) => {
+  const initFormForProduct = (p: ProductDetail) => {
     editingProduct.value = p
     const xs = p.variants?.find((v) => v.size === 'XS')?.stock || 0
     const s = p.variants?.find((v) => v.size === 'S')?.stock || 0
@@ -160,7 +164,7 @@ export function useOpsProducts() {
       category: p.category,
       season: p.season,
       badge: p.badge || '',
-      basePrice: p.compare_at_price || p.price,
+      basePrice: p.compare_at_price || p.base_price || p.price,
       salePrice: p.price,
       mainImage: p.images?.[0]?.url || '',
       galleryImages: p.images?.slice(1).map((i) => i.url).join('\n') || '',
@@ -174,7 +178,18 @@ export function useOpsProducts() {
       stockXL: xl,
       stockFree: free,
     }
+  }
+
+  const openEditProductModal = (p: ProductDetail) => {
+    initFormForProduct(p)
     isProductModalOpen.value = true
+  }
+
+  const getProductById = (id: string | number): ProductDetail | undefined => {
+    const numId = Number(id)
+    return productsList.value.find(
+      (p) => p.id === numId || String(p.id) === String(id) || p.slug === String(id),
+    )
   }
 
   const saveProduct = () => {
@@ -335,6 +350,9 @@ export function useOpsProducts() {
     editingProduct,
     productForm,
     autoDiscountPercent,
+    initFormForNew,
+    initFormForProduct,
+    getProductById,
     openAddProductModal,
     openEditProductModal,
     saveProduct,

@@ -600,6 +600,26 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
     - `04-checkout-ipg-success.spec.ts`: Seamless 2-step checkout, Shaparak IPG simulation, and post-purchase tracking.
     - All 8 tests passed across Desktop Chrome and Mobile Safari.
   - **Quality Gates**: All 6 verification gates passed with Exit Code 0 (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`, `test:e2e`).
+- **2026-10-04**: `feat(ops): restructure backoffice layout with global vazirmatn, 2-tier navigation, and dedicated product crud pages`
+  - **Universal Vazirmatn Typography & 3-Tier Ergonomic Layout (`app/layouts/ops.vue`)**:
+    - Enforced `font-sans` (Vazirmatn) and `tabular-nums` across all administrative numbers, currencies, dates, and order codes.
+    - Slim 56px top header (`h-14`) featuring breadcrumbs, Omnisearch pill (`Ctrl+K`), server heartbeat status badge, notification bell, profile menu, and one-click session lock (`ops-lock-btn`).
+    - 240px fixed right sidebar (with 72px mini-collapsed mode) organizing 6 business domains: Dashboard, Products, Orders, Finance, CRM, and Audit.
+  - **2-Tier Domain Navigation (`OpsDomainSubNav.vue`)**:
+    - Created lightweight 44px (`h-11`) horizontal tab bar for sub-domain workflows (Products, Orders, Finance, CRM, Audit).
+  - **Dedicated Product CRUD Pages & Quick-Edit Modal**:
+    - `products/index.vue`: Paginated catalog (10 per page), count pill, filter controls, and atomic `OpsProductsTable.vue`.
+    - `OpsQuickEditModal.vue`: Rapid dialog for price and variant stock adjustments without leaving the table.
+    - `products/new.vue` & `products/[id]/edit.vue`: Full-page forms for catalog metadata, fabric specs, 6-size variant matrix, and sticky bottom action bar.
+  - **Dedicated Domain Workspaces**:
+    - `orders/index.vue`: Orders desk, packing scan, and RMA inspection sub-views.
+    - `finance/index.vue`: Shaparak ledger, daily balance, and CSV exports.
+    - `crm/index.vue`: Member registry and RFM cohort segmentation.
+    - `audit/index.vue`: Audit trail log table (`OpsAuditTable.vue`), 2FA, and session sentinel.
+  - **De-cluttered Executive Dashboard (`index.vue` / `OpsAnalyticsView.vue`)**:
+    - High-level overview: Top 4 KPIs (GMV, Net Margin, AOV, Carts), Chart.js trend charts, `OpsRecentOrdersCard.vue` (latest 5 orders), and direct department quick-links.
+  - **Quality Gates Verification**:
+    - Passed all 6 verification gates: `lint:rtl`, `lint:tokens`, `lint` (0 errors), `typecheck` (0 errors), `build` (0 errors), `test:e2e` (all 26/26 tests passing).
 - **2026-10-02 (`4f124e9`)**: `fix(auth): resolve OTP countdown reset, address validation, and account hydration edge cases`
   - Fixed phone number and OTP input digit sanitization: automatically normalizes pasted Persian/Arabic digits (`۰-۹`) to English digits (`0-9`) via `toEn()` watchers.
   - Hardened OTP resend and error display: routed resend failures to `otpError` on Step 2 so users clearly see error messages below OTP slots.
