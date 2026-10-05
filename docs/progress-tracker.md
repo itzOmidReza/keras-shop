@@ -638,6 +638,18 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
   - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion increased from ~70% to **~82%**.
+- **2026-10-05 (`feat-ops-fulfillment-desk`)**: `feat(ops): implement order fulfillment and logistics desk with kanban, wave picking, scan-to-pack, and exchange flows`
+  - Architected and implemented full Fashion Order Fulfillment & Logistics Desk sub-domain (`/internal-ops-nexus/orders`) coordinated by `useOpsFulfillmentDesk.ts` and `useOpsShippingManifest.ts`.
+  - Implemented Dual Workspace toggle supporting high-density table view and 5-column HTML5 drag-and-drop Kanban board (`OpsOrdersKanbanBoard.vue`).
+  - Created Batch Wave Picking List modal (`OpsWavePickingModal.vue`) aggregating garment items by model, color, and size with operator progress meter and print layout.
+  - Engineered Scan-to-Pack QC Station (`OpsScanToPackStation.vue`) with active Mismatch Guard, garment SKU/barcode scanner, and 3-point garment QC checklist.
+  - Built 10×15 cm Thermal Shipping Label Generator (`OpsThermalShippingLabelModal.vue`) with simulated vector barcode, QR code, postal addresses, and bulk print capability.
+  - Developed Official Courier Handover Manifest Docket (`OpsPostManifestModal.vue`) with courier selector (Iran Post, Tipax, Chapar, Keras Courier), summary statistics, and agent signature/stamp boxes.
+  - Implemented Reverse Logistics & Dedicated Size Exchange Flow (`OpsOrderExchangeModal.vue`) with target size selector, stock reservation, and 3-step timeline.
+  - Added Floating Bulk Action Dock (`OpsBatchActionDock.vue`) for multi-order actions (bulk 10×15 print, bulk handover, distribution Excel export).
+  - Built comprehensive Slide-Over Detail Drawer (`OpsOrderDetailDrawer.vue`) with emergency address editing, live SMS webhook simulation, and parcel delayed sentinel.
+  - Fully preserved all Playwright test attributes (`nexus-fulfillment-view`, `create-manual-order-btn`, `assign-barcode-btn`, `print-packing-slip-btn`).
+  - Passed all 6 quality gates: `lint:rtl`, `lint:tokens`, `lint` (0 errors), `typecheck` (0 errors), `test:e2e` (26/26 passing), and production `build`.
 - **2026-10-04 (`feat-ops-studio-overhaul`)**: `feat(ops): overhaul product studio with 2-column layout, sticky section inspector, and auto-variant matrix`
   - Restructured Product Management Studio into an asymmetric 2-column luxury workspace (`col-span-12 xl:col-span-8` main flow and `col-span-12 xl:col-span-4 sticky top-20` inspector).
   - Built `ProductStudioInspector.vue` featuring interactive section completion navigator with smooth scroll anchors, real-time live boutique card preview, and SEO health meter with 1-click auto-generation.

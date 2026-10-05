@@ -1,63 +1,139 @@
+<!-- frontend/app/components/ops/OpsOrdersView.vue -->
 <script setup lang="ts">
 import {
   Plus,
   Search,
-  Copy,
-  Truck,
-  Printer,
   ScanBarcode,
   RotateCcw,
+  LayoutGrid,
+  TableProperties,
+  ListTodo,
+  FileCheck2,
 } from '@lucide/vue'
+import { useOpsFulfillmentDesk } from '~/composables/ops/useOpsFulfillmentDesk'
+import { useOpsShippingManifest } from '~/composables/ops/useOpsShippingManifest'
 import { useOpsOrders } from '~/composables/ops/useOpsOrders'
 import { useOpsModals } from '~/composables/ops/useOpsModals'
+import OpsOrdersTable from '~/components/ops/orders/OpsOrdersTable.vue'
+import OpsOrdersKanbanBoard from '~/components/ops/orders/OpsOrdersKanbanBoard.vue'
+import OpsOrderDetailDrawer from '~/components/ops/orders/OpsOrderDetailDrawer.vue'
+import OpsScanToPackStation from '~/components/ops/orders/OpsScanToPackStation.vue'
+import OpsWavePickingModal from '~/components/ops/orders/OpsWavePickingModal.vue'
+import OpsThermalShippingLabelModal from '~/components/ops/orders/OpsThermalShippingLabelModal.vue'
+import OpsPostManifestModal from '~/components/ops/orders/OpsPostManifestModal.vue'
+import OpsOrderExchangeModal from '~/components/ops/orders/OpsOrderExchangeModal.vue'
+import OpsBatchActionDock from '~/components/ops/orders/OpsBatchActionDock.vue'
+import { toFa } from '~/utils/format'
 
 const {
-  ordersList,
-  orderStatusFilter,
-  orderSearchQuery,
-  filteredOrders,
-  getStatusBadge,
-  updateOrderStatus,
-  openBarcodeModal,
+  viewMode,
+  activeStatusTab,
+  selectedShift,
+  selectedCarrierFilter,
+  deskSearchQuery,
+  isWavePickingOpen,
+  isScanToPackOpen,
+  enrichedOrders,
+} = useOpsFulfillmentDesk()
+
+const {
+  openPostManifest,
+} = useOpsShippingManifest()
+
+const {
   openManualOrderModal,
-  copyToClipboard,
-  openPackingSlip,
 } = useOpsOrders()
 
-const { isPackingScanOpen, isRmaOpen } = useOpsModals()
+const { isRmaOpen } = useOpsModals()
+
+const statusTabs = [
+  { id: 'all', label: 'همه مرسوله‌ها' },
+  { id: 'registered', label: 'ثبت جدید' },
+  { id: 'picking', label: 'انبارداری' },
+  { id: 'packing', label: 'بسته‌بندی و QC' },
+  { id: 'shipped', label: 'تحویل به پست' },
+  { id: 'delivered', label: 'تحویل نهایی' },
+  { id: 'delayed', label: 'معطله پستی (۴+ روز)' },
+]
 </script>
 
 <template>
-  <section data-testid="nexus-fulfillment-view" class="space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <section data-testid="nexus-fulfillment-view" class="space-y-5 font-sans">
+    <!-- نوار عنوان، ابزارهای تخصصی و دکمه‌های اقدام -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
         <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          میز مدیریت سفارش‌ها و توزیع پستی
+          میز لجستیک و توزیع پوشاک آتلیه
         </h1>
-        <p class="text-xs sm:text-sm text-slate-600 mt-1">
-          پردازش وضعیت سفارش‌ها، تخصیص بارکد ۲۴ رقمی پست و ثبت سفارش دستی
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          پایپ‌لاین دوگانه سفارش‌ها، برداشت تجمیعی انبار، ایستگاه اسکن اقلام و ترخیص رسمی شرکت ملی پست
         </p>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
+        <!-- سوئیچ نمای جدول / کانبان -->
+        <div class="p-1 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center gap-1 text-xs font-bold">
+          <button
+            type="button"
+            class="h-8 px-2.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+            :class="viewMode === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+            @click="viewMode = 'table'"
+          >
+            <TableProperties class="w-3.5 h-3.5" />
+            <span>جدول</span>
+          </button>
+          <button
+            type="button"
+            class="h-8 px-2.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+            :class="viewMode === 'kanban' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+            @click="viewMode = 'kanban'"
+          >
+            <LayoutGrid class="w-3.5 h-3.5" />
+            <span>کانبان</span>
+          </button>
+        </div>
+
+        <!-- برداشت تجمیعی انبار (Wave Picking) -->
         <button
           type="button"
-          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
-          @click="isPackingScanOpen = true"
+          class="h-10 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isWavePickingOpen = true"
+        >
+          <ListTodo class="w-4 h-4 text-sky-600" />
+          <span>برداشت تجمیعی</span>
+        </button>
+
+        <!-- ایستگاه کنترل و اسکن بارکد (Scan-to-Pack) -->
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isScanToPackOpen = true"
         >
           <ScanBarcode class="w-4 h-4 text-rose" />
-          <span>میز اسکن بارکد اقلام</span>
+          <span>ایستگاه اسکن و QC</span>
         </button>
 
+        <!-- مانیفست روزانه ترخیص به پست -->
         <button
           type="button"
-          class="h-10 px-3 rounded-xl border border-sand bg-white hover:bg-sand/30 text-ink text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
-          @click="isRmaOpen = true"
+          class="h-10 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="openPostManifest('post')"
         >
-          <RotateCcw class="w-4 h-4 text-slate-600" />
-          <span>بازرسی مرجوعی (RMA)</span>
+          <FileCheck2 class="w-4 h-4 text-purple-600" />
+          <span>مانیفست واگذاری</span>
         </button>
 
+        <!-- بازرسی مرجوعی RMA -->
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          @click="isRmaOpen = true"
+        >
+          <RotateCcw class="w-4 h-4 text-amber-600" />
+          <span>RMA مرجوعی</span>
+        </button>
+
+        <!-- دکمه ثبت سفارش دستی (تست E2E) -->
         <button
           type="button"
           data-testid="create-manual-order-btn"
@@ -70,169 +146,73 @@ const { isPackingScanOpen, isRmaOpen } = useOpsModals()
       </div>
     </div>
 
-    <!-- فیلترهای وضعیت سفارش -->
-    <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">
-      <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+    <!-- نوار چندفیلتره (تب وضعیت، شیفت، کوریر، جستجو) -->
+    <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3">
+      <!-- تب‌های وضعیت سفارش -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
         <button
+          v-for="tab in statusTabs"
+          :key="tab.id"
           type="button"
           class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          :class="orderStatusFilter === 'all' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'"
-          @click="orderStatusFilter = 'all'"
+          :class="activeStatusTab === tab.id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="activeStatusTab = tab.id"
         >
-          همه ({{ ordersList.length }})
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          :class="orderStatusFilter === 'registered' ? 'bg-amber-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
-          @click="orderStatusFilter = 'registered'"
-        >
-          در انتظار بررسی
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          :class="orderStatusFilter === 'processing' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
-          @click="orderStatusFilter = 'processing'"
-        >
-          در حال بسته‌بندی
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          :class="orderStatusFilter === 'handed_over' ? 'bg-purple-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
-          @click="orderStatusFilter = 'handed_over'"
-        >
-          ارسال با پست
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          :class="orderStatusFilter === 'delivered' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
-          @click="orderStatusFilter = 'delivered'"
-        >
-          تحویل شده
+          {{ tab.label }}
+          <span v-if="tab.id === 'all'" class="text-[11px] opacity-80 ms-1 font-mono">({{ toFa(enrichedOrders.length) }})</span>
         </button>
       </div>
 
-      <div class="relative w-full md:w-72">
-        <input
-          v-model="orderSearchQuery"
-          type="text"
-          placeholder="جستجوی شماره سفارش، خریدار یا بارکد..."
-          class="w-full h-9 ps-8 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white outline-hidden"
-        >
-        <Search class="w-3.5 h-3.5 text-slate-400 absolute inset-s-2.5 top-2.5" />
-      </div>
-    </div>
+      <!-- ردیف دوم فیلترها (شیفت، کوریر، جستجوی زنده) -->
+      <div class="flex flex-col sm:flex-row items-center gap-2.5 justify-between pt-2 border-t border-slate-100">
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <!-- برش زمانی شیفت ارسال -->
+          <select
+            v-model="selectedShift"
+            class="h-9 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+          >
+            <option value="all">همه نوبت‌های کاری</option>
+            <option value="morning">نوبت صبح (۱۰ الی ۱۳)</option>
+            <option value="evening">نوبت عصر (۱۵ الی ۱۸)</option>
+          </select>
 
-    <!-- جدول سفارش‌ها -->
-    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-start text-xs">
-          <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-700 font-bold">
-            <tr>
-              <th class="p-3.5 text-start">سفارش و خریدار</th>
-              <th class="p-3.5 text-start">نشانی تحویل</th>
-              <th class="p-3.5 text-start">اقلام</th>
-              <th class="p-3.5 text-start">مبلغ فاکتور</th>
-              <th class="p-3.5 text-start">وضعیت جاری</th>
-              <th class="p-3.5 text-start">کد رهگیری پست</th>
-              <th class="p-3.5 text-end">عملیات</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr
-              v-for="order in filteredOrders"
-              :key="order.orderNumber"
-              class="hover:bg-slate-50/70 transition-colors"
-            >
-              <!-- شماره و خریدار -->
-              <td class="p-3.5">
-                <span class="font-bold text-slate-900 font-mono block">{{ order.orderNumber }}</span>
-                <span class="text-slate-700 font-medium block mt-0.5">{{ order.recipientName }}</span>
-                <span class="text-[10px] text-slate-400 font-mono block">{{ order.recipientPhone || '—' }}</span>
-              </td>
+          <!-- فیلتر شرکت حمل -->
+          <select
+            v-model="selectedCarrierFilter"
+            class="h-9 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+          >
+            <option value="all">همه سرویس‌های پستی و پیک</option>
+            <option value="post">پست پیشتاز</option>
+            <option value="tipax">تیپاکس (Tipax)</option>
+            <option value="chapar">کالارسان چاپار</option>
+            <option value="courier">پیک اختصاصی کراس</option>
+          </select>
+        </div>
 
-              <!-- نشانی -->
-              <td class="p-3.5 max-w-xs truncate text-slate-600" :title="order.shippingAddress">
-                {{ order.shippingAddress }}
-              </td>
-
-              <!-- اقلام -->
-              <td class="p-3.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-[11px] text-slate-700">
-                    {{ order.items.length }} قلم
-                  </span>
-                </div>
-              </td>
-
-              <!-- مبلغ فاکتور -->
-              <td class="p-3.5 font-mono font-bold text-slate-900">
-                {{ formatToman(order.totalAmount) }} تومان
-              </td>
-
-              <!-- وضعیت سفارش و تغییر سریع درون‌خطی -->
-              <td class="p-3.5">
-                <select
-                  :value="order.status"
-                  class="h-8 px-2 rounded-lg text-xs font-bold border transition-colors outline-hidden cursor-pointer"
-                  :class="getStatusBadge(order.status).class"
-                  @change="updateOrderStatus(order, ($event.target as HTMLSelectElement).value as any)"
-                >
-                  <option value="registered">در انتظار بررسی</option>
-                  <option value="processing">در حال بسته‌بندی</option>
-                  <option value="handed_over">ارسال با پست</option>
-                  <option value="delivered">تحویل شده</option>
-                  <option value="canceled">مرجوعی / لغو</option>
-                </select>
-              </td>
-
-              <!-- بارکد پست -->
-              <td class="p-3.5">
-                <div v-if="order.trackingCode" class="flex items-center gap-1 font-mono text-[11px] text-slate-800">
-                  <span class="truncate max-w-[120px]">{{ order.trackingCode }}</span>
-                  <button
-                    type="button"
-                    class="p-1 hover:text-ink cursor-pointer"
-                    title="کپی بارکد"
-                    @click="copyToClipboard(order.trackingCode!)"
-                  >
-                    <Copy class="w-3 h-3" />
-                  </button>
-                </div>
-                <span v-else class="text-slate-400 text-[11px]">صادر نشده</span>
-              </td>
-
-              <!-- عملیات -->
-              <td class="p-3.5 text-end">
-                <div class="flex items-center justify-end gap-1.5">
-                  <button
-                    type="button"
-                    data-testid="assign-barcode-btn"
-                    class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-bold cursor-pointer flex items-center gap-1"
-                    title="تخصیص بارکد ۲۴ رقمی پست"
-                    @click="openBarcodeModal(order)"
-                  >
-                    <Truck class="w-3 h-3" />
-                    <span>تخصیص بارکد</span>
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="print-packing-slip-btn"
-                    class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
-                    title="چاپ فاکتور و برچسب پستی"
-                    @click="openPackingSlip(order)"
-                  >
-                    <Printer class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- باکس جستجوی متنی -->
+        <div class="relative w-full sm:w-80">
+          <input
+            v-model="deskSearchQuery"
+            type="text"
+            placeholder="جستجوی شماره سفارش، نام مشتری یا بارکد ۲۴ رقمی..."
+            class="w-full h-9 ps-8 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white outline-hidden"
+          >
+          <Search class="w-3.5 h-3.5 text-slate-400 absolute inset-s-2.5 top-2.5" />
+        </div>
       </div>
     </div>
+
+    <!-- بدنه بوم سفارش‌ها: جدول یا کانبان -->
+    <OpsOrdersTable v-if="viewMode === 'table'" />
+    <OpsOrdersKanbanBoard v-else />
+
+    <!-- دراور و مودال‌های میز لجستیک -->
+    <OpsOrderDetailDrawer />
+    <OpsScanToPackStation />
+    <OpsWavePickingModal />
+    <OpsThermalShippingLabelModal />
+    <OpsPostManifestModal />
+    <OpsOrderExchangeModal />
+    <OpsBatchActionDock />
   </section>
 </template>

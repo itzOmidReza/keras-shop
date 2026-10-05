@@ -3,6 +3,8 @@
 import OpsDomainSubNav from '~/components/ops/common/OpsDomainSubNav.vue'
 import OpsOrdersView from '~/components/ops/OpsOrdersView.vue'
 import { useOpsModals } from '~/composables/ops/useOpsModals'
+import { useOpsFulfillmentDesk } from '~/composables/ops/useOpsFulfillmentDesk'
+import { useOpsShippingManifest } from '~/composables/ops/useOpsShippingManifest'
 
 definePageMeta({
   layout: 'ops',
@@ -16,29 +18,29 @@ const {
   isRmaOpen,
 } = useOpsModals()
 
+const { isScanToPackOpen } = useOpsFulfillmentDesk()
+const { isPostManifestOpen } = useOpsShippingManifest()
+
 const activeSubTab = ref('desk')
 const subNavTabs = [
   { id: 'desk', label: 'میز سفارش‌ها' },
   { id: 'scan', label: 'اسکن و تایید بارکد پست' },
+  { id: 'manifest', label: 'مانیفست ترخیص پست' },
   { id: 'rma', label: 'مرجوعی و استرداد (RMA)' },
 ]
 
 watch(activeSubTab, (tab) => {
   if (tab === 'scan') {
-    isPackingScanOpen.value = true
+    isScanToPackOpen.value = true
+  } else if (tab === 'manifest') {
+    isPostManifestOpen.value = true
   } else if (tab === 'rma') {
     isRmaOpen.value = true
   }
 })
 
-watch(isPackingScanOpen, (open) => {
-  if (!open && activeSubTab.value === 'scan') {
-    activeSubTab.value = 'desk'
-  }
-})
-
-watch(isRmaOpen, (open) => {
-  if (!open && activeSubTab.value === 'rma') {
+watch([isScanToPackOpen, isPostManifestOpen, isRmaOpen], ([scan, manifest, rma]) => {
+  if (!scan && !manifest && !rma && activeSubTab.value !== 'desk') {
     activeSubTab.value = 'desk'
   }
 })
@@ -52,7 +54,7 @@ watch(isRmaOpen, (open) => {
     <!-- محتوای میز سفارش‌ها -->
     <OpsOrdersView />
 
-    <!-- دیالوگ‌های لود تنبل -->
+    <!-- دیالوگ‌های لود تنبل موجود -->
     <LazyOpsBarcodeModal />
     <LazyOpsManualOrderModal />
     <LazyOpsPackingSlipModal />
