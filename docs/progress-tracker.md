@@ -82,7 +82,7 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 24  | `/checkout/gateway`   | `app/pages/checkout/gateway.vue`         | **Complete** |  78   | Lean payment gateway orchestrator (`useShaparakGateway`) with header, merchant info card, 4-slot card form, and dev simulation toolbar                                                                                                                                                                                                                                     | Live banking switch API connection         |
 | 25  | `/checkout/callback`  | `app/pages/checkout/callback.vue`        | **Complete** |  269  | Animated verification spinner, verify API call, auto-redirect to success receipt, preserved-cart retry flow on failure                                                                                                                                                                                                                                                     | Multi-acquirer fallback                    |
 | 26  | `/login`              | `app/pages/login.vue`                    | **Complete** |  115  | Editorial split login page composing unified `useAuthFlow`, `AuthBrandingHero.vue`, `OtpPhoneStep.vue`, and `OtpCodeStep.vue`                                                                                                                                                                                                                                              | Social login providers (future)            |
-| 27  | `/internal-ops-nexus` | `app/pages/internal-ops-nexus/index.vue` | **Complete** |  127  | Enterprise operations command center (< 180 LOC) featuring 6 domains: RBAC sentinel & 2FA, multi-warehouse stock transfer & matrix builder, order state machine & packing barcode scan, RMA refund routing, Chart.js BI analytics, and global command palette | Real-time WebSocket sync (future) |
+| 27  | `/internal-ops-nexus` | `app/pages/internal-ops-nexus/index.vue` | **Complete** |  127  | Lean 4-pillar boutique apparel backoffice (< 180 LOC): Overview & Analytics, Products Studio (`/products`), Orders & Fulfillment (`/orders`), and Discounts & Coupons (`/discounts`) | Real-time WebSocket sync (future) |
 
 ---
 
@@ -248,6 +248,23 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-06 (`feat-ops-lean-purge`)**: `feat(ops): purge over-engineered modules and establish clean 4-pillar apparel backoffice`
+  - **Decisive Over-Engineering Purge**:
+    - Purged legacy enterprise-manufacturing bloat unfit for a boutique fashion brand (WMS wave picking, scan-to-pack stations, post manifest dockets, RMA sniff logs, multi-warehouse transfers, RFM cohorts, audit tables, and complex spreadsheet grids).
+    - Removed 16 deprecated ops components, 7 unused composables, and 4 obsolete page routes (`attributes/`, `audit/`, `crm/`, `finance/`).
+  - **Rebuilt 4-Pillar Boutique Apparel Backoffice**:
+    - `«پیشخوان و آمار»` (`/internal-ops-nexus`): High-level GMV/AOV/Orders/Margin KPIs, Chart.js 14-day sales trend & category distribution charts, recent orders feed, and low-stock urgency alerts.
+    - `«محصولات و لباس‌ها»` (`/internal-ops-nexus/products`): High-density apparel grid, real-time title/SKU search, category & stock status filters, quick stock steppers, and full Product Studio (`new.vue` / `[id]/edit.vue`).
+    - `«سفارش‌ها و ارسال»` (`/internal-ops-nexus/orders`): Tabular order management with status chips, 24-digit Iran Post tracking barcode modal, manual telephone order creation, printable packing slip receipt, and slide-over customer details drawer.
+    - `«تخفیف‌ها و کوپن‌ها»` (`/internal-ops-nexus/discounts`): Promotional voucher management with coupon creation modal, percentage/fixed discounts, usage caps, and expiration tracking.
+  - **Scoped Composable Architecture**:
+    - Built clean, maintainable composables: `useAdminOverview.ts`, `useAdminProducts.ts`, `useAdminOrders.ts`, and `useAdminDiscounts.ts`.
+  - **Ergonomic Responsive Layout (`app/layouts/ops.vue`)**:
+    - Desktop fixed sidebar (`hidden lg:flex`), persistent top header with ops session lock button, and mobile bottom navigation dock (`lg:hidden fixed bottom-0 h-14`) with proper bottom padding.
+  - **E2E Test Adaptation & Quality Gate Compliance**:
+    - Adapted Playwright E2E suite (`05-internal-ops-nexus.spec.ts`) to test the 4 lean domains, 24-digit barcode modal, manual order creation, and packing slip.
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), `build` (Nitro production server), and `test:e2e` (100% pass on Desktop Chrome & Mobile Safari).
 
 - **2026-10-04 (`feat`)**: `feat(shop): add explicit apply filters button and draft state control in catalog sidebar`
   - **Catalog Filter Sidebar UX Polish & Draft State Synchronization**:

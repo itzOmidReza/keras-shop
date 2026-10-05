@@ -62,7 +62,7 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
   test('should navigate via brand logos marquee to filtered shop catalog and render editorial journal', async ({ page }) => {
     // ۱. ناوبری به صفحه اصلی
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     // ۲. بررسی وجود بخش‌های جدید روی صفحه اصلی (مجله ادیتوریال و مارکی برندها)
     const journalHeading = page.getByRole('heading', { name: /روایت پارچه‌ها و هنر استایلینگ/i })
@@ -73,15 +73,15 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
 
     // ۳. ناوبری مستقیم به فروشگاه با فیلتر برند (مثلاً Totême)
     await page.goto('/shop?brand=toteme')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     // ۴. بررسی وجود چیپ فیلتر برند و نمایش محصولات مرتبط
     const brandChip = page.getByText(/توتِم/i).first()
     await expect(brandChip).toBeVisible()
 
-    // بررسی تعداد محصولات فیلترشده (۴ محصول برای توتم)
-    const productsCount = page.getByText(/نمایش/i).first()
-    await expect(productsCount).toBeVisible()
+    // بررسی کارت محصولات فیلترشده
+    const productCards = page.locator('[data-testid="product-card"]')
+    await expect(productCards.first()).toBeVisible()
   })
 
   test('should handle 12-item pagination, page 2 URL sync, and reset to page 1 on filter modification', async ({ page, isMobile }) => {

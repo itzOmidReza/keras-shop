@@ -1,11 +1,18 @@
 <!-- frontend/app/pages/internal-ops-nexus/index.vue -->
 <script setup lang="ts">
+import {
+  TrendingUp,
+  Package,
+  AlertTriangle,
+  ArrowUpRight,
+  CheckCircle2,
+  Calendar,
+  ChevronLeft,
+  Shirt,
+} from '@lucide/vue'
 import { useAuthStore } from '~/stores/auth'
-import { useOpsModals } from '~/composables/ops/useOpsModals'
-import OpsRbacBar from '~/components/ops/auth/OpsRbacBar.vue'
-import OpsConflictBanner from '~/components/ops/common/OpsConflictBanner.vue'
-import OpsCommandPalette from '~/components/ops/common/OpsCommandPalette.vue'
-import OpsQuickPeekDrawer from '~/components/ops/common/OpsQuickPeekDrawer.vue'
+import { useAdminOverview } from '~/composables/ops/useAdminOverview'
+import { toFa, formatToman } from '~/utils/format'
 
 definePageMeta({
   layout: 'ops',
@@ -17,111 +24,233 @@ if (!authStore.isAuthenticated || authStore.user?.role !== 'super_admin') {
   throw createError({ statusCode: 404, statusMessage: 'صفحه مورد نظر یافت نشد', fatal: true })
 }
 
-useSeoMeta({ title: 'مرکز فرماندهی آتلیه کراس | HQ Nexus', robots: 'noindex, nofollow' })
+useSeoMeta({ title: 'پیشخوان مدیریت آتلیه کراس | HQ', robots: 'noindex, nofollow' })
 
-const route = useRoute()
-const router = useRouter()
 const {
-  is2FaOpen, isSessionsOpen, isAuditOpen, isCommandPaletteOpen,
-  isMatrixOpen, isTransferOpen, isPackingScanOpen, isRmaOpen,
-  isConflictBannerVisible, isQuickPeekOpen, quickPeekData,
-} = useOpsModals()
-
-const currentView = computed(() => {
-  const v = route.query.view as string
-  if (['analytics', 'products', 'fulfillment', 'inventory', 'orders', 'finance', 'articles', 'vouchers', 'crm'].includes(v)) {
-    return v === 'orders' ? 'fulfillment' : v
-  }
-  return 'analytics'
-})
-
-const switchView = (view: string) => {
-  router.push({ path: '/internal-ops-nexus', query: { view } })
-}
-
-const navTabs = [
-  { id: 'analytics', label: 'دیده‌بان اجرایی', testId: 'tab-view-analytics' },
-  { id: 'products', label: 'محصولات و انبارداری', testId: 'tab-view-products' },
-  { id: 'fulfillment', label: 'میز سفارش‌ها', testId: 'tab-view-fulfillment' },
-  { id: 'inventory', label: 'ماتریس انبار', testId: 'tab-view-inventory' },
-  { id: 'finance', label: 'امور مالی و شاپرک', testId: 'tab-view-finance' },
-  { id: 'articles', label: 'مجله و مقالات', testId: 'tab-view-articles' },
-  { id: 'vouchers', label: 'کدهای تخفیف', testId: 'tab-view-vouchers' },
-]
+  todaySales,
+  monthSales,
+  pendingOrders,
+  pendingOrdersCount,
+  lowStockItems,
+  lowStockCount,
+  quickAdvanceOrder,
+} = useAdminOverview()
 </script>
 
 <template>
-  <div class="space-y-5 max-w-7xl mx-auto">
-    <!-- نوار RBAC، سطح دسترسی و اپراتور -->
-    <OpsRbacBar
-      @open2fa="is2FaOpen = true"
-      @open-sessions="isSessionsOpen = true"
-      @open-audit="isAuditOpen = true"
-    />
-
-    <!-- بنر هشدار تداخل همزمانی ویرایش -->
-    <OpsConflictBanner
-      :show="isConflictBannerVisible"
-      @dismiss="isConflictBannerVisible = false"
-      @reload="isConflictBannerVisible = false"
-    />
-
-    <!-- تب‌های ناوبری سریع دسکتاپ و موبایل -->
-    <div class="flex items-center justify-between border-b border-sand pb-3 gap-2 overflow-x-auto">
-      <div class="flex items-center gap-1.5 shrink-0">
-        <button
-          v-for="t in navTabs"
-          :key="t.id"
-          type="button"
-          :data-testid="t.testId"
-          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
-          :class="currentView === t.id ? 'bg-ink text-paper shadow-2xs' : 'text-slate-600 hover:text-ink hover:bg-sand/30'"
-          @click="switchView(t.id)"
-        >
-          {{ t.label }}
-        </button>
+  <div class="space-y-6 font-sans" data-testid="nexus-analytics-view">
+    <!-- هدر پیشخوان -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          پیشخوان عملیات و آمار فروش
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          دیده‌بان سفارش‌های جاری، مبالغ فروش و وضعیت موجودی کالاهای آتلیه کراس
+        </p>
       </div>
 
-      <div class="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
-        <button
-          type="button"
-          class="px-2.5 py-1 rounded-lg border border-sand bg-paper hover:bg-sand/40 text-[11px] font-sans font-bold text-ink cursor-pointer flex items-center gap-1.5"
-          @click="isCommandPaletteOpen = true"
+      <div class="flex items-center gap-2">
+        <NuxtLink
+          to="/internal-ops-nexus/orders"
+          class="h-9 px-3.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all"
         >
-          <span>پالت دستورات</span>
-          <kbd class="px-1 py-0.5 rounded bg-sand/60 text-[10px] font-mono">⌘K</kbd>
-        </button>
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+          <Package class="w-4 h-4 text-amber-300" />
+          <span>میز بسته‌بندی سفارش‌ها</span>
+        </NuxtLink>
       </div>
     </div>
 
-    <!-- بخش‌های محتوایی -->
-    <OpsAnalyticsView v-if="currentView === 'analytics'" />
-    <OpsProductsView v-else-if="currentView === 'products'" />
-    <OpsOrdersView v-else-if="currentView === 'fulfillment'" />
-    <OpsInventoryView v-else-if="currentView === 'inventory'" />
-    <OpsFinanceView v-else-if="currentView === 'finance'" />
-    <OpsArticlesView v-else-if="currentView === 'articles'" />
-    <OpsVouchersView v-else-if="currentView === 'vouchers'" />
-    <OpsCrmView v-else-if="currentView === 'crm'" />
+    <!-- ۴ کارت اصلی کسب‌وکار واقعی بوتیک -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- ۱. فروش امروز -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500">فروش ناخالص امروز</span>
+          <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <TrendingUp class="w-4 h-4" />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xl sm:text-2xl font-black text-slate-900 font-mono tabular-nums">
+            {{ formatToman(todaySales) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] text-emerald-600 font-bold">
+            <ArrowUpRight class="w-3.5 h-3.5" />
+            <span>+۱۸٪ رشد نسبت به روز گذشته</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- ابزارهای کمکی و دراورها -->
-    <OpsCommandPalette v-model:open="isCommandPaletteOpen" @navigate="switchView" />
-    <OpsQuickPeekDrawer v-model:open="isQuickPeekOpen" :data="quickPeekData" />
+      <!-- ۲. فروش این ماه -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500">فروش این ماه (مهر ۱۴۰۵)</span>
+          <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+            <Calendar class="w-4 h-4" />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xl sm:text-2xl font-black text-slate-900 font-mono tabular-nums">
+            {{ formatToman(monthSales) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
+          </div>
+          <div class="text-[11px] text-slate-400 font-medium">
+            تارگت ماهانه: ۲۰۰ میلیون تومان
+          </div>
+        </div>
+      </div>
 
-    <!-- دیالوگ‌ها و مودال‌های لود تنبل -->
-    <LazyOpsProductModal />
-    <LazyOpsProductDeleteDialog />
-    <LazyOpsBarcodeModal />
-    <LazyOpsManualOrderModal />
-    <LazyOpsPackingSlipModal />
-    <LazyOpsArticleModal />
-    <LazyOpsTwoFactorModal v-model:open="is2FaOpen" />
-    <LazyOpsSessionSentinelModal v-model:open="isSessionsOpen" />
-    <LazyOpsAuditTrailTable v-model:open="isAuditOpen" />
-    <LazyOpsCatalogMatrixModal v-model:open="isMatrixOpen" />
-    <LazyOpsWarehouseTransferModal v-model:open="isTransferOpen" />
-    <LazyOpsPackingBarcodeScanModal v-model:open="isPackingScanOpen" />
-    <LazyOpsRmaModal v-model:open="isRmaOpen" />
+      <!-- ۳. سفارش‌های نیازمند آماده‌سازی -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500">نیازمند بسته‌بندی</span>
+          <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <Package class="w-4 h-4" />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xl sm:text-2xl font-black text-slate-900 font-mono tabular-nums">
+            {{ toFa(pendingOrdersCount) }} <span class="text-xs font-sans font-normal text-slate-500">سفارش</span>
+          </div>
+          <div class="text-[11px] text-amber-600 font-bold">
+            در انتظار آماده‌سازی و الصاق بارکد پست
+          </div>
+        </div>
+      </div>
+
+      <!-- ۴. هشدار کسری موجودی -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500">هشدار کسری موجودی</span>
+          <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose flex items-center justify-center">
+            <AlertTriangle class="w-4 h-4" />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xl sm:text-2xl font-black text-rose font-mono tabular-nums">
+            {{ toFa(lowStockCount) }} <span class="text-xs font-sans font-normal text-slate-500">قلم بحرانی</span>
+          </div>
+          <div class="text-[11px] text-rose font-medium">
+            موجودی کمتر از ۲ عدد در انبار
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- دو بخش متمرکز کاری: سفارش‌های نیازمند اقدام فوری + جدول کالاهای رو به اتمام -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- بخش ۱: سفارش‌های نیازمند اقدام فوری (۸ ستون) -->
+      <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-amber-500" />
+            <h2 class="text-sm font-bold text-slate-900">
+              سفارش‌های آماده‌سازی و ارسال فوری
+            </h2>
+          </div>
+          <NuxtLink
+            to="/internal-ops-nexus/orders"
+            class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+          >
+            <span>مشاهده همه ({{ toFa(pendingOrdersCount) }})</span>
+            <ChevronLeft class="w-3.5 h-3.5" />
+          </NuxtLink>
+        </div>
+
+        <div v-if="pendingOrders.length === 0" class="p-8 text-center text-slate-400 text-xs">
+          هیچ سفارشی در صف آماده‌سازی وجود ندارد.
+        </div>
+
+        <div v-else class="space-y-2.5">
+          <div
+            v-for="order in pendingOrders.slice(0, 4)"
+            :key="order.orderNumber"
+            class="p-3.5 rounded-xl border border-slate-200/70 hover:border-slate-300 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
+          >
+            <div class="space-y-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-xs text-slate-900">{{ order.orderNumber }}</span>
+                <span class="text-xs font-bold text-slate-800">• {{ order.recipientName }}</span>
+              </div>
+              <div class="text-[11px] text-slate-500 truncate">
+                {{ order.items.map(i => `${i.title} (${i.size})`).join('، ') }}
+              </div>
+              <div class="text-[11px] font-mono font-bold text-slate-700">
+                {{ formatToman(order.totalAmount) }} تومان
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                @click="quickAdvanceOrder(order.orderNumber)"
+              >
+                <CheckCircle2 class="w-3.5 h-3.5" />
+                <span>تایید و ارسال</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- بخش ۲: هشدار کالاهای رو به اتمام (۵ ستون) -->
+      <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-rose" />
+            <h2 class="text-sm font-bold text-slate-900">
+              هشدار شارژ موجودی انبار
+            </h2>
+          </div>
+          <NuxtLink
+            to="/internal-ops-nexus/products"
+            class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+          >
+            <span>کاتالوگ کالاها</span>
+            <ChevronLeft class="w-3.5 h-3.5" />
+          </NuxtLink>
+        </div>
+
+        <div v-if="lowStockItems.length === 0" class="p-8 text-center text-slate-400 text-xs">
+          تمام کالاها دارای موجودی کافی هستند.
+        </div>
+
+        <div v-else class="divide-y divide-slate-100">
+          <div
+            v-for="(item, idx) in lowStockItems.slice(0, 5)"
+            :key="idx"
+            class="py-2.5 flex items-center justify-between gap-3 text-xs"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img
+                v-if="item.image"
+                :src="item.image"
+                :alt="item.title"
+                class="w-9 h-11 rounded-lg object-cover border border-slate-200 shrink-0"
+              >
+              <div v-else class="w-9 h-11 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                <Shirt class="w-4 h-4 text-slate-400" />
+              </div>
+
+              <div class="min-w-0">
+                <h4 class="font-bold text-slate-900 truncate text-[11px]">{{ item.title }}</h4>
+                <div class="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+                  <span>سایز: <strong>{{ item.size }}</strong></span>
+                  <span>•</span>
+                  <span>{{ item.color }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="shrink-0 text-end">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-rose-50 text-rose border border-rose-200">
+                {{ toFa(item.stock) }} عدد
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

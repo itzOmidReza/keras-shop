@@ -351,6 +351,8 @@ export interface TrackOrderResponse {
     image: string;
   }[];
   totalAmount: number;
+  postalCode?: string;
+  paymentMethod?: string;
 }
 
 export interface TrackOrderRequest {

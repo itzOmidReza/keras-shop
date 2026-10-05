@@ -4,7 +4,7 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
   test('should validate invalid phone, normalize Persian digits, verify OTP and access account', async ({ page }) => {
     // ۱. باز کردن صفحه اصلی
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveTitle(/کراس|Keras/i)
 
     // ۲. کلیک روی دکمه ورود در هدر
@@ -94,7 +94,7 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
 
   test('should allow one-click demo login from AuthModal', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     // باز کردن مدال ورود از هدر
     const userButton = page.locator('header').getByRole('button', { name: 'ورود به حساب کاربری' })

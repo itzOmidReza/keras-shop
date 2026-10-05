@@ -84,7 +84,7 @@ const productBadgeClass = computed(() => {
 </script>
 
 <template>
-  <div class="group relative flex flex-col overflow-hidden">
+  <div class="group relative flex flex-col overflow-hidden" data-testid="product-card">
     <!-- ظرف تصویر با نسبت ۴:۵ -->
     <NuxtLink
       :to="`/products/${product.slug}`"

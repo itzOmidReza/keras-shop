@@ -1,6 +1,6 @@
 <!-- frontend/app/components/ops/common/OpsCommandPalette.vue -->
 <script setup lang="ts">
-import { Search, Plus, Package, Truck, CreditCard, Shield, Laptop, ArrowLeft } from '@lucide/vue'
+import { Search, Plus, Package, Truck, CreditCard, ArrowLeft } from '@lucide/vue'
 
 const props = defineProps<{
   open: boolean
@@ -14,13 +14,11 @@ const emit = defineEmits<{
 const query = ref('')
 
 const shortcuts = [
-  { id: 'act_new_product', title: 'افزودن محصول جدید به کاتالوگ', icon: Plus, group: 'عملیات سریع', action: 'addProduct' },
-  { id: 'act_manual_order', title: 'ثبت سفارش دستی جدید (تلفنی/آتلیه)', icon: Plus, group: 'عملیات سریع', action: 'manualOrder' },
-  { id: 'nav_products', title: 'رفتن به مدیریت محصولات و موجودی', icon: Package, group: 'بخش‌ها', view: 'products' },
-  { id: 'nav_orders', title: 'رفتن به میز سفارش‌ها و توزیع پستی', icon: Truck, group: 'بخش‌ها', view: 'fulfillment' },
-  { id: 'nav_finance', title: 'مشاهده گزارش مالی و تسویه شاپرک', icon: CreditCard, group: 'بخش‌ها', view: 'finance' },
-  { id: 'act_sessions', title: 'دیده‌بان نشست‌های فعال و امنیت', icon: Laptop, group: 'امنیت', action: 'sessions' },
-  { id: 'act_audit', title: 'مشاهده دفتر کل رخدادها و ممیزی', icon: Shield, group: 'امنیت', action: 'audit' },
+  { id: 'nav_dashboard', title: 'پیشخوان و آمار فروش', icon: Package, group: 'بخش‌ها', path: '/internal-ops-nexus' },
+  { id: 'nav_products', title: 'مدیریت محصولات و لباس‌ها', icon: Package, group: 'بخش‌ها', path: '/internal-ops-nexus/products' },
+  { id: 'nav_orders', title: 'سفارش‌ها و ارسال مرسولات', icon: Truck, group: 'بخش‌ها', path: '/internal-ops-nexus/orders' },
+  { id: 'nav_discounts', title: 'تخفیف‌ها و کدهای پروموشن', icon: CreditCard, group: 'بخش‌ها', path: '/internal-ops-nexus/discounts' },
+  { id: 'act_new_product', title: 'افزودن محصول جدید به کاتالوگ', icon: Plus, group: 'عملیات سریع', path: '/internal-ops-nexus/products/new' },
 ]
 
 const filteredShortcuts = computed(() => {
@@ -32,10 +30,8 @@ const filteredShortcuts = computed(() => {
 const handleSelect = (item: (typeof shortcuts)[0]) => {
   emit('update:open', false)
   query.value = ''
-  if (item.view) {
-    emit('navigate', item.view)
-  } else if (item.action) {
-    emit('triggerAction', item.action)
+  if (item.path) {
+    emit('navigate', item.path)
   }
 }
 

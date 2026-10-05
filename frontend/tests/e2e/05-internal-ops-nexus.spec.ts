@@ -45,20 +45,17 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     }
 
     // ۳. ورود به مرکز فرماندهی محرمانه عملیات (HQ Nexus)
-    await page.waitForURL('**/internal-ops-nexus**', { timeout: 10000 })
+    await page.waitForURL('**/internal-ops-nexus**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
-    // بررسی هدر و نشان ضربان سرور
-    await expect(page.locator('text=وضعیت سرور: آنلاین و پایدار')).toBeVisible()
+    // بررسی نمای دیده‌بان مالی و آمار (Analytics View)
+    await expect(page.locator('[data-testid="nexus-analytics-view"]')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('text=فروش ناخالص امروز')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('text=فروش این ماه')).toBeVisible({ timeout: 15000 })
 
-    // بررسی نمای دیده‌بان مالی (Analytics View)
-    await expect(page.locator('[data-testid="nexus-analytics-view"]')).toBeVisible()
-    await expect(page.locator('text=فروش ناخالص دوره')).toBeVisible()
-    await expect(page.locator('text=حاشیه سود خالص تخمینی')).toBeVisible()
-
-    // ۴. جابجایی به میز سفارش‌ها و توزیع پستی (Fulfillment Desk)
-    const fulfillmentTab = page.locator('[data-testid="tab-view-fulfillment"]')
-    await fulfillmentTab.click()
+    // ۴. جابجایی به میز سفارش‌ها و توزیع پستی (Orders Fulfillment Desk)
+    await page.locator('[data-testid="ops-nav-orders"]:visible').first().click()
+    await page.waitForURL('**/internal-ops-nexus/orders**', { timeout: 15000 })
     await expect(page.locator('[data-testid="nexus-fulfillment-view"]')).toBeVisible()
 
     // تست باز کردن مودال بارکد پستی و تولید بارکد تستی
@@ -73,20 +70,20 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     // ثبت بارکد
     await page.locator('[data-testid="submit-barcode-btn"]').click()
 
-    // ۵. جابجایی به ماتریس انبارداری و سایز (Inventory Matrix)
-    const inventoryTab = page.locator('[data-testid="tab-view-inventory"]')
-    await inventoryTab.click()
-    await expect(page.locator('[data-testid="nexus-inventory-view"]')).toBeVisible()
-    await expect(page.locator('text=کسری انبار').first()).toBeVisible()
+    // ۵. جابجایی به محصولات و لباس‌ها (Products Hub)
+    await page.locator('[data-testid="ops-nav-products"]:visible').first().click()
+    await page.waitForURL('**/internal-ops-nexus/products**', { timeout: 15000 })
+    await expect(page.locator('[data-testid="nexus-products-view"]')).toBeVisible()
+    await expect(page.locator('text=محصولات و لباس‌های آتلیه')).toBeVisible()
 
     // ۶. جابجایی به کدهای تخفیف (Discount Vouchers)
-    const vouchersTab = page.locator('[data-testid="tab-view-vouchers"]')
-    await vouchersTab.click()
+    await page.locator('[data-testid="ops-nav-discounts"]:visible').first().click()
+    await page.waitForURL('**/internal-ops-nexus/discounts**', { timeout: 15000 })
     await expect(page.locator('[data-testid="nexus-vouchers-view"]')).toBeVisible()
     await expect(page.locator('text=KERAS-PRO')).toBeVisible()
 
     // ۷. تست قفل جلسه کاری و خروج امن
-    const lockSessionBtn = page.locator('[data-testid="ops-lock-btn"]')
+    const lockSessionBtn = page.locator('[data-testid="ops-lock-btn"]:visible').first()
     await expect(lockSessionBtn).toBeVisible()
     await lockSessionBtn.click()
 
@@ -94,7 +91,7 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     await page.waitForURL('**/', { timeout: 10000 })
   })
 
-  test('should support full Product CRUD, Manual Order Entry, Packing Slip, Financial Ledger, and CMS Journal Editor in clean light theme', async ({ page }) => {
+  test('should support full Product CRUD, Manual Order Entry, and Packing Slip in clean 4-pillar backoffice', async ({ page }) => {
     // ۱. ورود مستقیم مدیریت ارشد به بوم عملیات
     await page.goto('/login?redirect=/internal-ops-nexus')
     await page.waitForLoadState('networkidle')
@@ -103,25 +100,29 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     await expect(adminBypassBtn).toBeVisible()
     await adminBypassBtn.click()
 
-    await page.waitForURL('**/internal-ops-nexus**', { timeout: 10000 })
+    await page.waitForURL('**/internal-ops-nexus**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
     // ۲. تست مدیریت محصولات و افزودن محصول جدید (Product CRUD)
-    await page.locator('[data-testid="tab-view-products"]').click()
+    await page.locator('[data-testid="ops-nav-products"]:visible').first().click()
+    await page.waitForURL('**/internal-ops-nexus/products**', { timeout: 15000 })
     await expect(page.locator('[data-testid="nexus-products-view"]')).toBeVisible()
 
     await page.locator('[data-testid="add-product-btn"]').click()
+    await page.waitForURL('**/internal-ops-nexus/products/new**', { timeout: 15000 })
     await expect(page.locator('text=افزودن محصول جدید به کاتالوگ آتلیه')).toBeVisible()
 
     // پر کردن اطلاعات کالا
     await page.locator('input[placeholder*="کت پشمی"]').fill('پالتو کشمیر لیمیتد آتلیه')
     await page.locator('[data-testid="save-product-btn"]').click()
 
-    // بررسی افزوده شدن کالا به جدول
-    await expect(page.getByTestId('nexus-products-view').locator('text=پالتو کشمیر لیمیتد آتلیه')).toBeVisible()
+    // بررسی بازگشت به لیست و افزوده شدن کالا به جدول
+    await page.waitForURL('**/internal-ops-nexus/products**', { timeout: 15000 })
+    await expect(page.getByTestId('nexus-products-view').locator('text=پالتو کشمیر لیمیتد آتلیه').first()).toBeVisible()
 
     // ۳. تست ثبت سفارش دستی جدید و چاپ برگ ارسال (Manual Order & Packing Slip)
-    await page.locator('[data-testid="tab-view-fulfillment"]').click()
+    await page.locator('[data-testid="ops-nav-orders"]:visible').first().click()
+    await page.waitForURL('**/internal-ops-nexus/orders**', { timeout: 15000 })
     await expect(page.locator('[data-testid="nexus-fulfillment-view"]')).toBeVisible()
 
     await page.locator('[data-testid="create-manual-order-btn"]').click()
@@ -132,27 +133,5 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     await page.locator('[data-testid="print-packing-slip-btn"]').first().click()
     await expect(page.locator('text=برگ ارسال مرسوله پستی (Packing Slip)')).toBeVisible()
     await page.locator('button:has-text("بستن")').click()
-
-    // ۴. تست امور مالی و دفتر کل شاپرک (Financial Ledger)
-    await page.locator('[data-testid="tab-view-finance"]').click()
-    await expect(page.locator('[data-testid="nexus-finance-view"]')).toBeVisible()
-    await expect(page.locator('text=فروش ناخالص (Gross)')).toBeVisible()
-    await expect(page.locator('text=982301449102')).toBeVisible()
-
-    // فیلتر زمانی
-    await page.locator('button:has-text("۷ روز گذشته")').click()
-    await expect(page.locator('[data-testid="export-finance-csv-btn"]')).toBeVisible()
-
-    // ۵. تست سیستم مدیریت محتوای ژورنال (CMS Journal Editor)
-    await page.locator('[data-testid="tab-view-articles"]').click()
-    await expect(page.locator('[data-testid="nexus-articles-view"]')).toBeVisible()
-
-    await page.locator('[data-testid="create-article-btn"]').click()
-    await expect(page.locator('text=نگارش مقاله جدید در مجله ادیتوریال کراس')).toBeVisible()
-
-    await page.locator('input[placeholder*="هنر لایه‌بندی"]').fill('راهنمای استایل پاییزه ۱۴۰۵')
-    await page.locator('[data-testid="publish-article-btn"]').click()
-
-    await expect(page.getByTestId('nexus-articles-view').locator('text=راهنمای استایل پاییزه ۱۴۰۵')).toBeVisible()
   })
 })

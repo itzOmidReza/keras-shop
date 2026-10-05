@@ -1,23 +1,19 @@
 <!-- frontend/app/layouts/ops.vue -->
 <script setup lang="ts">
 import {
-  TrendingUp,
-  Truck,
-  Users,
-  ShieldAlert,
+  LayoutDashboard,
+  Shirt,
+  Package,
+  Tag,
   Lock,
   ExternalLink,
   ChevronRight,
   ChevronLeft,
-  Activity,
   Menu,
   X,
-  Package,
-  CreditCard,
   Search,
   Bell,
   LogOut,
-  Tags,
 } from '@lucide/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useOpsModals } from '~/composables/ops/useOpsModals'
@@ -44,77 +40,51 @@ interface NavItem {
   path: string
   icon: Component
   testId: string
+  legacyTestId?: string
   badge?: string
 }
 
 const navItems: NavItem[] = [
   {
     id: 'dashboard',
-    title: 'پیشخوان اصلی',
+    title: 'پیشخوان و آمار',
     path: '/internal-ops-nexus',
-    icon: TrendingUp,
-    testId: 'ops-nav-analytics',
+    icon: LayoutDashboard,
+    testId: 'ops-nav-dashboard',
+    legacyTestId: 'tab-view-analytics',
   },
   {
     id: 'products',
-    title: 'کاتالوگ محصولات',
+    title: 'محصولات و لباس‌ها',
     path: '/internal-ops-nexus/products',
-    icon: Package,
+    icon: Shirt,
     testId: 'ops-nav-products',
-  },
-  {
-    id: 'attributes',
-    title: 'ویژگی‌ها و دسته‌بندی',
-    path: '/internal-ops-nexus/attributes',
-    icon: Tags,
-    testId: 'ops-nav-attributes',
+    legacyTestId: 'tab-view-products',
   },
   {
     id: 'orders',
-    title: 'فروش و مرسوله‌ها',
+    title: 'سفارش‌ها و ارسال',
     path: '/internal-ops-nexus/orders',
-    icon: Truck,
-    testId: 'ops-nav-fulfillment',
-    badge: '۳',
+    icon: Package,
+    testId: 'ops-nav-orders',
+    legacyTestId: 'tab-view-fulfillment',
   },
   {
-    id: 'finance',
-    title: 'امور مالی و تسویه',
-    path: '/internal-ops-nexus/finance',
-    icon: CreditCard,
-    testId: 'ops-nav-finance',
-  },
-  {
-    id: 'crm',
-    title: 'مشتریان و وفاداری',
-    path: '/internal-ops-nexus/crm',
-    icon: Users,
-    testId: 'ops-nav-crm',
-  },
-  {
-    id: 'audit',
-    title: 'امنیت و لاگ ممیزی',
-    path: '/internal-ops-nexus/audit',
-    icon: ShieldAlert,
-    testId: 'ops-nav-audit',
+    id: 'discounts',
+    title: 'تخفیف‌ها و کوپن‌ها',
+    path: '/internal-ops-nexus/discounts',
+    icon: Tag,
+    testId: 'ops-nav-discounts',
+    legacyTestId: 'tab-view-vouchers',
   },
 ]
 
 const isItemActive = (item: NavItem) => {
   const currentPath = route.path
   if (item.path === '/internal-ops-nexus') {
-    return currentPath === '/internal-ops-nexus' && !route.query.view
+    return currentPath === '/internal-ops-nexus'
   }
-  if (currentPath.startsWith(item.path)) {
-    return true
-  }
-  // پشتیبانی از پارامترهای کوئری قدیمی (Backwards Compatibility)
-  if (item.id === 'products' && route.query.view === 'products') return true
-  if (item.id === 'orders' && (route.query.view === 'fulfillment' || route.query.view === 'orders')) return true
-  if (item.id === 'finance' && route.query.view === 'finance') return true
-  if (item.id === 'crm' && route.query.view === 'crm') return true
-  if (item.id === 'audit' && route.query.view === 'audit') return true
-  return false
+  return currentPath.startsWith(item.path)
 }
 
 const navigateToDomain = (item: NavItem) => {
@@ -125,30 +95,21 @@ const navigateToDomain = (item: NavItem) => {
 const breadcrumb = computed(() => {
   const path = route.path
   if (path === '/internal-ops-nexus/products/new') {
-    return 'کاتالوگ محصولات / استودیو خلق محصول'
+    return 'محصولات و لباس‌ها / افزودن محصول جدید'
   }
   if (path.startsWith('/internal-ops-nexus/products/') && path.endsWith('/edit')) {
-    return 'کاتالوگ محصولات / استودیو ویرایش کالا'
+    return 'محصولات و لباس‌ها / ویرایش محصول'
   }
-  if (path === '/internal-ops-nexus/products' || route.query.view === 'products') {
-    return 'کاتالوگ محصولات / لیست محصولات'
+  if (path.startsWith('/internal-ops-nexus/products')) {
+    return 'محصولات و لباس‌ها'
   }
-  if (path.startsWith('/internal-ops-nexus/attributes')) {
-    return 'کاتالوگ محصولات / ویژگی‌ها و دسته‌بندی'
+  if (path.startsWith('/internal-ops-nexus/orders')) {
+    return 'سفارش‌ها و ارسال'
   }
-  if (path === '/internal-ops-nexus/orders' || route.query.view === 'fulfillment' || route.query.view === 'orders') {
-    return 'فروش و مرسوله‌ها / میز سفارش‌ها'
+  if (path.startsWith('/internal-ops-nexus/discounts')) {
+    return 'تخفیف‌ها و کوپن‌ها'
   }
-  if (path === '/internal-ops-nexus/finance' || route.query.view === 'finance') {
-    return 'امور مالی و تسویه / تراز و درآمد'
-  }
-  if (path === '/internal-ops-nexus/crm' || route.query.view === 'crm') {
-    return 'مشتریان و وفاداری / باشگاه اعضا'
-  }
-  if (path === '/internal-ops-nexus/audit' || route.query.view === 'audit') {
-    return 'امنیت و ممیزی / لاگ رویدادها'
-  }
-  return 'پیشخوان اصلی / دیده‌بان اجرایی'
+  return 'پیشخوان و آمار'
 })
 </script>
 
@@ -181,13 +142,13 @@ const breadcrumb = computed(() => {
           <ChevronLeft v-else class="w-4 h-4" />
         </button>
 
-        <!-- مسیر ناوبری (Breadcrumb) -->
+        <!-- نشان تجاری و مسیر ناوبری (Breadcrumb) -->
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-xs font-black tracking-wider text-slate-900 hidden sm:inline shrink-0">
-            کراس • HQ
+            کراس • آتلیه
           </span>
           <span class="text-slate-300 hidden sm:inline">/</span>
-          <span class="text-xs font-medium text-slate-600 truncate">
+          <span class="text-xs font-bold text-slate-700 truncate">
             {{ breadcrumb }}
           </span>
         </div>
@@ -203,7 +164,7 @@ const breadcrumb = computed(() => {
         >
           <div class="flex items-center gap-2">
             <Search class="w-3.5 h-3.5 text-slate-400" />
-            <span>جست‌وجوی سریع در سیستم...</span>
+            <span>جست‌وجوی سریع کالاها و سفارش‌ها...</span>
           </div>
           <kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-mono text-slate-600 font-bold shadow-2xs">
             ⌘K
@@ -211,22 +172,9 @@ const breadcrumb = computed(() => {
         </button>
       </div>
 
-      <!-- سمت چپ: وضعیت اتصال، اعلان‌ها و پروفایل فشرده -->
+      <!-- سمت چپ: اعلان‌ها، قفل جلسه و پروفایل مدیریت -->
       <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
-        <!-- ضربان سرور و وضعیت اتصال -->
-        <div
-          data-testid="server-heartbeat-badge"
-          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-mono font-bold shadow-2xs tabular-nums"
-        >
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <Activity class="w-3 h-3 text-emerald-600" />
-          <span class="text-[11px] whitespace-nowrap">وضعیت سرور: آنلاین و پایدار</span>
-        </div>
-
-        <!-- آیکون زنگوله اعلان‌ها -->
+        <!-- زنگوله اعلان‌ها -->
         <button
           type="button"
           class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer relative"
@@ -241,11 +189,11 @@ const breadcrumb = computed(() => {
           type="button"
           data-testid="ops-lock-btn"
           class="h-8.5 px-2.5 rounded-xl bg-white hover:bg-rose-50 text-slate-700 hover:text-rose border border-slate-200 hover:border-rose/30 transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-          title="قفل جلسه کاری و خروج امن"
+          title="خروج امن از سیستم"
           @click="handleLockSession"
         >
           <Lock class="w-3.5 h-3.5 text-rose" />
-          <span class="hidden sm:inline">قفل جلسه</span>
+          <span class="hidden sm:inline">خروج امن</span>
         </button>
 
         <!-- منوی پروفایل فشرده اپراتور -->
@@ -259,12 +207,12 @@ const breadcrumb = computed(() => {
               مد
             </div>
             <div class="text-start hidden sm:block">
-              <span class="text-[11px] font-bold text-slate-800 block leading-tight">مدیریت ارشد</span>
-              <span class="text-[9px] text-slate-500 font-mono block">SUPER_ADMIN</span>
+              <span class="text-[11px] font-bold text-slate-800 block leading-tight">مدیریت بوتیک</span>
+              <span class="text-[9px] text-slate-500 font-mono block">ADMIN</span>
             </div>
           </button>
 
-          <!-- پس‌زمینه شفاف جهت بستن منو با کلیک در بیرون -->
+          <!-- پس‌زمینه شفاف جهت بستن منو -->
           <div
             v-if="isProfileMenuOpen"
             class="fixed inset-0 z-40"
@@ -283,7 +231,7 @@ const breadcrumb = computed(() => {
               @click="isProfileMenuOpen = false"
             >
               <ExternalLink class="w-3.5 h-3.5 text-slate-500" />
-              <span>مشاهده فروشگاه</span>
+              <span>مشاهده ویترین فروشگاه</span>
             </NuxtLink>
 
             <button
@@ -310,27 +258,26 @@ const breadcrumb = computed(() => {
       </div>
     </header>
 
-    <!-- سایدبار ثابت راست کاملاً متصل به لبه (Flush Fixed Right Sidebar) -->
+    <!-- سایدبار ثابت راست: منحصراً ۴ دکمه اصلی ناوبری -->
     <aside
       class="hidden lg:flex flex-col fixed top-14 start-0 bottom-0 h-[calc(100vh-3.5rem)] z-30 bg-white border-e border-slate-200/80 overflow-y-auto transition-all duration-200"
       :class="isSidebarCollapsed ? 'w-[72px]' : 'w-60'"
     >
-      <!-- عنوان سایدبار -->
       <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
-        <span v-if="!isSidebarCollapsed" class="text-[11px] font-bold text-slate-500 px-2 uppercase tracking-wider">
-          دامنه‌های اصلی کسب‌وکار
+        <span v-if="!isSidebarCollapsed" class="text-[11px] font-bold text-slate-400 px-2 uppercase tracking-wider">
+          مدیریت آتلیه کراس
         </span>
         <span v-else class="text-[10px] font-mono font-bold text-slate-400 mx-auto">
-          HQ
+          OPS
         </span>
       </div>
 
-      <!-- ناوبری عمودی دامنه‌ها -->
+      <!-- ۴ مورد ناوبری اصلی -->
       <nav class="flex-1 p-2.5 space-y-1.5 overflow-y-auto">
-        <button
+        <NuxtLink
           v-for="item in navItems"
           :key="item.id"
-          type="button"
+          :to="item.path"
           :data-testid="item.testId"
           class="w-full rounded-xl transition-all flex items-center cursor-pointer group text-start relative"
           :class="[
@@ -357,10 +304,10 @@ const breadcrumb = computed(() => {
           >
             {{ item.badge }}
           </span>
-        </button>
+        </NuxtLink>
       </nav>
 
-      <!-- بخش پایین سایدبار: پیوند به فروشگاه و قفل جلسه -->
+      <!-- بخش پایین سایدبار: پیوند به فروشگاه و خروج -->
       <div class="p-2.5 border-t border-slate-200/80 space-y-1 bg-slate-50/50">
         <NuxtLink
           to="/"
@@ -375,18 +322,19 @@ const breadcrumb = computed(() => {
 
         <button
           type="button"
+          data-testid="ops-lock-btn"
           class="w-full rounded-xl transition-all flex items-center text-rose hover:bg-rose-50 p-2 text-xs font-bold cursor-pointer"
           :class="isSidebarCollapsed ? 'justify-center' : 'gap-2'"
-          title="قفل جلسه کاری"
+          title="خروج امن"
           @click="handleLockSession"
         >
           <Lock class="w-4 h-4 shrink-0" />
-          <span v-if="!isSidebarCollapsed">قفل جلسه</span>
+          <span v-if="!isSidebarCollapsed">خروج امن</span>
         </button>
       </div>
     </aside>
 
-    <!-- دراور موبایل برای سایدبار -->
+    <!-- منوی سایدبار موبایل -->
     <div
       v-if="isMobileSidebarOpen"
       class="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex"
@@ -394,7 +342,7 @@ const breadcrumb = computed(() => {
     >
       <div class="w-64 bg-white h-full border-e border-slate-200 flex flex-col p-4 space-y-4 shadow-xl">
         <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-          <span class="text-xs font-bold text-slate-900">مرکز فرماندهی آتلیه کراس</span>
+          <span class="text-xs font-bold text-slate-900">مدیریت آتلیه کراس</span>
           <button
             type="button"
             class="p-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer"
@@ -405,20 +353,17 @@ const breadcrumb = computed(() => {
         </div>
 
         <nav class="flex-1 space-y-1.5 overflow-y-auto">
-          <button
+          <NuxtLink
             v-for="item in navItems"
             :key="item.id"
-            type="button"
+            :to="item.path"
             class="w-full px-3 py-2.5 rounded-xl transition-all flex items-center gap-2.5 cursor-pointer text-start"
             :class="isItemActive(item) ? 'bg-ink text-white font-bold' : 'text-slate-600 hover:bg-slate-100 font-medium'"
             @click="navigateToDomain(item)"
           >
             <component :is="item.icon" class="w-4 h-4 shrink-0" />
             <span class="text-xs flex-1">{{ item.title }}</span>
-            <span v-if="item.badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-slate-100 text-slate-700">
-              {{ item.badge }}
-            </span>
-          </button>
+          </NuxtLink>
         </nav>
 
         <div class="pt-3 border-t border-slate-200 space-y-1.5">
@@ -435,21 +380,40 @@ const breadcrumb = computed(() => {
             @click="handleLockSession"
           >
             <Lock class="w-4 h-4" />
-            <span>قفل جلسه کاری</span>
+            <span>خروج امن</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- بوم اصلی و فضای کاری (Workspace Canvas - Clean Flush Padding) -->
+    <!-- بوم اصلی صفحه (Workspace Canvas) -->
     <main
-      class="min-h-screen bg-slate-50 pt-14 transition-all duration-200 font-sans"
+      class="min-h-screen bg-slate-50 pt-14 pb-16 lg:pb-0 transition-all duration-200 font-sans"
       :class="isSidebarCollapsed ? 'lg:ps-[72px]' : 'lg:ps-60'"
     >
-      <div class="p-4 sm:p-6 lg:p-7 min-w-0">
+      <div class="p-4 sm:p-6 lg:p-7 min-w-0 max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
+
+    <!-- نوار ناوبری پایین صفحه مخصوص موبایل (Mobile Bottom Nav) -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 h-14 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/90 flex items-center justify-around px-2 shadow-lg">
+      <NuxtLink
+        v-for="item in navItems"
+        :key="item.id"
+        :to="item.path"
+        :data-testid="item.testId"
+        class="flex-1 py-1 flex flex-col items-center justify-center gap-0.5 text-center transition-colors cursor-pointer"
+        :class="isItemActive(item) ? 'text-ink font-bold' : 'text-slate-500 hover:text-slate-800 font-medium'"
+      >
+        <component
+          :is="item.icon"
+          class="w-4 h-4 transition-transform"
+          :class="isItemActive(item) ? 'text-amber-500 scale-110' : 'text-slate-400'"
+        />
+        <span class="text-[10px] leading-tight">{{ item.title.split(' ')[0] }}</span>
+      </NuxtLink>
+    </nav>
 
     <!-- پالت دستورات سراسری ⌘K -->
     <OpsCommandPalette v-model:open="isCommandPaletteOpen" @navigate="path => router.push(path)" />
