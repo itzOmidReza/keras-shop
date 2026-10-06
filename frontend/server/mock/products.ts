@@ -543,7 +543,7 @@ export const mockProducts: ProductDetail[] = [
     images: [
       {
         id: 901,
-        url: 'https://images.unsplash.com/photo-1539533018447-63fcce667823?auto=format&fit=crop&w=800&q=80',
+        url: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80',
         alt: 'پالتو فوتر پشمی بلند آستردار مشکی موکا',
         kind: 'photo',
         position: 1,

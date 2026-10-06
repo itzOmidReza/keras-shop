@@ -30,7 +30,6 @@ useSeoMeta({
   ogDescription: 'رویه بازگشت و تعویض ۷ روزه پوشاک ورزشی کراس، شرایط بهداشتی، مراحل گام‌به‌گام و استرداد وجه',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const guaranteeFeatures = [

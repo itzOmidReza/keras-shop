@@ -788,6 +788,16 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Integrated guest triggers and authenticated user profile menu in `AppHeader.vue` and `MobileNav.vue`.
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
+- **2026-10-06 (`fix-console-noise-sonner-unhead`)**: `fix(core): resolve sonner hydration mismatch, fragment class inheritance, unhead warnings, and font preloads`
+  - Resolved Sonner / Toaster RTL hydration attribute mismatch by explicitly passing `dir="rtl"` in `app.vue` (`<Toaster dir="rtl" position="bottom-center" />`) and setting default `dir: 'rtl'` in `components/ui/sonner/Sonner.vue`.
+  - Fixed Vue extraneous non-props attributes warning on `MobileNav.vue` fragment by setting `defineOptions({ inheritAttrs: false })` and safely binding `$attrs.class` along with internal `print:hidden` to the modal container.
+  - Normalized Unhead SEO metadata and eliminated console deprecation warnings:
+    - Purged deprecated `twitterCard: 'summary_large_image'` declarations across all routes in favor of `@nuxtjs/seo`'s automated OpenGraph-to-Twitter metadata generator.
+    - Added guaranteed Persian fallback descriptions for dynamic PDP (`products/[slug].vue`) and editorial journal (`journal/[slug].vue`) to eliminate empty `og:description` warnings.
+    - Removed duplicate `useSeoMeta` call in `products/[slug].vue`.
+  - Fixed browser font preload warning by ensuring `font-sans` is explicitly applied to `body` in `tailwind.css` alongside `crossorigin: 'anonymous'` link preload headers in `nuxt.config.ts`.
+  - Replaced deleted / blocked 404 Unsplash images (`photo-1539533018447-63fcce667823` and `photo-1584297091622-af8e5fd053b9`) in `server/mock/products.ts`, `server/mock/articles.ts`, `StoreJournalGrid.vue`, and `useAdminArticles.ts` with verified 200 OK fashion visuals (`photo-1539109136881-3be0616acf4b` and `photo-1576566588028-4147f3842f27`).
+  - Passed all 6 quality gates: `lint:rtl` (0 violations), `lint:tokens` (0 violations), `lint` (0 errors), `typecheck` (0 errors), `test:e2e` (40/40 passed), and production `build`.
 - **2026-10-06 (`chore-system-audit-overhaul`)**: `chore(audit): perform comprehensive 360-degree system overhaul, auto-import decoupling, route hardening, and publish audit report`
   - Conducted full-system 360° architectural overhaul across all 8 core pillars:
     - **Pure Nuxt 4 Auto-Import Migration**: Systematically purged manual runtime imports of Vue reactivity primitives (`ref`, `computed`, `reactive`, `watch`), Nuxt composables (`useRoute`, `useRouter`, `useHead`, `useSeoMeta`), Pinia stores (`useCartStore`, `useWishlistStore`, `useAuthStore`, `useSettingsStore`, `useTaxonomyStore`), and utility formatters across all pages, layouts, and components.

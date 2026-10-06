@@ -27,7 +27,6 @@ useSeoMeta({
   ogDescription: 'مجموعه پوشاک ادیتوریال، بافت، پالتو، شومیز و اکسسوری‌های دست‌ساز چهارفصل کراس.',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const {

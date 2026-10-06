@@ -16,7 +16,7 @@ export const PRESET_ARTICLE_COVERS = [
   },
   {
     title: 'بافت لوکس و کشمیر',
-    url: 'https://images.unsplash.com/photo-1584297091622-af8e5fd053b9?auto=format&fit=crop&w=1200&q=80',
+    url: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'آتلیه و طراحی لباس',

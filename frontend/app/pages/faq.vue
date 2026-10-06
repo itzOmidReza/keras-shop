@@ -33,7 +33,6 @@ useSeoMeta({
   ogDescription: 'پاسخ به پرسش‌های رایج در خصوص شیوه‌های ارسال، راهنمای سایزبندی، رویه تعویض ۷ روزه و نحوه نگهداری از پوشاک ورزشی کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 type FaqCategory = 'all' | 'shipping' | 'sizing' | 'returns' | 'care'

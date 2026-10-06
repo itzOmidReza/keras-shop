@@ -30,7 +30,6 @@ useSeoMeta({
   ogDescription: 'مشخصات فنی الیاف Move و Calm، گرماژ پارچه، آزمون اسکات ۱۰۰٪ پوشاننده و شیوه‌نامه مراقبت از منسوجات کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const moveSpecs = {

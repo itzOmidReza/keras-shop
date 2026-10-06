@@ -34,7 +34,6 @@ useSeoMeta({
   ogDescription: 'راهنمای تخصصی تعیین سایز بر حسب سانتی‌متر و کیلوگرم برای پوشاک ورزشی لاین حرکت و آرامش کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 // تب جدول‌های فعال: زنانه یا مردانه

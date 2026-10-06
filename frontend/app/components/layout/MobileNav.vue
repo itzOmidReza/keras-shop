@@ -24,6 +24,10 @@ const authStore = useAuthStore()
 const { settings, brandNameFa, brandNameEn } = useSiteSettings()
 
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 const handleAccountClick = () => {
   emit('close')
   if (!authStore.isAuthenticated) {
@@ -38,7 +42,7 @@ const handleAccountClick = () => {
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-50 lg:hidden"
+      :class="['fixed inset-0 z-50 lg:hidden print:hidden', $attrs.class]"
       role="dialog"
       aria-modal="true"
     >

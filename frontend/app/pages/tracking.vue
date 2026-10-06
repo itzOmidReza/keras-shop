@@ -17,7 +17,6 @@ useSeoMeta({
   ogDescription: 'سامانه پیگیری وضعیت سفارش، مشاهده بارکد پستی ۲۴ رقمی و مراحل آماده‌سازی پوشاک ورزشی کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const {

@@ -23,7 +23,6 @@ useSeoMeta({
   ogDescription: 'شرایط، ضوابط خرید آنلاین، تعهدات متقابل، احراز هویت پیامکی و حقوق مصرف‌کننده در فروشگاه کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const sections = [

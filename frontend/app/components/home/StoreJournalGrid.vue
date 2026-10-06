@@ -46,7 +46,7 @@ const articles: JournalArticle[] = [
     readTime: '۴ دقیقه',
     date: 'شهریور ۱۴۰۵',
     image:
-      'https://images.unsplash.com/photo-1584297091622-af8e5fd053b9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'بافت ظریف الیاف طبیعی کشمیر و مرینوس',
     slug: 'cashmere-and-merino-care-guide',
   },

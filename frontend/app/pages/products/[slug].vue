@@ -34,13 +34,12 @@ useHead({
 
 useSeoMeta({
   title: () => `${product.value?.title || 'محصول'} | کراس`,
-  description: () => product.value?.description || 'پوشاک تخصصی زنانه کراس',
-  ogTitle: () => product.value?.title,
-  ogDescription: () => product.value?.description,
+  description: () => product.value?.description || 'آتلیه و استودیو طراحی پوشاک لوکس و الیاف طبیعی کراس',
+  ogTitle: () => product.value?.title || 'محصول کراس',
+  ogDescription: () => product.value?.description || 'آتلیه و استودیو طراحی پوشاک لوکس و الیاف طبیعی کراس',
   ogImage: () => product.value?.images?.[0]?.url,
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 if (product.value) {
@@ -118,12 +117,6 @@ const fabricData = computed(() => {
   }
 })
 
-if (product.value) {
-  useSeoMeta({
-    title: `${product.value.title} | کراس`,
-    description: product.value.description,
-  })
-}
 
 const handleAddToCart = () => {
   if (!product.value) return

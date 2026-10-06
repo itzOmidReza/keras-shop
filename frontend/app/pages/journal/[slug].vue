@@ -28,13 +28,12 @@ useHead({
 
 useSeoMeta({
   title: () => `${article.value?.title || 'مقاله'} | ژورنال ادیتوریال کراس`,
-  description: () => article.value?.excerpt || '',
-  ogTitle: () => article.value?.title,
-  ogDescription: () => article.value?.excerpt,
+  description: () => article.value?.excerpt || 'آتلیه و استودیو طراحی پوشاک لوکس و الیاف طبیعی کراس',
+  ogTitle: () => article.value?.title || 'مقاله ژورنال کراس',
+  ogDescription: () => article.value?.excerpt || 'آتلیه و استودیو طراحی پوشاک لوکس و الیاف طبیعی کراس',
   ogImage: () => article.value?.coverImage,
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 if (article.value) {

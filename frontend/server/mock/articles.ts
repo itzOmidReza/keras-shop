@@ -81,7 +81,7 @@ export const mockArticles: JournalArticle[] = [
       role: 'متخصص نساجی و الیاف طبیعی',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     },
-    coverImage: 'https://images.unsplash.com/photo-1584297091622-af8e5fd053b9?auto=format&fit=crop&w=1200&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1200&q=80',
     excerpt: 'راز لطافت ابریشمی و ماندگاری دهه‌ها در شست‌وشوی دستی با آب سرد، خشک کردن افقی با دانه‌های چوب سدر و حفظ بافت طبیعی و متراکم منسوجات دست‌بافت.',
     featured: false,
     status: 'published',

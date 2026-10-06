@@ -32,7 +32,6 @@ useSeoMeta({
   ogDescription: 'ارتباط مستقیم با تیم پشتیبانی و کانسیرژ اختصاصی پوشاک ورزشی کراس جهت مشاوره سایز، سفارش‌ها و خدمات پس از فروش',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const route = useRoute()

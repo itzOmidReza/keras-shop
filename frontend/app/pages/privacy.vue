@@ -27,7 +27,6 @@ useSeoMeta({
   ogDescription: 'تعهدات کراس در زمینه حفاظت از داده‌های شخصی، ورود امن پیامکی OTP، امنیت پرداخت و حقوق کاربران',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const privacyPillars = [

@@ -18,7 +18,6 @@ useSeoMeta({
   ogDescription: 'مجله تخصصی مد، هنر استایلینگ، دانش الیاف طبیعی و داستان دراپ‌های آتلیه کراس',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const {

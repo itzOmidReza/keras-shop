@@ -16,7 +16,6 @@ useSeoMeta({
   ogDescription: 'همکاری با تیم طراحی، مهندسی و نوآوری پوشاک ورزشی لوکس کراس؛ محیطی پویا، مینیمال و رشد‌محور',
   ogLocale: 'fa_IR',
   ogSiteName: 'کراس | Keras',
-  twitterCard: 'summary_large_image',
 })
 
 const {
