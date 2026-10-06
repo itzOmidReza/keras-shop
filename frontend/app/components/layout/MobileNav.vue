@@ -12,6 +12,7 @@ import {
 import { mobileNavItems, siteConfig } from '~/data'
 import { useWishlistStore } from '~/stores/wishlist'
 import { useAuthStore } from '~/stores/auth'
+import { useSiteSettings } from '~/composables/useSiteSettings'
 
 defineProps<{
   isOpen: boolean
@@ -23,6 +24,8 @@ const emit = defineEmits<{
 
 const wishlistStore = useWishlistStore()
 const authStore = useAuthStore()
+const { settings, brandNameFa, brandNameEn } = useSiteSettings()
+
 
 const handleAccountClick = () => {
   emit('close')
@@ -54,10 +57,10 @@ const handleAccountClick = () => {
           <div class="flex items-center justify-between border-b border-sand pb-4">
             <div class="flex items-center gap-2">
               <span class="text-xl font-bold tracking-tight text-ink">
-                {{ siteConfig.name }}
+                {{ brandNameFa || siteConfig.name }}
               </span>
               <span class="rounded-full bg-sand/60 px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
-                Athleisure
+                {{ brandNameEn || 'Athleisure' }}
               </span>
             </div>
 
@@ -166,10 +169,10 @@ const handleAccountClick = () => {
               <span>پشتیبانی:</span>
             </div>
             <a
-              :href="`tel:${siteConfig.contact.phoneRaw}`"
+              :href="`tel:${settings.contact.supportPhoneRaw || siteConfig.contact.phoneRaw}`"
               class="font-bold text-ink hover:text-rose transition-colors"
             >
-              {{ siteConfig.contact.phone }}
+              {{ settings.contact.supportPhone || siteConfig.contact.phone }}
             </a>
           </div>
         </div>

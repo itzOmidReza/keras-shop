@@ -8,6 +8,7 @@ import {
   Lock,
 } from '@lucide/vue'
 import { formatToman } from '~/utils/format'
+import { useSiteSettings } from '~/composables/useSiteSettings'
 import type { ShippingMethod, PaymentMethod } from '~/types/domain'
 
 defineProps<{
@@ -29,6 +30,9 @@ const emit = defineEmits<{
   (e: 'update:selectedPayment', val: PaymentMethod): void
   (e: 'prevStep' | 'submit'): void
 }>()
+
+const { flatShippingFee, estimatedDispatchText } = useSiteSettings()
+
 </script>
 
 <template>
@@ -70,11 +74,11 @@ const emit = defineEmits<{
               رایگان
             </span>
             <span v-else class="text-xs font-bold text-ink">
-              {{ formatToman(65000) }}
+              {{ formatToman(flatShippingFee) }}
             </span>
           </div>
           <p class="text-[11px] text-muted-foreground leading-relaxed">
-            تحویل در تمام نقاط کشور طی ۲ الی ۴ روز کاری همراه با کد رهگیری پستی
+            {{ estimatedDispatchText || 'تحویل در تمام نقاط کشور طی ۲ الی ۴ روز کاری همراه با کد رهگیری پستی' }}
           </p>
         </div>
 

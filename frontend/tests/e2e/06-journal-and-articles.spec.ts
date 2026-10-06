@@ -10,7 +10,7 @@ test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
 
   test('should display luxury magazine storefront with hero cover, categories, and digest ribbon', async ({ page }) => {
     await page.goto('/journal')
-    await page.waitForLoadState('domcontentloaded')
+    await page.waitForLoadState('networkidle')
 
     // ۱. بررسی کاور برجسته (Hero Cover Story)
     const heroCover = page.locator('[data-testid="journal-hero-cover"]')
@@ -42,7 +42,7 @@ test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
 
   test('should navigate to article reader page, show reading progress bar, and cross-sell shop the story widget', async ({ page }) => {
     await page.goto('/journal/the-art-of-autumn-layering')
-    await page.waitForLoadState('domcontentloaded')
+    await page.waitForLoadState('networkidle')
 
     // ۱. بررسی نوار پیشرفت مطالعه در بالا
     const progressBar = page.locator('[data-testid="reading-progress-bar"]')
@@ -79,14 +79,14 @@ test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
   test('should manage articles in ops nexus hub (table, draft toggle, and create new article)', async ({ page }) => {
     // ۱. ورود مدیر ارشد
     await page.goto('/login?redirect=/internal-ops-nexus/articles')
-    await page.waitForLoadState('domcontentloaded')
+    await page.waitForLoadState('networkidle')
 
     const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
     await expect(adminBypassBtn).toBeVisible()
     await adminBypassBtn.click()
 
     await page.waitForURL('**/internal-ops-nexus/articles**', { timeout: 15000 })
-    await page.waitForLoadState('domcontentloaded')
+    await page.waitForLoadState('networkidle')
 
     // ۲. بررسی وجود جدول مقالات و سوئیچ وضعیت انتشار
     const table = page.locator('[data-testid="articles-table"]')

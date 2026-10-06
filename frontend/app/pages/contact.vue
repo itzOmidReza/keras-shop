@@ -16,36 +16,39 @@ import { toEn, toFa } from '~/utils/format'
 import { iranianMobileRegex } from '~/utils/validation'
 import { toast } from 'vue-sonner'
 
+import { useSiteSettings } from '~/composables/useSiteSettings'
+
 useSeoMeta({
   title: 'تماس با کانسیرژ | کراس',
   description: 'ارتباط مستقیم با تیم پشتیبانی و کانسیرژ اختصاصی پوشاک ورزشی کراس جهت مشاوره سایز، سفارش‌ها و خدمات پس از فروش',
 })
 
 const route = useRoute()
+const { settings } = useSiteSettings()
 
-const contactInfo = [
+const contactInfo = computed(() => [
   {
     icon: Phone,
     title: 'پشتیبانی و کانسیرژ تلفنی',
-    value: '۰۲۱-۲۲۰۰۹۹۸۸',
-    link: 'tel:02122009988',
-    description: 'شنبه تا چهارشنبه ۹ الی ۱۸ | پنجشنبه‌ها ۹ الی ۱۳',
+    value: settings.value.contact.supportPhone || '۰۲۱-۸۸۸۸۴۴۲۲',
+    link: `tel:${settings.value.contact.supportPhoneRaw || '02188884422'}`,
+    description: settings.value.contact.workingHours || 'شنبه تا پنج‌شنبه: ۹ الی ۱۸',
   },
   {
     icon: Mail,
     title: 'مکاتبه الکترونیک',
-    value: 'concierge@keras.ir',
-    link: 'mailto:concierge@keras.ir',
+    value: settings.value.contact.officialEmail || 'care@keras.ir',
+    link: `mailto:${settings.value.contact.officialEmail || 'care@keras.ir'}`,
     description: 'پاسخگویی تضمینی ظرف حداکثر ۴ ساعت کاری',
   },
   {
     icon: MapPin,
     title: 'شوروم مرکزی و آتلیه طراحی',
-    value: 'تهران، خیابان ولیعصر، بالاتر از پارک‌وی، ساختمان کراس، طبقه ۴',
+    value: settings.value.contact.atelierAddress || 'تهران، جردن، خیابان سعیدی، ساختمان کراس، طبقه ۴',
     link: 'https://maps.google.com',
     description: 'بازدید حضوری صرفاً با هماهنگی و وقت قبلی',
   },
-]
+])
 
 const subjectOptions = [
   { value: 'order', label: 'پیگیری سفارش و زمان ارسال' },

@@ -503,3 +503,72 @@ export interface JournalArticle {
   linkedProductSlugs?: string[];
   linkedProducts?: LinkedGarment[];
 }
+
+// -------------------------------------------------------------
+// Store Settings & Site Configuration Contracts
+// -------------------------------------------------------------
+
+export interface SiteBrandingSettings {
+  brandNameFa: string;
+  brandNameEn: string;
+  tagline: string;
+  subTagline: string;
+  logoUrl: string;
+  faviconUrl: string;
+  metaDescription: string;
+}
+
+export interface SiteContactSettings {
+  supportPhone: string;
+  supportPhoneRaw: string;
+  inquiryMobile: string;
+  whatsappNumber: string;
+  officialEmail: string;
+  atelierAddress: string;
+  workingHours: string;
+}
+
+export interface SiteShippingSettings {
+  freeShippingThreshold: number; // به تومان
+  flatShippingFee: number; // به تومان
+  estimatedDispatchText: string;
+  announcementBarText: string;
+  announcementBarHighlight: string;
+  announcementBarVisible: boolean;
+}
+
+export interface SiteCheckoutRules {
+  minCartTotal: number; // به تومان
+  maxItemQuantityPerCart: number;
+  reservationTimeoutMinutes: number;
+  returnPolicyDays: number;
+  holidayModeEnabled: boolean;
+  holidayNoticeText: string;
+}
+
+export interface SiteSocialSettings {
+  instagram: string;
+  telegram: string;
+  pinterest: string;
+  youtube: string;
+}
+
+export interface SiteIntegrationsSettings {
+  googleAnalyticsId: string;
+  googleTagManagerId: string;
+  enamadCode: string;
+  samandehiCode: string;
+  smsProviderSender: string;
+  smsProviderBalance: number;
+}
+
+export interface SiteSettings {
+  branding: SiteBrandingSettings;
+  contact: SiteContactSettings;
+  shipping: SiteShippingSettings;
+  checkoutRules: SiteCheckoutRules;
+  social: SiteSocialSettings;
+  integrations: SiteIntegrationsSettings;
+  updatedAt?: string;
+}
+

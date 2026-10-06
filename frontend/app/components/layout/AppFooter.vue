@@ -8,15 +8,42 @@ import {
   Sparkles,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { footerSections, brandPerks, siteConfig } from '~/data'
+import { footerSections, siteConfig } from '~/data'
+import { useSiteSettings } from '~/composables/useSiteSettings'
+import { formatToman, toFa } from '~/utils/format'
 
 const email = ref('')
+const { settings, brandNameFa, freeShippingThreshold, returnPolicyDays } = useSiteSettings()
 
 const handleNewsletter = () => {
   if (!email.value) return
-  toast.success('عضویت شما در باشگاه مشتریان کراس با موفقیت ثبت شد.')
+  toast.success(`عضویت شما در باشگاه مشتریان ${brandNameFa.value || siteConfig.name} با موفقیت ثبت شد.`)
   email.value = ''
 }
+
+// سنجه‌ها و ارزش‌های ۴ گانه پویا هماهنگ با متغیرهای ادمین
+const dynamicBrandPerks = computed(() => [
+  {
+    icon: 'Truck',
+    title: 'ارسال سریع کشوری',
+    description: `سفارش‌های بالای ${formatToman(freeShippingThreshold.value)} رایگان`,
+  },
+  {
+    icon: 'RotateCcw',
+    title: 'تعویض آسان سایز',
+    description: `تا ${toFa(returnPolicyDays.value)} روز کاری بدون دغدغه`,
+  },
+  {
+    icon: 'ShieldCheck',
+    title: 'تست عدم عبور نور',
+    description: 'پارچه‌های کاملاً ضد دید',
+  },
+  {
+    icon: 'Sparkles',
+    title: 'طراحی ارگونومیک',
+    description: 'حس پوست دوم در تمرین',
+  },
+])
 
 // مپ کردن آیکون‌های پویا
 const iconMap = {
@@ -33,7 +60,7 @@ const iconMap = {
     <div class="border-b border-sand">
       <div class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div v-for="perk in brandPerks" :key="perk.title" class="space-y-1.5">
+          <div v-for="perk in dynamicBrandPerks" :key="perk.title" class="space-y-1.5">
             <component :is="iconMap[perk.icon as keyof typeof iconMap]" class="mx-auto h-5 w-5 text-rose" />
             <h4 class="text-xs font-bold text-ink">
               {{ perk.title }}
@@ -53,36 +80,64 @@ const iconMap = {
         <div class="lg:col-span-4 space-y-4">
           <div class="space-y-2">
             <span class="text-2xl font-bold tracking-tight text-ink">
-              {{ siteConfig.name }}
+              {{ brandNameFa || siteConfig.name }}
             </span>
             <p class="text-xs leading-relaxed text-muted-foreground max-w-sm">
-              {{ siteConfig.slogan }}. {{ siteConfig.subSlogan }} با تمرکز بر بافت‌های بدون درز، آزادی حرکت و راحتی
-              ماندگار.
+              {{ settings.branding.tagline || siteConfig.slogan }}. {{ settings.branding.subTagline || siteConfig.subSlogan }} با تمرکز بر بافت‌های بدون درز، آزادی حرکت و راحتی ماندگار.
             </p>
           </div>
 
           <div class="space-y-2 pt-2">
             <span class="text-xs font-bold text-ink block">
-              عضویت در باشگاه کراس (۱۰٪ تخفیف اولین خرید)
+              عضویت در باشگاه {{ brandNameFa || siteConfig.name }} (۱۰٪ تخفیف اولین خرید)
             </span>
             <form class="flex items-center gap-2 max-w-sm" @submit.prevent="handleNewsletter">
               <input
-v-model="email" type="email" required placeholder="ایمیل خود را وارد کنید..."
-                class="h-10 flex-1 rounded-xl border border-sand bg-white px-3 text-xs text-ink placeholder:text-muted-foreground focus:border-rose focus:outline-none">
+                v-model="email"
+                type="email"
+                required
+                placeholder="ایمیل خود را وارد کنید..."
+                class="h-10 flex-1 rounded-xl border border-sand bg-white px-3 text-xs text-ink placeholder:text-muted-foreground focus:border-rose focus:outline-none"
+              >
               <button
-type="submit"
+                type="submit"
                 class="flex h-10 w-10 items-center justify-center rounded-xl bg-rose text-white transition-opacity hover:opacity-90 shrink-0 cursor-pointer"
-                aria-label="عضویت خبرنامه">
+                aria-label="عضویت خبرنامه"
+              >
                 <Send class="h-4 w-4" />
               </button>
             </form>
+
+            <!-- نمادهای اعتماد الکترونیکی و مجوزها -->
+            <div
+              v-if="settings.integrations.enamadCode || settings.integrations.samandehiCode"
+              class="flex flex-wrap items-center gap-2 pt-3"
+            >
+              <div
+                v-if="settings.integrations.enamadCode"
+                class="px-2.5 py-1 rounded-lg border border-sand bg-sand/20 text-[10px] text-muted-foreground flex items-center gap-1.5 font-bold"
+              >
+                <ShieldCheck class="w-3.5 h-3.5 text-sage" />
+                <span>اینماد: {{ settings.integrations.enamadCode }}</span>
+              </div>
+              <div
+                v-if="settings.integrations.samandehiCode"
+                class="px-2.5 py-1 rounded-lg border border-sand bg-sand/20 text-[10px] text-muted-foreground flex items-center gap-1.5 font-bold"
+              >
+                <ShieldCheck class="w-3.5 h-3.5 text-sage" />
+                <span>ساماندهی: {{ settings.integrations.samandehiCode }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- ستون‌های لینک داینامیک از data -->
         <div
-v-for="(sec, key) in footerSections" :key="key" class="space-y-3"
-          :class="key === 'brand' ? 'lg:col-span-2' : 'lg:col-span-3'">
+          v-for="(sec, key) in footerSections"
+          :key="key"
+          class="space-y-3"
+          :class="key === 'brand' ? 'lg:col-span-2' : 'lg:col-span-3'"
+        >
           <h4 class="text-xs font-bold uppercase tracking-wider text-ink">
             {{ sec.title }}
           </h4>
@@ -100,8 +155,9 @@ v-for="(sec, key) in footerSections" :key="key" class="space-y-3"
     <!-- کپی‌رایت -->
     <div class="border-t border-sand/80 py-6">
       <div
-        class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
-        <span>© تمامی حقوق متعلق به {{ siteConfig.name }} است.</span>
+        class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground"
+      >
+        <span>© تمامی حقوق متعلق به {{ brandNameFa || siteConfig.name }} است.</span>
         <div class="flex items-center gap-6">
           <NuxtLink to="/privacy" class="hover:text-ink transition-colors">
             حریم خصوصی

@@ -15,17 +15,17 @@
 | :---------------------- | :------------------------------------------------------------------ |
 | **Project Name**        | Keras (کراس) — Luxury Athletic Wear & Athleisure                    |
 | **Current Version**     | `v0.9.0-alpha`                                                      |
-| **Last Updated**        | 2026-10-02 (1405-07-11)                                             |
+| **Last Updated**        | 2026-10-06 (1405-07-15)                                             |
 | **Architecture**        | Nuxt 4 (`app/` directory structure, SSR + SWR hybrid)               |
 | **Frontend Core**       | Vue 3.5, TypeScript 5.7, Vite 8, Pinia 4 (`@pinia/nuxt`)            |
 | **Design System**       | Tailwind CSS v4, tw-animate-css, Reka UI, shadcn-nuxt, Lucide Icons |
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)         |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                            |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                        |
-| **Total Route Pages**   | **27** (24 Fully Built, 3 Redirects/Dev, 0 Stubs/Placeholders)      |
-| **Domain Components**   | **34** Custom Domain Components + 28 shadcn/Reka UI Primitives      |
-| **Active Pinia Stores** | **3** (`cart`, `wishlist`, `auth`) — Fully Hydration-Safe           |
-| **Overall Completion**  | **100%** (Production-Ready Storefront, All 27 Routes Complete)      |
+| **Total Route Pages**   | **37** (All Production & Ops Routes Complete, 0 Stubs/Placeholders) |
+| **Domain Components**   | **38** Custom Domain Components + 28 shadcn/Reka UI Primitives      |
+| **Active Pinia Stores** | **4** (`cart`, `wishlist`, `auth`, `settings`) — Fully Hydration-Safe|
+| **Overall Completion**  | **100%** (Production-Ready Storefront, All 37 Routes Complete)      |
 
 ```
 Overall Progress:       [████████████████████] 100%
@@ -127,13 +127,19 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Home**: `ShopTheLookSlider.vue` (Swiper Autoplay carousel with 3 curated looks, unclipped floating hotspots with product popovers, individual size selectors, and 10% bundle add-to-cart)
 - [x] **Home**: `AccessoriesCarousel.vue` (Swiper-powered dedicated carousel for scarves, bandanas, and hair accessories with ProductCard grid)
 - [x] **Home**: `StorefrontTrustBar.vue` (4-pillar boutique service guarantee grid: express shipping, 7-day guarantee, Shaparak payment, concierge support)
+- [x] **Ops Settings**: `AdminSettingsShippingTab.vue` (Shipping threshold, fee, rules, holiday mode)
+- [x] **Ops Settings**: `AdminSettingsContactTab.vue` (Support phone, email, concierge hours, atelier address)
+- [x] **Ops Settings**: `AdminSettingsBrandingTab.vue` (Brand names, taglines, logos, eNamad & Samandehi)
+- [x] **Ops Settings**: `AdminSettingsIntegrationsTab.vue` (Meta description, GA4, GTM, SMS provider)
 
 ### 4.2 State Management (`app/stores/`)
 
 - [x] `cart.ts`: Persistent Pinia store (`keras_cart_items`), coupon engine, free shipping threshold
 - [x] `wishlist.ts`: Persistent Pinia store (`keras_wishlist_items`), toggles, item count
 - [x] `auth.ts`: Persistent Pinia store (`keras_auth_token`, `keras_user_data`, `auth_token`, `auth_user`), SSR cookies synchronization, development mock bypass (`loginAsMockUser()`), session management, address book CRUD, order history, profile updates
+- [x] `settings.ts`: Reactive Pinia store (`settings`), syncs with `/api/settings`
 - [x] `useAuth.ts`: Composable wrapper exporting `useAuthStore`
+- [x] `useSiteSettings.ts`: Composable wrapper exporting reactive computed getters for storefront consumers
 
 ### 4.3 Nitro Server API Layer (`server/`)
 
@@ -156,6 +162,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `POST /api/checkout/payment/initiate`: Simulated Shaparak payment initiation and 32-character token generation
 - [x] `GET /api/checkout/payment/session`: Gateway session details and transaction amount retrieval
 - [x] `POST /api/checkout/payment/verify`: Shaparak callback verification, 12-digit RRN issuance, and order settlement
+- [x] `GET /api/settings`: Read dynamic store settings
+- [x] `PUT /api/settings`: Update store settings with deep merge
 - [ ] `GET /api/orders/[orderNumber]` **(Missing)**: Order lookup endpoint
 
 ---
@@ -248,6 +256,35 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-06 (`feat-settings-hub`)**: `feat(settings): implement dynamic store settings hub and connect to public storefront consumers`
+  - **Dynamic Settings Domain Contract (`app/types/domain.ts`)**:
+    - Defined 6 comprehensive sub-domain settings contracts: `SiteBrandingSettings`, `SiteContactSettings`, `SiteShippingSettings`, `SiteCheckoutRules`, `SiteSocialSettings`, `SiteIntegrationsSettings`, and unified `SiteSettings`.
+  - **Nitro Mock Server Layer & Endpoints**:
+    - Built mock backend store in `server/mock/settings.ts` with sensible defaults.
+    - Implemented `GET /api/settings` and `PUT /api/settings` with deep merging of incoming updates and 200 responses.
+  - **Pinia Store & Composable Integration**:
+    - Created reactive `useSettingsStore` (`app/stores/settings.ts`) with `fetchSettings`, `updateSettings`, and `resetSettings`.
+    - Created helper composable `useSiteSettings.ts` exposing direct reactive computed properties (`freeShippingThreshold`, `flatShippingFee`, `returnPolicyDays`, `brandNameFa`, `isHolidayMode`, etc.).
+    - Connected `useCartStore` to dynamic shipping calculations and cart item limits.
+  - **Ops Backoffice Hub (`/internal-ops-nexus/settings`)**:
+    - Added 6th navigation item in `app/layouts/ops.vue` sidebar (`ops-nav-settings`).
+    - Implemented clean orchestrator page (`settings/index.vue`, 113 LOC, < 140 LOC limit) with 4 atomic tabs:
+      - `AdminSettingsShippingTab.vue`: Free shipping threshold, flat fee, dispatch text, announcement bar controls, min cart total gate, max item qty, reservation timeout, return policy days, and holiday mode banner toggle.
+      - `AdminSettingsContactTab.vue`: Support phone (raw & formatted), inquiry mobile, WhatsApp, official email, concierge hours, atelier address, and social links.
+      - `AdminSettingsBrandingTab.vue`: Brand name (Fa/En), taglines, logo/favicon URLs, and eNamad / Samandehi trust badge codes.
+      - `AdminSettingsIntegrationsTab.vue`: Default SEO meta description, GA4 ID, GTM ID, and SMS provider status.
+    - Sticky bottom dock with real-time dirty state indicator, discard changes, and save action with Sonner toast feedback.
+  - **Storefront Consumer Integration**:
+    - Connected `AppHeader.vue` (announcement bar text, highlight, visibility, brand names, and holiday mode banner).
+    - Connected `AppFooter.vue` (dynamic brand name, taglines, free shipping threshold, return policy days, and verified trust badges).
+    - Connected `MobileNav.vue` (dynamic brand names and clickable phone link).
+    - Connected `CartOrderSummary.vue` (return policy days badge, minimum cart total gate, and holiday mode order block).
+    - Connected `CheckoutPaymentStep.vue` (flat shipping fee and dispatch estimation).
+    - Connected `ProductTrustBadges.vue` (dynamic free shipping threshold and return policy days).
+    - Connected `contact.vue` (support phone, inquiry email, atelier address, working hours).
+  - **Quality Gates Verification**:
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), Playwright E2E suite (36 of 36 tests passed, 100% pass rate in 48.7s across Desktop Chrome and Mobile Safari), and Nitro production build (0 errors).
 
 - **2026-10-06 (`refactor-core-audit`)**: `refactor(core): perform comprehensive audit, purge unused imports, and optimize state architecture`
   - **Dead Code Elimination & Tree-Shaking**:

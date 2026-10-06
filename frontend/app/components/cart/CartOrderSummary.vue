@@ -6,12 +6,14 @@ import {
   ShieldCheck,
   RotateCcw,
 } from '@lucide/vue'
-import { formatToman } from '~/utils/format'
+import { formatToman, toFa } from '~/utils/format'
 import { useCartStore } from '~/stores/cart'
+import { useSiteSettings } from '~/composables/useSiteSettings'
 import type { CouponValidationResponse } from '~/types/domain'
 import { toast } from 'vue-sonner'
 
 const cartStore = useCartStore()
+const { returnPolicyDays, minCartTotal, isHolidayMode, holidayNoticeText } = useSiteSettings()
 const router = useRouter()
 
 const couponInput = ref('')
@@ -59,6 +61,17 @@ const proceedToCheckout = () => {
     toast.error('سبد خرید شما خالی است.')
     return
   }
+
+  if (isHolidayMode.value) {
+    toast.error(holidayNoticeText.value || 'فروشگاه موقتاً در وضعیت تعطیلات قرار دارد و امکان ثبت سفارش نیست.')
+    return
+  }
+
+  if (cartStore.subtotal < minCartTotal.value) {
+    toast.warning(`حداقل مبلغ سفارش برای تسویه حساب ${formatToman(minCartTotal.value)} است.`)
+    return
+  }
+
   router.push('/checkout')
 }
 </script>
@@ -174,7 +187,7 @@ const proceedToCheckout = () => {
       </div>
       <div class="flex items-center gap-2">
         <RotateCcw class="w-4 h-4 text-rose shrink-0" />
-        <span>ضمانت بی قید و شرط تعویض سایز تا ۷ روز کاری</span>
+        <span>ضمانت بی‌قیدوشرط تعویض سایز تا {{ toFa(returnPolicyDays) }} روز کاری</span>
       </div>
     </div>
   </div>

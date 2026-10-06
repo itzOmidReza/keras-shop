@@ -6,6 +6,7 @@ import {
   Package,
   Tag,
   BookOpen,
+  Settings,
   Lock,
   ExternalLink,
   ChevronRight,
@@ -84,6 +85,13 @@ const navItems: NavItem[] = [
     path: '/internal-ops-nexus/articles',
     icon: BookOpen,
     testId: 'ops-nav-articles',
+  },
+  {
+    id: 'settings',
+    title: 'تنظیمات فروشگاه',
+    path: '/internal-ops-nexus/settings',
+    icon: Settings,
+    testId: 'ops-nav-settings',
   },
 ]
 

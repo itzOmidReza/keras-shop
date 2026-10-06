@@ -134,4 +134,36 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     await expect(page.locator('text=برگ ارسال مرسوله پستی (Packing Slip)')).toBeVisible()
     await page.locator('button:has-text("بستن")').click()
   })
+
+  test('should navigate to Store Settings hub, edit variables, and persist configuration', async ({ page }) => {
+    // ۱. ورود مدیر ارشد
+    await page.goto('/login?redirect=/internal-ops-nexus/settings')
+    await page.waitForLoadState('networkidle')
+
+    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
+    if (await adminBypassBtn.isVisible()) {
+      await adminBypassBtn.click()
+    }
+
+    await page.waitForURL('**/internal-ops-nexus/settings**', { timeout: 15000 })
+    await page.waitForLoadState('networkidle')
+
+    // ۲. بررسی وجود بوم تنظیمات
+    await expect(page.locator('[data-testid="ops-settings-workspace"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=پیکربندی متغیرهای فروشگاه')).toBeVisible()
+
+    // ۳. ویرایش متن نوار اعلان و ذخیره
+    const announcementInput = page.locator('#announcement-text')
+    if (await announcementInput.isVisible()) {
+      await announcementInput.fill('ارسال رایگان برای تمام خریدها در جشنواره ویژه کراس')
+    }
+
+    const saveBtn = page.locator('[data-testid="ops-settings-save-btn"]').first()
+    await expect(saveBtn).toBeVisible()
+    await saveBtn.click()
+
+    // انتظار برای پیام موفقیت
+    await expect(page.locator('text=تنظیمات فروشگاه با موفقیت ذخیره شد').first()).toBeVisible({ timeout: 10000 })
+  })
 })
+

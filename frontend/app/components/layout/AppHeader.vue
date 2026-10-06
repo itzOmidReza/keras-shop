@@ -13,6 +13,7 @@ import { headerNav, announcementBar, siteConfig } from '~/data'
 import { useCartStore } from '~/stores/cart'
 import { useWishlistStore } from '~/stores/wishlist'
 import { useAuthStore } from '~/stores/auth'
+import { useSiteSettings } from '~/composables/useSiteSettings'
 import { toFa } from '~/utils/format'
 
 defineEmits<{
@@ -28,6 +29,8 @@ const route = useRoute()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const authStore = useAuthStore()
+const { settings, brandNameFa, brandNameEn } = useSiteSettings()
+
 
 const isLinkActive = (href: string) => {
   if (href.includes('?')) {
@@ -71,14 +74,28 @@ class="sticky top-0 z-40 w-full transition-all duration-300" :class="[
       ? 'bg-paper/90 backdrop-blur-md shadow-xs border-b border-sand/70'
       : 'bg-paper border-b border-sand/40',
   ]">
-    <!-- ۱. تاپ‌بار اعلان از لایه data -->
-    <div class="bg-sand/50 border-b border-sand/40 py-1.5 px-4 text-center">
+    <!-- ۱. تاپ‌بار اعلان داینامیک -->
+    <div
+      v-if="settings.shipping.announcementBarVisible"
+      class="bg-sand/50 border-b border-sand/40 py-1.5 px-4 text-center"
+    >
       <div
-        class="container mx-auto flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground">
-        <span>{{ announcementBar.text }}</span>
-        <span class="inline-block w-1 h-1 rounded-full bg-rose shrink-0" />
-        <span class="hidden sm:inline">{{ announcementBar.highlight }}</span>
+        class="container mx-auto flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground"
+      >
+        <span>{{ settings.shipping.announcementBarText || announcementBar.text }}</span>
+        <template v-if="settings.shipping.announcementBarHighlight || announcementBar.highlight">
+          <span class="inline-block w-1 h-1 rounded-full bg-rose shrink-0" />
+          <span class="hidden sm:inline">{{ settings.shipping.announcementBarHighlight || announcementBar.highlight }}</span>
+        </template>
       </div>
+    </div>
+
+    <!-- بنر وضعیت تعطیلات در صورت فعال بودن -->
+    <div
+      v-if="settings.checkoutRules.holidayModeEnabled"
+      class="bg-clay/15 border-b border-clay/30 py-1.5 px-4 text-center text-xs text-clay font-bold"
+    >
+      {{ settings.checkoutRules.holidayNoticeText }}
     </div>
 
     <!-- ۲. نوار اصلی هدر -->
@@ -87,18 +104,20 @@ class="sticky top-0 z-40 w-full transition-all duration-300" :class="[
         <!-- دکمه منو موبایل + نام برند -->
         <div class="flex items-center gap-4">
           <button
-type="button"
+            type="button"
             class="flex items-center justify-center lg:hidden text-ink p-1 -ms-1 hover:text-rose transition-colors cursor-pointer"
-            aria-label="باز کردن منو" @click="$emit('openMobileMenu')">
+            aria-label="باز کردن منو"
+            @click="$emit('openMobileMenu')"
+          >
             <Menu class="w-6 h-6" />
           </button>
 
           <NuxtLink to="/" class="flex items-center gap-2 text-ink group">
             <span class="font-bold text-2xl sm:text-3xl tracking-tight transition-colors group-hover:text-rose">
-              {{ siteConfig.name }}
+              {{ brandNameFa || siteConfig.name }}
             </span>
             <span class="hidden md:inline-block text-[10px] tracking-widest text-muted-foreground uppercase pt-1">
-              Athleisure
+              {{ brandNameEn || 'Athleisure' }}
             </span>
           </NuxtLink>
         </div>

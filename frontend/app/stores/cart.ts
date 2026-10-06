@@ -7,6 +7,7 @@ import type {
   ShippingMethod,
 } from '~/types/domain'
 import { FREE_SHIPPING_THRESHOLD } from '~/data/value-props'
+import { useSettingsStore } from '~/stores/settings'
 import { toast } from 'vue-sonner'
 
 export interface AppliedCoupon {
@@ -16,12 +17,14 @@ export interface AppliedCoupon {
 }
 
 export const useCartStore = defineStore('cart', () => {
+  const settingsStore = useSettingsStore()
   const items = ref<CartItem[]>([])
   const isOpen = ref(false)
   const isHydrated = ref(false)
   const appliedCoupon = ref<AppliedCoupon | null>(null)
   const selectedShippingMethod = ref<ShippingMethod>('standard')
   const lastOrderReceipt = ref<OrderReceipt | null>(null)
+
 
   // ۱. بازیابی و ذخیره‌سازی امن در localStorage/sessionStorage برای جلوگیری از عدم تطابق هیدریشن SSR
   if (import.meta.client) {
@@ -117,19 +120,27 @@ export const useCartStore = defineStore('cart', () => {
 
   const combinedDiscountTotal = computed(() => discountTotal.value + couponDiscount.value)
 
+  const freeShippingThreshold = computed(() => {
+    return settingsStore.settings.shipping.freeShippingThreshold || FREE_SHIPPING_THRESHOLD
+  })
+
+  const flatShippingFee = computed(() => {
+    return settingsStore.settings.shipping.flatShippingFee || 65000
+  })
+
   const amountNeededForFreeShipping = computed(() => {
-    return Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal.value)
+    return Math.max(0, freeShippingThreshold.value - subtotal.value)
   })
 
   const isFreeShipping = computed(() => {
-    return subtotal.value >= FREE_SHIPPING_THRESHOLD && subtotal.value > 0
+    return subtotal.value >= freeShippingThreshold.value && subtotal.value > 0
   })
 
   const freeShippingProgress = computed(() => {
     if (subtotal.value <= 0) return 0
     return Math.min(
       100,
-      Math.round((subtotal.value / FREE_SHIPPING_THRESHOLD) * 100),
+      Math.round((subtotal.value / freeShippingThreshold.value) * 100),
     )
   })
 
@@ -138,7 +149,7 @@ export const useCartStore = defineStore('cart', () => {
     if (selectedShippingMethod.value === 'express') {
       return 120000 // ۱۲۰,۰۰۰ تومان پیک فوری
     }
-    return isFreeShipping.value ? 0 : 65000 // ۶۵,۰۰۰ تومان هزینه ارسال استاندارد کشوری
+    return isFreeShipping.value ? 0 : flatShippingFee.value
   })
 
   const finalTotal = computed(() => {
@@ -176,10 +187,13 @@ export const useCartStore = defineStore('cart', () => {
     const existingIndex = items.value.findIndex(
       (item) => item.id === compositeId,
     )
-    const maxStock =
+    const settingMaxQty = settingsStore.settings.checkoutRules.maxItemQuantityPerCart || 5
+    const availableStock =
       newItem.maxStock !== undefined && newItem.maxStock !== null
         ? newItem.maxStock
         : 10
+    const maxStock = Math.min(availableStock, settingMaxQty)
+
 
     if (maxStock <= 0) {
       toast.warning(`متأسفانه موجودی این محصول به اتمام رسیده است.`)
