@@ -5,6 +5,7 @@ import {
   Star,
   ShieldCheck,
   MessageSquarePlus,
+  MessageSquareQuote,
   Sparkles,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
@@ -13,11 +14,16 @@ interface Props {
   reviews: Review[]
   summary: ProductReviewSummary
   productTitle?: string
+  productSlug?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   productTitle: 'محصول',
+  productSlug: '',
 })
+
+const route = useRoute()
+const currentSlug = computed(() => props.productSlug || String(route.params.slug || ''))
 
 const isModalOpen = ref(false)
 const newRating = ref(5)
@@ -25,6 +31,12 @@ const newFit = ref<'small' | 'true_to_size' | 'large'>('true_to_size')
 const newComment = ref('')
 const newAuthor = ref('')
 const newSize = ref('M')
+const isSubmitting = ref(false)
+
+// فقط دیدگاه‌های تاییدشده در صفحه محصول نمایش داده می‌شوند
+const approvedReviews = computed(() => {
+  return (props.reviews || []).filter((r) => !r.status || r.status === 'approved')
+})
 
 // محاسبه درصد فیت
 const totalFitResponses = computed(() => {
@@ -56,22 +68,45 @@ const starDistribution = computed(() => {
   })
 })
 
-const fitLabelMap: Record<'small' | 'true_to_size' | 'large', string> = {
+const fitLabelMap: Record<string, string> = {
   small: 'کمی کوچک‌تر از حد انتظار',
+  runs_small: 'کمی کوچک‌تر از حد انتظار',
   true_to_size: 'اندازه کاملاً دقیق و استاندارد',
   large: 'کمی بزرگ‌تر از حد انتظار',
+  runs_large: 'کمی بزرگ‌تر از حد انتظار',
 }
 
-const handleSubmitReview = () => {
+const handleSubmitReview = async () => {
   if (!newComment.value.trim()) {
     toast.error('لطفاً نظر و تجربه استفاده خود را بنویسید.')
     return
   }
 
-  toast.success('دیدگاه ارزشمند شما با موفقیت ثبت شد و پس از بازبینی منتشر خواهد شد.')
-  newComment.value = ''
-  newAuthor.value = ''
-  isModalOpen.value = false
+  try {
+    isSubmitting.value = true
+    if (currentSlug.value) {
+      await $fetch(`/api/products/${currentSlug.value}/reviews`, {
+        method: 'POST',
+        body: {
+          authorName: newAuthor.value.trim() || undefined,
+          rating: newRating.value,
+          comment: newComment.value.trim(),
+          fitFeedback: newFit.value,
+          sizePurchased: newSize.value,
+        },
+      })
+    }
+
+    toast.success('دیدگاه شما ثبت شد و پس از بررسی تیم منتشر خواهد شد.')
+    newComment.value = ''
+    newAuthor.value = ''
+    isModalOpen.value = false
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'خطا در ثبت دیدگاه'
+    toast.error(msg)
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
@@ -345,7 +380,7 @@ const handleSubmitReview = () => {
     <!-- لیست کارت‌های دیدگاه خریداران -->
     <div class="space-y-4">
       <div
-        v-for="rev in reviews"
+        v-for="rev in approvedReviews"
         :key="rev.id"
         class="rounded-2xl border border-sand bg-white/60 p-5 sm:p-6 space-y-3.5 shadow-2xs transition-all hover:border-sand-dark hover:bg-white/80"
       >
@@ -353,11 +388,11 @@ const handleSubmitReview = () => {
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-sand/50 pb-3">
           <div class="flex items-center gap-2.5">
             <span class="text-xs font-bold text-ink">
-              {{ rev.author }}
+              {{ rev.authorName || rev.author }}
             </span>
 
             <span
-              v-if="rev.verified_purchase"
+              v-if="rev.isVerifiedBuyer ?? rev.verified_purchase"
               class="inline-flex items-center gap-1 rounded-full bg-sage/10 px-2 py-0.5 text-[10px] font-medium text-sage border border-sage/20"
             >
               <ShieldCheck class="w-3 h-3" />
@@ -381,22 +416,41 @@ const handleSubmitReview = () => {
                 :class="s <= rev.rating ? 'fill-rose' : 'text-sand'"
               />
             </div>
-            <time class="text-[11px] text-muted-foreground" :datetime="rev.created_at">
-              {{ formatDate(rev.created_at) }}
+            <time class="text-[11px] text-muted-foreground">
+              {{ rev.date || (rev.created_at ? formatDate(rev.created_at) : '') }}
             </time>
           </div>
         </div>
 
         <!-- فیدبک فیت -->
-        <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div v-if="rev.fitFeedback || rev.fit_feedback" class="flex items-center gap-2 text-[11px] text-muted-foreground">
           <span class="font-bold text-ink">نظر درباره فیت:</span>
-          <span class="text-rose font-medium">{{ fitLabelMap[rev.fit_feedback] }}</span>
+          <span class="text-rose font-medium">{{ fitLabelMap[rev.fitFeedback || rev.fit_feedback || ''] || 'استاندارد' }}</span>
         </div>
 
         <!-- متن دیدگاه -->
         <p class="text-xs sm:text-sm text-ink leading-relaxed">
           {{ rev.comment }}
         </p>
+
+        <!-- پاسخ رسمی آتلیه کراس (در صورت وجود) -->
+        <div
+          v-if="rev.reply?.text"
+          class="ms-4 mt-3 rounded-xl border-s-2 border-rose bg-sand/30 p-3.5 space-y-1.5"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose flex items-center gap-1.5">
+              <MessageSquareQuote class="w-3.5 h-3.5" />
+              {{ rev.reply.author || 'پاسخ آتلیه کراس' }}
+            </span>
+            <span v-if="rev.reply.date" class="text-[10px] text-muted-foreground font-mono">
+              {{ rev.reply.date }}
+            </span>
+          </div>
+          <p class="text-xs text-ink/90 leading-relaxed">
+            {{ rev.reply.text }}
+          </p>
+        </div>
       </div>
     </div>
   </section>

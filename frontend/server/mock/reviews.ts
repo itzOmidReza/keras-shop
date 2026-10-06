@@ -1,140 +1,231 @@
 // server/mock/reviews.ts
-import type { Review, ProductReviewsResponse } from '~/types/domain';
+import type { ProductReview, ProductReviewsResponse } from '~/types/domain';
 
-export const mockProductReviews: Record<string, Review[]> = {
-  'calm-seamless-leggings-black': [
-    {
-      id: 1,
-      author: 'سارا ملکی',
-      rating: 5,
-      created_at: '2026-02-14T10:30:00Z',
-      comment:
-        'واقعاً تست عدم عبور نور (اسکات‌پروف) رو پاس کرد! حین تمرینات کششی یوگا اصلاً بدن‌نما نیست و کمرش به هیچ وجه لول نمیشه. بافتش بی‌نهایت نرمه و اصطکاک پوستی نداره.',
-      verified_purchase: true,
-      size_purchased: 'M',
-      fit_feedback: 'true_to_size',
+export const mockReviews: ProductReview[] = [
+  // Product: karen-slub-linen-blouse (شومیز لنین اسلپ کارن)
+  {
+    id: 1,
+    productSlug: 'karen-slub-linen-blouse',
+    productTitle: 'شومیز لنین اسلپ کارن',
+    productThumbnail: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800',
+    authorName: 'سارا ملکی',
+    author: 'سارا ملکی',
+    rating: 5,
+    date: '۱۴۰۵/۰۶/۲۰',
+    created_at: '2026-09-10T10:30:00Z',
+    comment:
+      'کیفیت الیاف لنین فوق‌العاده‌ست! ریزش پارچه و تن‌خور کار بی‌نظیره و اصلاً بعد شست‌وشو آبرفت نداشت.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'M',
+    status: 'approved',
+    reply: {
+      text: 'سارا عزیز، خوشحالیم که از ایستایی و کیفیت الیاف طبیعی شومیز کارن رضایت دارید. پوشیدن آن در روزهای پاییزی همراه شماست.',
+      date: '۱۴۰۵/۰۶/۲۱',
+      author: 'آتلیه کراس',
     },
-    {
-      id: 2,
-      author: 'نگار رادمهر',
-      rating: 5,
-      created_at: '2026-02-20T16:45:00Z',
-      comment:
-        'بهترین لگی که تا الان داشتم. فاق الماسی‌ش آزادی حرکت فوق‌العاده‌ای میده. قد کار برای من که ۱۶۸ هستم کاملاً استاندارد تا قوزک پا بود.',
-      verified_purchase: true,
-      size_purchased: 'S',
-      fit_feedback: 'true_to_size',
+  },
+  {
+    id: 2,
+    productSlug: 'karen-slub-linen-blouse',
+    productTitle: 'شومیز لنین اسلپ کارن',
+    productThumbnail: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800',
+    authorName: 'نگار رادمهر',
+    author: 'نگار رادمهر',
+    rating: 5,
+    date: '۱۴۰۵/۰۶/۲۸',
+    created_at: '2026-09-18T16:45:00Z',
+    comment:
+      'دوخت بسیار تمیز و دکمه‌های صدفی باکیفیت. رنگ کرم ماسه‌ای دقیقاً شبیه عکس‌های آتلیه بود.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'S',
+    status: 'approved',
+  },
+  {
+    id: 3,
+    productSlug: 'karen-slub-linen-blouse',
+    productTitle: 'شومیز لنین اسلپ کارن',
+    productThumbnail: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800',
+    authorName: 'مهسا کاظمی',
+    author: 'مهسا کاظمی',
+    rating: 4,
+    date: '۱۴۰۵/۰۷/۰۱',
+    created_at: '2026-09-22T11:20:00Z',
+    comment:
+      'تن‌خور کار خیلی قشنگه فقط آستین‌هاش کمی بلندتر از حد معموله که برای استایل کژوال با تا زدن عالی میشه.',
+    fitFeedback: 'runs_large',
+    fit_feedback: 'large',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'M',
+    status: 'approved',
+  },
+  {
+    id: 4,
+    productSlug: 'karen-slub-linen-blouse',
+    productTitle: 'شومیز لنین اسلپ کارن',
+    productThumbnail: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800',
+    authorName: 'پریا دادخواه',
+    author: 'پریا دادخواه',
+    rating: 5,
+    date: '۱۴۰۵/۰۷/۰۴',
+    created_at: '2026-09-25T09:10:00Z',
+    comment:
+      'آیا رنگ زیتونی این کار دوباره شارژ میشه؟ کار قبلی رو خریدم و خیلی راضی بودم.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: false,
+    verified_purchase: false,
+    status: 'pending',
+  },
+  {
+    id: 5,
+    productSlug: 'oversized-washed-cotton-shirt',
+    productTitle: 'پیراهن نخ پنبه واش‌شده اورسایز',
+    productThumbnail: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800',
+    authorName: 'شیدا انوری',
+    author: 'شیدا انوری',
+    rating: 5,
+    date: '۱۴۰۵/۰۶/۲۵',
+    created_at: '2026-09-15T14:15:00Z',
+    comment:
+      'پارچه پنبه‌ای بسیار خنک و لطیف. برای پاییز زیر ژاکت یا به تنهایی استایل فوق‌العاده‌ای داره.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'L',
+    status: 'approved',
+    reply: {
+      text: 'شیدا عزیز، سپاس از ثبت دیدگاه شما. پیراهن اورسایز واش‌شده از پرطرفدارترین طراحی‌های کپسول پاییزی ماست.',
+      date: '۱۴۰۵/۰۶/۲۶',
+      author: 'آتلیه کراس',
     },
-    {
-      id: 3,
-      author: 'مهسا کاظمی',
-      rating: 4,
-      created_at: '2026-03-02T11:20:00Z',
-      comment:
-        'کیفیت دوخت فلت‌لاک و کشسانی ۴ جهته عالیه. فیت کار کاملاً جذبه؛ اگه احساس راحتی بیشتر در روزمره می‌خواین شاید یک سایز بزرگ‌تر بهتر باشه.',
-      verified_purchase: true,
-      size_purchased: 'S',
-      fit_feedback: 'small',
-    },
-    {
-      id: 4,
-      author: 'الهام توکلی',
-      rating: 5,
-      created_at: '2026-03-15T09:10:00Z',
-      comment:
-        'رنگ مشکی موکا بسیار شیک و خاصه و بعد از ۴ بار شست‌وشو اصلاً پرز نداد و تغییر فرم پیدا نکرد. ارزش خرید بالایی داره.',
-      verified_purchase: true,
-      size_purchased: 'L',
-      fit_feedback: 'true_to_size',
-    },
-  ],
-  'move-high-support-bra-coral': [
-    {
-      id: 5,
-      author: 'پریسا ابراهیمی',
-      rating: 5,
-      created_at: '2026-01-28T14:15:00Z',
-      comment:
-        'برای دویدن و جلسات اسپینینگ ساپورت عالی داره و سینه رو کاملاً فیکس نگه می‌داره بدون اینکه حس خفگی یا فشار روی دنده‌ها بیاره.',
-      verified_purchase: true,
-      size_purchased: 'M',
-      fit_feedback: 'true_to_size',
-    },
-    {
-      id: 6,
-      author: 'دریا کیانی',
-      rating: 4,
-      created_at: '2026-02-18T18:00:00Z',
-      comment:
-        'پدهای قابل تعویض کیفیت خوبی دارند و پارچه خیلی سریع عرق رو تبخیر می‌کنه. کاپ کار کمی فیت‌تر از برهای دیگه‌ست.',
-      verified_purchase: true,
-      size_purchased: 'M',
-      fit_feedback: 'small',
-    },
-    {
-      id: 7,
-      author: 'سمیرا نادری',
-      rating: 5,
-      created_at: '2026-03-08T12:30:00Z',
-      comment:
-        'رنگ رز کراس فوق‌العاده‌ست! با شورت بایکری مچ کردم و ست خیلی تمیزی شد.',
-      verified_purchase: true,
-      size_purchased: 'S',
-      fit_feedback: 'true_to_size',
-    },
-  ],
-  'calm-ribbed-crop-top': [
-    {
-      id: 8,
-      author: 'مونا صدری',
-      rating: 5,
-      created_at: '2026-02-11T13:40:00Z',
-      comment:
-        'الیاف بامبو واقعاً حس خنکی و ابریشمی عجیبی روی پوست داره. هم برای پیلاتس و هم به عنوان لباس پایه زیر کت عالیه.',
-      verified_purchase: true,
-      size_purchased: 'S',
-      fit_feedback: 'true_to_size',
-    },
-    {
-      id: 9,
-      author: 'آناهیتا فرهمند',
-      rating: 5,
-      created_at: '2026-02-25T15:20:00Z',
-      comment:
-        'بافت کبریتی بسیار ظریف و لطیف. کشسانی خیلی نرمی داره و اصلاً رد کش روی پوست نمیمونه.',
-      verified_purchase: true,
-      size_purchased: 'M',
-      fit_feedback: 'true_to_size',
-    },
-  ],
-  'move-biker-shorts-sage': [
-    {
-      id: 10,
-      author: 'طناز فلاح',
-      rating: 5,
-      created_at: '2026-03-01T17:10:00Z',
-      comment:
-        'جیب‌های بغل برای گوشی اندازه کامله و موقع دویدن تکون نمیخوره. لبه پایینی اصلاً لول نمیشه و بالا نمیره.',
-      verified_purchase: true,
-      size_purchased: 'M',
-      fit_feedback: 'true_to_size',
-    },
-    {
-      id: 11,
-      author: 'شیرین پارسا',
-      rating: 4,
-      created_at: '2026-03-12T10:05:00Z',
-      comment:
-        'پارچه مات و محکم با نگه‌دارندگی مطلوب برای عضلات ران. رنگ مریم‌گلی در واقعیت هم خیلی مینیمال و قشنگه.',
-      verified_purchase: true,
-      size_purchased: 'L',
-      fit_feedback: 'true_to_size',
-    },
-  ],
-};
+  },
+  {
+    id: 6,
+    productSlug: 'oversized-washed-cotton-shirt',
+    productTitle: 'پیراهن نخ پنبه واش‌شده اورسایز',
+    productThumbnail: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800',
+    authorName: 'الهام توکلی',
+    author: 'الهام توکلی',
+    rating: 3,
+    date: '۱۴۰۵/۰۷/۰۲',
+    created_at: '2026-09-23T18:00:00Z',
+    comment:
+      'قواره لباس بسیار بزرگ‌تر از چیزی هست که فکر می‌کردم، حتماً یک سایز کوچک‌تر انتخاب کنید.',
+    fitFeedback: 'runs_large',
+    fit_feedback: 'large',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'M',
+    status: 'pending',
+  },
+  {
+    id: 7,
+    productSlug: 'fluffy-turtleneck-knit-sweater',
+    productTitle: 'پلیور یقه اسکی بافت موهر',
+    productThumbnail: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800',
+    authorName: 'کیمیا افشار',
+    author: 'کیمیا افشار',
+    rating: 5,
+    date: '۱۴۰۵/۰۶/۱۵',
+    created_at: '2026-09-05T12:30:00Z',
+    comment:
+      'تراکم بافت موهر عالیه و اصلاً ایجاد خارش پوستی نمیکنه. رنگ شیری ملایم بسیار شیک است.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'S',
+    status: 'approved',
+  },
+  {
+    id: 8,
+    productSlug: 'fluffy-turtleneck-knit-sweater',
+    productTitle: 'پلیور یقه اسکی بافت موهر',
+    productThumbnail: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800',
+    authorName: 'مریم بهرامی',
+    author: 'مریم بهرامی',
+    rating: 2,
+    date: '۱۴۰۵/۰۷/۰۵',
+    created_at: '2026-09-26T13:40:00Z',
+    comment: 'لطفاً متن نامربوط حذف شود... تبلیغات سایت دیگر.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: false,
+    verified_purchase: false,
+    status: 'rejected',
+  },
+  {
+    id: 9,
+    productSlug: 'cashmere-open-front-cardigan',
+    productTitle: 'کاردیگان جلوباز پشمی با کشمیر',
+    productThumbnail: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800',
+    authorName: 'نازنین صفوی',
+    author: 'نازنین صفوی',
+    rating: 5,
+    date: '۱۴۰۵/۰۷/۰۳',
+    created_at: '2026-09-24T15:20:00Z',
+    comment:
+      'گرما و سبکی بی‌نظیر. لمس بافت کشمیر واقعاً حس لوکس بودن رو منتقل میکنه.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'Free',
+    status: 'pending',
+  },
+  {
+    id: 10,
+    productSlug: 'calm-seamless-leggings-black',
+    productTitle: 'لگینگ ورزشی سیم‌لس مشکی کالم',
+    productThumbnail: 'https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?q=80&w=800',
+    authorName: 'سمیرا نادری',
+    author: 'سمیرا نادری',
+    rating: 5,
+    date: '۱۴۰۵/۰۶/۱۰',
+    created_at: '2026-08-31T17:10:00Z',
+    comment:
+      'واقعاً تست اسکات‌پروف رو پاس کرد! حین تمرینات کششی یوگا اصلاً بدن‌نما نیست و کمرش لول نمیشه.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'M',
+    status: 'approved',
+  },
+  {
+    id: 11,
+    productSlug: 'calm-seamless-leggings-black',
+    productTitle: 'لگینگ ورزشی سیم‌لس مشکی کالم',
+    productThumbnail: 'https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?q=80&w=800',
+    authorName: 'رویا قاسم‌پور',
+    author: 'رویا قاسم‌پور',
+    rating: 4,
+    date: '۱۴۰۵/۰۷/۰۶',
+    created_at: '2026-09-27T10:05:00Z',
+    comment:
+      'کشسانی خوبی داره و فیت جذب و راحتی داره. سایزبندی کاملاً درسته.',
+    fitFeedback: 'true_to_size',
+    fit_feedback: 'true_to_size',
+    isVerifiedBuyer: true,
+    verified_purchase: true,
+    size_purchased: 'S',
+    status: 'pending',
+  },
+];
 
 export function getProductReviewsResponse(slug: string): ProductReviewsResponse {
-  const reviews = mockProductReviews[slug] || [];
+  // فقط نظرات تاییدشده (approved) برای عموم نمایش داده می‌شوند
+  const reviews = mockReviews.filter(
+    (r) => r.productSlug === slug && r.status === 'approved',
+  );
 
   const ratingDistribution: Record<1 | 2 | 3 | 4 | 5, number> = {
     1: 0,
@@ -157,8 +248,9 @@ export function getProductReviewsResponse(slug: string): ProductReviewsResponse 
     ratingDistribution[star] = (ratingDistribution[star] || 0) + 1;
     totalRatingSum += r.rating;
 
-    if (r.fit_feedback === 'small') fitBreakdown.small++;
-    else if (r.fit_feedback === 'large') fitBreakdown.large++;
+    const fit = r.fitFeedback || r.fit_feedback;
+    if (fit === 'small' || fit === 'runs_small') fitBreakdown.small++;
+    else if (fit === 'large' || fit === 'runs_large') fitBreakdown.large++;
     else fitBreakdown.true_to_size++;
   }
 

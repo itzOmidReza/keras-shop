@@ -72,7 +72,9 @@ test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
     await page.waitForTimeout(300)
 
     // ۵. بازگشت به ژورنال
-    await backLink.click({ force: true })
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await backLink.scrollIntoViewIfNeeded()
+    await backLink.click()
     await page.waitForURL('**/journal**', { timeout: 10000 })
   })
 

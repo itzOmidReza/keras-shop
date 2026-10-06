@@ -101,18 +101,38 @@ export interface ProductDetail extends Product {
   variants: Variant[];
 }
 
-export type FitFeedback = 'small' | 'true_to_size' | 'large';
+export type FitFeedback = 'small' | 'true_to_size' | 'large' | 'runs_small' | 'runs_large';
 
-export interface Review {
-  id: number;
+export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ProductReviewReply {
+  text: string;
+  date: string;
   author: string;
-  rating: number;
-  created_at: string;
-  comment: string;
-  verified_purchase: boolean;
-  size_purchased?: string;
-  fit_feedback: FitFeedback;
 }
+
+export interface ProductReview {
+  id: string | number;
+  productSlug: string;
+  productTitle: string;
+  productThumbnail: string;
+  authorName: string;
+  rating: number;
+  date: string;
+  comment: string;
+  fitFeedback?: 'true_to_size' | 'runs_small' | 'runs_large';
+  isVerifiedBuyer: boolean;
+  status: ReviewStatus;
+  reply?: ProductReviewReply;
+  // Optional backwards compatibility aliases
+  author?: string;
+  created_at?: string;
+  verified_purchase?: boolean;
+  fit_feedback?: FitFeedback;
+  size_purchased?: string;
+}
+
+export type Review = ProductReview;
 
 export interface ProductReviewSummary {
   average_rating: number;
@@ -127,7 +147,7 @@ export interface ProductReviewSummary {
 
 export interface ProductReviewsResponse {
   summary: ProductReviewSummary;
-  reviews: Review[];
+  reviews: ProductReview[];
 }
 
 export interface ProductFilters {

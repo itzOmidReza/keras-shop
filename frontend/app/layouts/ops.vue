@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Shirt,
   Package,
+  MessageSquareQuote,
   Tag,
   BookOpen,
   Settings,
@@ -19,6 +20,7 @@ import {
 } from '@lucide/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useOpsModals } from '~/composables/ops/useOpsModals'
+import { useAdminReviews } from '~/composables/admin/useAdminReviews'
 import OpsCommandPalette from '~/components/ops/common/OpsCommandPalette.vue'
 import type { Component } from 'vue'
 
@@ -26,6 +28,7 @@ const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const { isCommandPaletteOpen } = useOpsModals()
+const { pendingCount } = useAdminReviews()
 
 const isSidebarCollapsed = ref(false)
 const isMobileSidebarOpen = ref(false)
@@ -46,7 +49,7 @@ interface NavItem {
   badge?: string
 }
 
-const navItems: NavItem[] = [
+const navItems = computed<NavItem[]>(() => [
   {
     id: 'dashboard',
     title: 'پیشخوان و آمار',
@@ -72,6 +75,14 @@ const navItems: NavItem[] = [
     legacyTestId: 'tab-view-fulfillment',
   },
   {
+    id: 'reviews',
+    title: 'نظرات و دیدگاه‌ها',
+    path: '/internal-ops-nexus/reviews',
+    icon: MessageSquareQuote,
+    testId: 'ops-nav-reviews',
+    badge: pendingCount.value > 0 ? String(pendingCount.value) : undefined,
+  },
+  {
     id: 'discounts',
     title: 'تخفیف‌ها و کوپن‌ها',
     path: '/internal-ops-nexus/discounts',
@@ -93,7 +104,7 @@ const navItems: NavItem[] = [
     icon: Settings,
     testId: 'ops-nav-settings',
   },
-]
+])
 
 const isItemActive = (item: NavItem) => {
   const currentPath = route.path
@@ -388,6 +399,13 @@ const breadcrumb = computed(() => {
           >
             <component :is="item.icon" class="w-4 h-4 shrink-0" />
             <span class="text-xs flex-1">{{ item.title }}</span>
+            <span
+              v-if="item.badge"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold shrink-0"
+              :class="isItemActive(item) ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-700'"
+            >
+              {{ item.badge }}
+            </span>
           </NuxtLink>
         </nav>
 
@@ -431,11 +449,19 @@ const breadcrumb = computed(() => {
         class="flex-1 py-1 flex flex-col items-center justify-center gap-0.5 text-center transition-colors cursor-pointer"
         :class="isItemActive(item) ? 'text-ink font-bold' : 'text-slate-500 hover:text-slate-800 font-medium'"
       >
-        <component
-          :is="item.icon"
-          class="w-4 h-4 transition-transform"
-          :class="isItemActive(item) ? 'text-amber-500 scale-110' : 'text-slate-400'"
-        />
+        <div class="relative">
+          <component
+            :is="item.icon"
+            class="w-4 h-4 transition-transform"
+            :class="isItemActive(item) ? 'text-amber-500 scale-110' : 'text-slate-400'"
+          />
+          <span
+            v-if="item.badge"
+            class="absolute -top-1.5 -end-2 min-w-3.5 h-3.5 px-0.5 bg-rose text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center leading-none"
+          >
+            {{ item.badge }}
+          </span>
+        </div>
         <span class="text-[10px] leading-tight">{{ item.title.split(' ')[0] }}</span>
       </NuxtLink>
     </nav>

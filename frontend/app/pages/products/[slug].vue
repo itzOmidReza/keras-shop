@@ -216,6 +216,7 @@ const handleSizeSelectedFromGuide = (size: string) => {
       :reviews="reviewsData.reviews"
       :summary="reviewsData.summary"
       :product-title="product.title"
+      :product-slug="product.slug"
     />
 
     <!-- ۵. محصولات مکمل و تکمیل استایل -->

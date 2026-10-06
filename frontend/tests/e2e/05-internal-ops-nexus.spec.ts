@@ -165,5 +165,49 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
     // انتظار برای پیام موفقیت
     await expect(page.locator('text=تنظیمات فروشگاه با موفقیت ذخیره شد').first()).toBeVisible({ timeout: 10000 })
   })
+
+  test('should navigate to Admin Reviews Desk, moderate status, and submit atelier reply', async ({ page }) => {
+    // ۱. ورود مدیر ارشد و هدایت به میز نظرات
+    await page.goto('/login?redirect=/internal-ops-nexus/reviews')
+    await page.waitForLoadState('networkidle')
+
+    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
+    if (await adminBypassBtn.isVisible()) {
+      await adminBypassBtn.click()
+    }
+
+    await page.waitForURL('**/internal-ops-nexus/reviews**', { timeout: 15000 })
+    await page.waitForLoadState('networkidle')
+
+    // ۲. بررسی وجود صفحه مدیریت نظرات
+    await expect(page.locator('[data-testid="nexus-reviews-page"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=میز بررسی و مدیریت نظرات خریداران')).toBeVisible()
+
+    // ۳. بررسی فیلتر تب‌ها
+    const pendingTab = page.locator('[data-testid="filter-tab-pending"]')
+    await expect(pendingTab).toBeVisible()
+    await pendingTab.click()
+
+    // ۴. تایید یک دیدگاه
+    const approveBtn = page.locator('[data-testid="approve-review-btn"]:not([disabled])').first()
+    if (await approveBtn.isVisible()) {
+      await approveBtn.click()
+      await expect(page.locator('text=دیدگاه با موفقیت تایید و در ویترین فروشگاه منتشر شد').first()).toBeVisible({ timeout: 10000 })
+    }
+
+    // ۵. ثبت پاسخ آتلیه
+    const replyBtn = page.locator('[data-testid="open-reply-modal-btn"]').first()
+    await expect(replyBtn).toBeVisible()
+    await replyBtn.click()
+
+    await expect(page.locator('[data-testid="review-reply-textarea"]')).toBeVisible({ timeout: 10000 })
+    await page.locator('[data-testid="review-reply-textarea"]').fill('پاسخ تست آتلیه کراس: با تشکر از دیدگاه ارزشمند شما.')
+
+    const submitReplyBtn = page.locator('[data-testid="submit-review-reply-btn"]')
+    await expect(submitReplyBtn).toBeVisible()
+    await submitReplyBtn.click()
+
+    await expect(page.locator('text=پاسخ رسمی آتلیه با موفقیت ثبت و پیوست شد').first()).toBeVisible({ timeout: 10000 })
+  })
 })
 

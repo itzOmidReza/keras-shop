@@ -22,10 +22,10 @@
 | **Server Engine**       | Nitro Server (isolated mock API endpoints in `server/api/`)         |
 | **Validation Layer**    | Vee-Validate 4, Zod 3.25                                            |
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                        |
-| **Total Route Pages**   | **37** (All Production & Ops Routes Complete, 0 Stubs/Placeholders) |
-| **Domain Components**   | **38** Custom Domain Components + 28 shadcn/Reka UI Primitives      |
+| **Total Route Pages**   | **38** (All Production & Ops Routes Complete, 0 Stubs/Placeholders) |
+| **Domain Components**   | **41** Custom Domain Components + 28 shadcn/Reka UI Primitives      |
 | **Active Pinia Stores** | **4** (`cart`, `wishlist`, `auth`, `settings`) — Fully Hydration-Safe|
-| **Overall Completion**  | **100%** (Production-Ready Storefront, All 37 Routes Complete)      |
+| **Overall Completion**  | **100%** (Production-Ready Storefront, All 38 Routes Complete)      |
 
 ```
 Overall Progress:       [████████████████████] 100%
@@ -131,6 +131,9 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] **Ops Settings**: `AdminSettingsContactTab.vue` (Support phone, email, concierge hours, atelier address)
 - [x] **Ops Settings**: `AdminSettingsBrandingTab.vue` (Brand names, taglines, logos, eNamad & Samandehi)
 - [x] **Ops Settings**: `AdminSettingsIntegrationsTab.vue` (Meta description, GA4, GTM, SMS provider)
+- [x] **Ops Reviews**: `AdminReviewsFilterBar.vue` (Status tabs, search, and rating score filters)
+- [x] **Ops Reviews**: `AdminReviewsTable.vue` (Review details, verified badge, one-click approve/reject/delete)
+- [x] **Ops Reviews**: `AdminReviewReplyModal.vue` (Full review inspector, reply form, preset templates)
 
 ### 4.2 State Management (`app/stores/`)
 
@@ -140,12 +143,18 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `settings.ts`: Reactive Pinia store (`settings`), syncs with `/api/settings`
 - [x] `useAuth.ts`: Composable wrapper exporting `useAuthStore`
 - [x] `useSiteSettings.ts`: Composable wrapper exporting reactive computed getters for storefront consumers
+- [x] `useAdminReviews.ts`: Composable managing review moderation desk, reactive filters, and store replies
 
 ### 4.3 Nitro Server API Layer (`server/`)
 
 - [x] `GET /api/products`: Filterable, sortable catalog endpoint
 - [x] `GET /api/products/[slug]`: Single product detail payload
-- [x] `GET /api/products/[slug]/reviews`: Review ratings and customer feedback
+- [x] `GET /api/products/[slug]/reviews`: Review ratings and customer feedback (exclusively approved reviews)
+- [x] `POST /api/products/[slug]/reviews`: Public review submission endpoint (pending moderation)
+- [x] `GET /api/reviews`: Filterable reviews moderation list with status counters
+- [x] `PUT /api/reviews/[id]/status`: Review status moderation endpoint (approved, rejected)
+- [x] `POST /api/reviews/[id]/reply`: Atelier reply endpoint
+- [x] `DELETE /api/reviews/[id]`: Review purge and deletion endpoint
 - [x] `GET /api/products/[slug]/related`: Line-based cross-sell products
 - [x] `POST /api/coupons/validate`: Coupon voucher verification
 - [x] `POST /api/orders/create`: Order creation receipt (pushes to `mockOrders` & `mockUserOrders`)
@@ -256,6 +265,32 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-06 (`feat-reviews-desk`)**: `feat(reviews): implement admin reviews moderation desk, store reply workflow, and connect to pdp`
+  - **Review Data Contract (`app/types/domain.ts`)**:
+    - Defined `ReviewStatus`: `'pending' | 'approved' | 'rejected'`.
+    - Updated `ProductReview` interface with `id`, `productSlug`, `productTitle`, `productThumbnail`, `authorName`, `rating`, `date`, `comment`, `fitFeedback`, `isVerifiedBuyer`, `status`, and `reply` (`text`, `date`, `author`).
+    - Aliased `Review = ProductReview` preserving backwards compatibility across the storefront.
+  - **Nitro Mock Layer & API Endpoints**:
+    - Seeded realistic reviews in `server/mock/reviews.ts` with approved, pending, and rejected states across lifestyle catalog items.
+    - Created `GET /api/reviews`: Filterable by `status`, `productSlug`, `rating`, and `search`, returning items and reactive status counts.
+    - Created `PUT /api/reviews/[id]/status`: One-click moderation transitions between pending, approved, and rejected.
+    - Created `POST /api/reviews/[id]/reply`: Add or update official Atelier replies with Persian date and signature.
+    - Created `DELETE /api/reviews/[id]`: Purge or delete reviews.
+    - Created `POST /api/products/[slug]/reviews`: Public review submission gate defaulted to `status: 'pending'`.
+  - **Admin Composable & Operations Hub UI (`/internal-ops-nexus/reviews`)**:
+    - Implemented `useAdminReviews.ts` managing shared reactive state (`reviews`, `pendingCount`, `activeTabFilter`, `searchQuery`, `selectedRating`).
+    - Added `reviews` navigation item to `app/layouts/ops.vue` sidebar (`ops-nav-reviews`) with icon `MessageSquareQuote` and reactive pending reviews counter badge.
+    - Orchestrator page (`reviews/index.vue`, 89 LOC, < 120 LOC constraint) coordinating atomic sub-components in `components/ops/reviews/`:
+      - `AdminReviewsFilterBar.vue`: Status tabs with counter badges («همه»، «در انتظار بررسی»، «تاییدشده»، «ردشده»), debounced search, and star rating dropdown filter.
+      - `AdminReviewsTable.vue`: Product card with PDP links, author info with verified buyer badge, star ratings, review snippet & reply card, Jalali date, status pills, and one-click actions (Approve, Reject, Reply, Delete).
+      - `AdminReviewReplyModal.vue`: Comprehensive review inspector with reply textarea and 1-click quick preset templates.
+  - **Storefront PDP Integration (`ProductReviews.vue` & `[slug].vue`)**:
+    - Filtered public reviews to strictly render `status === 'approved'`.
+    - Elegant Atelier reply card (`bg-sand/30 border-s-2 border-rose`) displaying «پاسخ آتلیه کراس», date, and official text.
+    - Public review submission feedback toast: «دیدگاه شما ثبت شد و پس از بررسی تیم منتشر خواهد شد.»
+  - **Quality Gates Verification**:
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), Playwright E2E suite (38 of 38 tests passed, 100% pass rate in 1.0m across Desktop Chrome and Mobile Safari), and Nitro production build (0 errors).
 
 - **2026-10-06 (`feat-settings-hub`)**: `feat(settings): implement dynamic store settings hub and connect to public storefront consumers`
   - **Dynamic Settings Domain Contract (`app/types/domain.ts`)**:
