@@ -788,6 +788,21 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Integrated guest triggers and authenticated user profile menu in `AppHeader.vue` and `MobileNav.vue`.
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
+- **2026-10-06 (`fix-account-luxury-refinement`)**: `fix(account): streamline luxury account portal, remove club bloat, fix auth modal duplicate close, and guard pdp schema`
+  - Safeguarded Schema.org JSON-LD structured data in `app/pages/products/[slug].vue` inside an active `if (product.value)` guard with optional chaining on thumbnail images, completely preventing unhandled 404/SSR crashes on invalid or missing product slugs.
+  - Resolved dual overlapping close icons in `app/components/auth/AuthModal.vue` by removing the manual redundant `<button>` and unused `X` icon, leaving Reka/shadcn `DialogContent`'s native accessible `DialogClose` to handle dismissal.
+  - Elevated customer account experience (`layouts/account.vue`, `app/pages/account.vue`, and `app/components/account/AccountOverviewTab.vue`) to an understated, quiet-luxury aesthetic:
+    - Purged artificial loyalty club/points bloat (240 points card, «سطح آرامش نقره‌ای», «عضو رسمی باشگاه مشتریان»).
+    - Subdued Super Admin HQ Nexus card into an elegant, discreet inline pill while preserving test contracts (`data-testid="privileged-ops-card"`, `data-testid="privileged-ops-link"`, `data-testid="mobile-tab-ops"`).
+    - Streamlined vertical sidebar navigation with monogram avatar, customer full name, masked phone number (`۰۹۱۲***۴۵۶۷`), and Wishlist tab (`data-testid="tab-wishlist"`).
+    - Refined Overview Tab with warm greeting header, exactly 2 core stats cards («سفارش‌های در حال پردازش» and «کل خریدهای ثبت‌شده»), active order spotlight with micro-actions («پیگیری مرسوله» and «مشاهده فاکتور»), and default shipping address card.
+  - Passed all 6 quality gates:
+    - `bun run lint:rtl` (0 physical direction violations)
+    - `bun run lint:tokens` (100% compliant design tokens)
+    - `bun run lint` (0 ESLint errors)
+    - `bun run typecheck` (0 type errors)
+    - `bun run test:e2e` (40/40 Playwright tests passing)
+    - `bun run build` (Clean Nitro server production build)
 - **2026-10-06 (`feat-core-order-receipt-seo`)**: `feat(core): implement order lookup api, printable receipt, dynamic hero cms, and technical seo schema`
   - Created Nitro endpoint `GET /api/orders/[orderNumber]` querying the persistent orders repository in `server/mock/orders.ts` with fuzzy prefix/phone normalization and 404 error handling.
   - Built printable customer receipt on `/checkout/success.vue` with dedicated `@media print` layout (`print:block hidden`), clean Iranian tax invoice breakdown (order info, Shaparak RRN, itemized matrix, subtotal, discount, shipping fee, guarantee terms), and print trigger button.

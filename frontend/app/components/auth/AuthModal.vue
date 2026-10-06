@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '~/components/ui/dialog'
-import { Sparkles, X } from '@lucide/vue'
+import { Sparkles } from '@lucide/vue'
 import { toFa } from '~/utils/format'
 import { useAuthFlow } from '~/composables/auth/useAuthFlow'
 import OtpPhoneStep from '~/components/auth/OtpPhoneStep.vue'
@@ -46,8 +46,8 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
 <template>
   <Dialog :open="authStore.isAuthModalOpen" @update:open="(val: boolean) => authStore.isAuthModalOpen = val">
     <DialogContent class="sm:max-w-md p-6 sm:p-8 bg-paper border-sand rounded-3xl" dir="rtl">
-      <!-- هدر اختصاصی و دکمه بستن -->
-      <div class="flex items-center justify-between pb-4 border-b border-sand">
+      <!-- هدر اختصاصی -->
+      <div class="flex items-center justify-between pb-4 border-b border-sand pe-8">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-full bg-rose/10 flex items-center justify-center text-rose">
             <Sparkles class="w-4 h-4" />
@@ -61,15 +61,6 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
             </DialogDescription>
           </div>
         </div>
-
-        <button
-          type="button"
-          class="w-8 h-8 rounded-full border border-sand flex items-center justify-center text-muted-foreground hover:text-ink hover:bg-sand/30 transition-colors cursor-pointer"
-          aria-label="بستن"
-          @click="authStore.closeAuthModal"
-        >
-          <X class="w-4 h-4" />
-        </button>
       </div>
 
       <!-- مرحله ۱: دریافت شماره موبایل -->

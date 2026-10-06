@@ -68,9 +68,9 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
       </div>
 
       <div class="space-y-2">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose/10 text-rose text-xs font-bold">
-          <Sparkles class="w-3.5 h-3.5" />
-          <span>باشگاه مشتریان کراس</span>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sand/50 text-ink text-xs font-bold border border-sand">
+          <Sparkles class="w-3.5 h-3.5 text-rose" />
+          <span>پورتال اختصاصی اعضای کراس</span>
         </div>
         <h1 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
           ورود به حساب کاربری
@@ -107,14 +107,9 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
       <!-- هدر سربرگ ادیتوریال تب جاری -->
       <div class="rounded-3xl border border-sand bg-white p-6 sm:p-7 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <h1 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
-              {{ activeTabTitle }}
-            </h1>
-            <span class="rounded-full bg-sage/15 text-sage text-[10px] font-bold px-2.5 py-0.5">
-              عضو رسمی
-            </span>
-          </div>
+          <h1 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
+            {{ activeTabTitle }}
+          </h1>
           <p class="text-xs text-muted-foreground">
             {{ activeTabDescription }}
           </p>
@@ -129,6 +124,7 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
       <!-- محتوای تب ۱: پیشخوان (Overview) -->
       <AccountOverviewTab
         v-if="activeTab === 'overview'"
+        :user="authStore.user"
         :active-orders-count="activeOrdersCount"
         :orders-count="authStore.orders.length"
         :recent-order="recentOrder"
