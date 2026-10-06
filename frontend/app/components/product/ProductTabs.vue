@@ -8,9 +8,13 @@ import {
   Wind,
   Sun,
   Flame,
+  Scissors,
+  Calendar,
 } from '@lucide/vue'
+import type { ProductDetail } from '~/types/domain'
 
 interface Props {
+  product?: ProductDetail
   title?: string
   description?: string
   fabric?: {
@@ -19,10 +23,12 @@ interface Props {
     opacity?: number
     composition?: string
     gsm?: number
+    care?: string
   }
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  product: undefined,
   title: 'لگ سیم‌لس زنانه کراس',
   description: '',
   fabric: undefined,
@@ -32,7 +38,45 @@ const displayDescription = computed(() => {
   if (props.description && props.description.trim().length > 0) {
     return props.description
   }
-  return 'این لگ ورزشی زنانه با بهره‌گیری از تکنولوژی بافت مدور بدون درز (Circular Seamless Knitting) طراحی شده تا ضمن ایجاد فرم‌دهی متناسب به عضلات پا و کمر، از هرگونه تحریک پوستی و اصطکاک در تمرینات پرتکرار جلوگیری کند.'
+  return 'این اثر با بهره‌گیری از تکنولوژی بافت دقیق و الیاف طبیعی ارگانیک طراحی شده تا ضمن ارائه فرم‌دهی متناسب و تنخور اصیل، آرامش و لطافت کم‌نظیری را برای استفاده روزمره و محیط‌های رسمی خلق کند.'
+})
+
+const garmentFabric = computed(() => {
+  return (
+    props.product?.fabric?.composition ||
+    props.product?.fabric_composition ||
+    props.fabric?.composition ||
+    '۱۰۰٪ الیاف طبیعی پنبه ارگانیک و لینن نچرال شسته‌شده فرانسوی'
+  )
+})
+
+const garmentFit = computed(() => {
+  return (
+    props.product?.fit_note ||
+    'قواره آزاد و ادیتوریال (Oversized) با آزادی کامل در حرکت و حفظ فرم متوازن'
+  )
+})
+
+const seasonMap: Record<string, string> = {
+  'fall-1405': 'پاییزه و خنک / روزمره و کژوال آتلیه',
+  'winter-1405': 'زمستانه و معتدل / استایل چندلایه و ادیتوریال',
+  'spring-1406': 'بهاره و معتدل / روزمره، کاری و میهمانی',
+  'summer-1405': 'تابستانه و خنک / گردش و پیاده‌روی',
+}
+
+const garmentSeason = computed(() => {
+  if (props.product?.season && seasonMap[props.product.season]) {
+    return seasonMap[props.product.season]
+  }
+  return 'چهارفصل / روزمره لوکس و محیط‌های نیمه‌رسمی'
+})
+
+const garmentCare = computed(() => {
+  return (
+    props.product?.fabric?.care ||
+    props.fabric?.care ||
+    'شست‌وشوی دستی با آب سرد ۳۰ درجه با شوینده ملایم، عدم استفاده از سفیدکننده، اتوکشی در دمای پایین با پارچه محافظ.'
+  )
 })
 
 const highlights = [
@@ -84,9 +128,9 @@ value="specs"
           <h2>مشخصات فنی و دوخت</h2>
         </TabsTrigger>
         <TabsTrigger
-value="materials"
+          value="materials"
           class="data-[state=active]:border-b-2 data-[state=active]:border-rose data-[state=active]:text-ink text-muted-foreground pb-3 text-sm font-bold rounded-none bg-transparent shadow-none transition-colors shrink-0">
-          <h2>الیاف و سنجه‌های پارچه</h2>
+          <h2>مشخصات کلیدی و نگهداری</h2>
         </TabsTrigger>
         <TabsTrigger
 value="care"
@@ -238,14 +282,74 @@ v-for="point in highlights" :key="point"
         </div>
       </TabsContent>
 
-      <!-- تب ۳: سنجه‌ها و الیاف پارچه -->
+      <!-- تب ۳: مشخصات کلیدی و نگهداری (جایگزین سنجه‌های آزمایشگاهی) -->
       <TabsContent value="materials" class="pt-8">
-        <div class="max-w-2xl">
-          <FabricMeters
-:stretch="fabric?.stretch ?? 5" :softness="fabric?.softness ?? 5"
-            :opacity="fabric?.opacity ?? 5"
-            :composition="fabric?.composition ?? '۸۵٪ پلی‌آمید تنفس‌پذیر، ۱۵٪ الاستین میکروفیبر'"
-            :gsm="fabric?.gsm ?? 280" />
+        <div class="max-w-3xl rounded-2xl border border-sand bg-white/70 p-6 sm:p-8 shadow-2xs space-y-6">
+          <div class="flex items-center justify-between border-b border-sand/70 pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose shrink-0" />
+              <h3 class="text-sm font-bold text-ink">
+                مشخصات کلیدی و راهنمای نگهداری
+              </h3>
+            </div>
+            <span class="text-xs text-muted-foreground font-medium">
+              استاندارد کیفی استودیو کراس
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- ۱. جنس پارچه -->
+            <div class="flex items-start gap-3.5 p-4 rounded-xl border border-sand/70 bg-sand/20">
+              <div class="w-10 h-10 rounded-xl bg-white border border-sand flex items-center justify-center text-rose shrink-0 shadow-2xs">
+                <Shirt class="w-5 h-5" />
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-ink">جنس پارچه و ترکیب الیاف</h4>
+                <p class="text-xs leading-relaxed text-muted-foreground">
+                  {{ garmentFabric }}
+                </p>
+              </div>
+            </div>
+
+            <!-- ۲. برش و فرم اندامی -->
+            <div class="flex items-start gap-3.5 p-4 rounded-xl border border-sand/70 bg-sand/20">
+              <div class="w-10 h-10 rounded-xl bg-white border border-sand flex items-center justify-center text-sage shrink-0 shadow-2xs">
+                <Scissors class="w-5 h-5" />
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-ink">برش و فرم اندامی</h4>
+                <p class="text-xs leading-relaxed text-muted-foreground">
+                  {{ garmentFit }}
+                </p>
+              </div>
+            </div>
+
+            <!-- ۳. کاربری و فصل -->
+            <div class="flex items-start gap-3.5 p-4 rounded-xl border border-sand/70 bg-sand/20">
+              <div class="w-10 h-10 rounded-xl bg-white border border-sand flex items-center justify-center text-amber-700 shrink-0 shadow-2xs">
+                <Calendar class="w-5 h-5" />
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-ink">کاربری و فصل</h4>
+                <p class="text-xs leading-relaxed text-muted-foreground">
+                  {{ garmentSeason }}
+                </p>
+              </div>
+            </div>
+
+            <!-- ۴. راهنمای شست‌وشو -->
+            <div class="flex items-start gap-3.5 p-4 rounded-xl border border-sand/70 bg-sand/20">
+              <div class="w-10 h-10 rounded-xl bg-white border border-sand flex items-center justify-center text-sky-700 shrink-0 shadow-2xs">
+                <Droplets class="w-5 h-5" />
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-ink">راهنمای شست‌وشو</h4>
+                <p class="text-xs leading-relaxed text-muted-foreground">
+                  {{ garmentCare }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </TabsContent>
 

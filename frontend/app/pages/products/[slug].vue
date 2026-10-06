@@ -203,27 +203,28 @@ const handleSizeSelectedFromGuide = (size: string) => {
       </div>
     </div>
 
-    <!-- ۳. تب‌های مشخصات فنی، سنجه‌ها و شست‌وشو -->
+    <!-- ۳. مشخصات کلیدی، بافت و راهنمای استایل -->
     <ProductTabs
+      :product="product"
       :title="product.title"
       :description="product.description"
       :fabric="fabricData"
     />
 
-    <!-- ۴. دیدگاه‌ها و ارزیابی کیفی خریداران -->
+    <!-- ۴. محصولات مکمل و تکمیل استایل (هدایت به کشف کالاها قبل از نظرات) -->
+    <RelatedProducts
+      v-if="relatedProducts && relatedProducts.length > 0"
+      :products="relatedProducts"
+      title="محصولات مکمل برای استایل چهارفصل"
+    />
+
+    <!-- ۵. دیدگاه‌ها و ارزیابی کیفی خریداران (در انتهای صفحه قبل از فوتر) -->
     <ProductReviews
       v-if="reviewsData"
       :reviews="reviewsData.reviews"
       :summary="reviewsData.summary"
       :product-title="product.title"
       :product-slug="product.slug"
-    />
-
-    <!-- ۵. محصولات مکمل و تکمیل استایل -->
-    <RelatedProducts
-      v-if="relatedProducts && relatedProducts.length > 0"
-      :products="relatedProducts"
-      title="محصولات مکمل برای استایل چهارفصل"
     />
 
     <!-- نوار شناور موبایل -->

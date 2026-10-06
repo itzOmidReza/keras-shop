@@ -1,7 +1,7 @@
 // frontend/app/composables/ops/useAdminProducts.ts
 import { toast } from 'vue-sonner'
 import { mockProducts } from '../../../server/mock/products'
-import type { ProductDetail, ProductCategory, Variant } from '~/types/domain'
+import type { ProductDetail, ProductCategory, ProductSeason, Variant } from '~/types/domain'
 
 export interface AdminProductVariant {
   color: string
@@ -21,12 +21,15 @@ export const PRESET_COLORS = [
   { name: 'سفید عاجی', hex: '#F8FAFC' },
 ]
 
+export const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'Free Size']
+
 export interface AdminProductForm {
   id?: number
   title: string
   slug: string
   division: 'apparel' | 'accessories'
   category: string
+  season?: ProductSeason
   basePrice: number
   salePrice: number
   mainImage: string
@@ -35,6 +38,7 @@ export interface AdminProductForm {
   selectedSizes: string[]
   variants: AdminProductVariant[]
   fabric: string
+  fitNote?: string
   careInstructions: string
   sizeGuide: {
     size: string
@@ -139,6 +143,7 @@ export function useAdminProducts() {
       slug: '',
       division: 'apparel',
       category: 'coats-jackets',
+      season: 'fall-1405',
       basePrice: 2850000,
       salePrice: 2850000,
       mainImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
@@ -152,6 +157,7 @@ export function useAdminProducts() {
       selectedSizes: ['S', 'M', 'L'],
       variants: [],
       fabric: 'پشم و کشمیر اعلا ایتالیایی با آستر ابریشم ساتن',
+      fitNote: 'قواره آزاد و ادیتوریال (Oversized) با آزادی کامل در حرکت و ایستایی مطلوب.',
       careInstructions: 'خشکشویی تخصصی با بخار ملایم، اتوکشی در دمای پایین با پارچه محافظ.',
       sizeGuide: [
         { size: 'S', chest: 96, waist: 88, hip: 102, length: 115, sleeve: 59 },
@@ -182,6 +188,7 @@ export function useAdminProducts() {
       slug: product.slug,
       division: product.division || 'apparel',
       category: product.category,
+      season: product.season || 'fall-1405',
       basePrice: product.base_price,
       salePrice: product.price || product.base_price,
       mainImage: product.images[0]?.url || '',
@@ -196,6 +203,7 @@ export function useAdminProducts() {
         sku: v.sku || `SKU-${product.id}-${v.size}`,
       })),
       fabric: product.fabric?.composition || '۱۰۰٪ لینن طبیعی',
+      fitNote: product.fit_note || '',
       careInstructions: product.fabric?.care || 'شست‌وشوی دستی با آب سرد',
       sizeGuide: [
         { size: 'S', chest: 96, waist: 88, hip: 102, length: 115, sleeve: 59 },
@@ -244,6 +252,7 @@ export function useAdminProducts() {
           slug: f.slug || f.title.toLowerCase().replace(/\s+/g, '-'),
           division: f.division,
           category: f.category as ProductCategory,
+          season: (f.season as ProductSeason) || productsList.value[idx]?.season || 'fall-1405',
           base_price: Number(f.basePrice),
           price: Number(f.salePrice),
           compare_at_price: Number(f.basePrice) > Number(f.salePrice) ? Number(f.basePrice) : undefined,
@@ -263,6 +272,7 @@ export function useAdminProducts() {
             composition: f.fabric,
             care: f.careInstructions,
           },
+          fit_note: f.fitNote,
         }
         productsList.value[idx] = updated
         toast.success(`محصول «${updated.title}» با موفقیت به‌روزرسانی شد.`)
@@ -278,7 +288,7 @@ export function useAdminProducts() {
       slug: f.slug || (f.title ? f.title.toLowerCase().replace(/\s+/g, '-') : `item-${newId}`),
       division: f.division,
       category: f.category as ProductCategory,
-      season: 'fall-1405',
+      season: (f.season as ProductSeason) || 'fall-1405',
       base_price: Number(f.basePrice) || 2000000,
       price: Number(f.salePrice) || Number(f.basePrice) || 2000000,
       compare_at_price: Number(f.basePrice) > Number(f.salePrice) ? Number(f.basePrice) : undefined,
@@ -303,6 +313,7 @@ export function useAdminProducts() {
         composition: f.fabric,
         care: f.careInstructions,
       },
+      fit_note: f.fitNote,
       variants: mappedVariants,
     }
 

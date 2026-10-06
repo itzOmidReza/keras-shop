@@ -89,6 +89,7 @@ export interface Product {
   softness?: number;
   opacity?: number;
   line?: 'move' | 'calm';
+  fit_note?: string;
 }
 
 export type ProductListItem = Product;

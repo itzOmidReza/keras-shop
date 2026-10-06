@@ -8,7 +8,7 @@ import {
   Trash2,
   Image as ImageIcon,
 } from '@lucide/vue'
-import { useAdminProducts, PRESET_COLORS } from '~/composables/ops/useAdminProducts'
+import { useAdminProducts, PRESET_COLORS, PRESET_SIZES } from '~/composables/ops/useAdminProducts'
 
 const props = defineProps<{
   mode: 'new' | 'edit'
@@ -27,8 +27,7 @@ const {
 } = useAdminProducts()
 
 const presetColors = PRESET_COLORS
-
-const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'Free Size']
+const availableSizes = PRESET_SIZES
 const newImageUrl = ref('')
 
 onMounted(() => {
@@ -375,15 +374,15 @@ const autoGenerateSlug = () => {
         </div>
       </section>
 
-      <!-- ۵. مشخصات پارچه و شست‌وشو -->
+      <!-- ۵. مشخصات متریال، فرم اندامی و نگهداری -->
       <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-2xs space-y-4">
         <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
           <span class="w-2 h-2 rounded-full bg-amber-600" />
-          <span>۵. مشخصات متریال و راهنمای نگهداری</span>
+          <span>۵. مشخصات متریال، فرم اندامی و نگهداری</span>
         </h2>
 
-        <div class="space-y-4">
-          <div class="space-y-1.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5 sm:col-span-2">
             <label class="block text-xs font-bold text-slate-800">
               جنس پارچه و ترکیب الیاف:
             </label>
@@ -396,6 +395,33 @@ const autoGenerateSlug = () => {
           </div>
 
           <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              برش و فرم اندامی (Silhouette & Fit):
+            </label>
+            <input
+              v-model="productForm.fitNote"
+              type="text"
+              placeholder="مثال: قواره آزاد و ادیتوریال (Oversized) با آزادی کامل در حرکت"
+              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
+            >
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              فصل انتشار و کالکشن:
+            </label>
+            <select
+              v-model="productForm.season"
+              class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
+            >
+              <option value="fall-1405">کالکشن پاییز ۱۴۰۵</option>
+              <option value="winter-1405">کالکشن زمستان ۱۴۰۵</option>
+              <option value="spring-1406">کالکشن بهار ۱۴۰۶</option>
+              <option value="summer-1405">کالکشن تابستان ۱۴۰۵</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5 sm:col-span-2">
             <label class="block text-xs font-bold text-slate-800">
               راهنمای نگهداری و شست‌وشو:
             </label>
