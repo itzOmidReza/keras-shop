@@ -13,6 +13,7 @@ import {
   APPAREL_CATEGORIES,
   ACCESSORY_CATEGORIES,
 } from '~/composables/catalog/useCatalogFilters'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 import type { ProductDivision, ProductCategory } from '~/types/domain'
 
 const props = defineProps<{
@@ -27,6 +28,28 @@ const emit = defineEmits<{
   (e: 'update:division', val: ProductDivision | null): void
   (e: 'update:categories', val: ProductCategory[]): void
 }>()
+
+const taxonomyStore = useTaxonomyStore()
+
+const apparelCategories = computed(() => {
+  if (taxonomyStore.apparelCategories.length > 0) {
+    return taxonomyStore.apparelCategories.map((c) => ({
+      slug: c.slug as ProductCategory,
+      label: c.name,
+    }))
+  }
+  return APPAREL_CATEGORIES
+})
+
+const accessoryCategories = computed(() => {
+  if (taxonomyStore.accessoryCategories.length > 0) {
+    return taxonomyStore.accessoryCategories.map((c) => ({
+      slug: c.slug as ProductCategory,
+      label: c.name,
+    }))
+  }
+  return ACCESSORY_CATEGORIES
+})
 
 function toggleCategory(slug: ProductCategory) {
   const current = [...props.categories]
@@ -98,7 +121,7 @@ function toggleCategory(slug: ProductCategory) {
         </AccordionTrigger>
         <AccordionContent class="pt-1 pb-3 space-y-2">
           <div
-            v-for="cat in APPAREL_CATEGORIES"
+            v-for="cat in apparelCategories"
             :key="cat.slug"
             class="flex items-center justify-between"
           >
@@ -138,7 +161,7 @@ function toggleCategory(slug: ProductCategory) {
         </AccordionTrigger>
         <AccordionContent class="pt-1 pb-3 space-y-2">
           <div
-            v-for="cat in ACCESSORY_CATEGORIES"
+            v-for="cat in accessoryCategories"
             :key="cat.slug"
             class="flex items-center justify-between"
           >

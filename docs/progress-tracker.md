@@ -24,7 +24,7 @@
 | **Target Direction**    | RTL-First (Persian / Farsi language support)                        |
 | **Total Route Pages**   | **38** (All Production & Ops Routes Complete, 0 Stubs/Placeholders) |
 | **Domain Components**   | **41** Custom Domain Components + 28 shadcn/Reka UI Primitives      |
-| **Active Pinia Stores** | **4** (`cart`, `wishlist`, `auth`, `settings`) — Fully Hydration-Safe|
+| **Active Pinia Stores** | **5** (`cart`, `wishlist`, `auth`, `settings`, `taxonomy`) — Fully Hydration-Safe|
 | **Overall Completion**  | **100%** (Production-Ready Storefront, All 38 Routes Complete)      |
 
 ```
@@ -788,7 +788,37 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Integrated guest triggers and authenticated user profile menu in `AppHeader.vue` and `MobileNav.vue`.
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
-  - Passed all 5 quality verification gates (`lint:rtl`, `lint:tokens`, `lint`, `typecheck`, `build`). Overall project completion increased from ~70% to **~82%**.
+- **2026-10-06 (`feat-taxonomy-hub`)**: `feat(taxonomy): implement dynamic taxonomy hub for colors, sizes, categories, brands, and seasons`
+  - Built centralized, reactive Taxonomy & Attributes Hub (`/internal-ops-nexus/taxonomy/index.vue`, 96 LOC) with 5 atomic management tabs:
+    - `TaxonomyColorsTab.vue`: Swatch palette manager, custom hex color picker, slug generation, and safe deletion.
+    - `TaxonomySizesTab.vue`: Grouped sizes (Alpha, Numeric, Free, Accessory), order sequencer, and quick creation.
+    - `TaxonomyCategoriesTab.vue`: Catalog division (Apparel vs. Accessories), active toggles, and catalog dependency safety checks.
+    - `TaxonomyBrandsTab.vue`: Partner brands and atelier lines, featured marquee toggle, and creation form.
+    - `TaxonomySeasonsTab.vue`: Seasonal drops manager with exclusive «دراپ جاری» selection and archive toggles.
+  - Developed `useTaxonomyStore` (`app/stores/taxonomy.ts`) and `useAdminTaxonomy.ts` composable for full CRUD, local fallbacks, and reactive mutators.
+  - Implemented Nitro server mock API endpoints under `server/api/taxonomy/`:
+    - `GET /api/taxonomy`: Returns full store taxonomy.
+    - `POST /api/taxonomy/[domain]`: Validates and creates entities with auto-generated IDs and exclusive drop flags.
+    - `PUT /api/taxonomy/[domain]/[id]`: Updates entity fields and toggles statuses.
+    - `DELETE /api/taxonomy/[domain]/[id]`: Deletes entities with catalog dependency guards against active products.
+  - Integrated dynamic taxonomy selection into `AdminProductStudioForm.vue`:
+    - Dynamic categories, brands, seasons, colors, and sizes loaded from `taxonomyStore`.
+    - Integrated inline «+ تعریف جدید», «+ برند جدید», «+ کالکشن جدید», «+ رنگ جدید», and «+ سایز جدید» quick creation modal (`Quick Taxonomy Modal`) with auto-selection upon submission.
+  - Connected public storefront discovery filters and components to dynamic taxonomy:
+    - `FilterColorSwatches.vue`: Bound to `taxonomyStore.colors` with dynamic `:style="{ backgroundColor: color.hex }"` and luminance contrast check.
+    - `FilterSizeSelector.vue`: Bound to `taxonomyStore.sizes`.
+    - `FilterBrandPills.vue`: Bound to `taxonomyStore.brands`.
+    - `FilterSeasonSelector.vue`: Bound to `taxonomyStore.activeSeasons`.
+    - `FilterDivisionAccordion.vue`: Bound to `taxonomyStore.apparelCategories` and `accessoryCategories`.
+    - `useCatalogFilters.ts`: Dynamically resolves category, season, and brand labels through `taxonomyStore`.
+    - `BrandLogosMarquee.vue`: Dynamically pulls featured/active brands from `taxonomyStore.brands` with custom typography fallback for newly created brands.
+  - Passed all 6 quality gates:
+    - `bun run lint:rtl` (0 physical direction violations)
+    - `bun run lint:tokens` (100% compliant design tokens, 0 raw hex violations)
+    - `bun run lint` (0 ESLint errors)
+    - `bun run typecheck` (0 type errors)
+    - `bun run test:e2e` (40/40 Playwright tests passing, including dedicated Taxonomy Hub test)
+    - `bun run build` (Clean Nitro server production build)
 - **2026-10-05 (`feat-ops-fulfillment-desk`)**: `feat(ops): implement order fulfillment and logistics desk with kanban, wave picking, scan-to-pack, and exchange flows`
   - Architected and implemented full Fashion Order Fulfillment & Logistics Desk sub-domain (`/internal-ops-nexus/orders`) coordinated by `useOpsFulfillmentDesk.ts` and `useOpsShippingManifest.ts`.
   - Implemented Dual Workspace toggle supporting high-density table view and 5-column HTML5 drag-and-drop Kanban board (`OpsOrdersKanbanBoard.vue`).

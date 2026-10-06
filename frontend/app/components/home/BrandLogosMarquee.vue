@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, FreeMode } from 'swiper/modules'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 
 interface BrandItem {
   id: string
@@ -9,7 +10,7 @@ interface BrandItem {
   name: string
 }
 
-const brands: BrandItem[] = [
+const defaultBrands: BrandItem[] = [
   {
     id: 'toteme',
     slug: 'toteme',
@@ -41,6 +42,19 @@ const brands: BrandItem[] = [
     name: 'KERAS ATELIER',
   },
 ]
+
+const taxonomyStore = useTaxonomyStore()
+
+const displayBrands = computed(() => {
+  const featured = taxonomyStore.featuredBrands
+  if (featured && featured.length > 0) {
+    return featured
+  }
+  if (taxonomyStore.brands && taxonomyStore.brands.length > 0) {
+    return taxonomyStore.brands
+  }
+  return defaultBrands
+})
 </script>
 
 <template>
@@ -63,7 +77,7 @@ const brands: BrandItem[] = [
       >
         <!-- تکرار برای ایجاد چرخش پیوسته و روان در تمامی رزولوشن‌ها -->
         <SwiperSlide
-          v-for="(brand, idx) in [...brands, ...brands, ...brands, ...brands]"
+          v-for="(brand, idx) in [...displayBrands, ...displayBrands, ...displayBrands, ...displayBrands]"
           :key="`${brand.slug}-${idx}`"
           class="!w-auto flex items-center"
         >
@@ -144,6 +158,14 @@ const brands: BrandItem[] = [
               <text x="28" y="21" font-family="serif" font-size="16" font-weight="700" letter-spacing="3" fill="currentColor">KERAS</text>
               <text x="29" y="32" font-family="sans-serif" font-size="7.5" font-weight="600" letter-spacing="4" fill="currentColor" opacity="0.75">ATELIER</text>
             </svg>
+
+            <!-- فال‌بک برندهای سفارشی ایجاد شده در ادمین -->
+            <span
+              v-else
+              class="text-sm sm:text-base font-serif font-black tracking-widest uppercase text-ink"
+            >
+              {{ brand.name }}
+            </span>
           </NuxtLink>
         </SwiperSlide>
       </Swiper>

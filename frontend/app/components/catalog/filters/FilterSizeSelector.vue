@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AVAILABLE_SIZES } from '~/composables/catalog/useCatalogFilters'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 
 const props = defineProps<{
   modelValue: string[]
@@ -8,6 +8,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', val: string[]): void
 }>()
+
+const taxonomyStore = useTaxonomyStore()
 
 function toggleSize(size: string) {
   const current = [...props.modelValue]
@@ -28,18 +30,18 @@ function toggleSize(size: string) {
     </h4>
     <div class="flex flex-wrap gap-2">
       <button
-        v-for="size in AVAILABLE_SIZES"
-        :key="size"
+        v-for="size in taxonomyStore.sizes"
+        :key="size.id || size.name"
         type="button"
         class="h-9 min-w-9 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center justify-center shadow-2xs"
         :class="[
-          modelValue.includes(size)
+          modelValue.includes(size.name)
             ? 'border-rose bg-rose text-white shadow-xs'
             : 'border-sand bg-white text-ink hover:border-sand/80 hover:bg-sand/20',
         ]"
-        @click="toggleSize(size)"
+        @click="toggleSize(size.name)"
       >
-        {{ size }}
+        {{ size.name }}
       </button>
     </div>
   </div>

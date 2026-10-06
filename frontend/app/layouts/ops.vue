@@ -6,6 +6,7 @@ import {
   Package,
   MessageSquareQuote,
   Tag,
+  Tags,
   BookOpen,
   Settings,
   Lock,
@@ -96,6 +97,13 @@ const navItems = computed<NavItem[]>(() => [
     path: '/internal-ops-nexus/articles',
     icon: BookOpen,
     testId: 'ops-nav-articles',
+  },
+  {
+    id: 'taxonomy',
+    title: 'ویژگی‌ها و دسته‌بندی',
+    path: '/internal-ops-nexus/taxonomy',
+    icon: Tags,
+    testId: 'ops-nav-taxonomy',
   },
   {
     id: 'settings',

@@ -209,5 +209,40 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
     await expect(page.locator('text=پاسخ رسمی آتلیه با موفقیت ثبت و پیوست شد').first()).toBeVisible({ timeout: 10000 })
   })
+
+  test('should navigate to Dynamic Taxonomy Hub, switch attribute tabs, and verify attribute workspace', async ({ page }) => {
+    // ۱. ورود مدیر ارشد و هدایت به بخش ویژگی‌ها و دسته‌بندی
+    await page.goto('/login?redirect=/internal-ops-nexus/taxonomy')
+    await page.waitForLoadState('networkidle')
+
+    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
+    if (await adminBypassBtn.isVisible()) {
+      await adminBypassBtn.click()
+    }
+
+    await page.waitForURL('**/internal-ops-nexus/taxonomy**', { timeout: 15000 })
+    await page.waitForLoadState('networkidle')
+
+    // ۲. بررسی وجود صفحه مدیریت ویژگی‌ها
+    await expect(page.locator('[data-testid="ops-taxonomy-workspace"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=مدیریت ویژگی‌ها، متغیرها و دسته‌بندی‌ها')).toBeVisible()
+
+    // ۳. جابجایی بین تب‌های ویژگی‌ها
+    await expect(page.locator('[data-testid="taxonomy-tab-colors"]')).toBeVisible()
+    await expect(page.locator('[data-testid="add-color-btn"]')).toBeVisible()
+
+    // جابجایی به تب دسته‌بندی‌ها
+    await page.locator('[data-testid="taxonomy-tab-categories"]').click()
+    await expect(page.locator('[data-testid="add-category-btn"]')).toBeVisible({ timeout: 5000 })
+
+    // جابجایی به تب برندها
+    await page.locator('[data-testid="taxonomy-tab-brands"]').click()
+    await expect(page.locator('[data-testid="add-brand-btn"]')).toBeVisible({ timeout: 5000 })
+
+    // جابجایی به تب فصل‌ها و دراپ‌ها
+    await page.locator('[data-testid="taxonomy-tab-seasons"]').click()
+    await expect(page.locator('[data-testid="add-season-btn"]')).toBeVisible({ timeout: 5000 })
+  })
 })
+
 

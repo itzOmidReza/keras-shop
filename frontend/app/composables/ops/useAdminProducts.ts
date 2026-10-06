@@ -29,6 +29,7 @@ export interface AdminProductForm {
   slug: string
   division: 'apparel' | 'accessories'
   category: string
+  brand?: string
   season?: ProductSeason
   basePrice: number
   salePrice: number
@@ -143,6 +144,7 @@ export function useAdminProducts() {
       slug: '',
       division: 'apparel',
       category: 'coats-jackets',
+      brand: 'keras-atelier',
       season: 'fall-1405',
       basePrice: 2850000,
       salePrice: 2850000,
@@ -188,6 +190,7 @@ export function useAdminProducts() {
       slug: product.slug,
       division: product.division || 'apparel',
       category: product.category,
+      brand: product.brand || 'keras-atelier',
       season: product.season || 'fall-1405',
       basePrice: product.base_price,
       salePrice: product.price || product.base_price,
@@ -252,6 +255,7 @@ export function useAdminProducts() {
           slug: f.slug || f.title.toLowerCase().replace(/\s+/g, '-'),
           division: f.division,
           category: f.category as ProductCategory,
+          brand: f.brand || 'keras-atelier',
           season: (f.season as ProductSeason) || productsList.value[idx]?.season || 'fall-1405',
           base_price: Number(f.basePrice),
           price: Number(f.salePrice),
@@ -288,6 +292,7 @@ export function useAdminProducts() {
       slug: f.slug || (f.title ? f.title.toLowerCase().replace(/\s+/g, '-') : `item-${newId}`),
       division: f.division,
       category: f.category as ProductCategory,
+      brand: f.brand || 'keras-atelier',
       season: (f.season as ProductSeason) || 'fall-1405',
       base_price: Number(f.basePrice) || 2000000,
       price: Number(f.salePrice) || Number(f.basePrice) || 2000000,

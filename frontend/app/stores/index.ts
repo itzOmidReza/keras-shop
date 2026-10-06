@@ -5,4 +5,5 @@ export * from './wishlist';
 export { default as useWishlistStore } from './wishlist';
 export * from './settings';
 export { default as useSettingsStore } from './settings';
+export * from './taxonomy';
 

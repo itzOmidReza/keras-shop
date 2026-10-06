@@ -7,8 +7,25 @@ import {
   Plus,
   Trash2,
   Image as ImageIcon,
+  Palette,
+  Ruler,
+  FolderTree,
+  Award,
+  Calendar,
+  Loader2,
 } from '@lucide/vue'
-import { useAdminProducts, PRESET_COLORS, PRESET_SIZES } from '~/composables/ops/useAdminProducts'
+import { toast } from 'vue-sonner'
+import { useAdminProducts } from '~/composables/ops/useAdminProducts'
+import { useTaxonomyStore } from '~/stores/taxonomy'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '~/components/ui/dialog'
+import { DEFAULT_COLOR_HEX } from '~/composables/admin/useAdminTaxonomy'
 
 const props = defineProps<{
   mode: 'new' | 'edit'
@@ -26,11 +43,123 @@ const {
   toggleSize,
 } = useAdminProducts()
 
-const presetColors = PRESET_COLORS
-const availableSizes = PRESET_SIZES
+const taxonomyStore = useTaxonomyStore()
 const newImageUrl = ref('')
 
+const dynamicColors = computed(() => taxonomyStore.colors)
+const dynamicSizes = computed(() => taxonomyStore.sizes)
+const dynamicCategories = computed(() => taxonomyStore.categories)
+const dynamicBrands = computed(() => taxonomyStore.brands)
+const dynamicSeasons = computed(() => taxonomyStore.seasons)
+
+type QuickModalType = 'category' | 'brand' | 'season' | 'color' | 'size'
+
+const quickModal = ref({
+  open: false,
+  type: 'category' as QuickModalType,
+  title: '',
+  description: '',
+  isSubmitting: false,
+  name: '',
+  slug: '',
+  division: 'apparel' as 'apparel' | 'accessories',
+  isFeatured: true,
+  isCurrentDrop: false,
+  colorHex: DEFAULT_COLOR_HEX,
+  sizeGroup: 'alpha' as 'alpha' | 'numeric' | 'accessory' | 'free',
+  sizeOrder: 1,
+})
+
+const openQuickModal = (type: QuickModalType) => {
+  quickModal.value.type = type
+  quickModal.value.isSubmitting = false
+  quickModal.value.name = ''
+  quickModal.value.slug = ''
+
+  if (type === 'category') {
+    quickModal.value.title = 'تعریف دسته‌بندی جدید'
+    quickModal.value.description = 'افزودن دسته‌بندی جدید به ساختار درختی کاتالوگ و انتخاب خودکار'
+    quickModal.value.division = 'apparel'
+  } else if (type === 'brand') {
+    quickModal.value.title = 'تعریف برند یا لاین همکار'
+    quickModal.value.description = 'افزودن برند جدید و اعمال آن روی محصول جاری'
+    quickModal.value.isFeatured = true
+  } else if (type === 'season') {
+    quickModal.value.title = 'تعریف دراپ یا کالکشن فصلی'
+    quickModal.value.description = 'تعریف فصل انتشار جدید و تخصیص مستقیم به این محصول'
+    quickModal.value.isCurrentDrop = false
+  } else if (type === 'color') {
+    quickModal.value.title = 'افزودن رنگ جدید به پالت استودیو'
+    quickModal.value.description = 'تعریف رنگ با کد هگز و افزودن آن به لیست رنگ‌های انتخابی محصول'
+    quickModal.value.colorHex = DEFAULT_COLOR_HEX
+  } else if (type === 'size') {
+    quickModal.value.title = 'افزودن سایز جدید به سیستم'
+    quickModal.value.description = 'تعریف سایز جدید و فعال‌سازی فوری آن در ماتریس تنوع'
+    quickModal.value.sizeGroup = 'alpha'
+    quickModal.value.sizeOrder = taxonomyStore.sizes.length + 1
+  }
+
+  quickModal.value.open = true
+}
+
+const autoQuickSlug = () => {
+  if (quickModal.value.name && !quickModal.value.slug) {
+    quickModal.value.slug = quickModal.value.name
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+  }
+}
+
+const handleQuickCreate = async () => {
+  if (!quickModal.value.name.trim()) {
+    toast.error('لطفاً عنوان را وارد کنید.')
+    return
+  }
+
+  quickModal.value.isSubmitting = true
+  try {
+    const type = quickModal.value.type
+    const name = quickModal.value.name.trim()
+    const slug = (quickModal.value.slug.trim() || name).toLowerCase().replace(/\s+/g, '-')
+
+    if (type === 'category') {
+      const created = await taxonomyStore.addCategory(name, slug, quickModal.value.division)
+      productForm.value.category = created.slug
+      productForm.value.division = created.division
+      toast.success(`دسته‌بندی «${name}» با موفقیت اضافه و انتخاب شد.`)
+    } else if (type === 'brand') {
+      const created = await taxonomyStore.addBrand(name, slug, quickModal.value.isFeatured)
+      productForm.value.brand = created.slug
+      toast.success(`برند «${name}» با موفقیت اضافه و انتخاب شد.`)
+    } else if (type === 'season') {
+      const created = await taxonomyStore.addSeason(name, slug, quickModal.value.isCurrentDrop)
+      productForm.value.season = created.slug as unknown as typeof productForm.value.season
+      toast.success(`فصل «${name}» با موفقیت اضافه و انتخاب شد.`)
+    } else if (type === 'color') {
+      const hex = quickModal.value.colorHex || DEFAULT_COLOR_HEX
+      await taxonomyStore.addColor(name, hex, slug)
+      addColor(name, hex)
+      toast.success(`رنگ «${name}» به پالت اضافه و برای محصول انتخاب شد.`)
+    } else if (type === 'size') {
+      await taxonomyStore.addSize(name, quickModal.value.sizeGroup, quickModal.value.sizeOrder)
+      if (!productForm.value.selectedSizes.includes(name)) {
+        toggleSize(name)
+      }
+      toast.success(`سایز «${name}» به سیستم اضافه و فعال شد.`)
+    }
+
+    quickModal.value.open = false
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'خطا در ثبت ویژگی جدید'
+    toast.error(message)
+  } finally {
+    quickModal.value.isSubmitting = false
+  }
+}
+
 onMounted(() => {
+  taxonomyStore.fetchTaxonomy()
   if (props.mode === 'edit' && props.productId) {
     loadProductForEdit(props.productId)
   } else {
@@ -150,20 +279,64 @@ const autoGenerateSlug = () => {
 
           <!-- دسته‌بندی -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-slate-800">
-              دسته‌بندی اصلی: <span class="text-rose">*</span>
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-800">
+                دسته‌بندی اصلی: <span class="text-rose">*</span>
+              </label>
+              <button
+                type="button"
+                class="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-bold cursor-pointer"
+                @click="openQuickModal('category')"
+              >
+                <Plus class="w-3 h-3" />
+                <span>+ تعریف جدید</span>
+              </button>
+            </div>
             <select
               v-model="productForm.category"
               class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+              @change="(e) => {
+                const target = e.target as HTMLSelectElement
+                const found = dynamicCategories.find(c => c.slug === target.value)
+                if (found) productForm.division = found.division
+              }"
             >
-              <option value="coats-jackets">کت و پالتو (Coats & Jackets)</option>
-              <option value="dresses">پیراهن و سرهمی (Dresses)</option>
-              <option value="shirts-blouses">شومیز و بلوز (Shirts & Blouses)</option>
-              <option value="pants-skirts">شلوار و دامن (Pants & Skirts)</option>
-              <option value="knitwear">بافت و پلیور (Knitwear)</option>
-              <option value="scarves-shawls">شال و روسری (Scarves)</option>
-              <option value="accessories">اکسسوری و کیف (Accessories)</option>
+              <option
+                v-for="cat in dynamicCategories"
+                :key="cat.id"
+                :value="cat.slug"
+              >
+                {{ cat.name }} ({{ cat.division === 'apparel' ? 'پوشاک' : 'اکسسوری' }})
+              </option>
+            </select>
+          </div>
+
+          <!-- برند و لاین کاتالوگ -->
+          <div class="space-y-1.5 sm:col-span-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-800">
+                برند / آتلیه طراح:
+              </label>
+              <button
+                type="button"
+                class="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-bold cursor-pointer"
+                @click="openQuickModal('brand')"
+              >
+                <Plus class="w-3 h-3" />
+                <span>+ برند جدید</span>
+              </button>
+            </div>
+            <select
+              v-model="productForm.brand"
+              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+            >
+              <option
+                v-for="b in dynamicBrands"
+                :key="b.id"
+                :value="b.slug"
+              >
+                {{ b.name }}
+              </option>
             </select>
           </div>
         </div>
@@ -277,13 +450,23 @@ const autoGenerateSlug = () => {
 
         <!-- انتخابگر سریع رنگ -->
         <div class="space-y-2">
-          <label class="block text-xs font-bold text-slate-800">
-            انتخاب رنگ‌های موجود:
-          </label>
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-800">
+              انتخاب رنگ‌های موجود:
+            </label>
+            <button
+              type="button"
+              class="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-bold cursor-pointer"
+              @click="openQuickModal('color')"
+            >
+              <Plus class="w-3 h-3" />
+              <span>+ رنگ جدید</span>
+            </button>
+          </div>
           <div class="flex flex-wrap gap-2">
             <button
-              v-for="color in presetColors"
-              :key="color.name"
+              v-for="color in dynamicColors"
+              :key="color.id || color.name"
               type="button"
               class="h-8 px-3 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all"
               :class="productForm.selectedColors.some(c => c.name === color.name)
@@ -304,21 +487,31 @@ const autoGenerateSlug = () => {
 
         <!-- تیک زدن سایزها -->
         <div class="space-y-2">
-          <label class="block text-xs font-bold text-slate-800">
-            سایزهای فعال:
-          </label>
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-800">
+              سایزهای فعال:
+            </label>
+            <button
+              type="button"
+              class="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-bold cursor-pointer"
+              @click="openQuickModal('size')"
+            >
+              <Plus class="w-3 h-3" />
+              <span>+ سایز جدید</span>
+            </button>
+          </div>
           <div class="flex flex-wrap gap-2">
             <button
-              v-for="size in availableSizes"
-              :key="size"
+              v-for="size in dynamicSizes"
+              :key="size.id || size.name"
               type="button"
               class="h-8 px-3.5 rounded-xl border text-xs font-bold cursor-pointer transition-all"
-              :class="productForm.selectedSizes.includes(size)
+              :class="productForm.selectedSizes.includes(size.name)
                 ? 'bg-ink text-white border-ink shadow-2xs'
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
-              @click="toggleSize(size)"
+              @click="toggleSize(size.name)"
             >
-              {{ size }}
+              {{ size.name }}
             </button>
           </div>
         </div>
@@ -407,17 +600,30 @@ const autoGenerateSlug = () => {
           </div>
 
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-slate-800">
-              فصل انتشار و کالکشن:
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-800">
+                فصل انتشار و کالکشن:
+              </label>
+              <button
+                type="button"
+                class="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-bold cursor-pointer"
+                @click="openQuickModal('season')"
+              >
+                <Plus class="w-3 h-3" />
+                <span>+ کالکشن جدید</span>
+              </button>
+            </div>
             <select
               v-model="productForm.season"
-              class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
+              class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink cursor-pointer font-bold"
             >
-              <option value="fall-1405">کالکشن پاییز ۱۴۰۵</option>
-              <option value="winter-1405">کالکشن زمستان ۱۴۰۵</option>
-              <option value="spring-1406">کالکشن بهار ۱۴۰۶</option>
-              <option value="summer-1405">کالکشن تابستان ۱۴۰۵</option>
+              <option
+                v-for="s in dynamicSeasons"
+                :key="s.id || s.slug"
+                :value="s.slug"
+              >
+                {{ s.name }} {{ s.isCurrentDrop ? '(دراپ جاری)' : '' }}
+              </option>
             </select>
           </div>
 
@@ -531,5 +737,137 @@ const autoGenerateSlug = () => {
         </button>
       </div>
     </div>
+
+    <!-- مدال تعریف سریع ویژگی جدید (Quick Taxonomy Modal) -->
+    <Dialog v-model:open="quickModal.open">
+      <DialogContent class="sm:max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-0 overflow-hidden">
+        <DialogHeader class="p-5 border-b border-slate-100 bg-slate-50/70 text-start">
+          <div class="flex items-center gap-2 text-slate-900">
+            <component
+              :is="quickModal.type === 'category' ? FolderTree : quickModal.type === 'brand' ? Award : quickModal.type === 'season' ? Calendar : quickModal.type === 'color' ? Palette : Ruler"
+              class="w-5 h-5 text-indigo-600"
+            />
+            <DialogTitle class="text-sm font-bold text-slate-900">
+              {{ quickModal.title }}
+            </DialogTitle>
+          </div>
+          <DialogDescription class="text-xs text-slate-500 mt-1">
+            {{ quickModal.description }}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form class="p-5 space-y-4" @submit.prevent="handleQuickCreate">
+          <!-- فیلد نام / عنوان -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              {{ quickModal.type === 'color' ? 'نام رنگ (فارسی):' : quickModal.type === 'size' ? 'عنوان سایز (مثال: 46 یا 2XL):' : 'عنوان:' }}
+            </label>
+            <input
+              v-model="quickModal.name"
+              type="text"
+              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-slate-800 font-bold"
+              placeholder="عنوان مورد نظر را بنویسید..."
+              @blur="autoQuickSlug"
+            >
+          </div>
+
+          <!-- فیلدهای اختصاصی رنگ -->
+          <div v-if="quickModal.type === 'color'" class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              انتخاب کد رنگ هگز:
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                v-model="quickModal.colorHex"
+                type="color"
+                class="w-10 h-10 p-0.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer shrink-0"
+              >
+              <input
+                v-model="quickModal.colorHex"
+                type="text"
+                dir="ltr"
+                placeholder="کد هگز مثلا 1c1917"
+                class="flex-1 h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-slate-800 text-start"
+              >
+            </div>
+          </div>
+
+          <!-- فیلدهای اختصاصی سایز -->
+          <div v-if="quickModal.type === 'size'" class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">
+                گروه سایزبندی:
+              </label>
+              <select
+                v-model="quickModal.sizeGroup"
+                class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+              >
+                <option value="alpha">الفبایی (XS, S, M...)</option>
+                <option value="numeric">عددی (36, 38, 40...)</option>
+                <option value="free">فری‌سایز / تک‌سایز</option>
+                <option value="accessory">اکسسوری</option>
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">
+                ترتیب نمایش:
+              </label>
+              <input
+                v-model.number="quickModal.sizeOrder"
+                type="number"
+                min="1"
+                class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden"
+              >
+            </div>
+          </div>
+
+          <!-- فیلدهای اختصاصی دسته‌بندی -->
+          <div v-if="quickModal.type === 'category'" class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              شاخه اصلی کاتالوگ (Division):
+            </label>
+            <select
+              v-model="quickModal.division"
+              class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
+            >
+              <option value="apparel">پوشاک (Apparel)</option>
+              <option value="accessories">اکسسوری و کیف (Accessories)</option>
+            </select>
+          </div>
+
+          <!-- فیلد اسلاگ انگلیسی -->
+          <div v-if="quickModal.type !== 'size'" class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+              شناسه انگلیسی (URL Slug):
+            </label>
+            <input
+              v-model="quickModal.slug"
+              type="text"
+              dir="ltr"
+              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-slate-800 text-start"
+              placeholder="انگلیسی با خط تیره..."
+            >
+          </div>
+
+          <DialogFooter class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              class="h-9 px-4 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+              @click="quickModal.open = false"
+            >
+              انصراف
+            </button>
+            <button
+              type="submit"
+              class="h-9 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+              :disabled="quickModal.isSubmitting"
+            >
+              <Loader2 v-if="quickModal.isSubmitting" class="w-3.5 h-3.5 animate-spin" />
+              <span>ثبت و انتخاب در فرم</span>
+            </button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

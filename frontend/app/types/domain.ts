@@ -593,3 +593,58 @@ export interface SiteSettings {
   updatedAt?: string;
 }
 
+// ============================================================================
+// Taxonomy & Attributes Hub Contracts
+// ============================================================================
+export interface CustomColor {
+  id: string;
+  name: string;
+  hex: string;
+  slug: string;
+  isSystemDefault?: boolean;
+}
+
+export interface CustomSize {
+  id: string;
+  name: string;
+  group: 'alpha' | 'numeric' | 'accessory' | 'free';
+  order: number;
+  isSystemDefault?: boolean;
+}
+
+export interface TaxonomyCategory {
+  id: string;
+  name: string;
+  slug: string;
+  division: 'apparel' | 'accessories';
+  iconName?: string;
+  isActive: boolean;
+}
+
+export interface TaxonomyBrand {
+  id: string;
+  name: string;
+  slug: string;
+  logoSvg?: string;
+  isFeatured: boolean;
+}
+
+export interface TaxonomySeason {
+  id: string;
+  name: string;
+  slug: string;
+  isCurrentDrop: boolean;
+  isActive: boolean;
+}
+
+export interface StoreTaxonomy {
+  colors: CustomColor[];
+  sizes: CustomSize[];
+  categories: TaxonomyCategory[];
+  brands: TaxonomyBrand[];
+  seasons: TaxonomySeason[];
+}
+
+export type TaxonomyDomain = 'colors' | 'sizes' | 'categories' | 'brands' | 'seasons';
+
+

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PARTNER_BRANDS } from '~/composables/catalog/useCatalogFilters'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 
 defineProps<{
   modelValue?: string | null
@@ -8,6 +8,8 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', val: string | null): void
 }>()
+
+const taxonomyStore = useTaxonomyStore()
 
 function toggleBrand(slug: string, current?: string | null) {
   emit('update:modelValue', current === slug ? null : slug)
@@ -30,8 +32,8 @@ function toggleBrand(slug: string, current?: string | null) {
     </div>
     <div class="grid grid-cols-2 gap-1.5">
       <button
-        v-for="b in PARTNER_BRANDS"
-        :key="b.slug"
+        v-for="b in taxonomyStore.brands"
+        :key="b.id || b.slug"
         type="button"
         class="flex flex-col items-start rounded-xl px-2.5 py-2 text-start transition-all cursor-pointer border"
         :class="[
@@ -41,12 +43,12 @@ function toggleBrand(slug: string, current?: string | null) {
         ]"
         @click="toggleBrand(b.slug, modelValue)"
       >
-        <span class="text-xs font-bold">{{ b.fa }}</span>
+        <span class="text-xs font-bold">{{ b.name }}</span>
         <span
-          class="text-[10px] tracking-wider transition-colors"
+          class="text-[10px] tracking-wider transition-colors font-mono"
           :class="modelValue === b.slug ? 'text-white/80' : 'text-muted-foreground'"
         >
-          {{ b.en }}
+          {{ b.slug }}
         </span>
       </button>
     </div>

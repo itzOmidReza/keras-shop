@@ -1,6 +1,7 @@
 import type { ProductDivision, ProductCategory, ProductSeason } from '~/types/domain'
 import { toast } from 'vue-sonner'
 import { toFa } from '~/utils/format'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 
 export interface FilterState {
   season: ProductSeason | null
@@ -89,17 +90,38 @@ export const AVAILABLE_COLORS: ColorOption[] = [
 ]
 
 export function getCategoryLabel(slug: string): string {
+  try {
+    const store = useTaxonomyStore()
+    const foundInStore = store.categories.find(c => c.slug === slug)
+    if (foundInStore) return foundInStore.name
+  } catch {
+    // Pinia not yet initialized or outside component setup
+  }
   const all = [...APPAREL_CATEGORIES, ...ACCESSORY_CATEGORIES]
   const found = all.find(c => c.slug === slug)
   return found ? found.label : slug
 }
 
 export function getSeasonLabel(season: ProductSeason): string {
+  try {
+    const store = useTaxonomyStore()
+    const foundInStore = store.seasons.find(s => s.slug === season)
+    if (foundInStore) return foundInStore.name
+  } catch {
+    // Pinia not yet initialized
+  }
   const found = AVAILABLE_SEASONS.find(s => s.id === season)
   return found ? found.label : season
 }
 
 export function getBrandLabel(brandSlug: string): string {
+  try {
+    const store = useTaxonomyStore()
+    const foundInStore = store.brands.find(b => b.slug === brandSlug)
+    if (foundInStore) return foundInStore.name
+  } catch {
+    // Pinia not yet initialized
+  }
   const found = PARTNER_BRANDS.find(b => b.slug === brandSlug)
   return found ? found.fa : brandSlug
 }
