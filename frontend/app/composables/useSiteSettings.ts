@@ -1,5 +1,4 @@
 // app/composables/useSiteSettings.ts
-import { useSettingsStore } from '~/stores/settings'
 
 export function useSiteSettings() {
   const store = useSettingsStore()

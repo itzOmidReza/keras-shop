@@ -1,9 +1,6 @@
 <!-- frontend/app/components/home/ShopTheLook.vue -->
 <script setup lang="ts">
 import { Sparkles, Eye } from '@lucide/vue'
-import { useShopTheLook } from '~/composables/home/useShopTheLook'
-import HomeLookHotspot from '~/components/home/HomeLookHotspot.vue'
-import HomeLookBundleCard from '~/components/home/HomeLookBundleCard.vue'
 
 const {
   looks,

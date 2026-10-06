@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/taxonomy/TaxonomyCategoriesTab.vue -->
 <script setup lang="ts">
 import { Plus, Trash2, FolderTree, Check, X } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
 
 const {
   store,

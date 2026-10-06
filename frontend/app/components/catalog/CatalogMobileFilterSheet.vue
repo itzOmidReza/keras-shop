@@ -8,7 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '~/components/ui/sheet'
-import FilterPanel, { type FilterState } from '~/components/catalog/FilterPanel.vue'
+import type { FilterState } from '~/components/catalog/FilterPanel.vue'
 
 defineProps<{
   open: boolean

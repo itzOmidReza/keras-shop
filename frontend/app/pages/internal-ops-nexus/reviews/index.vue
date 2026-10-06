@@ -2,11 +2,6 @@
 <script setup lang="ts">
 import { MessageSquareQuote, ShieldAlert, RefreshCw } from '@lucide/vue'
 import type { ProductReview } from '~/types/domain'
-import { useAdminReviews } from '~/composables/admin/useAdminReviews'
-import AdminReviewsFilterBar from '~/components/ops/reviews/AdminReviewsFilterBar.vue'
-import AdminReviewsTable from '~/components/ops/reviews/AdminReviewsTable.vue'
-import AdminReviewReplyModal from '~/components/ops/reviews/AdminReviewReplyModal.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

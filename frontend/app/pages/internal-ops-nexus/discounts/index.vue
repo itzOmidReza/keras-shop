@@ -1,9 +1,6 @@
 <!-- frontend/app/pages/internal-ops-nexus/discounts/index.vue -->
 <script setup lang="ts">
 import { Plus, Search } from '@lucide/vue'
-import { useAdminDiscounts } from '~/composables/ops/useAdminDiscounts'
-import AdminDiscountsTable from '~/components/ops/discounts/AdminDiscountsTable.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

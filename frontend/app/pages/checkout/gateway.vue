@@ -1,11 +1,5 @@
 <!-- frontend/app/pages/checkout/gateway.vue -->
 <script setup lang="ts">
-import { useShaparakGateway } from '~/composables/checkout/useShaparakGateway'
-import GatewayHeader from '~/components/gateway/GatewayHeader.vue'
-import GatewayMerchantInfo from '~/components/gateway/GatewayMerchantInfo.vue'
-import GatewayPaymentForm from '~/components/gateway/GatewayPaymentForm.vue'
-import GatewayDevToolbar from '~/components/gateway/GatewayDevToolbar.vue'
-
 definePageMeta({
   layout: false,
 })

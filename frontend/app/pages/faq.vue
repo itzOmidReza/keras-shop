@@ -17,9 +17,23 @@ import {
   ArrowLeft,
 } from '@lucide/vue'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/faq',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'پرسش‌های متداول | کراس',
   description: 'پاسخ به پرسش‌های رایج در خصوص شیوه‌های ارسال، راهنمای سایزبندی، رویه تعویض ۷ روزه و نحوه نگهداری از پوشاک ورزشی کراس',
+  ogTitle: 'پرسش‌های متداول | کراس',
+  ogDescription: 'پاسخ به پرسش‌های رایج در خصوص شیوه‌های ارسال، راهنمای سایزبندی، رویه تعویض ۷ روزه و نحوه نگهداری از پوشاک ورزشی کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 type FaqCategory = 'all' | 'shipping' | 'sizing' | 'returns' | 'care'

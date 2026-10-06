@@ -10,11 +10,6 @@ import {
   LogOut,
 } from '@lucide/vue'
 import { headerNav, announcementBar, siteConfig } from '~/data'
-import { useCartStore } from '~/stores/cart'
-import { useWishlistStore } from '~/stores/wishlist'
-import { useAuthStore } from '~/stores/auth'
-import { useSiteSettings } from '~/composables/useSiteSettings'
-import { toFa } from '~/utils/format'
 
 defineEmits<{
   openMobileMenu: []

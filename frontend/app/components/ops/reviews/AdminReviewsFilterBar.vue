@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/reviews/AdminReviewsFilterBar.vue -->
 <script setup lang="ts">
 import { Search, X, Star, RotateCcw } from '@lucide/vue'
-import { useAdminReviews } from '~/composables/admin/useAdminReviews'
 import type { ReviewStatus } from '~/types/domain'
 
 const {

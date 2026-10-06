@@ -54,12 +54,14 @@ export default defineNuxtConfig({
     { path: '~/components/careers', pathPrefix: false },
     { path: '~/components/journal', pathPrefix: false },
     { path: '~/components/tracking', pathPrefix: false },
+    { path: '~/components/home', pathPrefix: false },
+    { path: '~/components/search', pathPrefix: false },
     { path: '~/components/auth', pathPrefix: false },
     '~/components',
   ],
 
   imports: {
-    dirs: ['composables/**', 'utils/**'],
+    dirs: ['composables/**', 'utils/**', 'stores/**'],
   },
 
   shadcn: {

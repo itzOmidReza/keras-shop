@@ -18,9 +18,23 @@ import {
 } from '~/utils/fit-calculator'
 import type { FitPreference } from '~/types/domain'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/size-guide',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'راهنمای جامع سایزبندی و ابعاد متریک | کراس',
   description: 'راهنمای تخصصی تعیین سایز بر حسب سانتی‌متر و کیلوگرم برای پوشاک ورزشی لاین حرکت و آرامش کراس',
+  ogTitle: 'راهنمای جامع سایزبندی و ابعاد متریک | کراس',
+  ogDescription: 'راهنمای تخصصی تعیین سایز بر حسب سانتی‌متر و کیلوگرم برای پوشاک ورزشی لاین حرکت و آرامش کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 // تب جدول‌های فعال: زنانه یا مردانه

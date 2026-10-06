@@ -16,7 +16,6 @@ import {
   MessageSquareQuote,
   Sparkles,
 } from '@lucide/vue'
-import { useAdminReviews } from '~/composables/admin/useAdminReviews'
 
 interface Props {
   review: ProductReview | null

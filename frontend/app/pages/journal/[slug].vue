@@ -2,8 +2,6 @@
 <script setup lang="ts">
 import { Clock, Calendar, ArrowRight, Share2, BookOpen } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { useJournalArticles } from '~/composables/journal/useJournalArticles'
-import JournalShopTheStory from '~/components/journal/JournalShopTheStory.vue'
 
 const route = useRoute()
 const slug = computed(() => String(route.params.slug))
@@ -15,34 +13,51 @@ if (!article.value) {
   throw createError({
     statusCode: 404,
     statusMessage: 'مقاله مورد نظر در ژورنال کراس یافت نشد.',
+    fatal: true,
   })
 }
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: () => `https://keras.ir/journal/${slug.value}`,
+    },
+  ],
+})
 
 useSeoMeta({
   title: () => `${article.value?.title || 'مقاله'} | ژورنال ادیتوریال کراس`,
   description: () => article.value?.excerpt || '',
+  ogTitle: () => article.value?.title,
+  ogDescription: () => article.value?.excerpt,
   ogImage: () => article.value?.coverImage,
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
-useSchemaOrg([
-  defineBreadcrumb({
-    itemListElement: [
-      { name: 'صفحه اصلی', item: '/' },
-      { name: 'ژورنال', item: '/journal' },
-      { name: article.value?.title || '', item: `/journal/${slug.value}` },
-    ],
-  }),
-  defineArticle({
-    headline: article.value?.title,
-    description: article.value?.excerpt,
-    image: article.value?.coverImage,
-    datePublished: article.value?.date,
-    author: {
-      name: article.value?.author?.name,
-      jobTitle: article.value?.author?.role,
-    },
-  }),
-])
+if (article.value) {
+  useSchemaOrg([
+    defineBreadcrumb({
+      itemListElement: [
+        { name: 'صفحه اصلی', item: '/' },
+        { name: 'ژورنال', item: '/journal' },
+        { name: article.value.title || '', item: `/journal/${slug.value}` },
+      ],
+    }),
+    defineArticle({
+      headline: article.value.title,
+      description: article.value.excerpt,
+      image: article.value.coverImage,
+      datePublished: article.value.date,
+      author: {
+        name: article.value.author?.name,
+        jobTitle: article.value.author?.role,
+      },
+    }),
+  ])
+}
 
 // نوار پیشرفت مطالعه بالای صفحه
 const scrollPercent = ref(0)
@@ -147,6 +162,10 @@ const handleShare = async () => {
             v-if="article.author.avatar"
             :src="article.author.avatar"
             :alt="article.author.name"
+            width="44"
+            height="44"
+            loading="lazy"
+            decoding="async"
             class="w-11 h-11 rounded-full object-cover ring-2 ring-sand"
           >
           <div class="text-start">
@@ -161,6 +180,10 @@ const handleShare = async () => {
         <img
           :src="article.coverImage"
           :alt="article.title"
+          width="1200"
+          height="540"
+          loading="eager"
+          decoding="async"
           class="w-full h-[320px] sm:h-[460px] lg:h-[540px] object-cover object-center"
         >
       </figure>
@@ -195,8 +218,11 @@ const handleShare = async () => {
             <img
               :src="section.image"
               :alt="section.imageCaption || section.heading || 'تصویر درون مقاله'"
-              class="w-full h-[280px] sm:h-[400px] object-cover object-center"
+              width="800"
+              height="400"
               loading="lazy"
+              decoding="async"
+              class="w-full h-[280px] sm:h-[400px] object-cover object-center"
             >
             <figcaption v-if="section.imageCaption" class="p-3 text-center text-xs text-ink/60 font-sans">
               {{ section.imageCaption }}

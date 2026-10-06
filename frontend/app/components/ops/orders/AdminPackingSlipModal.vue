@@ -5,8 +5,6 @@ import {
   Package,
   Truck,
 } from '@lucide/vue'
-import { useAdminOrders } from '~/composables/admin/useAdminOrders'
-import { toFa } from '~/utils/format'
 
 const {
   isPackingSlipOpen,

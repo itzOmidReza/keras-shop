@@ -1,6 +1,3 @@
-import { useAuthStore } from '~/stores/auth'
-import { toEn, toFa } from '~/utils/format'
-import { iranianMobileRegex } from '~/utils/validation'
 import { toast } from 'vue-sonner'
 
 export interface UseAuthFlowOptions {

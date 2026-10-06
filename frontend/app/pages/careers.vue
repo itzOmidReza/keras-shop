@@ -1,13 +1,22 @@
 <!-- frontend/app/pages/careers.vue -->
 <script setup lang="ts">
-import { useCareers } from '~/composables/careers/useCareers'
-import CareersHero from '~/components/careers/CareersHero.vue'
-import CareersCultureShowcase from '~/components/careers/CareersCultureShowcase.vue'
-import CareersOpenPositions from '~/components/careers/CareersOpenPositions.vue'
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/careers',
+    },
+  ],
+})
 
 useSeoMeta({
   title: 'فرصت‌های شغلی و فرهنگ سازمانی | کراس',
   description: 'همکاری با تیم طراحی، مهندسی و نوآوری پوشاک ورزشی لوکس کراس؛ محیطی پویا، مینیمال و رشد‌محور',
+  ogTitle: 'فرصت‌های شغلی و فرهنگ سازمانی | کراس',
+  ogDescription: 'همکاری با تیم طراحی، مهندسی و نوآوری پوشاک ورزشی لوکس کراس؛ محیطی پویا، مینیمال و رشد‌محور',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const {

@@ -11,9 +11,23 @@ import {
   CheckCircle2,
 } from '@lucide/vue'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/about',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'داستان و فلسفه برند | کراس',
   description: 'داستان تولد برند کراس، پیوند مهندسی پیشرفته منسوجات ورزشی و زیبایی‌شناسی مینیمال برای سبک زندگی پویا و آرام',
+  ogTitle: 'داستان و فلسفه برند | کراس',
+  ogDescription: 'داستان تولد برند کراس، پیوند مهندسی پیشرفته منسوجات ورزشی و زیبایی‌شناسی مینیمال برای سبک زندگی پویا و آرام',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const coreValues = [

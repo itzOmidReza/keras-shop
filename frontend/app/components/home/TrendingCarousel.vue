@@ -8,7 +8,6 @@ import {
 } from '@lucide/vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import type { Swiper as SwiperType } from 'swiper/types'
-import ProductCard from '~/components/product/ProductCard.vue'
 import type { ProductListItem } from '~/types/domain'
 
 interface Props {

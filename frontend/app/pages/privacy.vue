@@ -11,9 +11,23 @@ import {
   CheckCircle2,
 } from '@lucide/vue'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/privacy',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'سیاست حفظ حریم خصوصی | کراس',
   description: 'تعهدات کراس در زمینه حفاظت از داده‌های شخصی، ورود امن پیامکی OTP، امنیت پرداخت و حقوق کاربران',
+  ogTitle: 'سیاست حفظ حریم خصوصی | کراس',
+  ogDescription: 'تعهدات کراس در زمینه حفاظت از داده‌های شخصی، ورود امن پیامکی OTP، امنیت پرداخت و حقوق کاربران',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const privacyPillars = [

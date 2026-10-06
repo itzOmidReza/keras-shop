@@ -1,18 +1,7 @@
 <!-- frontend/app/components/catalog/FilterPanel.vue -->
 <script setup lang="ts">
 import { ArrowLeft, RotateCcw } from '@lucide/vue'
-import { toFa } from '~/utils/format'
-import {
-  type FilterState,
-  useCatalogFilters,
-} from '~/composables/catalog/useCatalogFilters'
-import FilterActiveChips from '~/components/catalog/filters/FilterActiveChips.vue'
-import FilterSeasonSelector from '~/components/catalog/filters/FilterSeasonSelector.vue'
-import FilterDivisionAccordion from '~/components/catalog/filters/FilterDivisionAccordion.vue'
-import FilterBrandPills from '~/components/catalog/filters/FilterBrandPills.vue'
-import FilterSizeSelector from '~/components/catalog/filters/FilterSizeSelector.vue'
-import FilterColorSwatches from '~/components/catalog/filters/FilterColorSwatches.vue'
-import FilterPriceSlider from '~/components/catalog/filters/FilterPriceSlider.vue'
+import type { FilterState } from '~/composables/catalog/useCatalogFilters'
 
 export type { FilterState }
 

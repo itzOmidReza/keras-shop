@@ -10,9 +10,6 @@ import {
   ShieldCheck,
   ShoppingBag,
 } from '@lucide/vue'
-import { toFa } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
-import { useAuthStore } from '~/stores/auth'
 import type { PaymentVerifyResponse } from '~/types/domain'
 
 useSeoMeta({

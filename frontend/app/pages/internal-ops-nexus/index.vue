@@ -1,12 +1,6 @@
 <!-- frontend/app/pages/internal-ops-nexus/index.vue -->
 <script setup lang="ts">
 import { Package } from '@lucide/vue'
-import { useAuthStore } from '~/stores/auth'
-import { useAdminOverview } from '~/composables/ops/useAdminOverview'
-import AdminOverviewKpis from '~/components/ops/overview/AdminOverviewKpis.vue'
-import AdminOverviewPendingOrders from '~/components/ops/overview/AdminOverviewPendingOrders.vue'
-import AdminOverviewLowStock from '~/components/ops/overview/AdminOverviewLowStock.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

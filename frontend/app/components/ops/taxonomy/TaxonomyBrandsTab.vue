@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/taxonomy/TaxonomyBrandsTab.vue -->
 <script setup lang="ts">
 import { Plus, Trash2, Award, Star } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
 
 const {
   store,

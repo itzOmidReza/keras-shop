@@ -7,11 +7,6 @@ import {
   Trash2,
   Sparkles,
 } from '@lucide/vue'
-import { formatToman } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
-import CartItemRow from '~/components/cart/CartItemRow.vue'
-import CartOrderSummary from '~/components/cart/CartOrderSummary.vue'
-
 useSeoMeta({
   title: 'سبد خرید | کراس',
   description: 'مدیریت و تسویه اقلام افزوده شده به سبد خرید پوشاک ورزشی کراس',

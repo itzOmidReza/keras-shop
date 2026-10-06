@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import AppHeader from '~/components/layout/AppHeader.vue'
-import AppFooter from '~/components/layout/AppFooter.vue'
-import MobileNav from '~/components/layout/MobileNav.vue'
-import CartDrawer from '~/components/cart/CartDrawer.vue'
-import AuthModal from '~/components/auth/AuthModal.vue'
-
 const isMobileNavOpen = ref(false)
 
 useSchemaOrg([
@@ -34,7 +28,7 @@ useSchemaOrg([
     <AppFooter class="print:hidden" />
 
     <MobileNav :is-open="isMobileNavOpen" class="print:hidden" @close="isMobileNavOpen = false" />
-    <CartDrawer class="print:hidden" />
-    <AuthModal class="print:hidden" />
+    <LazyCartDrawer class="print:hidden" />
+    <LazyAuthModal class="print:hidden" />
   </div>
 </template>

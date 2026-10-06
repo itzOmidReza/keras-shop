@@ -1,9 +1,6 @@
 <!-- frontend/app/pages/internal-ops-nexus/products/index.vue -->
 <script setup lang="ts">
 import { Plus } from '@lucide/vue'
-import { useAdminProducts } from '~/composables/ops/useAdminProducts'
-import AdminProductsFilterBar from '~/components/ops/products/AdminProductsFilterBar.vue'
-import AdminProductsTable from '~/components/ops/products/AdminProductsTable.vue'
 import type { ProductDetail } from '~/types/domain'
 
 definePageMeta({

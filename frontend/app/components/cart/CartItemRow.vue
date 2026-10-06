@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import type { CartItem } from '~/types/domain'
 import { Plus, Minus, Trash2 } from '@lucide/vue'
-import { useCartStore } from '~/stores/cart'
 
 const props = defineProps<{
   item: CartItem

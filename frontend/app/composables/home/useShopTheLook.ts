@@ -1,4 +1,3 @@
-import { useCartStore } from '~/stores/cart'
 import { toast } from 'vue-sonner'
 
 export interface LookItem {

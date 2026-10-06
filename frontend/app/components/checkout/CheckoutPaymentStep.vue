@@ -7,8 +7,6 @@ import {
   ArrowRight,
   Lock,
 } from '@lucide/vue'
-import { formatToman } from '~/utils/format'
-import { useSiteSettings } from '~/composables/useSiteSettings'
 import type { ShippingMethod, PaymentMethod } from '~/types/domain'
 
 defineProps<{

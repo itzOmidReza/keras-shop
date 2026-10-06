@@ -29,9 +29,14 @@ const emit = defineEmits<{
   <div class="space-y-6">
     <!-- سلام و پیام خوش‌آمدگویی ادیتوریال -->
     <div class="rounded-3xl border border-sand bg-white p-6 shadow-2xs space-y-1">
-      <h2 class="text-base font-bold text-ink">
-        خوش آمدید، {{ user?.fullName || 'همراه گرامی آتلیه' }}
-      </h2>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <h2 class="text-base font-bold text-ink">
+          خوش آمدید، {{ user?.fullName || 'همراه گرامی آتلیه' }}
+        </h2>
+        <span v-if="user?.phoneNumber" class="text-xs font-mono text-muted-foreground">
+          {{ toFa(user.phoneNumber) }}
+        </span>
+      </div>
       <p class="text-xs text-muted-foreground leading-relaxed">
         به پورتال مشتریان آتلیه کراس خوش آمدید. خلاصه سفارش‌ها و نشانی‌های تحویل شما در این بخش قابل مدیریت است.
         <span v-if="user?.createdAt" class="ms-1 font-mono text-muted-foreground/80">

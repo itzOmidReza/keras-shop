@@ -1,7 +1,5 @@
 // frontend/app/composables/account/useAccountDashboard.ts
 import { z } from 'zod'
-import { useAuthStore } from '~/stores/auth'
-import { toEn } from '~/utils/format'
 import { iranianMobileRegex, iranianPostalCodeRegex } from '~/utils/validation'
 import type { UserOrderSummary } from '~/types/domain'
 

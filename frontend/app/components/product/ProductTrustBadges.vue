@@ -5,8 +5,6 @@ import {
   RotateCcw,
   ShieldCheck,
 } from '@lucide/vue'
-import { useSiteSettings } from '~/composables/useSiteSettings'
-import { formatToman, toFa } from '~/utils/format'
 
 const { freeShippingThreshold, returnPolicyDays } = useSiteSettings()
 

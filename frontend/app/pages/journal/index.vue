@@ -1,15 +1,24 @@
 <!-- frontend/app/pages/journal/index.vue -->
 <script setup lang="ts">
-import { useJournalArticles } from '~/composables/journal/useJournalArticles'
-import JournalHeroCover from '~/components/journal/JournalHeroCover.vue'
-import JournalCategoryTabs from '~/components/journal/JournalCategoryTabs.vue'
-import JournalArticleCard from '~/components/journal/JournalArticleCard.vue'
-import JournalDigestRibbon from '~/components/journal/JournalDigestRibbon.vue'
 import { Sparkles, RefreshCw } from '@lucide/vue'
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/journal',
+    },
+  ],
+})
 
 useSeoMeta({
   title: 'ژورنال و روایات ادیتوریال | کراس',
   description: 'مجله تخصصی مد، هنر استایلینگ، دانش الیاف طبیعی و داستان دراپ‌های آتلیه کراس',
+  ogTitle: 'ژورنال و روایات ادیتوریال | کراس',
+  ogDescription: 'مجله تخصصی مد، هنر استایلینگ، دانش الیاف طبیعی و داستان دراپ‌های آتلیه کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const {

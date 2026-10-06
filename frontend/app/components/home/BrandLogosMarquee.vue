@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, FreeMode } from 'swiper/modules'
-import { useTaxonomyStore } from '~/stores/taxonomy'
 
 interface BrandItem {
   id: string

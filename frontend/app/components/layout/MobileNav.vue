@@ -10,9 +10,6 @@ import {
   Phone,
 } from '@lucide/vue'
 import { mobileNavItems, siteConfig } from '~/data'
-import { useWishlistStore } from '~/stores/wishlist'
-import { useAuthStore } from '~/stores/auth'
-import { useSiteSettings } from '~/composables/useSiteSettings'
 
 defineProps<{
   isOpen: boolean

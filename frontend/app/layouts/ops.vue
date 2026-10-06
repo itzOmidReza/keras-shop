@@ -19,10 +19,6 @@ import {
   Bell,
   LogOut,
 } from '@lucide/vue'
-import { useAuthStore } from '~/stores/auth'
-import { useOpsModals } from '~/composables/ops/useOpsModals'
-import { useAdminReviews } from '~/composables/admin/useAdminReviews'
-import OpsCommandPalette from '~/components/ops/common/OpsCommandPalette.vue'
 import type { Component } from 'vue'
 
 const authStore = useAuthStore()

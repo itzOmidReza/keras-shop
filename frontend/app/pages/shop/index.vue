@@ -1,23 +1,34 @@
 <!-- frontend/app/pages/shop/index.vue -->
 <script setup lang="ts">
 import { SlidersHorizontal } from '@lucide/vue'
-import { toFa } from '~/utils/format'
-import { Button } from '~/components/ui/button'
 import {
-  useShopCatalog,
   DEFAULT_MIN_PRICE,
   DEFAULT_MAX_PRICE,
 } from '~/composables/catalog/useShopCatalog'
-import CatalogHeader from '~/components/catalog/CatalogHeader.vue'
-import CatalogPagination from '~/components/catalog/CatalogPagination.vue'
-import FilterPanel from '~/components/catalog/FilterPanel.vue'
+
+const route = useRoute()
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: () => {
+        const page = route.query.page ? `?page=${route.query.page}` : ''
+        return `https://keras.ir/shop${page}`
+      },
+    },
+  ],
+})
 
 useSeoMeta({
   title: 'کاتالوگ و فروشگاه چهارفصل پوشاک و اکسسوری | کراس',
   description: 'مجموعه پوشاک ادیتوریال، بافت، پالتو، شومیز و اکسسوری‌های دست‌ساز چهارفصل کراس.',
+  ogTitle: 'کاتالوگ و فروشگاه چهارفصل پوشاک و اکسسوری | کراس',
+  ogDescription: 'مجموعه پوشاک ادیتوریال، بافت، پالتو، شومیز و اکسسوری‌های دست‌ساز چهارفصل کراس.',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
-
-const route = useRoute()
 
 const {
   filters,

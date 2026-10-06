@@ -19,8 +19,6 @@ import {
   RefreshCw,
   X,
 } from '@lucide/vue'
-import { useAuthStore } from '~/stores/auth'
-import { toEn, toFa } from '~/utils/format'
 import { toast } from 'vue-sonner'
 
 const props = defineProps<{

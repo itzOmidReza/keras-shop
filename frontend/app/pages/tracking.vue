@@ -1,17 +1,23 @@
 <!-- frontend/app/pages/tracking.vue -->
 <script setup lang="ts">
 import { Clock } from '@lucide/vue'
-import { useOrderTracking } from '~/composables/tracking/useOrderTracking'
-import TrackingHeroSearch from '~/components/tracking/TrackingHeroSearch.vue'
-import TrackingOrderSummaryCard from '~/components/tracking/TrackingOrderSummaryCard.vue'
-import TrackingBarcodeCard from '~/components/tracking/TrackingBarcodeCard.vue'
-import TrackingItemsList from '~/components/tracking/TrackingItemsList.vue'
-import TrackingEmptyStates from '~/components/tracking/TrackingEmptyStates.vue'
-import TrackingTimeline from '~/components/tracking/TrackingTimeline.vue'
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/tracking',
+    },
+  ],
+})
 
 useSeoMeta({
   title: 'پیگیری سفارش و رهگیری مرسولات | کراس',
   description: 'سامانه پیگیری وضعیت سفارش، مشاهده بارکد پستی ۲۴ رقمی و مراحل آماده‌سازی پوشاک ورزشی کراس',
+  ogTitle: 'پیگیری سفارش و رهگیری مرسولات | کراس',
+  ogDescription: 'سامانه پیگیری وضعیت سفارش، مشاهده بارکد پستی ۲۴ رقمی و مراحل آماده‌سازی پوشاک ورزشی کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const {

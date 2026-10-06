@@ -7,9 +7,23 @@ import {
   CheckCircle2,
 } from '@lucide/vue'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/terms',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'قوانین و مقررات خرید | کراس',
   description: 'شرایط، ضوابط خرید آنلاین، تعهدات متقابل، احراز هویت پیامکی و حقوق مصرف‌کننده در فروشگاه کراس',
+  ogTitle: 'قوانین و مقررات خرید | کراس',
+  ogDescription: 'شرایط، ضوابط خرید آنلاین، تعهدات متقابل، احراز هویت پیامکی و حقوق مصرف‌کننده در فروشگاه کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const sections = [

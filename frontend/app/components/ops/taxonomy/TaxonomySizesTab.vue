@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/taxonomy/TaxonomySizesTab.vue -->
 <script setup lang="ts">
 import { Plus, Trash2, Ruler } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
 import type { CustomSize } from '~/types/domain'
 
 const { store, sizeForm, handleCreateSize, handleDeleteSize } = useAdminTaxonomy()

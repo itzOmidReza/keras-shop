@@ -2,8 +2,6 @@
 <script setup lang="ts">
 import { ShoppingBag, Heart, Check } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { useCartStore } from '~/stores/cart'
-import { useWishlistStore } from '~/stores/wishlist'
 
 const route = useRoute()
 const { getProductBySlug, getProductReviews, getRelatedProducts } = useProducts()
@@ -25,12 +23,24 @@ if (!product.value) {
   })
 }
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: () => `https://keras.ir/products/${slug.value}`,
+    },
+  ],
+})
+
 useSeoMeta({
   title: () => `${product.value?.title || 'محصول'} | کراس`,
   description: () => product.value?.description || 'پوشاک تخصصی زنانه کراس',
   ogTitle: () => product.value?.title,
   ogDescription: () => product.value?.description,
   ogImage: () => product.value?.images?.[0]?.url,
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 if (product.value) {
@@ -281,7 +291,7 @@ const handleSizeSelectedFromGuide = (size: string) => {
     />
 
     <!-- مدال راهنمای سایز و محاسبه‌گر هوشمند فیت -->
-    <SizeGuideModal
+    <LazySizeGuideModal
       v-if="product"
       v-model:open="isSizeGuideOpen"
       :collection="product.line"

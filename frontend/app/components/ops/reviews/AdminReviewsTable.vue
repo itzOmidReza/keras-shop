@@ -12,7 +12,6 @@ import {
   ExternalLink,
   MessageSquareOff,
 } from '@lucide/vue'
-import { useAdminReviews } from '~/composables/admin/useAdminReviews'
 
 interface Props {
   reviews: ProductReview[]

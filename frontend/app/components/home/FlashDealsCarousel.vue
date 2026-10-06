@@ -11,8 +11,6 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper/types'
-import { toFa, formatToman } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
 import type { ProductListItem } from '~/types/domain'
 
 interface Props {

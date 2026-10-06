@@ -1,8 +1,6 @@
 <!-- frontend/app/components/journal/JournalShopTheStory.vue -->
 <script setup lang="ts">
 import { ShoppingBag, ArrowLeft, Check, Sparkles } from '@lucide/vue'
-import { useCartStore } from '~/stores/cart'
-import { formatToman } from '~/utils/format'
 import type { LinkedGarment } from '~/types/domain'
 
 defineProps<{

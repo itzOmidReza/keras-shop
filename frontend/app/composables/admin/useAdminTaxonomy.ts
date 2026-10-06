@@ -1,6 +1,5 @@
 // app/composables/admin/useAdminTaxonomy.ts
 import { toast } from 'vue-sonner'
-import { useTaxonomyStore } from '~/stores/taxonomy'
 import type {
   CustomColor,
   CustomSize,

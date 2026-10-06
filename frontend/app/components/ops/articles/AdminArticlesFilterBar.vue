@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/articles/AdminArticlesFilterBar.vue -->
 <script setup lang="ts">
 import { BookOpen, ExternalLink, Plus, Search } from '@lucide/vue'
-import { ADMIN_ARTICLE_CATEGORIES } from '~/composables/admin/useAdminArticles'
 import type { ArticleCategory } from '~/types/domain'
 
 defineProps<{

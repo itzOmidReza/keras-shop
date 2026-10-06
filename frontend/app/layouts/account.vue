@@ -12,15 +12,6 @@ import {
   Terminal,
   Heart,
 } from '@lucide/vue'
-import AppHeader from '~/components/layout/AppHeader.vue'
-import AppFooter from '~/components/layout/AppFooter.vue'
-import MobileNav from '~/components/layout/MobileNav.vue'
-import CartDrawer from '~/components/cart/CartDrawer.vue'
-import AuthModal from '~/components/auth/AuthModal.vue'
-import { useAuthStore } from '~/stores/auth'
-import { useWishlistStore } from '~/stores/wishlist'
-import { toFa } from '~/utils/format'
-
 const isMobileNavOpen = ref(false)
 const authStore = useAuthStore()
 const wishlistStore = useWishlistStore()
@@ -179,9 +170,10 @@ const maskedPhone = computed(() => {
                 <h2 class="text-base font-bold text-ink tracking-tight">
                   {{ authStore.user?.fullName || 'کاربر گرامی کراس' }}
                 </h2>
-                <p class="text-xs text-muted-foreground font-mono flex items-center justify-center gap-1">
+                <p class="text-xs text-muted-foreground font-mono flex items-center justify-center gap-1" :title="authStore.user?.phoneNumber">
                   <Phone class="w-3.5 h-3.5 text-sand" />
                   <span>{{ toFa(maskedPhone) }}</span>
+                  <span class="sr-only">{{ authStore.user?.phoneNumber }}</span>
                 </p>
 
                 <!-- پیوند ملایم و ظریف مدیریت آتلیه برای ادمین -->
@@ -325,7 +317,7 @@ const maskedPhone = computed(() => {
     <AppFooter />
 
     <MobileNav :is-open="isMobileNavOpen" @close="isMobileNavOpen = false" />
-    <CartDrawer />
-    <AuthModal />
+    <LazyCartDrawer />
+    <LazyAuthModal />
   </div>
 </template>

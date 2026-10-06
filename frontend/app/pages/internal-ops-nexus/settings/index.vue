@@ -11,12 +11,7 @@ import {
   AlertCircle,
   Loader2,
 } from '@lucide/vue'
-import { useSettingsStore } from '~/stores/settings'
 import type { SiteSettings } from '~/types/domain'
-import AdminSettingsShippingTab from '~/components/ops/settings/AdminSettingsShippingTab.vue'
-import AdminSettingsContactTab from '~/components/ops/settings/AdminSettingsContactTab.vue'
-import AdminSettingsBrandingTab from '~/components/ops/settings/AdminSettingsBrandingTab.vue'
-import AdminSettingsIntegrationsTab from '~/components/ops/settings/AdminSettingsIntegrationsTab.vue'
 
 definePageMeta({ layout: 'ops', middleware: ['ops-guard'] })
 useSeoMeta({ title: 'تنظیمات فروشگاه | مرکز عملیات کراس', robots: 'noindex, nofollow' })

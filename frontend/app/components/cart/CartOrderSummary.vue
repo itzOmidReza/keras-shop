@@ -6,9 +6,6 @@ import {
   ShieldCheck,
   RotateCcw,
 } from '@lucide/vue'
-import { formatToman, toFa } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
-import { useSiteSettings } from '~/composables/useSiteSettings'
 import type { CouponValidationResponse } from '~/types/domain'
 import { toast } from 'vue-sonner'
 

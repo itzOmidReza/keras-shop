@@ -14,9 +14,23 @@ import {
   Wind,
 } from '@lucide/vue'
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/fabric-standards',
+    },
+  ],
+})
+
 useSeoMeta({
   title: 'استاندارد الیاف و آزمون شفافیت | کراس',
   description: 'مشخصات فنی الیاف Move و Calm، گرماژ پارچه، آزمون اسکات ۱۰۰٪ پوشاننده و شیوه‌نامه مراقبت از منسوجات کراس',
+  ogTitle: 'استاندارد الیاف و آزمون شفافیت | کراس',
+  ogDescription: 'مشخصات فنی الیاف Move و Calm، گرماژ پارچه، آزمون اسکات ۱۰۰٪ پوشاننده و شیوه‌نامه مراقبت از منسوجات کراس',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const moveSpecs = {

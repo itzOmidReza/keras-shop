@@ -3,7 +3,6 @@ import {
   Sparkles,
   ArrowLeft,
 } from '@lucide/vue'
-import { useSettingsStore } from '~/stores/settings'
 
 const settingsStore = useSettingsStore()
 

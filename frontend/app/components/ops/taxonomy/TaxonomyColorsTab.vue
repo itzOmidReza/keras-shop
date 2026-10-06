@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/taxonomy/TaxonomyColorsTab.vue -->
 <script setup lang="ts">
 import { Plus, Trash2, Palette } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
 
 const { store, colorForm, handleCreateColor, handleDeleteColor } = useAdminTaxonomy()
 </script>

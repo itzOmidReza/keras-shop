@@ -1,13 +1,6 @@
 <!-- frontend/app/pages/internal-ops-nexus/taxonomy/index.vue -->
 <script setup lang="ts">
 import { Palette, Ruler, FolderTree, Award, Calendar, RefreshCw } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
-import TaxonomyColorsTab from '~/components/ops/taxonomy/TaxonomyColorsTab.vue'
-import TaxonomySizesTab from '~/components/ops/taxonomy/TaxonomySizesTab.vue'
-import TaxonomyCategoriesTab from '~/components/ops/taxonomy/TaxonomyCategoriesTab.vue'
-import TaxonomyBrandsTab from '~/components/ops/taxonomy/TaxonomyBrandsTab.vue'
-import TaxonomySeasonsTab from '~/components/ops/taxonomy/TaxonomySeasonsTab.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: 'ops-guard',

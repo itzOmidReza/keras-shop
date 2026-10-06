@@ -1,8 +1,6 @@
 <!-- frontend/app/components/checkout/CheckoutOrderSummary.vue -->
 <script setup lang="ts">
 import { ShieldCheck, RotateCcw, PackageCheck } from '@lucide/vue'
-import { formatToman } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
 </script>

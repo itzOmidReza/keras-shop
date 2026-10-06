@@ -1,20 +1,24 @@
 <!-- frontend/app/pages/index.vue -->
 <script setup lang="ts">
 import { siteConfig } from '~/data'
-import HeroBoutique from '~/components/home/HeroBoutique.vue'
-import FlashDealsCarousel from '~/components/home/FlashDealsCarousel.vue'
-import BentoCategoryGrid from '~/components/home/BentoCategoryGrid.vue'
-import AccessoriesCarousel from '~/components/home/AccessoriesCarousel.vue'
-import TrendingCarousel from '~/components/home/TrendingCarousel.vue'
-import ShopTheLookSlider from '~/components/home/ShopTheLookSlider.vue'
-import BrandLogosMarquee from '~/components/home/BrandLogosMarquee.vue'
-import StoreJournalGrid from '~/components/home/StoreJournalGrid.vue'
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://keras.ir/',
+    },
+  ],
+})
 
 useSeoMeta({
   title: `${siteConfig.name} | خانه مد و اکسسوری لایف‌استایل پاییز ۱۴۰۵`,
   description: 'فروشگاه تخصصی پوشاک چهارفصل و اکسسوری‌های دست‌ساز کراس؛ تلفیق وقار، سادگی و لطافت منسوجات طبیعی لینن، کشمیر و پشم مرینوس.',
   ogTitle: `${siteConfig.name} | خانه مد و اکسسوری لایف‌استایل پاییز ۱۴۰۵`,
   ogDescription: 'فروشگاه تخصصی پوشاک چهارفصل و اکسسوری‌های دست‌ساز کراس؛ تلفیق وقار، سادگی و لطافت منسوجات طبیعی لینن، کشمیر و پشم مرینوس.',
+  ogLocale: 'fa_IR',
+  ogSiteName: 'کراس | Keras',
+  twitterCard: 'summary_large_image',
 })
 
 const { getProducts } = useProducts()

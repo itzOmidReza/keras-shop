@@ -1,5 +1,4 @@
 // frontend/app/composables/useAuth.ts
-import { useAuthStore } from '~/stores/auth';
 
 /**
  * کامپوزبل اختصاصی احراز هویت و دسترسی به متدهای استور auth

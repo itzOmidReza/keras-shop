@@ -1,9 +1,5 @@
 <!-- frontend/app/pages/internal-ops-nexus/orders/index.vue -->
 <script setup lang="ts">
-import { useAdminOrders } from '~/composables/admin/useAdminOrders'
-import AdminOrdersFilterBar from '~/components/ops/orders/AdminOrdersFilterBar.vue'
-import AdminOrdersTable from '~/components/ops/orders/AdminOrdersTable.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

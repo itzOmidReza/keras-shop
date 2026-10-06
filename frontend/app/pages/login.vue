@@ -1,12 +1,6 @@
 <!-- frontend/app/pages/login.vue -->
 <script setup lang="ts">
 import { Sparkles } from '@lucide/vue'
-import { toFa } from '~/utils/format'
-import { useAuthFlow } from '~/composables/auth/useAuthFlow'
-import AuthBrandingHero from '~/components/auth/AuthBrandingHero.vue'
-import OtpPhoneStep from '~/components/auth/OtpPhoneStep.vue'
-import OtpCodeStep from '~/components/auth/OtpCodeStep.vue'
-
 useSeoMeta({
   title: 'ورود یا عضویت | استودیو مد و پوشاک کراس',
   description: 'ورود امن و سریع به باشگاه مشتریان کراس با شماره تلفن همراه و پیامک یک‌بار مصرف',

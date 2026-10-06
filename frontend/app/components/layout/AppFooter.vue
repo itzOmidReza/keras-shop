@@ -9,8 +9,6 @@ import {
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { footerSections, siteConfig } from '~/data'
-import { useSiteSettings } from '~/composables/useSiteSettings'
-import { formatToman, toFa } from '~/utils/format'
 
 const email = ref('')
 const { settings, brandNameFa, freeShippingThreshold, returnPolicyDays } = useSiteSettings()

@@ -1,7 +1,6 @@
 <!-- frontend/app/components/ops/taxonomy/TaxonomySeasonsTab.vue -->
 <script setup lang="ts">
 import { Plus, Trash2, Calendar, Sparkles, Check, X } from '@lucide/vue'
-import { useAdminTaxonomy } from '~/composables/admin/useAdminTaxonomy'
 
 const {
   store,

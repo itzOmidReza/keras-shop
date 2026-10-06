@@ -788,6 +788,22 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Integrated guest triggers and authenticated user profile menu in `AppHeader.vue` and `MobileNav.vue`.
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
+- **2026-10-06 (`chore-system-audit-overhaul`)**: `chore(audit): perform comprehensive 360-degree system overhaul, auto-import decoupling, route hardening, and publish audit report`
+  - Conducted full-system 360° architectural overhaul across all 8 core pillars:
+    - **Pure Nuxt 4 Auto-Import Migration**: Systematically purged manual runtime imports of Vue reactivity primitives (`ref`, `computed`, `reactive`, `watch`), Nuxt composables (`useRoute`, `useRouter`, `useHead`, `useSeoMeta`), Pinia stores (`useCartStore`, `useWishlistStore`, `useAuthStore`, `useSettingsStore`, `useTaxonomyStore`), and utility formatters across all pages, layouts, and components.
+    - **Nuxt Config Directory Synchronization**: Configured `imports.dirs: ['composables/**', 'utils/**', 'stores/**']`, purged redundant `stores/index.ts` barrel file to eliminate duplicated auto-import warnings, and registered `{ path: '~/components/home', pathPrefix: false }` and `{ path: '~/components/search', pathPrefix: false }`.
+    - **Route & Error Hardening**: Hardened all 38 routes against runtime edge cases; enforced 301 redirects on `/blog`, `/products`, and `/search`; safeguarded dynamic PDP and journal routes with `fatal: true` 404 boundaries and guarded Schema.org generation; completely overhauled `frontend/app/error.vue` into a quiet-luxury RTL error recovery page.
+    - **Bundle & Hydration Optimization**: Converted all heavy dialogs and drawers to `<Lazy*>` dynamic hydration imports (`<LazyAuthModal />`, `<LazyCartDrawer />`, `<LazySizeGuideModal />`, `<LazyAccountAddressModal />`, `<LazyCatalogMobileFilterSheet />`).
+    - **State Hydration & Memory Safety**: Enforced strict `import.meta.client` and `window.localStorage` guards across all 5 Pinia stores; verified teardown cleanup on intervals and listeners.
+    - **Technical SEO & Core Web Vitals**: Added normalized canonical URLs, OpenGraph `og:locale: 'fa_IR'`, `og:site_name`, and Twitter Cards across all public routes; ensured explicit aspect ratios, image decoding/loading, and `font-display: swap`.
+    - **Documentation**: Authored comprehensive audit report in `docs/system-audit-report.md`.
+  - Passed all 6 quality gates:
+    - `bun run lint:rtl` (0 physical direction violations)
+    - `bun run lint:tokens` (100% compliant design tokens, 0 raw hex violations)
+    - `bun run lint` (0 ESLint errors, 0 warnings)
+    - `bun run typecheck` (0 type errors, passed in 12.3s)
+    - `bun run test:e2e` (40/40 Playwright tests passing, 0 failures)
+    - `bun run build` (Clean 18MB Nitro server production build)
 - **2026-10-06 (`fix-account-luxury-refinement`)**: `fix(account): streamline luxury account portal, remove club bloat, fix auth modal duplicate close, and guard pdp schema`
   - Safeguarded Schema.org JSON-LD structured data in `app/pages/products/[slug].vue` inside an active `if (product.value)` guard with optional chaining on thumbnail images, completely preventing unhandled 404/SSR crashes on invalid or missing product slugs.
   - Resolved dual overlapping close icons in `app/components/auth/AuthModal.vue` by removing the manual redundant `<button>` and unused `X` icon, leaving Reka/shadcn `DialogContent`'s native accessible `DialogClose` to handle dismissal.

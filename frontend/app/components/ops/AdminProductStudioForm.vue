@@ -15,8 +15,6 @@ import {
   Loader2,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { useAdminProducts } from '~/composables/ops/useAdminProducts'
-import { useTaxonomyStore } from '~/stores/taxonomy'
 import {
   Dialog,
   DialogContent,
@@ -25,7 +23,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '~/components/ui/dialog'
-import { DEFAULT_COLOR_HEX } from '~/composables/admin/useAdminTaxonomy'
 
 const props = defineProps<{
   mode: 'new' | 'edit'

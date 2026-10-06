@@ -7,10 +7,6 @@ import {
   DialogDescription,
 } from '~/components/ui/dialog'
 import { Sparkles } from '@lucide/vue'
-import { toFa } from '~/utils/format'
-import { useAuthFlow } from '~/composables/auth/useAuthFlow'
-import OtpPhoneStep from '~/components/auth/OtpPhoneStep.vue'
-import OtpCodeStep from '~/components/auth/OtpCodeStep.vue'
 
 const {
   step,

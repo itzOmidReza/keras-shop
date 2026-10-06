@@ -11,8 +11,6 @@ import {
   Sparkles,
   Printer,
 } from '@lucide/vue'
-import { formatToman, formatDate } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
 import type { OrderReceipt } from '~/types/domain'
 
 useSeoMeta({

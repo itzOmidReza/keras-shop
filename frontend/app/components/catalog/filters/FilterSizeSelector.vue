@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useTaxonomyStore } from '~/stores/taxonomy'
 
 const props = defineProps<{
   modelValue: string[]

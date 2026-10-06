@@ -3,8 +3,6 @@
 import type { ProductListItem } from '~/types/domain'
 import { Heart } from '@lucide/vue'
 import { productLines } from '~/data'
-import { useWishlistStore } from '~/stores/wishlist'
-import { useCartStore } from '~/stores/cart'
 
 interface Props {
   product: ProductListItem

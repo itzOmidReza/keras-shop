@@ -1,7 +1,5 @@
 <!-- frontend/app/pages/checkout.vue -->
 <script setup lang="ts">
-import { useCartStore } from '~/stores/cart'
-import InlineCheckoutOtp from '~/components/checkout/InlineCheckoutOtp.vue'
 import { toast } from 'vue-sonner'
 
 useSeoMeta({

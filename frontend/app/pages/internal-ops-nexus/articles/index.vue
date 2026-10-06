@@ -1,9 +1,5 @@
 <!-- frontend/app/pages/internal-ops-nexus/articles/index.vue -->
 <script setup lang="ts">
-import { useAdminArticles } from '~/composables/admin/useAdminArticles'
-import AdminArticlesFilterBar from '~/components/ops/articles/AdminArticlesFilterBar.vue'
-import AdminArticlesTable from '~/components/ops/articles/AdminArticlesTable.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

@@ -2,9 +2,6 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { shippingAddressSchema } from '~/utils/validation'
-import { toEn } from '~/utils/format'
-import { useCartStore } from '~/stores/cart'
-import { useAuthStore } from '~/stores/auth'
 import type { ShippingMethod, PaymentMethod, OrderReceipt, UserAddress } from '~/types/domain'
 import { toast } from 'vue-sonner'
 

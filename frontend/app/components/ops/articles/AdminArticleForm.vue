@@ -16,9 +16,7 @@ import {
   Wand2,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { useAdminArticles, ADMIN_ARTICLE_CATEGORIES, PRESET_ARTICLE_COVERS } from '~/composables/admin/useAdminArticles'
 import { mockProducts } from '../../../../server/mock/products'
-import { formatToman } from '~/utils/format'
 import type { ArticleCategory, LinkedGarment } from '~/types/domain'
 
 const props = defineProps<{

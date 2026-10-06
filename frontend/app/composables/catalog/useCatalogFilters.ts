@@ -1,7 +1,5 @@
 import type { ProductDivision, ProductCategory, ProductSeason } from '~/types/domain'
 import { toast } from 'vue-sonner'
-import { toFa } from '~/utils/format'
-import { useTaxonomyStore } from '~/stores/taxonomy'
 
 export interface FilterState {
   season: ProductSeason | null

@@ -1,7 +1,5 @@
 <!-- frontend/app/pages/internal-ops-nexus/articles/[id]/edit.vue -->
 <script setup lang="ts">
-import AdminArticleForm from '~/components/ops/articles/AdminArticleForm.vue'
-
 definePageMeta({
   layout: 'ops',
   middleware: ['ops-guard'],

@@ -7,10 +7,7 @@ import {
   Trash2,
   ShoppingBag,
 } from '@lucide/vue'
-import { toFa } from '~/utils/format'
 import { getSeasonLabel } from '~/data'
-import { useWishlistStore } from '~/stores/wishlist'
-import { useCartStore } from '~/stores/cart'
 import type { WishlistItem } from '~/types/domain'
 
 useSeoMeta({

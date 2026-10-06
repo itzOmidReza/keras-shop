@@ -9,9 +9,6 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper/types'
-import { useShopTheLook } from '~/composables/home/useShopTheLook'
-import HomeLookHotspot from '~/components/home/HomeLookHotspot.vue'
-import HomeLookBundleCard from '~/components/home/HomeLookBundleCard.vue'
 
 const {
   looks,
