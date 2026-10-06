@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineNuxtConfig({
   // ۱. تنظیمات پایه پروژه و Nuxt
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   telemetry: false,
 
   typescript: {

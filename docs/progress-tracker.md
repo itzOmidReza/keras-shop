@@ -249,6 +249,25 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-06 (`feat-orders-pipeline-and-shipping`)**: `feat(orders): enhance admin fulfillment desk with pipeline status controls, automated shipping api barcode generation, and postal labels`
+  - **Dynamic Order Pipeline & Status Transition Control (`useAdminOrders.ts`)**:
+    - Implemented explicit pipeline lifecycle states: `pending` (در انتظار پرداخت / بررسی), `processing` (تاییدشده و در حال بسته‌بندی), `shipped` (تحویل به پست/تیپاکس), `delivered` (تحویل نهایی به مشتری), `canceled` (لغو شده / انصراف), `returned` (مرجوعی).
+    - Added inline status selector dropdown in both the orders table rows and the slide-over detail drawer with instant reactive toast feedback.
+    - Added comprehensive transition history and timeline event tracking with Persian timestamps, location metadata, and descriptions.
+  - **Shipping Carrier Integration & 24-Digit Barcode Automation**:
+    - Integrated multi-carrier support: شرکت ملی پست (پیشتاز), تیپاکس (Tipax), پیک اختصاصی آتلیه.
+    - Automated 24-digit barcode generation and dispatch simulation (`626019...`) automatically transitioning orders to `shipped` state.
+    - Integrated live carrier status inquiry simulation with real-time checkpoints (باجه مبدا، مرکز مبادلات، ورود به مقصد، تحویل به موزع).
+    - Added direct clickable links to Iran Post (`tracking.post.ir/?id=...`) and Tipax tracking portals.
+    - Added SMS preview card with 1-click clipboard copy of customer dispatch notification messages.
+  - **Standard A5/A6 Printable Postal Packing Slip (`AdminPackingSlipModal.vue`)**:
+    - Standardized box/parcel shipping label with high-contrast sender and recipient blocks, 10-digit individual postal code boxes, optical barcode scan lines, carrier badge, and QC contents verification table, optimized for `window.print()`.
+  - **Table Ergonomics & Multi-Criteria Filtering (`orders/index.vue`)**:
+    - Added 5 dynamic status filter tabs with live counters: «همه سفارش‌ها», «در حال آماده‌سازی», «ارسال‌شده به پست», «تحویل نهایی», «مرجوعی / لغو».
+    - Added carrier filter dropdown and multi-field search (order number, customer name, mobile, 24-digit barcode).
+  - **Quality Gates Verification**:
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), `build` (Nitro production server), and Playwright E2E suite (34 of 34 tests passed, 100% pass rate).
+
 - **2026-10-06 (`feat-journal-consolidation`)**: `feat(journal): consolidate blog into luxury journal magazine and add lean admin articles studio`
   - **Storefront Magazine Redesign & Route Consolidation**:
     - Cleanly redirected `/blog` to `/journal` with `definePageMeta({ redirect: '/journal' })` and Nitro `routeRules` 301 redirects.

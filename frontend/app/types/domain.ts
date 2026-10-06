@@ -319,7 +319,33 @@ export interface UserOrderSummary {
 // Order Tracking Subsystem Contracts (FastAPI-Ready)
 // -------------------------------------------------------------
 
-export type OrderStatus = 'registered' | 'processing' | 'handed_over' | 'delivered' | 'canceled';
+export type OrderStatus =
+  | 'pending'
+  | 'registered'
+  | 'processing'
+  | 'shipped'
+  | 'handed_over'
+  | 'delivered'
+  | 'canceled'
+  | 'returned';
+
+export type ShippingCarrierId = 'post' | 'tipax' | 'courier';
+
+export interface CarrierInquiryCheckpoint {
+  title: string;
+  location: string;
+  timestamp: string;
+  description: string;
+}
+
+export interface CarrierInquiryResult {
+  barcode: string;
+  carrierName: string;
+  status: string;
+  lastUpdate: string;
+  destination: string;
+  checkpoints: CarrierInquiryCheckpoint[];
+}
 
 export interface TrackingEvent {
   status: OrderStatus;
@@ -353,6 +379,7 @@ export interface TrackOrderResponse {
   totalAmount: number;
   postalCode?: string;
   paymentMethod?: string;
+  notes?: string;
 }
 
 export interface TrackOrderRequest {

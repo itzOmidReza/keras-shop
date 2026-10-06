@@ -4,7 +4,7 @@ import {
   Plus,
   X,
 } from '@lucide/vue'
-import { useAdminOrders } from '~/composables/ops/useAdminOrders'
+import { useAdminOrders } from '~/composables/admin/useAdminOrders'
 
 const {
   isManualOrderModalOpen,
