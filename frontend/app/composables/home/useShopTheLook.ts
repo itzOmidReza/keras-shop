@@ -40,7 +40,7 @@ export const OUTFIT_LOOKS: OutfitLook[] = [
       },
       {
         id: 12,
-        slug: 'wide-leg-autumn-linen-pants',
+        slug: 'autumn-wide-leg-linen-pants',
         title: 'شلوار واید لینن پاییزه',
         price: 1950000,
         compareAtPrice: 2350000,

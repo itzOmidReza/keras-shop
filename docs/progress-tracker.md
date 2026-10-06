@@ -266,6 +266,22 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-07 (`fix-catalog-slugs-prefetch-seo`)**: `fix(catalog): sync lookbook product slugs, resolve prefetch 404 payloads, and clean font preload warnings`
+  - **Lookbook Product Slugs Synchronization (`server/mock/products.ts`, `server/mock/articles.ts`, `useShopTheLook.ts`)**:
+    - Synchronized product slugs in `server/mock/products.ts` with home lookbook references to resolve `[NUXT_E7002] Cannot load payload` errors during automatic `<NuxtLink>` prefetching:
+      - Product #9: `long-lined-wool-fouter-coat` (synced in mock repository, lookbook, and journal articles).
+      - Product #20: `cotton-jacquard-bandana` (synced in mock repository and lookbook).
+      - Product #24: `thick-knit-wool-long-scarf` (synced in mock repository and lookbook).
+      - Product #12: `autumn-wide-leg-linen-pants` (synced in `useShopTheLook.ts`).
+    - Added resilient `SLUG_ALIASES` dictionary in `server/api/products/[slug].get.ts` to seamlessly resolve both canonical slugs and legacy aliases with zero 404s.
+  - **Unhead SEO & Twitter Tags Deprecation Cleanup**:
+    - Set `automaticTwitterTags: false` in `nuxt.config.ts` under `seo` configuration.
+    - Added `app/plugins/seo.ts` to cleanly strip deprecated `twitter:card` meta tags during `tags:beforeResolve` before Unhead's `tags:afterResolve` validation step, eliminating all `[unhead] twitter:card is deprecated` browser console warnings.
+  - **Font Preload Link Configuration**:
+    - Removed redundant manual `<link rel="preload">` entries for `Vazirmatn-Regular.woff2` and `Vazirmatn-Bold.woff2` in `nuxt.config.ts`, letting CSS `@font-face` load local fonts cleanly without preload expiration warnings.
+  - **Quality Gates**:
+    - All 6 quality gates passed with zero errors: `lint:rtl`, `lint:tokens`, `lint` (0 errors), `typecheck` (0 errors), `test:e2e` (40/40 tests passing), and `build`.
+
 - **2026-10-06 (`feat-reviews-desk`)**: `feat(reviews): implement admin reviews moderation desk, store reply workflow, and connect to pdp`
   - **Review Data Contract (`app/types/domain.ts`)**:
     - Defined `ReviewStatus`: `'pending' | 'approved' | 'rejected'`.

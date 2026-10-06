@@ -81,9 +81,10 @@ export default defineNuxtConfig({
     domains: ['images.unsplash.com'],
     provider: 'none',
   },
-  // خاموش کردن چک آنلاین فونت یا رندرهای خارجی سئو در محیط لوکال
+  // خاموش کردن چک آنلاین فونت یا رندرهای خارجی سئو در محیط لوکال و حذف تگ‌های منسوخ توییتر
   seo: {
     redirectToCanonicalSiteUrl: false,
+    automaticTwitterTags: false,
   },
 
   // ۶. قوانین رندرینگ و کش صفحات (SWR / CSR)
@@ -110,20 +111,6 @@ export default defineNuxtConfig({
       meta: [{ name: 'theme-color', content: '#FBF6F1' }],
       link: [
         { rel: 'icon', href: '/favicon.ico' },
-        {
-          rel: 'preload',
-          href: '/fonts/Vazirmatn-Regular.woff2',
-          as: 'font',
-          type: 'font/woff2',
-          crossorigin: 'anonymous',
-        },
-        {
-          rel: 'preload',
-          href: '/fonts/Vazirmatn-Bold.woff2',
-          as: 'font',
-          type: 'font/woff2',
-          crossorigin: 'anonymous',
-        },
       ],
     },
   },

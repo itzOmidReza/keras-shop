@@ -503,7 +503,7 @@ export const mockProducts: ProductDetail[] = [
   // =========================================================================
   {
     id: 9,
-    slug: 'lined-long-wool-fouter-coat',
+    slug: 'long-lined-wool-fouter-coat',
     title: 'پالتو فوتر پشمی بلند آستردار',
     brand: 'toteme',
     division: 'apparel',
@@ -1157,7 +1157,7 @@ export const mockProducts: ProductDetail[] = [
   // =========================================================================
   {
     id: 20,
-    slug: 'cotton-jacquard-bandana-headband',
+    slug: 'cotton-jacquard-bandana',
     title: 'دستمال سر ژاکارد نخ پنبه',
     brand: 'zara',
     division: 'accessories',
@@ -1366,7 +1366,7 @@ export const mockProducts: ProductDetail[] = [
   },
   {
     id: 24,
-    slug: 'chunky-knit-long-wool-scarf',
+    slug: 'thick-knit-wool-long-scarf',
     title: 'شال بلند پشمی بافت ضخیم',
     brand: 'massimo-dutti',
     division: 'accessories',

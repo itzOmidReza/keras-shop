@@ -39,7 +39,7 @@ export const mockArticles: JournalArticle[] = [
     linkedProductSlugs: [
       'karen-slub-linen-blouse',
       'fluffy-turtleneck-knit-sweater',
-      'lined-long-wool-fouter-coat',
+      'long-lined-wool-fouter-coat',
     ],
     linkedProducts: [
       {
@@ -61,7 +61,7 @@ export const mockArticles: JournalArticle[] = [
       {
         id: 9,
         title: 'پالتو فوتر پشمی بلند آستردار',
-        slug: 'lined-long-wool-fouter-coat',
+        slug: 'long-lined-wool-fouter-coat',
         price: 4650000,
         image: 'https://images.unsplash.com/photo-1544923246-77307dd654cb?auto=format&fit=crop&w=800&q=80',
         badge: 'دست‌دوز',
