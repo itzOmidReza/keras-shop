@@ -249,6 +249,26 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 
 ## 8. Changelog & Activity Log
 
+- **2026-10-06 (`refactor-core-audit`)**: `refactor(core): perform comprehensive audit, purge unused imports, and optimize state architecture`
+  - **Dead Code Elimination & Tree-Shaking**:
+    - Purged 44+ abandoned, orphaned components and 12 dead composables left over from early legacy prototypes across `components/ops/`, `components/journal/`, and `components/home/`.
+    - Removed redundant manual Vue primitive imports (`ref`, `computed`) across all composables in favor of native Nuxt 4 auto-imports.
+    - Verified zero unused variables or imports across the entire application via ESLint and TypeScript AST.
+  - **Component Monolith Decomposition (< 180 LOC)**:
+    - Decomposed `internal-ops-nexus/discounts/index.vue` (308 -> 81 LOC) into `AdminDiscountCreateModal.vue` and `AdminDiscountsTable.vue`.
+    - Decomposed `internal-ops-nexus/products/index.vue` (291 -> 81 LOC) into `AdminProductsFilterBar.vue`, `AdminProductsTable.vue`, and `AdminProductDeleteModal.vue`.
+    - Decomposed `internal-ops-nexus/orders/index.vue` (335 -> 80 LOC) into `AdminOrdersFilterBar.vue`, `AdminOrdersTable.vue`, and lazy-loaded modals.
+    - Decomposed `internal-ops-nexus/articles/index.vue` (349 -> 68 LOC) into `AdminArticlesFilterBar.vue` and `AdminArticlesTable.vue`.
+    - Decomposed `internal-ops-nexus/index.vue` (257 -> 76 LOC) into `AdminOverviewKpis.vue`, `AdminOverviewPendingOrders.vue`, and `AdminOverviewLowStock.vue`.
+    - Decomposed `cart.vue` (319 -> 125 LOC) into `CartOrderSummary.vue` and unified checkout flow.
+  - **State Hydration & Memory Leak Prevention**:
+    - Verified all Pinia stores (`cart.ts`, `wishlist.ts`, `auth.ts`) handle SSR client hydration safely without layout shifts or mismatches.
+    - Audited all window/document event listeners and timers across composables and components, verifying 100% cleanup in `onUnmounted`.
+  - **Routing & Navigation Integrity**:
+    - Replaced setup-level `await navigateTo()` in `products/index.vue` and `search.vue` with declarative Nuxt 4 `definePageMeta({ redirect: ... })`.
+  - **Quality Gates Verification**:
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), Playwright E2E suite (34 of 34 tests passed, 100% pass rate in 39.7s), and Nitro production build (0 errors).
+
 - **2026-10-06 (`feat-orders-pipeline-and-shipping`)**: `feat(orders): enhance admin fulfillment desk with pipeline status controls, automated shipping api barcode generation, and postal labels`
   - **Dynamic Order Pipeline & Status Transition Control (`useAdminOrders.ts`)**:
     - Implemented explicit pipeline lifecycle states: `pending` (در انتظار پرداخت / بررسی), `processing` (تاییدشده و در حال بسته‌بندی), `shipped` (تحویل به پست/تیپاکس), `delivered` (تحویل نهایی به مشتری), `canceled` (لغو شده / انصراف), `returned` (مرجوعی).

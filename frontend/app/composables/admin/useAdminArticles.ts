@@ -1,5 +1,4 @@
 // frontend/app/composables/admin/useAdminArticles.ts
-import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import { sharedJournalArticles } from '~/composables/journal/useJournalArticles'
 import type { JournalArticle, ArticleCategory, LinkedGarment } from '~/types/domain'

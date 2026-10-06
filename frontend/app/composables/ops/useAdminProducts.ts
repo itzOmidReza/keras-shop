@@ -1,5 +1,4 @@
 // frontend/app/composables/ops/useAdminProducts.ts
-import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import { mockProducts } from '../../../server/mock/products'
 import type { ProductDetail, ProductCategory, Variant } from '~/types/domain'

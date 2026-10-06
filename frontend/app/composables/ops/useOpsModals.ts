@@ -1,5 +1,4 @@
 // frontend/app/composables/ops/useOpsModals.ts
-import { ref } from 'vue'
 
 const is2FaOpen = ref(false)
 const isSessionsOpen = ref(false)

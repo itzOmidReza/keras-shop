@@ -1,5 +1,4 @@
 // frontend/app/composables/ops/useAdminDiscounts.ts
-import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 
 export interface AdminDiscountCoupon {

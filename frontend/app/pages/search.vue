@@ -1,12 +1,11 @@
+<!-- frontend/app/pages/search.vue -->
 <script setup lang="ts">
-const route = useRoute()
-await navigateTo(
-  {
+definePageMeta({
+  redirect: to => ({
     path: '/shop',
-    query: route.query,
-  },
-  { replace: true },
-)
+    query: to.query,
+  }),
+})
 </script>
 
 <template>

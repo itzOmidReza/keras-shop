@@ -1,5 +1,4 @@
 // frontend/app/composables/journal/useJournalArticles.ts
-import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import { mockArticles } from '../../../server/mock/articles'
 import type { JournalArticle } from '~/types/domain'

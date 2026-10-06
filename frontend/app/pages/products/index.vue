@@ -1,5 +1,8 @@
+<!-- frontend/app/pages/products/index.vue -->
 <script setup lang="ts">
-await navigateTo('/shop', { replace: true })
+definePageMeta({
+  redirect: '/shop',
+})
 </script>
 
 <template>
