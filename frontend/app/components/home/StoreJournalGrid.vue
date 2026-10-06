@@ -62,7 +62,7 @@ const articles: JournalArticle[] = [
     image:
       'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'استایل اسکارف ابریشمی ظریف روی مو و گردن',
-    slug: 'silk-scarf-and-bandana-manifesto',
+    slug: 'silk-scarf-minimalist-styling',
   },
 ]
 </script>
@@ -103,7 +103,7 @@ const articles: JournalArticle[] = [
         >
           <div>
             <!-- تصویر شاخص مقاله با زوم روان هاور -->
-            <div class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-sand/30 mb-4">
+            <NuxtLink :to="`/journal/${article.slug}`" class="block relative overflow-hidden rounded-2xl aspect-[16/10] bg-sand/30 mb-4">
               <img
                 :src="article.image"
                 :alt="article.imageAlt"
@@ -118,7 +118,7 @@ const articles: JournalArticle[] = [
               >
                 {{ article.category }}
               </span>
-            </div>
+            </NuxtLink>
 
             <!-- متادیتای تاریخ و زمان مطالعه -->
             <div class="flex items-center gap-3 text-[11px] text-muted-foreground mb-2.5">
@@ -135,7 +135,7 @@ const articles: JournalArticle[] = [
 
             <!-- عنوان مقاله -->
             <h3 class="text-base sm:text-lg font-bold text-ink group-hover:text-rose transition-colors leading-snug mb-2 text-start">
-              <NuxtLink to="/journal">
+              <NuxtLink :to="`/journal/${article.slug}`">
                 {{ article.title }}
               </NuxtLink>
             </h3>
@@ -154,7 +154,7 @@ const articles: JournalArticle[] = [
             </span>
 
             <NuxtLink
-              to="/journal"
+              :to="`/journal/${article.slug}`"
               class="text-xs font-bold text-ink group-hover:text-rose transition-colors inline-flex items-center gap-1"
             >
               <span>ادامه مطالعه</span>

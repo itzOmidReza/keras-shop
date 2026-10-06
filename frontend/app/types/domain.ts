@@ -430,4 +430,49 @@ export interface PaymentSessionInfo {
   status: 'pending' | 'settled' | 'failed' | 'cancelled';
 }
 
+// -------------------------------------------------------------
+// Journal & Editorial Article Contracts
+// -------------------------------------------------------------
 
+export type ArticleCategory = 'style-guide' | 'fabric-care' | 'drop-story';
+
+export interface ArticleAuthor {
+  name: string;
+  role: string;
+  avatar?: string;
+}
+
+export interface LinkedGarment {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  image: string;
+  badge?: string;
+}
+
+export interface ArticleSection {
+  heading?: string;
+  content: string;
+  pullQuote?: string;
+  image?: string;
+  imageCaption?: string;
+}
+
+export interface JournalArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category: ArticleCategory;
+  categoryLabel: string;
+  readTime: string;
+  date: string;
+  author: ArticleAuthor;
+  coverImage: string;
+  excerpt: string;
+  featured?: boolean;
+  status: 'published' | 'draft';
+  sections: ArticleSection[];
+  linkedProductSlugs?: string[];
+  linkedProducts?: LinkedGarment[];
+}

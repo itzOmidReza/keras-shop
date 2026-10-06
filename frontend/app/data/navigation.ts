@@ -5,7 +5,7 @@ export const headerNav = [
   { label: 'اکسسوری', href: '/shop?division=accessories' },
   { label: 'حراج فصل', href: '/shop?badge=sale' },
   { label: 'راهنمای سایز', href: '/size-guide' },
-  { label: 'مجله کراس', href: '/blog' },
+  { label: 'ژورنال و مقالات', href: '/journal' },
 ] as const
 
 export const mobileNavItems = [
@@ -15,7 +15,7 @@ export const mobileNavItems = [
   { label: 'حراج فصل', href: '/shop?badge=sale', badge: 'تخفیف' },
   { label: 'همه محصولات کاتالوگ', href: '/shop', badge: null },
   { label: 'راهنمای اندازه‌گیری و سایز', href: '/size-guide', badge: null },
-  { label: 'مجله و بلاگ تخصصی کراس', href: '/blog', badge: null },
+  { label: 'ژورنال ادیتوریال کراس', href: '/journal', badge: null },
 ] as const
 
 export const footerSections = {
@@ -47,7 +47,7 @@ export const footerSections = {
     links: [
       { label: 'داستان کراس', href: '/about' },
       { label: 'تست شفافیت و کیفیت الیاف', href: '/fabric-standards' },
-      { label: 'مجله استایل و تمرین', href: '/blog' },
+      { label: 'ژورنال و مقالات استایل', href: '/journal' },
       { label: 'فرصت‌های شغلی', href: '/careers' },
     ],
   },

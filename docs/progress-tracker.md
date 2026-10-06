@@ -75,8 +75,8 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 | 17  | `/returns`            | `app/pages/returns.vue`                  | **Complete** |  290  | 7-day guarantee cards, 3-step visual return workflow, permitted vs forbidden hygiene checklist, return FAQ, concierge CTA                                                                                                                                                                                                                                                  | Automated return label generator           |
 | 18  | `/terms`              | `app/pages/terms.vue`                    | **Complete** |  157  | 7 structured legal clauses (Definitions, SMS OTP, Pricing, Shipping, 7-day returns, IP rights, Dispute resolution)                                                                                                                                                                                                                                                         | PDF download option                        |
 | 19  | `/privacy`            | `app/pages/privacy.vue`                  | **Complete** |  177  | 4 comprehensive privacy articles (Data collection, Shaparak IPG security, cookie/session policy, user rights & data purging)                                                                                                                                                                                                                                               | GDPR/Iranian data export portal            |
-| 20  | `/blog`               | `app/pages/blog.vue`                     | **Complete** |  62   | Lean magazine orchestrator (`useBlogArticles`) with hero, featured article card, responsive article grid, and newsletter section                                                                                                                                                                                                                                           | Dynamic CMS integration                    |
-| 21  | `/journal`            | `app/pages/journal.vue`                  | **Complete** |  46   | Lean lookbook orchestrator (`useJournalLookbook`) with hero, curated lookbook grid, manifesto block, and lazy image lightbox modal                                                                                                                                                                                                                                         | Dynamic lookbook CMS                       |
+| 20  | `/blog`               | `app/pages/blog.vue`                     | **Redirect** |   7   | Clean redirect to `/journal` (`definePageMeta({ redirect: '/journal' })`)                                                                                                                                                                                                                                                                  | None (intended architectural redirect)     |
+| 21  | `/journal`            | `app/pages/journal/index.vue`            | **Complete** |  74   | Unified publication-grade editorial magazine (`/journal`) with Hero Cover Story, minimalist category tabs, 4:5 editorial card grid, Atelier Digest ribbon, and dedicated reader page (`/journal/[slug].vue`) with reading progress bar and "Shop the Story" cross-sell | Live CMS publishing                       |
 | 22  | `/fabric-standards`   | `app/pages/fabric-standards.vue`         | **Complete** |  404  | Move (300 GSM) vs Calm (220 GSM) technical spec breakdown, visual performance meters, Squat-proof 300% lab testing protocol, wash & care tips                                                                                                                                                                                                                              | Interactive 3D textile viewer              |
 | 23  | `/careers`            | `app/pages/careers.vue`                  | **Complete** |  59   | Lean careers orchestrator (`useCareers`) with hero, culture pillars showcase, open roles accordion grid, and lazy application modal                                                                                                                                                                                                                                        | Greenhouse / Lever API ATS integration     |
 | 24  | `/checkout/gateway`   | `app/pages/checkout/gateway.vue`         | **Complete** |  78   | Lean payment gateway orchestrator (`useShaparakGateway`) with header, merchant info card, 4-slot card form, and dev simulation toolbar                                                                                                                                                                                                                                     | Live banking switch API connection         |
@@ -248,6 +248,29 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 ---
 
 ## 8. Changelog & Activity Log
+
+- **2026-10-06 (`feat-journal-consolidation`)**: `feat(journal): consolidate blog into luxury journal magazine and add lean admin articles studio`
+  - **Storefront Magazine Redesign & Route Consolidation**:
+    - Cleanly redirected `/blog` to `/journal` with `definePageMeta({ redirect: '/journal' })` and Nitro `routeRules` 301 redirects.
+    - Updated navigation links across header and footer to direct users to the luxury editorial magazine.
+    - Decommissioned obsolete duplicate blog components and composables in favor of unified `useJournalArticles.ts`.
+    - Engineered unified luxury magazine storefront at `/journal` featuring:
+      - **Hero Cover Story** (`JournalHeroCover.vue`): High-impact visual editorial cover story card with title, author info, and reading time.
+      - **Minimalist Category Tabs** (`JournalCategoryTabs.vue`): Fast category filtering across «همه», «راهنمای استایل», «نگهداری الیاف لوکس», «داستان دراپ و کالکشن», plus search bar.
+      - **Editorial Card Grid** (`JournalArticleCard.vue`): High-fashion cards in 4:5 portrait aspect ratio with hover zoom, tags, publication date, and reading time.
+      - **Atelier Digest Ribbon** (`JournalDigestRibbon.vue`): Newsletter subscription ribbon with validation and toast notifications.
+    - Built dedicated article reader page at `/journal/[slug].vue`:
+      - Sticky reading progress bar (`h-1 bg-rose`).
+      - Full-bleed image breaks, editorial pull-quotes, and high-readability Vazirmatn typography.
+      - **Shop the Story / محصولات این استایل** (`JournalShopTheStory.vue`): Integrated cross-sell widget displaying products mentioned in the article with 1-click add-to-cart (`useCartStore`) and PDP links.
+  - **Lean Admin Articles Studio (`/internal-ops-nexus/articles`)**:
+    - Added 5th pillar **«مجله و مقالات»** (`/internal-ops-nexus/articles`) with `BookOpen` icon to admin sidebar, breadcrumbs, and command palette (`⌘K`).
+    - Implemented articles list workspace (`articles/index.vue`) with search, category/status filters, published/draft status toggle, and action buttons.
+    - Created unified article editor (`AdminArticleForm.vue`) used by `articles/new.vue` and `articles/[id]/edit.vue` supporting metadata, cover preview with atelier presets, slug auto-generation, excerpt, full body, pull quotes, and linked garments selector.
+    - Engineered `useAdminArticles.ts` with full CRUD and shared reactive state with storefront journal.
+    - Added Nitro mock API endpoints (`/api/articles` and `/api/articles/[slug]`).
+  - **Quality Gates Verification**:
+    - Passed all 6 quality gates: `lint:rtl` (0 errors), `lint:tokens` (0 errors), `lint` (0 errors), `typecheck` (0 errors), `build` (Nitro production server), and Playwright E2E suite (34 of 34 tests passed, 100% pass rate).
 
 - **2026-10-06 (`feat-ops-lean-purge`)**: `feat(ops): purge over-engineered modules and establish clean 4-pillar apparel backoffice`
   - **Decisive Over-Engineering Purge**:

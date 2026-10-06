@@ -5,6 +5,7 @@ import {
   Shirt,
   Package,
   Tag,
+  BookOpen,
   Lock,
   ExternalLink,
   ChevronRight,
@@ -77,6 +78,13 @@ const navItems: NavItem[] = [
     testId: 'ops-nav-discounts',
     legacyTestId: 'tab-view-vouchers',
   },
+  {
+    id: 'articles',
+    title: 'مجله و مقالات',
+    path: '/internal-ops-nexus/articles',
+    icon: BookOpen,
+    testId: 'ops-nav-articles',
+  },
 ]
 
 const isItemActive = (item: NavItem) => {
@@ -108,6 +116,15 @@ const breadcrumb = computed(() => {
   }
   if (path.startsWith('/internal-ops-nexus/discounts')) {
     return 'تخفیف‌ها و کوپن‌ها'
+  }
+  if (path === '/internal-ops-nexus/articles/new') {
+    return 'مجله و مقالات / نگارش مقاله جدید'
+  }
+  if (path.startsWith('/internal-ops-nexus/articles/') && path.endsWith('/edit')) {
+    return 'مجله و مقالات / ویرایش مقاله'
+  }
+  if (path.startsWith('/internal-ops-nexus/articles')) {
+    return 'مجله و مقالات'
   }
   return 'پیشخوان و آمار'
 })

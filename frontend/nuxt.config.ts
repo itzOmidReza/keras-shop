@@ -52,7 +52,6 @@ export default defineNuxtConfig({
     { path: '~/components/account', pathPrefix: false },
     { path: '~/components/gateway', pathPrefix: false },
     { path: '~/components/careers', pathPrefix: false },
-    { path: '~/components/blog', pathPrefix: false },
     { path: '~/components/journal', pathPrefix: false },
     { path: '~/components/tracking', pathPrefix: false },
     { path: '~/components/auth', pathPrefix: false },
@@ -91,6 +90,8 @@ export default defineNuxtConfig({
     '/shop/**': { swr: 300 },
     '/products/**': { swr: 300 }, // تغییر از /p/** به مسیر جدید سئو
     '/products': { redirect: { to: '/shop', statusCode: 301 } },
+    '/blog': { redirect: { to: '/journal', statusCode: 301 } },
+    '/blog/**': { redirect: { to: '/journal', statusCode: 301 } },
 
     '/cart': { ssr: false, robots: false },
     '/checkout': { ssr: false, robots: false },
