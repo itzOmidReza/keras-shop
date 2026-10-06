@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   ArrowLeft,
   Sparkles,
+  Printer,
 } from '@lucide/vue'
 import { formatToman, formatDate } from '~/utils/format'
 import { useCartStore } from '~/stores/cart'
@@ -23,6 +24,12 @@ const route = useRoute()
 const cartStore = useCartStore()
 const order = ref<OrderReceipt | null>(null)
 const rrn = ref<string | null>(null)
+
+const handlePrintReceipt = () => {
+  if (import.meta.client) {
+    window.print()
+  }
+}
 
 onMounted(() => {
   order.value = cartStore.getLastOrderReceipt()
@@ -67,7 +74,7 @@ onMounted(() => {
 <template>
   <div class="container mx-auto px-4 py-8 lg:py-16 max-w-4xl">
     <!-- حالت وجود اطلاعات سفارش -->
-    <div v-if="order" class="space-y-8">
+    <div v-if="order" class="space-y-8 print:hidden">
       <!-- هدر تایید و شماره سفارش -->
       <div class="text-center space-y-4">
         <div class="w-16 h-16 rounded-full bg-sage/15 text-sage mx-auto flex items-center justify-center shadow-xs">
@@ -227,8 +234,17 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- دکمه‌های اکشن بازگشت -->
+      <!-- دکمه‌های اکشن بازگشت و چاپ -->
       <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button
+          type="button"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-ink/20 bg-ink hover:bg-ink/90 text-white font-bold text-xs h-11 px-6 rounded-xl shadow-xs transition-all cursor-pointer"
+          @click="handlePrintReceipt"
+        >
+          <Printer class="w-4 h-4" />
+          <span>چاپ یا ذخیره فاکتور رسمی</span>
+        </button>
+
         <NuxtLink
           to="/shop"
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-rose text-white hover:bg-rose/90 font-bold text-xs h-11 px-8 rounded-xl shadow-xs transition-all"
@@ -243,6 +259,113 @@ onMounted(() => {
         >
           <span>پیگیری سفارش با کد رهگیری</span>
         </NuxtLink>
+      </div>
+    </div>
+
+    <!-- برگه فاکتور چاپی رسمی (مخصوص پرینت / PDF) -->
+    <div
+      v-if="order"
+      class="hidden print:block font-sans text-black bg-white p-4 space-y-5"
+    >
+      <!-- سربرگ رسمی فاکتور -->
+      <div class="border-b-2 border-black pb-4 flex items-start justify-between">
+        <div class="space-y-1">
+          <div class="text-lg font-black tracking-tight">آتلیه تخصصی پوشاک ورزشی کراس (KERAS)</div>
+          <div class="text-xs text-slate-700">صورت‌حساب فروش کالا و خدمات الکترونیکی</div>
+          <div class="text-[11px] text-slate-600">تهران، خیابان فرشته، پلاک ۲۴ • وب‌سایت: keras.ir • تلفن: ۰۲۱-۲۲۰۱۸۸۹۹</div>
+        </div>
+
+        <div class="text-end space-y-1 text-xs">
+          <div><span class="text-slate-600">شماره فاکتور / سفارش:</span> <span class="font-mono font-bold">{{ order.orderNumber }}</span></div>
+          <div><span class="text-slate-600">تاریخ صدور:</span> <span class="font-bold">{{ formatDate(order.createdAt) }}</span></div>
+          <div v-if="rrn"><span class="text-slate-600">کد رهگیری بانکی (RRN):</span> <span class="font-mono font-bold">{{ rrn }}</span></div>
+        </div>
+      </div>
+
+      <!-- مشخصات خریدار و تحویل‌گیرنده -->
+      <div class="border border-black rounded-lg p-3 text-xs space-y-2 bg-slate-50/50">
+        <div class="font-bold border-b border-slate-300 pb-1 text-slate-800">مشخصات خریدار و نشانی مقصد تحویل</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div><span class="text-slate-600">نام و نام خانوادگی:</span> <span class="font-bold">{{ order.shippingAddress.fullName }}</span></div>
+          <div><span class="text-slate-600">شماره تماس:</span> <span class="font-bold font-mono">{{ order.shippingAddress.phoneNumber }}</span></div>
+          <div><span class="text-slate-600">کد پستی:</span> <span class="font-mono font-bold">{{ order.shippingAddress.postalCode }}</span></div>
+        </div>
+        <div class="pt-1">
+          <span class="text-slate-600">نشانی کامل:</span>
+          <span>{{ order.shippingAddress.province }}، {{ order.shippingAddress.city }}، {{ order.shippingAddress.exactAddress }}</span>
+        </div>
+        <div class="pt-1 flex items-center justify-between text-[11px] text-slate-600">
+          <div>شیوه ارسال: {{ order.shippingMethod === 'express' ? 'پیک اختصاصی فوری تهران' : 'پست پیشتاز سراسری' }}</div>
+          <div>شیوه پرداخت: {{ order.paymentMethod === 'online_gateway' ? 'درگاه پرداخت شاپرک (تسویه آنلاین)' : 'کارت به کارت' }}</div>
+        </div>
+      </div>
+
+      <!-- جدول اقلام خریداری شده -->
+      <div class="border border-black rounded-lg overflow-hidden">
+        <table class="w-full text-xs text-start border-collapse">
+          <thead>
+            <tr class="bg-slate-100 border-b border-black text-slate-900 font-bold">
+              <th class="p-2 text-center w-10">ردیف</th>
+              <th class="p-2 text-start">شرح کالا / مشخصات</th>
+              <th class="p-2 text-center w-16">سایز</th>
+              <th class="p-2 text-center w-16">رنگ</th>
+              <th class="p-2 text-center w-14">تعداد</th>
+              <th class="p-2 text-end w-28">قیمت واحد (تومان)</th>
+              <th class="p-2 text-end w-28">مبلغ کل (تومان)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y border-slate-300">
+            <tr v-for="(item, idx) in order.items" :key="item.id" class="text-slate-800">
+              <td class="p-2 text-center font-mono">{{ idx + 1 }}</td>
+              <td class="p-2 font-bold">{{ item.title }}</td>
+              <td class="p-2 text-center font-mono">{{ item.size }}</td>
+              <td class="p-2 text-center">{{ item.color || '-' }}</td>
+              <td class="p-2 text-center font-mono">{{ item.quantity }}</td>
+              <td class="p-2 text-end font-mono">{{ formatToman(item.price) }}</td>
+              <td class="p-2 text-end font-mono font-bold">{{ formatToman(item.price * item.quantity) }}</td>
+            </tr>
+            <tr v-if="order.items.length === 0">
+              <td colspan="7" class="p-4 text-center text-slate-500">اقلام ثبت‌شده در سفارش</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- خلاصه مالی و توضیحات پرداخت -->
+      <div class="flex items-start justify-between gap-6 pt-2">
+        <div class="space-y-1.5 text-xs text-slate-600 max-w-sm">
+          <p class="font-bold text-slate-800">شرایط و خدمات پس از فروش:</p>
+          <ul class="list-disc list-inside space-y-1 text-[11px] leading-relaxed">
+            <li>کلیه کالاهای برند کراس شامل ضمانت اصالت پارچه و دوخت آتلیه می‌باشند.</li>
+            <li>امکان تعویض یا مرجوعی کالا تا ۷ روز پس از تحویل طبق ضوابط فروشگاه فراهم است.</li>
+            <li>جهت پشتیبانی با شماره ۰۲۱-۲۲۰۱۸۸۹۹ تماس حاصل فرمایید.</li>
+          </ul>
+        </div>
+
+        <div class="border border-black rounded-lg p-3 min-w-64 space-y-2 text-xs bg-slate-50/50">
+          <div class="flex items-center justify-between text-slate-700">
+            <span>جمع کل اقلام:</span>
+            <span class="font-mono font-bold">{{ formatToman(order.subtotal) }} تومان</span>
+          </div>
+          <div v-if="order.discount > 0" class="flex items-center justify-between text-slate-700">
+            <span>تخفیف:</span>
+            <span class="font-mono font-bold">{{ formatToman(order.discount) }}- تومان</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-700">
+            <span>هزینه بسته‌بندی و ارسال:</span>
+            <span class="font-mono font-bold">{{ order.shippingCost === 0 ? 'رایگان' : formatToman(order.shippingCost) + ' تومان' }}</span>
+          </div>
+          <div class="border-t border-black pt-2 flex items-center justify-between font-bold text-sm text-black">
+            <span>مبلغ نهایی پرداخت شده:</span>
+            <span class="font-mono">{{ formatToman(order.finalTotal) }} تومان</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- امضا و تاییدیه رسمی -->
+      <div class="border-t border-slate-300 pt-6 flex items-center justify-between text-xs text-slate-600">
+        <div>مهر و امضای فروشنده: آتلیه طراحی و تولید کراس</div>
+        <div>امضا و تایید خریدار: .......................................</div>
       </div>
     </div>
 

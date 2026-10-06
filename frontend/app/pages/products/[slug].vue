@@ -25,6 +25,47 @@ if (!product.value) {
   })
 }
 
+useSeoMeta({
+  title: () => `${product.value?.title || 'محصول'} | کراس`,
+  description: () => product.value?.description || 'پوشاک تخصصی زنانه کراس',
+  ogTitle: () => product.value?.title,
+  ogDescription: () => product.value?.description,
+  ogImage: () => product.value?.images[0]?.url,
+})
+
+useSchemaOrg([
+  defineBreadcrumb({
+    itemListElement: [
+      { name: 'صفحه اصلی', item: '/' },
+      { name: 'فروشگاه', item: '/shop' },
+      { name: product.value?.title || '', item: `/products/${slug.value}` },
+    ],
+  }),
+  defineProduct({
+    name: product.value?.title,
+    description: product.value?.description,
+    image: product.value?.images?.map((img) => img.url),
+    offers: [
+      {
+        price: product.value?.base_price,
+        priceCurrency: 'IRR',
+        availability: product.value?.inStock
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      },
+    ],
+    brand: {
+      name: 'کراس',
+    },
+    aggregateRating: product.value?.rating
+      ? {
+          ratingValue: product.value.rating,
+          reviewCount: product.value.reviewCount || 1,
+        }
+      : undefined,
+  }),
+])
+
 // واکشی موازی دیدگاه‌ها و محصولات مرتبط
 const { data: reviewsData } = await useAsyncData(
   `product-reviews-${slug.value}`,

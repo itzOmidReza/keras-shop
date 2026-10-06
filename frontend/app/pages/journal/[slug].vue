@@ -24,6 +24,26 @@ useSeoMeta({
   ogImage: () => article.value?.coverImage,
 })
 
+useSchemaOrg([
+  defineBreadcrumb({
+    itemListElement: [
+      { name: 'صفحه اصلی', item: '/' },
+      { name: 'ژورنال', item: '/journal' },
+      { name: article.value?.title || '', item: `/journal/${slug.value}` },
+    ],
+  }),
+  defineArticle({
+    headline: article.value?.title,
+    description: article.value?.excerpt,
+    image: article.value?.coverImage,
+    datePublished: article.value?.date,
+    author: {
+      name: article.value?.author?.name,
+      jobTitle: article.value?.author?.role,
+    },
+  }),
+])
+
 // نوار پیشرفت مطالعه بالای صفحه
 const scrollPercent = ref(0)
 

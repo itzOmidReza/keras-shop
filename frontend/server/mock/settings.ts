@@ -50,6 +50,22 @@ export const defaultSiteSettings: SiteSettings = {
     smsProviderSender: '30007788',
     smsProviderBalance: 125000,
   },
+  homeHero: {
+    badgeText: 'طراحی اختصاصی • تیراژ محدود پاییز ۱۴۰۵',
+    titlePrefix: 'استایل منحصربه‌فرد',
+    titleHighlight: 'پاییز',
+    titleSuffix: 'خود را بسازید',
+    description: 'تلفیق پارچه‌های الیاف طبیعی، بافت‌های مرینوس و ابریشم خالص با الگوهای مدرن برای بانوان آگاه.',
+    primaryCtaText: 'مشاهده کالکشن پاییز',
+    primaryCtaLink: '/shop?season=fall-1405',
+    secondaryCtaText: 'اکسسوری و شال‌ها',
+    secondaryCtaLink: '/shop?division=accessories',
+    bottomBadgeText: 'کالکشن دست‌دوز استودیو کراس • نسخه محدود پاییز ۱۴۰۵',
+    imageUrl: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'مدل کالکشن پاییز ۱۴۰۵ کراس با پالتوی پشمی و بافت لوکس',
+    imageBadgeLabel: 'طراحی کپسولی',
+    imageBadgeValue: 'پاییز ۱۴۰۵ • Fall Drop',
+  },
   updatedAt: new Date().toISOString(),
 }
 

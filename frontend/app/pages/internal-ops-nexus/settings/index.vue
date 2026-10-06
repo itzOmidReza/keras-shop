@@ -83,7 +83,11 @@ const handleReset = async () => {
         <AdminSettingsContactTab v-model:contact="form.contact" v-model:social="form.social" />
       </TabsContent>
       <TabsContent value="branding">
-        <AdminSettingsBrandingTab v-model:branding="form.branding" v-model:integrations="form.integrations" />
+        <AdminSettingsBrandingTab
+          v-model:branding="form.branding"
+          v-model:integrations="form.integrations"
+          v-model:home-hero="form.homeHero"
+        />
       </TabsContent>
       <TabsContent value="integrations">
         <AdminSettingsIntegrationsTab v-model:branding="form.branding" v-model:integrations="form.integrations" />

@@ -172,10 +172,10 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
 - [x] `GET /api/checkout/payment/session`: Gateway session details and transaction amount retrieval
 - [x] `POST /api/checkout/payment/verify`: Shaparak callback verification, 12-digit RRN issuance, and order settlement
 - [x] `GET /api/settings`: Read dynamic store settings
-- [x] `PUT /api/settings`: Update store settings with deep merge
-- [ ] `GET /api/orders/[orderNumber]` **(Missing)**: Order lookup endpoint
-
----
+- [x] `GET /api/orders/[orderNumber]`: Order lookup endpoint by order code, tracking number, or phone
+- [x] `GET /sitemap.xml`: Dynamic XML sitemap generator with static routes, active products, and published articles
+- [x] `GET /robots.txt`: Search crawler directives with sitemap pointer and backoffice protection
+- [x] Schema.org JSON-LD Structured Data: Organization, WebSite, Product, Article, and BreadcrumbList schemas
 
 ## 5. Prioritized Actionable Backlog
 
@@ -788,6 +788,12 @@ An exhaustive inventory of every page file currently in `frontend/app/pages/`:
   - Integrated guest triggers and authenticated user profile menu in `AppHeader.vue` and `MobileNav.vue`.
   - Built full editorial `/account` dashboard with Overview (KPI cards & recent order snapshot), Orders history with status chips, Address Book with Add Address dialog, and Profile settings.
   - Wired new checkout order submissions directly into `mockUserOrders`.
+- **2026-10-06 (`feat-core-order-receipt-seo`)**: `feat(core): implement order lookup api, printable receipt, dynamic hero cms, and technical seo schema`
+  - Created Nitro endpoint `GET /api/orders/[orderNumber]` querying the persistent orders repository in `server/mock/orders.ts` with fuzzy prefix/phone normalization and 404 error handling.
+  - Built printable customer receipt on `/checkout/success.vue` with dedicated `@media print` layout (`print:block hidden`), clean Iranian tax invoice breakdown (order info, Shaparak RRN, itemized matrix, subtotal, discount, shipping fee, guarantee terms), and print trigger button.
+  - Extended `SiteSettings` with `SiteHomeHeroSettings` (`homeHero`), configured default values in server mock and settings store, added comprehensive controls in `AdminSettingsBrandingTab.vue`, and wired dynamic state into `HeroBoutique.vue` with robust fallbacks.
+  - Implemented dynamic technical SEO: server-generated `sitemap.xml` (`server/routes/sitemap.xml.ts`) with static pages, dynamic products, and published journal articles; server-generated `robots.txt` (`server/routes/robots.txt.ts`); and automated Schema.org structured data (Organization, WebSite, Product, Article, BreadcrumbList) using `useSchemaOrg`.
+  - Passed all 6 quality gates: `lint:rtl` (0 physical direction violations), `lint:tokens` (100% compliant), `lint` (0 ESLint errors), `typecheck` (0 errors), `test:e2e` (40/40 tests passing), and production `build`.
 - **2026-10-06 (`feat-taxonomy-hub`)**: `feat(taxonomy): implement dynamic taxonomy hub for colors, sizes, categories, brands, and seasons`
   - Built centralized, reactive Taxonomy & Attributes Hub (`/internal-ops-nexus/taxonomy/index.vue`, 96 LOC) with 5 atomic management tabs:
     - `TaxonomyColorsTab.vue`: Swatch palette manager, custom hex color picker, slug generation, and safe deletion.

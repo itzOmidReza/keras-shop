@@ -583,6 +583,23 @@ export interface SiteIntegrationsSettings {
   smsProviderBalance: number;
 }
 
+export interface SiteHomeHeroSettings {
+  badgeText: string;
+  titlePrefix: string;
+  titleHighlight: string;
+  titleSuffix: string;
+  description: string;
+  primaryCtaText: string;
+  primaryCtaLink: string;
+  secondaryCtaText: string;
+  secondaryCtaLink: string;
+  bottomBadgeText: string;
+  imageUrl: string;
+  imageAlt: string;
+  imageBadgeLabel: string;
+  imageBadgeValue: string;
+}
+
 export interface SiteSettings {
   branding: SiteBrandingSettings;
   contact: SiteContactSettings;
@@ -590,6 +607,7 @@ export interface SiteSettings {
   checkoutRules: SiteCheckoutRules;
   social: SiteSocialSettings;
   integrations: SiteIntegrationsSettings;
+  homeHero?: SiteHomeHeroSettings;
   updatedAt?: string;
 }
 
