@@ -192,9 +192,9 @@ export const mockProducts: ProductDetail[] = [
       L: { height: [165, 178], weight: [66, 78], waist: [76, 85], hip: [102, 110] },
     },
     variants: [
-      { id: 3001, sku: 'CRP-ROS-S', color: 'رز کراس', color_hex: '#B8475F', size: 'S', stock: 5, reserved: 0 },
-      { id: 3002, sku: 'CRP-ROS-M', color: 'رز کراس', color_hex: '#B8475F', size: 'M', stock: 7, reserved: 1 },
-      { id: 3003, sku: 'CRP-INK-S', color: 'مشکی موکا', color_hex: '#3B2F2C', size: 'S', stock: 4, reserved: 0 },
+      { id: 3001, sku: 'BLS-ROS-S', color: 'رز کراس', color_hex: '#B8475F', size: 'S', stock: 5, reserved: 0 },
+      { id: 3002, sku: 'BLS-ROS-M', color: 'رز کراس', color_hex: '#B8475F', size: 'M', stock: 7, reserved: 1 },
+      { id: 3003, sku: 'BLS-INK-S', color: 'مشکی موکا', color_hex: '#3B2F2C', size: 'S', stock: 4, reserved: 0 },
     ],
   },
   {

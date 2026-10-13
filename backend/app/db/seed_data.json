@@ -1,0 +1,4237 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "slug": "karen-slub-linen-blouse",
+      "title": "شومیز لینن اسلپ مدل کارن",
+      "brand": "keras-atelier",
+      "division": "apparel",
+      "category": "shirts-blouses",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 1850000,
+      "base_price": 1850000,
+      "compare_at_price": 2150000,
+      "description": "شومیز ادیتوریال پاییزه دوخته‌شده از لینن اسلپ تنفس‌پذیر با بافت نامنظم طبیعی. طراحی اورسایز متعادل با سرآستین‌های کشیده و دکمه‌های صدفی طبیعی که برای استایل چندلایه پاییزی خلق شده است.",
+      "fabric": {
+        "composition": "۱۰۰٪ الیاف طبیعی لینن اسلپ ارگانیک",
+        "gsm": 210,
+        "care": "شست‌وشوی دستی یا دور ملایم با آب ۳۰ درجه، اتوکشی در حالت نیمه‌مرطوب"
+      },
+      "fabric_composition": "۱۰۰٪ الیاف طبیعی لینن اسلپ ارگانیک",
+      "fabric_gsm": 210,
+      "stretch": 2,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 38,
+      "rating_count": 38,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": true,
+      "line": "calm",
+      "fit_note": "قواره آزاد و ادیتوریال؛ برای تن‌خور جذب، یک سایز کوچک‌تر پیشنهاد می‌شود.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        }
+      ],
+      "images": [
+        {
+          "id": 101,
+          "url": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80",
+          "alt": "شومیز لینن اسلپ مدل کارن رنگ شنی نچرال نمای روبرو",
+          "kind": "photo",
+          "position": 1
+        },
+        {
+          "id": 102,
+          "url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+          "alt": "شومیز کارن در استایل خیابانی پاییزه",
+          "kind": "motion",
+          "position": 2
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 1001,
+          "sku": "KRN-SND-XS",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "XS",
+          "stock": 5,
+          "reserved": 0
+        },
+        {
+          "id": 1002,
+          "sku": "KRN-SND-S",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "S",
+          "stock": 8,
+          "reserved": 1
+        },
+        {
+          "id": 1003,
+          "sku": "KRN-SND-M",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "M",
+          "stock": 12,
+          "reserved": 2
+        },
+        {
+          "id": 1004,
+          "sku": "KRN-SND-L",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "L",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 1005,
+          "sku": "KRN-INK-S",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "S",
+          "stock": 7,
+          "reserved": 0
+        },
+        {
+          "id": 1006,
+          "sku": "KRN-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 9,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "oversized-washed-cotton-shirt",
+      "title": "پیراهن اورسایز کتان شسته",
+      "brand": "massimo-dutti",
+      "division": "apparel",
+      "category": "shirts-blouses",
+      "season": "spring-1406",
+      "badge": "پیش‌نمایش",
+      "price": 1680000,
+      "base_price": 1680000,
+      "compare_at_price": 1980000,
+      "description": "پیراهن مدرن کژوال با فرآیند سنگشور آنزیمی جهت ایجاد زیردست ابریشمی و حس راحتی روزمره. دارای جیب پاکتی نامتقارن روی سینه و یقه انگلیسی شیک برای استایل چندکاربردی بهاره.",
+      "fabric": {
+        "composition": "۱۰۰٪ پنبه کتان شسته شده با سنگ‌شور آنزیمی",
+        "gsm": 190,
+        "care": "شست‌وشو در ماشین با دور ملایم و شوینده فاقد سفیدکننده"
+      },
+      "fabric_composition": "۱۰۰٪ پنبه کتان شسته شده با سنگ‌شور آنزیمی",
+      "fabric_gsm": 190,
+      "stretch": 2,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 22,
+      "rating_count": 22,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "برش اورسایز کژوال؛ در قد پشت بلندتر از پیش برای زیبایی استایل.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        }
+      ],
+      "images": [
+        {
+          "id": 201,
+          "url": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80",
+          "alt": "پیراهن اورسایز کتان شسته سبز مریم‌گلی",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 2001,
+          "sku": "OVS-SGE-S",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "S",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 2002,
+          "sku": "OVS-SGE-M",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "M",
+          "stock": 8,
+          "reserved": 1
+        },
+        {
+          "id": 2003,
+          "sku": "OVS-SGE-L",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "L",
+          "stock": 4,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "autumn-crepe-chiffon-blouse",
+      "title": "شومیز کرپ حریر پاییزی",
+      "brand": "mango",
+      "division": "apparel",
+      "category": "shirts-blouses",
+      "season": "fall-1405",
+      "price": 1950000,
+      "base_price": 1950000,
+      "compare_at_price": 2300000,
+      "description": "شومیز فاخر مجلسی با ریزش بی‌نظیر کرپ حریر ابریشمی. دکمه‌های مخفی جلو و پنس‌های ارگونومیک، ظاهری بسیار شیک و آراسته برای مهمانی‌ها و جلسات رسمی پاییزی فراهم می‌آورند.",
+      "fabric": {
+        "composition": "۷۰٪ الیاف ابریشم سنتتیک، ۳۰٪ کرپ دوشین فرانسوی",
+        "gsm": 180,
+        "care": "شست‌وشوی دستی با آب سرد بدون فشردن و آویزان کردن روی چوب‌لباسی ابری"
+      },
+      "fabric_composition": "۷۰٪ الیاف ابریشم سنتتیک، ۳۰٪ کرپ دوشین فرانسوی",
+      "fabric_gsm": 180,
+      "stretch": 1,
+      "softness": 5,
+      "opacity": 4,
+      "rating": 4.7,
+      "rating_avg": 4.7,
+      "reviewCount": 19,
+      "rating_count": 19,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "فیت کلاسیک و افتاده؛ مناسب پوشیدن به همراه شلوار راسته یا زیر ترنچ کت.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        }
+      ],
+      "images": [
+        {
+          "id": 301,
+          "url": "https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=800&q=80",
+          "alt": "شومیز کرپ حریر پاییزی رز کراس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 3001,
+          "sku": "BLS-ROS-S",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "S",
+          "stock": 5,
+          "reserved": 0
+        },
+        {
+          "id": 3002,
+          "sku": "BLS-ROS-M",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "M",
+          "stock": 7,
+          "reserved": 1
+        },
+        {
+          "id": 3003,
+          "sku": "BLS-INK-S",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "slug": "minimal-button-down-shirt",
+      "title": "پیراهن دکمه‌دار مینیمال",
+      "brand": "cos",
+      "division": "apparel",
+      "category": "shirts-blouses",
+      "season": "summer-1405",
+      "badge": "حراج",
+      "price": 1390000,
+      "base_price": 1390000,
+      "compare_at_price": 1750000,
+      "description": "پیراهن دکمه‌دار خنک از آرشیو تابستان با برش‌های ژئومتریک مینیمال. پارچه پوپلین تنفس‌پذیر ضد تعریق، انتخابی ایده‌آل برای استایل خنک کژوال و سفرهای تابستانی.",
+      "fabric": {
+        "composition": "۱۰۰٪ پوپلین پنبه شانه شده فوق سبک",
+        "gsm": 140,
+        "care": "شست‌وشوی ماشینی در آب سرد، اتوکشی با دمای متوسط"
+      },
+      "fabric_composition": "۱۰۰٪ پوپلین پنبه شانه شده فوق سبک",
+      "fabric_gsm": 140,
+      "stretch": 1,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.6,
+      "rating_avg": 4.6,
+      "reviewCount": 31,
+      "rating_count": 31,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "فیت نرمال و راحت؛ مناسب ست کردن با شلوار واید لینن.",
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        }
+      ],
+      "images": [
+        {
+          "id": 401,
+          "url": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+          "alt": "پیراهن دکمه‌دار مینیمال عاجی روشن",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 4001,
+          "sku": "BTN-IVR-S",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        },
+        {
+          "id": 4002,
+          "sku": "BTN-IVR-M",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "M",
+          "stock": 5,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "fluffy-turtleneck-knit-sweater",
+      "title": "پلیور بافت کرکی یقه اسکی",
+      "brand": "toteme",
+      "division": "apparel",
+      "category": "knitwear",
+      "season": "winter-1405",
+      "price": 2450000,
+      "base_price": 2450000,
+      "compare_at_price": 2850000,
+      "description": "پلیور بافت ضخیم زمستانه با بافت کرکی پف‌دار از الیاف مرینوس و آلپاکا. یقه اسکی ایستاده دوبل بدون ایجاد حساسیت پوستی، حس گرما و راحتی عمیقی را در روزهای برفی ایجاد می‌کند.",
+      "fabric": {
+        "composition": "۵۵٪ پشم مرینوس، ۲۵٪ آلپاکا لطیف، ۲۰٪ پلی‌آمید عایق",
+        "gsm": 360,
+        "care": "شست‌وشوی دستی با شوینده مخصوص پشم و آب ولرم، پهن کردن افقی برای خشک شدن"
+      },
+      "fabric_composition": "۵۵٪ پشم مرینوس، ۲۵٪ آلپاکا لطیف، ۲۰٪ پلی‌آمید عایق",
+      "fabric_gsm": 360,
+      "stretch": 4,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 45,
+      "rating_count": 45,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "تن‌خور نرمال و بسیار گرم؛ برای استایل چندلایه عالی است.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 501,
+          "url": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
+          "alt": "پلیور بافت کرکی یقه اسکی عاجی روشن",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 5001,
+          "sku": "FLF-IVR-S",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "S",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 5002,
+          "sku": "FLF-IVR-M",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "M",
+          "stock": 10,
+          "reserved": 1
+        },
+        {
+          "id": 5003,
+          "sku": "FLF-CLY-M",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "M",
+          "stock": 4,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "slug": "cashmere-open-front-cardigan",
+      "title": "ژاکت جلو باز بافت کشمیر",
+      "brand": "massimo-dutti",
+      "division": "apparel",
+      "category": "knitwear",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 2980000,
+      "base_price": 2980000,
+      "compare_at_price": 3450000,
+      "description": "کاردیگان جلو باز لوکس بافته‌شده از پشم کشمیر سبک و دستچین مغولستان. بافت متراکم ریز و آستین‌های افتاده کلوش که به‌زیبایی روی بدن می‌نشیند و انتخابی همیشگی برای پاییز است.",
+      "fabric": {
+        "composition": "۱۰۰٪ کشمیر اصیل گرید A",
+        "gsm": 290,
+        "care": "خشک‌شویی تخصصی؛ نگهداری در کاور پارچه‌ای با سدر طبیعی ضد بید"
+      },
+      "fabric_composition": "۱۰۰٪ کشمیر اصیل گرید A",
+      "fabric_gsm": 290,
+      "stretch": 4,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 5,
+      "rating_avg": 5,
+      "reviewCount": 29,
+      "rating_count": 29,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "جلوباز و بدون دکمه؛ مناسب استایل روی شومیز کارن و تاپ‌های بیسیک.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        }
+      ],
+      "images": [
+        {
+          "id": 601,
+          "url": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=800&q=80",
+          "alt": "ژاکت جلو باز بافت کشمیر شنی نچرال",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 6001,
+          "sku": "CSH-SND-S",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "S",
+          "stock": 5,
+          "reserved": 0
+        },
+        {
+          "id": 6002,
+          "sku": "CSH-SND-M",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "M",
+          "stock": 7,
+          "reserved": 2
+        },
+        {
+          "id": 6003,
+          "sku": "CSH-ROS-M",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "M",
+          "stock": 3,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "slug": "boucle-jacquard-knit-pullover",
+      "title": "پلیور بافت ژاکارد بوکله",
+      "brand": "keras-atelier",
+      "division": "apparel",
+      "category": "knitwear",
+      "season": "winter-1405",
+      "price": 2280000,
+      "base_price": 2280000,
+      "compare_at_price": 2650000,
+      "description": "پلیور بافت با تکنیک ژاکارد و نخ‌های گره‌دار بوکله که حسی سه‌بعدی و بافتی غنی به محصول بخشیده‌اند. لبه‌های یقه و آستین با کشباف پهن ۵ سانتی‌متری برای ایستایی شکیل‌تر.",
+      "fabric": {
+        "composition": "۶۰٪ الیاف پشم ترکیبی بوکله، ۳۰٪ اکریلیک پریمیوم، ۱۰٪ نخ ویسکوز",
+        "gsm": 380,
+        "care": "خشک‌شویی توصیه می‌شود؛ دور از اشعه مستقیم خورشید خشک شود"
+      },
+      "fabric_composition": "۶۰٪ الیاف پشم ترکیبی بوکله، ۳۰٪ اکریلیک پریمیوم، ۱۰٪ نخ ویسکوز",
+      "fabric_gsm": 380,
+      "stretch": 3,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 16,
+      "rating_count": 16,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "سیلوئت فرم‌دار و محکم؛ گرمای بسیار بالا مناسب هوای سرد زمستان.",
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        }
+      ],
+      "images": [
+        {
+          "id": 701,
+          "url": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80",
+          "alt": "پلیور بافت ژاکارد بوکله خاک رس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 7001,
+          "sku": "BOC-CLY-S",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        },
+        {
+          "id": 7002,
+          "sku": "BOC-CLY-M",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "M",
+          "stock": 6,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "slug": "autumn-cropped-knit-sweater",
+      "title": "کراپ بافت پاییزه",
+      "brand": "zara",
+      "division": "apparel",
+      "category": "knitwear",
+      "season": "fall-1405",
+      "price": 1720000,
+      "base_price": 1720000,
+      "compare_at_price": 1980000,
+      "description": "کراپ پلیور سبک مناسب روزهای خنک اوایل پاییز. دارای یقه گرد کلاسیک و بافت جناغی متراکم که همگام با دامن یا شلوارهای فاق بلند، ترکیب مدرن و کشیده‌ای ایجاد می‌کند.",
+      "fabric": {
+        "composition": "۷۰٪ نخ پنبه ارگانیک تنفس‌پذیر، ۳۰٪ پشم پولیش‌شده سبک",
+        "gsm": 260,
+        "care": "شست‌وشو در ماشین با آب سرد دور پشم، بدون چلاندن"
+      },
+      "fabric_composition": "۷۰٪ نخ پنبه ارگانیک تنفس‌پذیر، ۳۰٪ پشم پولیش‌شده سبک",
+      "fabric_gsm": 260,
+      "stretch": 4,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.7,
+      "rating_avg": 4.7,
+      "reviewCount": 28,
+      "rating_count": 28,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "قد کراپ تا خط ناف؛ تن‌خور اندامی و متناسب.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        }
+      ],
+      "images": [
+        {
+          "id": 801,
+          "url": "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=800&q=80",
+          "alt": "کراپ بافت پاییزه رز کراس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 8001,
+          "sku": "CRP-ROS-S",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "S",
+          "stock": 5,
+          "reserved": 0
+        },
+        {
+          "id": 8002,
+          "sku": "CRP-ROS-M",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "M",
+          "stock": 8,
+          "reserved": 0
+        },
+        {
+          "id": 8003,
+          "sku": "CRP-INK-S",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "S",
+          "stock": 4,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "slug": "long-lined-wool-fouter-coat",
+      "title": "پالتو فوتر پشمی بلند آستردار",
+      "brand": "toteme",
+      "division": "apparel",
+      "category": "coats-jackets",
+      "season": "winter-1405",
+      "price": 4650000,
+      "base_price": 4650000,
+      "compare_at_price": 5200000,
+      "description": "شاهکار زمستانه کاتالوگ کراس با پارچه فوتر مرینوس ضخیم کوبیده‌شده ایتالیایی. آسترکشی کامل با ساتن ابریشمی اعلا، یقه‌های بلیزر پهن و کمربند پهن فوتر همرنگ که زیبایی بی‌نقصی به اندام می‌بخشد.",
+      "fabric": {
+        "composition": "۸۰٪ پشم فوتر طبیعی مرینوس، ۲۰٪ پلی‌آمید تقویتی ضد پرزدهی",
+        "gsm": 520,
+        "care": "فقط خشک‌شویی تخصصی با بخار سرد، اتوکشی فقط از پشت با پارچه محافظ"
+      },
+      "fabric_composition": "۸۰٪ پشم فوتر طبیعی مرینوس، ۲۰٪ پلی‌آمید تقویتی ضد پرزدهی",
+      "fabric_gsm": 520,
+      "stretch": 1,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 5,
+      "rating_avg": 5,
+      "reviewCount": 52,
+      "rating_count": 52,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "قد ماکسی تا زیر زانو؛ الگوسازی ارگونومیک با آستین‌های افتاده شیک.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        }
+      ],
+      "images": [
+        {
+          "id": 901,
+          "url": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
+          "alt": "پالتو فوتر پشمی بلند آستردار مشکی موکا",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 9001,
+          "sku": "FTR-INK-S",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        },
+        {
+          "id": 9002,
+          "sku": "FTR-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 6,
+          "reserved": 1
+        },
+        {
+          "id": 9003,
+          "sku": "FTR-SND-M",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "M",
+          "stock": 5,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "slug": "cropped-oversized-windbreaker-jacket",
+      "title": "کاپشن کراپ اورسایز بادگیر",
+      "brand": "zara",
+      "division": "apparel",
+      "category": "coats-jackets",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 3250000,
+      "base_price": 3250000,
+      "compare_at_price": 3750000,
+      "description": "کاپشن مدرن سبک با روکش مات نایلون آبگریز و لایه‌بندی پفکی ضد باد. گت کشسان در لبه پایینی برای تنظیم حجم کاپشن، زیپ‌های دندانه درشت فلزی و جیب‌های فلیس‌دار گرم برای روزهای بارانی پاییز.",
+      "fabric": {
+        "composition": "۱۰۰٪ پلی‌آمید آبگریز با غشای تنفس‌پذیر تنه‌پوش و پر مصنوعی عایق",
+        "gsm": 310,
+        "care": "شست‌وشوی ماشینی در آب سرد بدون نرم‌کننده، خشک شدن دور از حرارت مستقیم"
+      },
+      "fabric_composition": "۱۰۰٪ پلی‌آمید آبگریز با غشای تنفس‌پذیر تنه‌پوش و پر مصنوعی عایق",
+      "fabric_gsm": 310,
+      "stretch": 1,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 34,
+      "rating_count": 34,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "کراپ اورسایز حجیم؛ ظاهری اسپرت و های‌استریت بسیار جوان‌پسند.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 1001,
+          "url": "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80",
+          "alt": "کاپشن کراپ اورسایز بادگیر سبز مریم‌گلی",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 10001,
+          "sku": "WND-SGE-S",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "S",
+          "stock": 5,
+          "reserved": 0
+        },
+        {
+          "id": 10002,
+          "sku": "WND-SGE-M",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "M",
+          "stock": 8,
+          "reserved": 1
+        },
+        {
+          "id": 10003,
+          "sku": "WND-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 6,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "slug": "double-breasted-autumn-trench-coat",
+      "title": "ترنچ کت بارانی پاییزه دو ردیف دکمه",
+      "brand": "massimo-dutti",
+      "division": "apparel",
+      "category": "coats-jackets",
+      "season": "fall-1405",
+      "price": 3950000,
+      "base_price": 3950000,
+      "compare_at_price": 4500000,
+      "description": "ترنچ کت کلاسیک بارانی با دو ردیف دکمه شاخی اصیل و کمربند سگک‌دار. دوخته‌شده از گاباردین کتان مقاوم در برابر باران همراه با چاک بلند پشت برای وقار و راحتی گام برداشتن در خیابان‌های باران‌خورده پاییز.",
+      "fabric": {
+        "composition": "۶۵٪ گاباردین پنبه کتان ضدآب، ۳۵٪ پلی‌استر مقاوم در برابر چروک",
+        "gsm": 340,
+        "care": "خشک‌شویی تخصصی کت و بارانی؛ اتوکشی بخار غیرمستقیم"
+      },
+      "fabric_composition": "۶۵٪ گاباردین پنبه کتان ضدآب، ۳۵٪ پلی‌استر مقاوم در برابر چروک",
+      "fabric_gsm": 340,
+      "stretch": 1,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 41,
+      "rating_count": 41,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "برش بلند کلاسیک تا ساق پا؛ قابلیت تنظیم فرم با کمربند.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 1101,
+          "url": "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80",
+          "alt": "ترنچ کت بارانی پاییزه دو ردیف دکمه شنی نچرال",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 11001,
+          "sku": "TRN-SND-S",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        },
+        {
+          "id": 11002,
+          "sku": "TRN-SND-M",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "M",
+          "stock": 7,
+          "reserved": 1
+        },
+        {
+          "id": 11003,
+          "sku": "TRN-INK-L",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "L",
+          "stock": 3,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "slug": "autumn-wide-leg-linen-pants",
+      "title": "شلوار واید لینن پاییزه",
+      "brand": "keras-atelier",
+      "division": "apparel",
+      "category": "pants",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 1890000,
+      "base_price": 1890000,
+      "compare_at_price": 2200000,
+      "description": "شلوار واید بگ شیک با فاق بلند ارگونومیک و پیلی‌های دوبل جلوی کمر. بافته‌شده از لینن سنگین پاییزی با ریزش سنگین و ایستایی بی‌نظیر که هم با کفش لوفر و هم با بوت‌های پاییزی هماهنگی کامل دارد.",
+      "fabric": {
+        "composition": "۸۵٪ لینن گرید یک پاییزه، ۱۵٪ ویسکوز ضد چروک",
+        "gsm": 270,
+        "care": "شست‌وشوی دستی با آب سرد، اتوکشی در حالت مرطوب با بخار"
+      },
+      "fabric_composition": "۸۵٪ لینن گرید یک پاییزه، ۱۵٪ ویسکوز ضد چروک",
+      "fabric_gsm": 270,
+      "stretch": 2,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 37,
+      "rating_count": 37,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": true,
+      "line": "calm",
+      "fit_note": "فاق بلند و دمپا گشاد؛ قد بلند جهت نمایش بهتر فرم بدن.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        }
+      ],
+      "images": [
+        {
+          "id": 1201,
+          "url": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+          "alt": "شلوار واید لینن پاییزه شنی نچرال",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 12001,
+          "sku": "WID-SND-S",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "S",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 12002,
+          "sku": "WID-SND-M",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "M",
+          "stock": 9,
+          "reserved": 1
+        },
+        {
+          "id": 12003,
+          "sku": "WID-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 5,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "slug": "wool-worsted-straight-trousers",
+      "title": "شلوار راسته فاستونی پشمی",
+      "brand": "cos",
+      "division": "apparel",
+      "category": "pants",
+      "season": "winter-1405",
+      "price": 2350000,
+      "base_price": 2350000,
+      "compare_at_price": 2700000,
+      "description": "شلوار رسمی راسته دوخته‌شده از پارچه فاستونی پشمی با خط اتوی دائمی استخوان‌دار. دارای آسترکشی ضد خارش در قسمت ران و زانو برای تضمین راحتی بی‌پایان در تمام طول ساعات کاری زمستانه.",
+      "fabric": {
+        "composition": "۷۰٪ پشم خالص فاستونی ظریف، ۲۸٪ پلی‌استر ضد چروک، ۲٪ لایکرا",
+        "gsm": 320,
+        "care": "فقط خشک‌شویی تخصصی شلوار اداری"
+      },
+      "fabric_composition": "۷۰٪ پشم خالص فاستونی ظریف، ۲۸٪ پلی‌استر ضد چروک، ۲٪ لایکرا",
+      "fabric_gsm": 320,
+      "stretch": 2,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 26,
+      "rating_count": 26,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "راسته کلاسیک؛ خط اتوی کشیده که قد پاها را بلندتر نشان می‌دهد.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        }
+      ],
+      "images": [
+        {
+          "id": 1301,
+          "url": "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=800&q=80",
+          "alt": "شلوار راسته فاستونی پشمی مشکی موکا",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 13001,
+          "sku": "STR-INK-S",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "S",
+          "stock": 4,
+          "reserved": 0
+        },
+        {
+          "id": 13002,
+          "sku": "STR-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 7,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "slug": "stonewashed-cotton-jogger-pants",
+      "title": "شلوار جاگر پنبه‌ای سنگشور",
+      "brand": "mango",
+      "division": "apparel",
+      "category": "pants",
+      "season": "spring-1406",
+      "badge": "پیش‌نمایش",
+      "price": 1580000,
+      "base_price": 1580000,
+      "compare_at_price": 1850000,
+      "description": "جاگر راحت و لوکس طراحی‌شده از دورس پنبه‌ای دو نخ با افکت سنگشور وینتیج. دارای کمر کشباف عریض و بند تنظیم کتان ضخیم، ایده‌آل برای استایل اسمارکت‌کژوال و سفرهای هوایی.",
+      "fabric": {
+        "composition": "۹۵٪ پنبه دورس سنگشور ارگانیک، ۵٪ الاستین کشسانی",
+        "gsm": 290,
+        "care": "شست‌وشوی ماشینی در آب ولرم ۳۰ درجه با مایع لباس‌های تیره"
+      },
+      "fabric_composition": "۹۵٪ پنبه دورس سنگشور ارگانیک، ۵٪ الاستین کشسانی",
+      "fabric_gsm": 290,
+      "stretch": 4,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 30,
+      "rating_count": 30,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "تن‌خور نرمال و ریلکس؛ دمپای کشباف نرم بدون رد انداختن روی مچ.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        }
+      ],
+      "images": [
+        {
+          "id": 1401,
+          "url": "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=800&q=80",
+          "alt": "شلوار جاگر پنبه‌ای سنگشور خاک رس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 14001,
+          "sku": "JGR-CLY-S",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "S",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 14002,
+          "sku": "JGR-CLY-M",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "M",
+          "stock": 8,
+          "reserved": 1
+        },
+        {
+          "id": 14003,
+          "sku": "JGR-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 5,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "slug": "super-combed-cotton-minimal-tee",
+      "title": "تیشرت نخی پنبه سوپر شانه",
+      "brand": "cos",
+      "division": "apparel",
+      "category": "tops",
+      "season": "summer-1405",
+      "badge": "حراج",
+      "price": 890000,
+      "base_price": 890000,
+      "compare_at_price": 1150000,
+      "description": "تیشرت بیسیک ادیتوریال تهیه شده از الیاف پنبه شانه شده ۱۰۰٪ خالص. یقه گرد تقویت‌شده که پس از بارها شست‌وشو دفرمه نمی‌شود و تراکم عالی که حس سبکی و لطافت بدون پرزدهی به همراه دارد.",
+      "fabric": {
+        "composition": "۱۰۰٪ پنبه سوپر شانه طبیعی کامب با فرآیند سیلیکونی",
+        "gsm": 180,
+        "care": "شست‌وشوی معمولی در ماشین تا ۴۰ درجه، اتوکشی آسان"
+      },
+      "fabric_composition": "۱۰۰٪ پنبه سوپر شانه طبیعی کامب با فرآیند سیلیکونی",
+      "fabric_gsm": 180,
+      "stretch": 3,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 48,
+      "rating_count": 48,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "فیت ریلکس استاندارد؛ طراحی شده برای تمام فصول.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        }
+      ],
+      "images": [
+        {
+          "id": 1501,
+          "url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+          "alt": "تیشرت نخی پنبه سوپر شانه عاجی روشن",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        },
+        "XL": {
+          "height": [
+            168,
+            182
+          ],
+          "weight": [
+            75,
+            88
+          ],
+          "waist": [
+            83,
+            94
+          ],
+          "hip": [
+            108,
+            118
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 15001,
+          "sku": "TEE-IVR-S",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "S",
+          "stock": 12,
+          "reserved": 0
+        },
+        {
+          "id": 15002,
+          "sku": "TEE-IVR-M",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "M",
+          "stock": 15,
+          "reserved": 2
+        },
+        {
+          "id": 15003,
+          "sku": "TEE-INK-M",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "M",
+          "stock": 10,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "slug": "long-sleeve-ribbed-contour-body",
+      "title": "بادی کبریتی آستین بلند",
+      "brand": "zara",
+      "division": "apparel",
+      "category": "tops",
+      "season": "spring-1406",
+      "badge": "پیش‌نمایش",
+      "price": 1180000,
+      "base_price": 1180000,
+      "compare_at_price": 1380000,
+      "description": "بادی آستین‌بلند فرم‌دهنده با بافت ریزکبریتی کشسان. دارای قفل دو دکمه مقاوم زیر فاق و برش ارگونومیک گردن که به عنوان لایه اول (Base Layer) زیر کت، پالتو یا کاردیگان عملکرد فوق‌العاده‌ای دارد.",
+      "fabric": {
+        "composition": "۹۲٪ ویسکوز الیاف طبیعی گیاهی، ۸٪ الاستین با کشسانی ۴ جهته",
+        "gsm": 230,
+        "care": "شست‌وشو در ماشین با کیسه محافظ لباس زیر در دمای ۳۰ درجه"
+      },
+      "fabric_composition": "۹۲٪ ویسکوز الیاف طبیعی گیاهی، ۸٪ الاستین با کشسانی ۴ جهته",
+      "fabric_gsm": 230,
+      "stretch": 5,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 39,
+      "rating_count": 39,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "کاملاً جذب و کانتورینگ؛ فرم بدن را به صورت یکدست جمع می‌کند.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "available_sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 1601,
+          "url": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+          "alt": "بادی کبریتی آستین بلند خاک رس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "size_chart": {
+        "XS": {
+          "height": [
+            155,
+            165
+          ],
+          "weight": [
+            45,
+            52
+          ],
+          "waist": [
+            60,
+            66
+          ],
+          "hip": [
+            86,
+            92
+          ]
+        },
+        "S": {
+          "height": [
+            158,
+            168
+          ],
+          "weight": [
+            50,
+            60
+          ],
+          "waist": [
+            65,
+            72
+          ],
+          "hip": [
+            90,
+            98
+          ]
+        },
+        "M": {
+          "height": [
+            162,
+            174
+          ],
+          "weight": [
+            58,
+            68
+          ],
+          "waist": [
+            70,
+            78
+          ],
+          "hip": [
+            96,
+            104
+          ]
+        },
+        "L": {
+          "height": [
+            165,
+            178
+          ],
+          "weight": [
+            66,
+            78
+          ],
+          "waist": [
+            76,
+            85
+          ],
+          "hip": [
+            102,
+            110
+          ]
+        }
+      },
+      "variants": [
+        {
+          "id": 16001,
+          "sku": "BDY-CLY-S",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "S",
+          "stock": 6,
+          "reserved": 0
+        },
+        {
+          "id": 16002,
+          "sku": "BDY-CLY-M",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "M",
+          "stock": 8,
+          "reserved": 1
+        },
+        {
+          "id": 16003,
+          "sku": "BDY-SGE-M",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "M",
+          "stock": 5,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "slug": "natural-silk-autumn-scrunchie",
+      "title": "اسکرانچی ابریشم طبیعی پالت پاییزه",
+      "brand": "keras-atelier",
+      "division": "accessories",
+      "category": "hair-accessories",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 380000,
+      "base_price": 380000,
+      "compare_at_price": 450000,
+      "description": "اسکرانچی بسیار لطیف دوخته‌شده از ۱۰۰٪ ابریشم خالص مالبری ۲۲ مام. کش الاستیک بادوام داخلی بدون کشیدگی و شکستگی موها، با رنگ‌بندی گرم پاییزی که مکمل هر استایلی است.",
+      "fabric": {
+        "composition": "۱۰۰٪ ابریشم طبیعی توت مالبری گرید 6A با ضخامت ۲۲ مام",
+        "care": "شست‌وشوی دستی با آب سرد و شامپوی ملایم ابریشم"
+      },
+      "fabric_composition": "۱۰۰٪ ابریشم طبیعی توت مالبری گرید 6A با ضخامت ۲۲ مام",
+      "stretch": 5,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 5,
+      "rating_avg": 5,
+      "reviewCount": 42,
+      "rating_count": 42,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "سایز استاندارد بزرگ (قطر ۱۲ سانتی‌متر)؛ مناسب تمام حجم‌های مو.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        }
+      ],
+      "images": [
+        {
+          "id": 1701,
+          "url": "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?auto=format&fit=crop&w=800&q=80",
+          "alt": "اسکرانچی ابریشم طبیعی پالت پاییزه رز کراس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 17001,
+          "sku": "SCR-ROS-FR",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "Free",
+          "stock": 15,
+          "reserved": 1
+        },
+        {
+          "id": 17002,
+          "sku": "SCR-CLY-FR",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "Free",
+          "stock": 12,
+          "reserved": 0
+        },
+        {
+          "id": 17003,
+          "sku": "SCR-SND-FR",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "Free",
+          "stock": 18,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "slug": "luna-organic-cellulose-hair-clip",
+      "title": "گیره مو ارگانیک سلولز مدل لونا",
+      "brand": "mango",
+      "division": "accessories",
+      "category": "hair-accessories",
+      "season": "spring-1406",
+      "price": 490000,
+      "base_price": 490000,
+      "compare_at_price": 580000,
+      "description": "گیره پنجه‌ای باوقار ساخته شده از استات سلولز طبیعی و زیست‌تخریب‌پذیر فرانسوی. لولای استیل فنری با چسبندگی قوی که بدون سنگینی روی سر، موها را در تمام طول روز محکم نگه می‌دارد.",
+      "fabric": {
+        "composition": "استات سلولز گیاهی طبیعی با لولای استیل فنری ضد زنگ",
+        "care": "پاک کردن با دستمال میکروفیبر نرم نم‌دار؛ دور از حرارت مستقیم"
+      },
+      "fabric_composition": "استات سلولز گیاهی طبیعی با لولای استیل فنری ضد زنگ",
+      "stretch": 1,
+      "softness": 4,
+      "opacity": 5,
+      "rating": 4.8,
+      "rating_avg": 4.8,
+      "reviewCount": 27,
+      "rating_count": 27,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "طول ۱۰ سانتی‌متر؛ مناسب بستن کامل یا نیمه‌باز مو.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        }
+      ],
+      "images": [
+        {
+          "id": 1801,
+          "url": "https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80",
+          "alt": "گیره مو ارگانیک سلولز مدل لونا شنی نچرال",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 18001,
+          "sku": "CLP-SND-FR",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "Free",
+          "stock": 10,
+          "reserved": 0
+        },
+        {
+          "id": 18002,
+          "sku": "CLP-INK-FR",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "Free",
+          "stock": 14,
+          "reserved": 2
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "slug": "wool-knit-hair-tie-trio-set",
+      "title": "کش موی بافت پشمی ست",
+      "brand": "toteme",
+      "division": "accessories",
+      "category": "hair-accessories",
+      "season": "winter-1405",
+      "price": 420000,
+      "base_price": 420000,
+      "compare_at_price": 490000,
+      "description": "ست سه‌تایی کش موی بافت پشمی دست‌دوز با پالت زمستانه کراس. ساخته‌شده از الیاف نرم مرینوس با کش داخلی دوبل که موها را گرم و منسجم در استایل‌های زمستانی در بر می‌گیرد.",
+      "fabric": {
+        "composition": "۸۰٪ پشم مرینوس ارگانیک، ۲۰٪ کش الاستیک تقویتی",
+        "care": "شست‌وشوی دستی با آب سرد بدون چلاندن"
+      },
+      "fabric_composition": "۸۰٪ پشم مرینوس ارگانیک، ۲۰٪ کش الاستیک تقویتی",
+      "stretch": 4,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.7,
+      "rating_avg": 4.7,
+      "reviewCount": 18,
+      "rating_count": 18,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "ست ۳ عددی در بسته‌بندی هدیه دوستدار محیط‌زیست.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        },
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 1901,
+          "url": "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=800&q=80",
+          "alt": "کش موی بافت پشمی ست خاک رس و عاجی",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 19001,
+          "sku": "WLT-SET-FR",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "Free",
+          "stock": 12,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "slug": "cotton-jacquard-bandana",
+      "title": "دستمال سر ژاکارد نخ پنبه",
+      "brand": "zara",
+      "division": "accessories",
+      "category": "bandanas",
+      "season": "fall-1405",
+      "badge": "جدید",
+      "price": 520000,
+      "base_price": 520000,
+      "compare_at_price": 620000,
+      "description": "دستمال سر چهارگوش ۵۵×۵۵ سانتی‌متر با بافت ژاکارد اختصاصی نقوش انتزاعی طبیعت. دوخته‌شده از نخ پنبه خالص با حاشیه دست‌دوز دور که هم به عنوان دستمال گردن و هم به عنوان باندانا کاربرد دارد.",
+      "fabric": {
+        "composition": "۱۰۰٪ نخ پنبه ارگانیک ژاکارد با رنگرزی گیاهی پایدار",
+        "care": "شست‌وشوی دستی با آب سرد، اتوکشی ملایم"
+      },
+      "fabric_composition": "۱۰۰٪ نخ پنبه ارگانیک ژاکارد با رنگرزی گیاهی پایدار",
+      "stretch": 1,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 33,
+      "rating_count": 33,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "ابعاد ۵۵ در ۵۵ سانتی‌متر؛ امکان گره‌زدن در استایل‌های متنوع سر و گردن.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        }
+      ],
+      "images": [
+        {
+          "id": 2001,
+          "url": "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=800&q=80",
+          "alt": "دستمال سر ژاکارد نخ پنبه سبز مریم‌گلی",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 20001,
+          "sku": "BAN-SGE-FR",
+          "color": "سبز مریم‌گلی",
+          "color_hex": "#56705B",
+          "size": "Free",
+          "stock": 15,
+          "reserved": 0
+        },
+        {
+          "id": 20002,
+          "sku": "BAN-SND-FR",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "Free",
+          "stock": 12,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "slug": "geometric-satin-bandana",
+      "title": "باندانا ساتن طرح ژئومتریک",
+      "brand": "mango",
+      "division": "accessories",
+      "category": "bandanas",
+      "season": "summer-1405",
+      "badge": "حراج",
+      "price": 460000,
+      "base_price": 460000,
+      "compare_at_price": 590000,
+      "description": "باندانا ساتن براق مات با الگوهای هندسی مینیمال الهام‌گرفته از معماری مدرن. سطح ابریشمی بدون سرخوردن روی موها با لبه‌های لول‌شده دست‌دوز که اکسسوری تمام‌عیار کژوال است.",
+      "fabric": {
+        "composition": "۱۰۰٪ ساتن پلی‌استر میکروفیبر ابریشمی بسیار لغزان و لطیف",
+        "care": "شست‌وشوی دستی با آب سرد بدون پیچش، اتوکشی پشت پارچه"
+      },
+      "fabric_composition": "۱۰۰٪ ساتن پلی‌استر میکروفیبر ابریشمی بسیار لغزان و لطیف",
+      "stretch": 1,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.6,
+      "rating_avg": 4.6,
+      "reviewCount": 24,
+      "rating_count": 24,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "ابعاد ۶۰ در ۶۰ سانتی‌متر؛ درخشش ملایم زیر نور خورشید.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        }
+      ],
+      "images": [
+        {
+          "id": 2101,
+          "url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+          "alt": "باندانا ساتن طرح ژئومتریک رز کراس",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 21001,
+          "sku": "GEO-ROS-FR",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "Free",
+          "stock": 10,
+          "reserved": 0
+        },
+        {
+          "id": 21002,
+          "sku": "GEO-INK-FR",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "Free",
+          "stock": 8,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "slug": "neutral-patterned-cotton-bandana",
+      "title": "دستمال سر طرح‌دار خنثی",
+      "brand": "cos",
+      "division": "accessories",
+      "category": "bandanas",
+      "season": "summer-1405",
+      "badge": "حراج",
+      "price": 440000,
+      "base_price": 440000,
+      "compare_at_price": 550000,
+      "description": "دستمال سر سبک پنبه‌ای چاپ چوب با رنگدانه‌های گیاهی و پالت خنثی شنی و رسی. بسیار خنک و سبک که می‌تواند دور مو، دور مچ دست یا دور بند کیف بسته شود.",
+      "fabric": {
+        "composition": "۱۰۰٪ چیت پنبه هندی فوق سبک و تنفس‌پذیر",
+        "care": "شست‌وشوی دستی با آب خنک و صابون زیتون"
+      },
+      "fabric_composition": "۱۰۰٪ چیت پنبه هندی فوق سبک و تنفس‌پذیر",
+      "stretch": 1,
+      "softness": 5,
+      "opacity": 4,
+      "rating": 4.7,
+      "rating_avg": 4.7,
+      "reviewCount": 20,
+      "rating_count": 20,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "ابعاد ۵۰ در ۵۰ سانتی‌متر؛ استایل بوهو مینیمال.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        }
+      ],
+      "images": [
+        {
+          "id": 2201,
+          "url": "https://images.unsplash.com/photo-1520006403909-838d6b92c22e?auto=format&fit=crop&w=800&q=80",
+          "alt": "دستمال سر طرح‌دار خنثی شنی نچرال",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 22001,
+          "sku": "PAT-SND-FR",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "Free",
+          "stock": 14,
+          "reserved": 0
+        },
+        {
+          "id": 22002,
+          "sku": "PAT-CLY-FR",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "Free",
+          "stock": 9,
+          "reserved": 0
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "slug": "hand-rolled-silk-mini-scarf",
+      "title": "اسکارف مینی ابریشمی دور دست‌دوز",
+      "brand": "toteme",
+      "division": "accessories",
+      "category": "scarves",
+      "season": "spring-1406",
+      "badge": "پیش‌نمایش",
+      "price": 890000,
+      "base_price": 890000,
+      "compare_at_price": 1050000,
+      "description": "اسکارف مینی فاخر فرانسوی دوخته‌شده از ابریشم خالص توییل ۱۴ مام با حاشیه‌های اصیل رول‌شده دست‌دوز (Hand-rolled hem). مناسب گره زدن فرانسوی دور گردن یا تزیین مو در روزهای دلپذیر بهار.",
+      "fabric": {
+        "composition": "۱۰۰٪ ابریشم توییل خالص با پرداخت ابریشمی کلاسیک",
+        "care": "فقط خشک‌شویی تخصصی ابریشم یا شست‌وشوی فوق حساس با آب سرد"
+      },
+      "fabric_composition": "۱۰۰٪ ابریشم توییل خالص با پرداخت ابریشمی کلاسیک",
+      "stretch": 1,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 5,
+      "rating_avg": 5,
+      "reviewCount": 36,
+      "rating_count": 36,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "move",
+      "fit_note": "ابعاد ۷۰ در ۷۰ سانتی‌متر؛ افتادگی برازنده و شیک دور گردن.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "عاجی روشن",
+          "hex": "#FBF6F1"
+        },
+        {
+          "name": "رز کراس",
+          "hex": "#B8475F"
+        },
+        {
+          "name": "سبز مریم‌گلی",
+          "hex": "#56705B"
+        }
+      ],
+      "images": [
+        {
+          "id": 2301,
+          "url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+          "alt": "اسکارف مینی ابریشمی دور دست‌دوز عاجی روشن",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 23001,
+          "sku": "SLK-IVR-FR",
+          "color": "عاجی روشن",
+          "color_hex": "#FBF6F1",
+          "size": "Free",
+          "stock": 8,
+          "reserved": 0
+        },
+        {
+          "id": 23002,
+          "sku": "SLK-ROS-FR",
+          "color": "رز کراس",
+          "color_hex": "#B8475F",
+          "size": "Free",
+          "stock": 11,
+          "reserved": 1
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "slug": "thick-knit-wool-long-scarf",
+      "title": "شال بلند پشمی بافت ضخیم",
+      "brand": "massimo-dutti",
+      "division": "accessories",
+      "category": "scarves",
+      "season": "winter-1405",
+      "price": 1350000,
+      "base_price": 1350000,
+      "compare_at_price": 1580000,
+      "description": "شال پشمی قواره بزرگ ۲۰۰×۴۰ سانتی‌متر با بافت حجیم تیغ‌ماهی و ریشه‌های بلند تابیده شده. عایق بسیار قوی در برابر باد و سرمای استخوان‌سوز زمستان که گرمابخش‌ترین همسفر پالتوهای فوتر است.",
+      "fabric": {
+        "composition": "۸۵٪ پشم بره نرم کوهستانی، ۱۵٪ پلی‌آمید عایق ضد افتادگی",
+        "care": "خشک‌شویی یا شست‌وشوی دستی با شامپوی پشم و آب ۲۰ درجه"
+      },
+      "fabric_composition": "۸۵٪ پشم بره نرم کوهستانی، ۱۵٪ پلی‌آمید عایق ضد افتادگی",
+      "stretch": 3,
+      "softness": 5,
+      "opacity": 5,
+      "rating": 4.9,
+      "rating_avg": 4.9,
+      "reviewCount": 47,
+      "rating_count": 47,
+      "is_active": true,
+      "inStock": true,
+      "has_transparency_test": false,
+      "line": "calm",
+      "fit_note": "طول ۲ متر در عرض ۴۰ سانتی‌متر؛ امکان چند دور پیچیدن دور گردن.",
+      "sizes": [
+        "Free"
+      ],
+      "available_sizes": [
+        "Free"
+      ],
+      "colors": [
+        {
+          "name": "مشکی موکا",
+          "hex": "#3B2F2C"
+        },
+        {
+          "name": "شنی نچرال",
+          "hex": "#F1E7DC"
+        },
+        {
+          "name": "خاک رس",
+          "hex": "#C98F78"
+        }
+      ],
+      "images": [
+        {
+          "id": 2401,
+          "url": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=800&q=80",
+          "alt": "شال بلند پشمی بافت ضخیم مشکی موکا",
+          "kind": "photo",
+          "position": 1
+        }
+      ],
+      "variants": [
+        {
+          "id": 24001,
+          "sku": "WLS-INK-FR",
+          "color": "مشکی موکا",
+          "color_hex": "#3B2F2C",
+          "size": "Free",
+          "stock": 12,
+          "reserved": 0
+        },
+        {
+          "id": 24002,
+          "sku": "WLS-SND-FR",
+          "color": "شنی نچرال",
+          "color_hex": "#F1E7DC",
+          "size": "Free",
+          "stock": 16,
+          "reserved": 1
+        },
+        {
+          "id": 24003,
+          "sku": "WLS-CLY-FR",
+          "color": "خاک رس",
+          "color_hex": "#C98F78",
+          "size": "Free",
+          "stock": 7,
+          "reserved": 0
+        }
+      ]
+    }
+  ],
+  "taxonomy": {
+    "colors": [
+      {
+        "id": "col-1",
+        "name": "مشکی ذغالی",
+        "hex": "#1C1917",
+        "slug": "charcoal-black",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-2",
+        "name": "کرم ماسه‌ای",
+        "hex": "#E7E2D7",
+        "slug": "sand-cream",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-3",
+        "name": "طوسی ملانژ",
+        "hex": "#94A3B8",
+        "slug": "melange-grey",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-4",
+        "name": "یشمی کدر",
+        "hex": "#4D5D53",
+        "slug": "muted-jade",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-5",
+        "name": "شتری عسلی",
+        "hex": "#C2A68C",
+        "slug": "honey-camel",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-6",
+        "name": "سفید عاجی",
+        "hex": "#F8FAFC",
+        "slug": "ivory-white",
+        "isSystemDefault": true
+      },
+      {
+        "id": "col-7",
+        "name": "سرمه‌ای عمیق",
+        "hex": "#1E293B",
+        "slug": "deep-navy",
+        "isSystemDefault": true
+      }
+    ],
+    "sizes": [
+      {
+        "id": "sz-1",
+        "name": "XS",
+        "group": "alpha",
+        "order": 1,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-2",
+        "name": "S",
+        "group": "alpha",
+        "order": 2,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-3",
+        "name": "M",
+        "group": "alpha",
+        "order": 3,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-4",
+        "name": "L",
+        "group": "alpha",
+        "order": 4,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-5",
+        "name": "XL",
+        "group": "alpha",
+        "order": 5,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-6",
+        "name": "36",
+        "group": "numeric",
+        "order": 6,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-7",
+        "name": "38",
+        "group": "numeric",
+        "order": 7,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-8",
+        "name": "40",
+        "group": "numeric",
+        "order": 8,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-9",
+        "name": "42",
+        "group": "numeric",
+        "order": 9,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-10",
+        "name": "44",
+        "group": "numeric",
+        "order": 10,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-11",
+        "name": "Free Size",
+        "group": "free",
+        "order": 11,
+        "isSystemDefault": true
+      },
+      {
+        "id": "sz-12",
+        "name": "Standard",
+        "group": "accessory",
+        "order": 12,
+        "isSystemDefault": false
+      }
+    ],
+    "categories": [
+      {
+        "id": "cat-1",
+        "name": "شومیز و پیراهن",
+        "slug": "shirts-blouses",
+        "division": "apparel",
+        "iconName": "Shirt",
+        "isActive": true
+      },
+      {
+        "id": "cat-2",
+        "name": "بافت و پلیور",
+        "slug": "knitwear",
+        "division": "apparel",
+        "iconName": "Sparkles",
+        "isActive": true
+      },
+      {
+        "id": "cat-3",
+        "name": "پالتو و بارانی",
+        "slug": "coats-jackets",
+        "division": "apparel",
+        "iconName": "Layers",
+        "isActive": true
+      },
+      {
+        "id": "cat-4",
+        "name": "شلوار و لگ",
+        "slug": "pants",
+        "division": "apparel",
+        "iconName": "Scissors",
+        "isActive": true
+      },
+      {
+        "id": "cat-5",
+        "name": "تاپ و تیشرت",
+        "slug": "tops",
+        "division": "apparel",
+        "iconName": "Sun",
+        "isActive": true
+      },
+      {
+        "id": "cat-6",
+        "name": "اسکارف و شال",
+        "slug": "scarves",
+        "division": "accessories",
+        "iconName": "Wind",
+        "isActive": true
+      },
+      {
+        "id": "cat-7",
+        "name": "اکسسوری مو",
+        "slug": "hair-accessories",
+        "division": "accessories",
+        "iconName": "Heart",
+        "isActive": true
+      },
+      {
+        "id": "cat-8",
+        "name": "دستمال سر",
+        "slug": "bandanas",
+        "division": "accessories",
+        "iconName": "Sparkles",
+        "isActive": true
+      }
+    ],
+    "brands": [
+      {
+        "id": "br-1",
+        "name": "Keras Atelier",
+        "slug": "keras-atelier",
+        "isFeatured": true
+      },
+      {
+        "id": "br-2",
+        "name": "Totême",
+        "slug": "toteme",
+        "isFeatured": true
+      },
+      {
+        "id": "br-3",
+        "name": "Massimo Dutti",
+        "slug": "massimo-dutti",
+        "isFeatured": true
+      },
+      {
+        "id": "br-4",
+        "name": "COS",
+        "slug": "cos",
+        "isFeatured": true
+      },
+      {
+        "id": "br-5",
+        "name": "Zara",
+        "slug": "zara",
+        "isFeatured": true
+      },
+      {
+        "id": "br-6",
+        "name": "Mango",
+        "slug": "mango",
+        "isFeatured": true
+      }
+    ],
+    "seasons": [
+      {
+        "id": "sea-1",
+        "name": "پاییز ۱۴۰۵",
+        "slug": "fall-1405",
+        "isCurrentDrop": true,
+        "isActive": true
+      },
+      {
+        "id": "sea-2",
+        "name": "زمستان ۱۴۰۵",
+        "slug": "winter-1405",
+        "isCurrentDrop": false,
+        "isActive": true
+      },
+      {
+        "id": "sea-3",
+        "name": "بهار ۱۴۰۶",
+        "slug": "spring-1406",
+        "isCurrentDrop": false,
+        "isActive": true
+      },
+      {
+        "id": "sea-4",
+        "name": "تابستان ۱۴۰۵",
+        "slug": "summer-1405",
+        "isCurrentDrop": false,
+        "isActive": true
+      }
+    ]
+  },
+  "settings": {
+    "branding": {
+      "brandNameFa": "کراس",
+      "brandNameEn": "Keras",
+      "tagline": "زیبایی در سادگی، آزادی در حرکت",
+      "subTagline": "پوشاک تخصصی تمرین و روزمره زنانه",
+      "logoUrl": "/logo.svg",
+      "faviconUrl": "/favicon.ico",
+      "metaDescription": "پوشاک تخصصی زنانه کراس - بافت‌های بدون درز، راحتی و آزادی حرکت"
+    },
+    "contact": {
+      "supportPhone": "۰۲۱-۸۸۸۸۴۴۲۲",
+      "supportPhoneRaw": "02188884422",
+      "inquiryMobile": "09120000000",
+      "whatsappNumber": "09120000000",
+      "officialEmail": "care@keras.ir",
+      "atelierAddress": "تهران، جردن، خیابان سعیدی، پلاک ۲۴",
+      "workingHours": "شنبه تا پنج‌شنبه: ۹ الی ۱۸"
+    },
+    "shipping": {
+      "freeShippingThreshold": 1500000,
+      "flatShippingFee": 65000,
+      "estimatedDispatchText": "ارسال ۲ تا ۴ روز کاری با پست پیشتاز و تیپاکس",
+      "announcementBarText": "ارسال رایگان برای تمام سفارش‌های بالای ۱٫۵۰۰٫۰۰۰ تومان",
+      "announcementBarHighlight": "ضمانت تعویض تا ۷ روز کاری",
+      "announcementBarVisible": true
+    },
+    "checkoutRules": {
+      "minCartTotal": 100000,
+      "maxItemQuantityPerCart": 5,
+      "reservationTimeoutMinutes": 15,
+      "returnPolicyDays": 7,
+      "holidayModeEnabled": false,
+      "holidayNoticeText": "فروشگاه موقتاً به دلیل تعطیلات ارسال سفارشات را متوقف کرده است."
+    },
+    "social": {
+      "instagram": "https://instagram.com/keras.brand",
+      "telegram": "https://t.me/kerasbrand",
+      "pinterest": "https://pinterest.com/kerasbrand",
+      "youtube": "https://youtube.com/@kerasbrand"
+    },
+    "integrations": {
+      "googleAnalyticsId": "G-KERAS2026",
+      "googleTagManagerId": "GTM-KERAS01",
+      "enamadCode": "12345678",
+      "samandehiCode": "87654321",
+      "smsProviderSender": "30007788",
+      "smsProviderBalance": 125000
+    },
+    "homeHero": {
+      "badgeText": "طراحی اختصاصی • تیراژ محدود پاییز ۱۴۰۵",
+      "titlePrefix": "استایل منحصربه‌فرد",
+      "titleHighlight": "پاییز",
+      "titleSuffix": "خود را بسازید",
+      "description": "تلفیق پارچه‌های الیاف طبیعی، بافت‌های مرینوس و ابریشم خالص با الگوهای مدرن برای بانوان آگاه.",
+      "primaryCtaText": "مشاهده کالکشن پاییز",
+      "primaryCtaLink": "/shop?season=fall-1405",
+      "secondaryCtaText": "اکسسوری و شال‌ها",
+      "secondaryCtaLink": "/shop?division=accessories",
+      "bottomBadgeText": "کالکشن دست‌دوز استودیو کراس • نسخه محدود پاییز ۱۴۰۵",
+      "imageUrl": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80",
+      "imageAlt": "مدل کالکشن پاییز ۱۴۰۵ کراس با پالتوی پشمی و بافت لوکس",
+      "imageBadgeLabel": "طراحی کپسولی",
+      "imageBadgeValue": "پاییز ۱۴۰۵ • Fall Drop"
+    },
+    "updatedAt": "2026-10-12T21:48:26.189Z"
+  },
+  "reviews": [
+    {
+      "id": 1,
+      "productSlug": "karen-slub-linen-blouse",
+      "productTitle": "شومیز لنین اسلپ کارن",
+      "productThumbnail": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800",
+      "authorName": "سارا ملکی",
+      "author": "سارا ملکی",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۶/۲۰",
+      "created_at": "2026-09-10T10:30:00Z",
+      "comment": "کیفیت الیاف لنین فوق‌العاده‌ست! ریزش پارچه و تن‌خور کار بی‌نظیره و اصلاً بعد شست‌وشو آبرفت نداشت.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "M",
+      "status": "approved",
+      "reply": {
+        "text": "سارا عزیز، خوشحالیم که از ایستایی و کیفیت الیاف طبیعی شومیز کارن رضایت دارید. پوشیدن آن در روزهای پاییزی همراه شماست.",
+        "date": "۱۴۰۵/۰۶/۲۱",
+        "author": "آتلیه کراس"
+      }
+    },
+    {
+      "id": 2,
+      "productSlug": "karen-slub-linen-blouse",
+      "productTitle": "شومیز لنین اسلپ کارن",
+      "productThumbnail": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800",
+      "authorName": "نگار رادمهر",
+      "author": "نگار رادمهر",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۶/۲۸",
+      "created_at": "2026-09-18T16:45:00Z",
+      "comment": "دوخت بسیار تمیز و دکمه‌های صدفی باکیفیت. رنگ کرم ماسه‌ای دقیقاً شبیه عکس‌های آتلیه بود.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "S",
+      "status": "approved"
+    },
+    {
+      "id": 3,
+      "productSlug": "karen-slub-linen-blouse",
+      "productTitle": "شومیز لنین اسلپ کارن",
+      "productThumbnail": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800",
+      "authorName": "مهسا کاظمی",
+      "author": "مهسا کاظمی",
+      "rating": 4,
+      "date": "۱۴۰۵/۰۷/۰۱",
+      "created_at": "2026-09-22T11:20:00Z",
+      "comment": "تن‌خور کار خیلی قشنگه فقط آستین‌هاش کمی بلندتر از حد معموله که برای استایل کژوال با تا زدن عالی میشه.",
+      "fitFeedback": "runs_large",
+      "fit_feedback": "large",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "M",
+      "status": "approved"
+    },
+    {
+      "id": 4,
+      "productSlug": "karen-slub-linen-blouse",
+      "productTitle": "شومیز لنین اسلپ کارن",
+      "productThumbnail": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=800",
+      "authorName": "پریا دادخواه",
+      "author": "پریا دادخواه",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۷/۰۴",
+      "created_at": "2026-09-25T09:10:00Z",
+      "comment": "آیا رنگ زیتونی این کار دوباره شارژ میشه؟ کار قبلی رو خریدم و خیلی راضی بودم.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": false,
+      "verified_purchase": false,
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "productSlug": "oversized-washed-cotton-shirt",
+      "productTitle": "پیراهن نخ پنبه واش‌شده اورسایز",
+      "productThumbnail": "https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800",
+      "authorName": "شیدا انوری",
+      "author": "شیدا انوری",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۶/۲۵",
+      "created_at": "2026-09-15T14:15:00Z",
+      "comment": "پارچه پنبه‌ای بسیار خنک و لطیف. برای پاییز زیر ژاکت یا به تنهایی استایل فوق‌العاده‌ای داره.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "L",
+      "status": "approved",
+      "reply": {
+        "text": "شیدا عزیز، سپاس از ثبت دیدگاه شما. پیراهن اورسایز واش‌شده از پرطرفدارترین طراحی‌های کپسول پاییزی ماست.",
+        "date": "۱۴۰۵/۰۶/۲۶",
+        "author": "آتلیه کراس"
+      }
+    },
+    {
+      "id": 6,
+      "productSlug": "oversized-washed-cotton-shirt",
+      "productTitle": "پیراهن نخ پنبه واش‌شده اورسایز",
+      "productThumbnail": "https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800",
+      "authorName": "الهام توکلی",
+      "author": "الهام توکلی",
+      "rating": 3,
+      "date": "۱۴۰۵/۰۷/۰۲",
+      "created_at": "2026-09-23T18:00:00Z",
+      "comment": "قواره لباس بسیار بزرگ‌تر از چیزی هست که فکر می‌کردم، حتماً یک سایز کوچک‌تر انتخاب کنید.",
+      "fitFeedback": "runs_large",
+      "fit_feedback": "large",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "M",
+      "status": "pending"
+    },
+    {
+      "id": 7,
+      "productSlug": "fluffy-turtleneck-knit-sweater",
+      "productTitle": "پلیور یقه اسکی بافت موهر",
+      "productThumbnail": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800",
+      "authorName": "کیمیا افشار",
+      "author": "کیمیا افشار",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۶/۱۵",
+      "created_at": "2026-09-05T12:30:00Z",
+      "comment": "تراکم بافت موهر عالیه و اصلاً ایجاد خارش پوستی نمیکنه. رنگ شیری ملایم بسیار شیک است.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "S",
+      "status": "approved"
+    },
+    {
+      "id": 8,
+      "productSlug": "fluffy-turtleneck-knit-sweater",
+      "productTitle": "پلیور یقه اسکی بافت موهر",
+      "productThumbnail": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800",
+      "authorName": "مریم بهرامی",
+      "author": "مریم بهرامی",
+      "rating": 2,
+      "date": "۱۴۰۵/۰۷/۰۵",
+      "created_at": "2026-09-26T13:40:00Z",
+      "comment": "لطفاً متن نامربوط حذف شود... تبلیغات سایت دیگر.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": false,
+      "verified_purchase": false,
+      "status": "rejected"
+    },
+    {
+      "id": 9,
+      "productSlug": "cashmere-open-front-cardigan",
+      "productTitle": "کاردیگان جلوباز پشمی با کشمیر",
+      "productThumbnail": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800",
+      "authorName": "نازنین صفوی",
+      "author": "نازنین صفوی",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۷/۰۳",
+      "created_at": "2026-09-24T15:20:00Z",
+      "comment": "گرما و سبکی بی‌نظیر. لمس بافت کشمیر واقعاً حس لوکس بودن رو منتقل میکنه.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "Free",
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "productSlug": "calm-seamless-leggings-black",
+      "productTitle": "لگینگ ورزشی سیم‌لس مشکی کالم",
+      "productThumbnail": "https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?q=80&w=800",
+      "authorName": "سمیرا نادری",
+      "author": "سمیرا نادری",
+      "rating": 5,
+      "date": "۱۴۰۵/۰۶/۱۰",
+      "created_at": "2026-08-31T17:10:00Z",
+      "comment": "واقعاً تست اسکات‌پروف رو پاس کرد! حین تمرینات کششی یوگا اصلاً بدن‌نما نیست و کمرش لول نمیشه.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "M",
+      "status": "approved"
+    },
+    {
+      "id": 11,
+      "productSlug": "calm-seamless-leggings-black",
+      "productTitle": "لگینگ ورزشی سیم‌لس مشکی کالم",
+      "productThumbnail": "https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?q=80&w=800",
+      "authorName": "رویا قاسم‌پور",
+      "author": "رویا قاسم‌پور",
+      "rating": 4,
+      "date": "۱۴۰۵/۰۷/۰۶",
+      "created_at": "2026-09-27T10:05:00Z",
+      "comment": "کشسانی خوبی داره و فیت جذب و راحتی داره. سایزبندی کاملاً درسته.",
+      "fitFeedback": "true_to_size",
+      "fit_feedback": "true_to_size",
+      "isVerifiedBuyer": true,
+      "verified_purchase": true,
+      "size_purchased": "S",
+      "status": "pending"
+    }
+  ],
+  "articles": [
+    {
+      "id": 1,
+      "title": "راهنمای جامع استایل چندلایه پاییز: تلفیق هوشمندانه گرما و وقار",
+      "slug": "the-art-of-autumn-layering",
+      "category": "style-guide",
+      "categoryLabel": "راهنمای استایل",
+      "readTime": "۵ دقیقه",
+      "date": "۱۲ مهر ۱۴۰۵",
+      "author": {
+        "name": "سارا کیانی",
+        "role": "سرپرست استایلینگ آتلیه کراس",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "هنر چیدمان لایه‌های پاییزی با ترکیب دقیق شومیز لینن اسلپ، بافت یقه اسکی آلپاکا و پالتوی فوتر پشمی برای خلق سیلوئتی کشیده، اصیل و متناسب.",
+      "featured": true,
+      "status": "published",
+      "sections": [
+        {
+          "heading": "فلسفه لایه‌بندی در زیبایی‌شناسی پاییزه",
+          "content": "استایل چندلایه (Layering) صرفاً تلاشی برای مصون ماندن از نسیم سرد پاییز نیست؛ این هنر، زبانی بصری برای بیان تناسب، وزن و تنوع بافت‌ها در کنار یکدیگر است. هنگامی که یک شومیز لینن طبیعی با بافت نامنظم در زیر یک پلیور پشمی کشمیری بافته‌شده قرار می‌گیرد، تضاد میان ماتی پارچه و نرمی کرکی کشمیر چشم را به بازی عمق دعوت می‌کند.",
+          "pullQuote": "«استایل چندلایه نوعی معماری متحرک است؛ هر لایه باید به تنهایی کامل باشد اما در مجاورت لایه دیگر به شکوه برسد.»"
+        },
+        {
+          "heading": "قاعده ۳ لایه طلایی: پایه، عایق و پوشش بیرونی",
+          "content": "برای رسیدن به ظاهری پالوده و عاری از پف غیرضروری، حفظ تعادل میان وزن منسوجات حیاتی است. لایه نخست باید سبک و تنفس‌پذیر باشد (نظیر شومیز لینن اسلپ کارن). لایه میانی نقش عایق حرارتی با حفظ آزادی حرکت را دارد (پلیور کشمیر یا بافت مرینوس). در نهایت، لایه رویین مانند ترنچ‌کت پشمی خطوط ساختاری و سیلوئت کشیده شما را تعریف می‌کند.",
+          "image": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+          "imageCaption": "ترکیب لایه‌بندی رنگ‌های مونوکروم خنثی با ترنچ‌کت و بافت کشمیر در نور پاییزی"
+        },
+        {
+          "heading": "توازن پالت رنگ‌های زمین و طبیعت",
+          "content": "در آتلیه کراس، ما پالت پاییزی را از دل خاک و صخره‌های زاگرس برگزیده‌ایم. تلفیق کرم شنی، شتری اعلا و قهوه‌ای موکا با لمسی از مشکی زغالی به هر حرکتی طمأنینه می‌بخشد. پوشیدن رنگ‌های مونوکروم با تناژهای نزدیک به هم سبب می‌شود قامت بلندتر و یکپارچه‌تر به نظر برسد."
+        }
+      ],
+      "linkedProductSlugs": [
+        "karen-slub-linen-blouse",
+        "fluffy-turtleneck-knit-sweater",
+        "long-lined-wool-fouter-coat"
+      ],
+      "linkedProducts": [
+        {
+          "id": 1,
+          "title": "شومیز لینن اسلپ مدل کارن",
+          "slug": "karen-slub-linen-blouse",
+          "price": 1850000,
+          "image": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80",
+          "badge": "جدید"
+        },
+        {
+          "id": 5,
+          "title": "پلیور بافت یقه اسکی موهر کرکی",
+          "slug": "fluffy-turtleneck-knit-sweater",
+          "price": 2450000,
+          "image": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
+          "badge": "پرفروش"
+        },
+        {
+          "id": 9,
+          "title": "پالتو فوتر پشمی بلند آستردار",
+          "slug": "long-lined-wool-fouter-coat",
+          "price": 4650000,
+          "image": "https://images.unsplash.com/photo-1544923246-77307dd654cb?auto=format&fit=crop&w=800&q=80",
+          "badge": "دست‌دوز"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "اصالت الیاف لوکس: راهنمای نگهداری ابدی کشمیر و پشم مرینوس",
+      "slug": "cashmere-and-merino-care-guide",
+      "category": "fabric-care",
+      "categoryLabel": "نگهداری الیاف لوکس",
+      "readTime": "۴ دقیقه",
+      "date": "۰۸ مهر ۱۴۰۵",
+      "author": {
+        "name": "مهندس نوید کاوه",
+        "role": "متخصص نساجی و الیاف طبیعی",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "راز لطافت ابریشمی و ماندگاری دهه‌ها در شست‌وشوی دستی با آب سرد، خشک کردن افقی با دانه‌های چوب سدر و حفظ بافت طبیعی و متراکم منسوجات دست‌بافت.",
+      "featured": false,
+      "status": "published",
+      "sections": [
+        {
+          "heading": "چرا الیاف طبیعی حیاتی نیازمند مراقبت اختصاصی هستند؟",
+          "content": "پشم مرینوس و کرک‌های لطیف زیرین بز کشمیر، تارهای زنده‌ای هستند که در ساختار میکروسکوپی خود حاوی فلس‌های محافظ و لانولین طبیعی می‌باشند. شوینده‌های شیمیایی قوی یا دمای آب بالای ۳۰ درجه فلس‌های پشم را منقبض کرده و موجب نمدی شدن (Felting) و از بین رفتن انعطاف طبیعی آن می‌گردد.",
+          "pullQuote": "«کشمیر با هر بار لمس و شست‌وشوی اصولی، لطیف‌تر و اصیل‌تر می‌شود؛ نه کهنه‌تر.»"
+        },
+        {
+          "heading": "آداب شست‌وشوی دستی با شامپوی مخصوص",
+          "content": "پوشاک کشمیر را در تشت آب ولرم متمایل به سرد همراه با مقدار اندکی شامپوی کراتینه یا شوینده بدون آنزیم ملایم قرار دهید. به مدت ۵ دقیقه به آرامی ماساژ دهید و هرگز آن را نچلانید. برای آبکشی، لباس را میان یک حوله پنبه‌ای ضخیم لوله کنید تا رطوبت اضافه جذب شود.",
+          "image": "https://images.unsplash.com/photo-1520006403909-838d6b92c22e?auto=format&fit=crop&w=1200&q=80",
+          "imageCaption": "خشک کردن افقی روی سطح توری در سایه برای پیشگیری از تغییر شکل قواره"
+        },
+        {
+          "heading": "نگهداری خارج از فصل و مبارزه با بید",
+          "content": "هرگز بافت‌های پشمی را روی چوب‌لباسی آویزان نکنید زیرا وزن لباس فرم شانه‌ها را برهم می‌زند. در پایان فصل، لباس‌ها را تمیز شسته، به صورت تخت تا کرده و به همراه حلقه‌های چوب سدر سرخ درون کاورهای تنفس‌پذیر پنبه‌ای نگهداری فرمایید."
+        }
+      ],
+      "linkedProductSlugs": [
+        "fluffy-turtleneck-knit-sweater",
+        "cashmere-open-front-cardigan"
+      ],
+      "linkedProducts": [
+        {
+          "id": 5,
+          "title": "پلیور بافت یقه اسکی موهر کرکی",
+          "slug": "fluffy-turtleneck-knit-sweater",
+          "price": 2450000,
+          "image": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
+          "badge": "پرفروش"
+        },
+        {
+          "id": 6,
+          "title": "کاردیگان جلوباز بافت کشمیر طبیعی",
+          "slug": "cashmere-open-front-cardigan",
+          "price": 3200000,
+          "image": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=800&q=80",
+          "badge": "لوکس"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "روایت دراپ پاییزی ۱۴۰۵: از خطوط بیومکانیک تا توازن فرم و سکوت",
+      "slug": "autumn-drop-1405-story",
+      "category": "drop-story",
+      "categoryLabel": "داستان دراپ و کالکشن",
+      "readTime": "۶ دقیقه",
+      "date": "۰۴ مهر ۱۴۰۵",
+      "author": {
+        "name": "بهرام شمس",
+        "role": "مدیر ارشد خلاقیت کراس",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "چگونه تیم طراحی کراس پس از شش ماه مطالعه آناتومی و تنفس الیاف، فرم‌هایی خلق کرد که بدون ایجاد محدودیت فیزیکی، وقار آتلیه‌ای را به خیابان می‌آورند.",
+      "featured": false,
+      "status": "published",
+      "sections": [
+        {
+          "heading": "ایده‌پردازی در تلاقی استودیو و تحرک شهری",
+          "content": "دراپ پاییز ۱۴۰۵ با این پرسش آغاز شد: چگونه می‌توان پوششی طراحی کرد که هم در جلسات ادیتوریال و محیط‌های رسمی بدرخشد و هم در گام‌های تند عصرگاهی حس رهایی کامل ببخشد؟ پاسخ ما در ساختار دوگانه «حرکت و سکوت» نهفته بود.",
+          "pullQuote": "«لباس نباید به بدن تحمیل شود؛ لباس باید ادامه طبیعی تنفس و اراده انسان باشد.»"
+        },
+        {
+          "heading": "توسعه پارچه‌های اختصاصی اسلپ و میکرو-مدال",
+          "content": "ما با همکاری کارگاه‌های نساجی بومی، فرمولاسیون اختصاصی از لینن سنگین‌بافت با نخ‌های اسلپ بافت نامتقارن تولید کردیم. این بافت در عین ایستایی مجلل، جریان آزاد هوای پاییزی را تضمین می‌کند و چروک‌پذیری مهارشده‌ای دارد که به وقار آن می‌افزاید.",
+          "image": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
+          "imageCaption": "فرآیند برش دستی الگوها در استودیوی مرکزی کراس"
+        },
+        {
+          "heading": "سیلوئت‌های رها و جزئیات دست‌دوز",
+          "content": "در تمامی تکه‌های این کالکشن، دوخت‌های کور و لبه‌دوزی‌های ابریشمی به کار رفته است تا هیچ خط اتصالی پوست را آزار ندهد. دراپ پاییز ۱۴۰۵ گامی محکم در تحقق مانیفست مد پایدار و اصیل کراس است."
+        }
+      ],
+      "linkedProductSlugs": [
+        "karen-slub-linen-blouse",
+        "oversized-washed-cotton-shirt"
+      ],
+      "linkedProducts": [
+        {
+          "id": 1,
+          "title": "شومیز لینن اسلپ مدل کارن",
+          "slug": "karen-slub-linen-blouse",
+          "price": 1850000,
+          "image": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80",
+          "badge": "جدید"
+        },
+        {
+          "id": 2,
+          "title": "پیراهن کتان شسته‌شده قواره آزاد",
+          "slug": "oversized-washed-cotton-shirt",
+          "price": 1720000,
+          "image": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+          "badge": "پرفروش"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "مانیفست اسکارف و باندانا: لمس جادویی در استایل مینیمال",
+      "slug": "silk-scarf-minimalist-styling",
+      "category": "style-guide",
+      "categoryLabel": "راهنمای استایل",
+      "readTime": "۳ دقیقه",
+      "date": "۲۸ شهریور ۱۴۰۵",
+      "author": {
+        "name": "نیلوفر امینی",
+        "role": "ادیتور اکسسوری و مد کراس",
+        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "تکنیک‌های جذاب گره زدن اسکارف تویل ابریشمی، استایل کردن دستمال سر ژاکارد و اکسسوری مو برای روح بخشیدن به آرام‌ترین ست‌های تک‌رنگ مونوکروم.",
+      "featured": false,
+      "status": "published",
+      "sections": [
+        {
+          "heading": "چگونه یک اکسسوری کوچک پالت کل استایل را دگرگون می‌کند",
+          "content": "در استایل‌های مینیمال پاییزی که بر پایه رنگ‌های خاکستری، کرم و مشکی شکل می‌گیرند، حضور یک اسکارف تویل ابریشمی با چاپ‌های هندسی ملایم مانند یک نقطه عطف بصری عمل می‌کند. ابریشم با درخشش ملایم مات خود نوری ظریف به چهره می‌تاباند.",
+          "pullQuote": "«اکسسوری در استایل مینیمال، فریاد نمی‌زند؛ بلکه زمزمه‌ای هوشمندانه از سلیقه ناب صاحب آن است.»"
+        },
+        {
+          "heading": "سه گره پرکاربرد برای یقه پالتو و بافت",
+          "content": "گره فرانسوی کلاسیک در گودی گردن، گره مثلثی رها روی سینه برای روزهای خنک، و بستن روی دسته کیف چرمی از محبوب‌ترین متدهای روز دنیا برای استفاده چندمنظوره از اسکارف‌های قواره ۷۰ در ۷۰ سانتیمتر است."
+        }
+      ],
+      "linkedProductSlugs": [
+        "hand-rolled-silk-mini-scarf"
+      ],
+      "linkedProducts": [
+        {
+          "id": 23,
+          "title": "اسکارف مینی ابریشمی دور دست‌دوز",
+          "slug": "hand-rolled-silk-mini-scarf",
+          "price": 890000,
+          "image": "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=800&q=80",
+          "badge": "پیش‌نمایش"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "راز ماندگاری الیاف میکرو-مدال: لطافت ابریشمی بدون فرسایش بافت",
+      "slug": "micro-modal-longevity-secrets",
+      "category": "fabric-care",
+      "categoryLabel": "نگهداری الیاف لوکس",
+      "readTime": "۴ دقیقه",
+      "date": "۲۲ شهریور ۱۴۰۵",
+      "author": {
+        "name": "مهندس نوید کاوه",
+        "role": "متخصص نساجی و الیاف طبیعی",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "بررسی علمی ساختار الیاف استحصال‌شده از درخت راش اتریشی؛ چرا منسوجات لاین Calm پس از صدها بار پوشش همچنان درخشندگی و لطافت اولیه را حفظ می‌کنند.",
+      "featured": false,
+      "status": "published",
+      "sections": [
+        {
+          "heading": "تفاوت‌های ساختاری مدال با الیاف سلولزی سنتی",
+          "content": "میکرو-مدال دارای ساختار مولکولی یکنواخت‌تری نسبت به پنبه معمولی است. سطح صاف فیبر مانع از گیر افتادن ذرات مواد شوینده در منافذ پارچه می‌شود و در نتیجه، سختی و پرزدهی پس از شست‌وشو رخ نمی‌دهد."
+        }
+      ],
+      "linkedProductSlugs": [
+        "karen-slub-linen-blouse"
+      ],
+      "linkedProducts": [
+        {
+          "id": 1,
+          "title": "شومیز لینن اسلپ مدل کارن",
+          "slug": "karen-slub-linen-blouse",
+          "price": 1850000,
+          "image": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=800&q=80",
+          "badge": "جدید"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "کمد کپسولی پاییزه: خلق ۳۰ استایل متمایز تنها با ۸ قطعه لباس کلیدی",
+      "slug": "capsule-wardrobe-autumn-guide",
+      "category": "style-guide",
+      "categoryLabel": "راهنمای استایل",
+      "readTime": "۵ دقیقه",
+      "date": "۱۵ شهریور ۱۴۰۵",
+      "author": {
+        "name": "سارا کیانی",
+        "role": "سرپرست استایلینگ آتلیه کراس",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+      "excerpt": "چگونه با حذف شلوغی‌های بصری کمد و سرمایه‌گذاری بر روی برش‌های بی‌زمان و پارچه‌های اعلا، همیشه آراسته، خلاق و متمایز به نظر برسیم.",
+      "featured": false,
+      "status": "draft",
+      "sections": [
+        {
+          "heading": "مقدمه: رهایی از فلج انتخاب روزمره",
+          "content": "کمد کپسولی ترویج یکنواختی نیست؛ بلکه بیانیه‌ای علیه مد سریع (Fast Fashion) و مصرف‌گرایی کورکورانه است. هنگامی که پایه‌های کمد از کیفیتی غیرقابل انکار برخوردار باشند، هر ترکیبی شاهکاری هماهنگ خواهد بود."
+        }
+      ],
+      "linkedProductSlugs": [
+        "oversized-washed-cotton-shirt",
+        "karen-slub-linen-blouse"
+      ],
+      "linkedProducts": [
+        {
+          "id": 2,
+          "title": "پیراهن کتان شسته‌شده قواره آزاد",
+          "slug": "oversized-washed-cotton-shirt",
+          "price": 1720000,
+          "image": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+          "badge": "پرفروش"
+        }
+      ]
+    }
+  ]
+}
