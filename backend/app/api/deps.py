@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.db.session import get_db
@@ -51,7 +52,7 @@ async def get_current_user(
             detail="Could not validate credentials or token expired.",
         )
 
-    stmt = select(User).where(User.id == user_id)
+    stmt = select(User).where(User.id == user_id).options(selectinload(User.addresses))
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
 
@@ -83,7 +84,7 @@ async def get_optional_user(
     except jwt.PyJWTError:
         return None
 
-    result = await db.execute(select(User).where(User.id == user_id))
+    result = await db.execute(select(User).where(User.id == user_id).options(selectinload(User.addresses)))
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
         return None

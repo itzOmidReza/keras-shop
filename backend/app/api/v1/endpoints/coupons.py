@@ -28,7 +28,7 @@ async def validate_coupon(
     db: AsyncSession = Depends(get_db),
 ):
     code = payload.code.strip().upper()
-    subtotal_toman = payload.subtotal or (payload.cart_subtotal_rial // _TOMAN if payload.cart_subtotal_rial else 0)
+    subtotal_toman = payload.subtotal or payload.cart_total or (payload.cart_subtotal_rial // _TOMAN if payload.cart_subtotal_rial else 0)
 
     if subtotal_toman <= 0:
         raise DomainException(

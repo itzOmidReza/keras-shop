@@ -89,6 +89,9 @@ export default defineNuxtConfig({
 
   // ۶. قوانین رندرینگ و کش صفحات (SWR / CSR)
   routeRules: {
+    // هدایت تمام درخواست‌های API به بک‌اند FastAPI
+    '/api/**': { proxy: `${process.env.BACKEND_URL || 'http://127.0.0.1:8000'}/api/**` },
+
     '/': { swr: 300 },
     '/shop/**': { swr: 300 },
     '/products/**': { swr: 300 }, // تغییر از /p/** به مسیر جدید سئو

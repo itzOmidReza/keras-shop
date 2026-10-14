@@ -7,6 +7,7 @@ from app.models.enums import DiscountType
 class CouponValidateRequest(BaseModel):
     code: str = Field(..., example="KERAS10", description="Promotional coupon code")
     subtotal: Optional[int] = None  # Front-end Nuxt (in Toman)
+    cart_total: Optional[int] = None
     cart_subtotal_rial: Optional[int] = None  # Legacy API (in Rials)
 
     @field_validator("code")

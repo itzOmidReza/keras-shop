@@ -146,7 +146,11 @@ class TrackOrderResponse(BaseModel):
 
 
 class TrackOrderRequest(BaseModel):
-    query: str
+    query: Optional[str] = None
+    orderNumber: Optional[str] = None
+
+    def get_query(self) -> str:
+        return (self.query or self.orderNumber or "").strip()
 
 
 class PaymentInitResponse(BaseModel):

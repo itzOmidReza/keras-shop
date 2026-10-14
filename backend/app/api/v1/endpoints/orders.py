@@ -261,7 +261,7 @@ async def track_order(
     payload: TrackOrderRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    query = payload.query.strip()
+    query = payload.get_query()
     if not query:
         raise DomainException(
             message="لطفاً شماره سفارش یا شماره تلفن همراه را وارد نمایید.",
