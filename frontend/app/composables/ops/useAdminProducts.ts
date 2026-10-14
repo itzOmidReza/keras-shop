@@ -62,6 +62,23 @@ const selectedCategory = ref('all')
 const isDeletingId = ref<number | null>(null)
 
 export function useAdminProducts() {
+  const fetchProducts = async () => {
+    try {
+      const data = await $fetch<ProductDetail[]>('/api/products')
+      if (Array.isArray(data) && data.length > 0) {
+        productsList.value = data
+      }
+    } catch {
+      // keep fallback
+    }
+  }
+
+  if (import.meta.client) {
+    onMounted(() => {
+      fetchProducts()
+    })
+  }
+
   const filteredProducts = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     return productsList.value.filter((p) => {

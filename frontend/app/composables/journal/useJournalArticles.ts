@@ -22,6 +22,23 @@ export function useJournalArticles() {
   const searchQuery = ref('')
   const newsletterEmail = ref('')
 
+  const fetchArticles = async () => {
+    try {
+      const data = await $fetch<JournalArticle[]>('/api/articles')
+      if (Array.isArray(data) && data.length > 0) {
+        sharedJournalArticles.value = data
+      }
+    } catch {
+      // keep fallback
+    }
+  }
+
+  if (import.meta.client) {
+    onMounted(() => {
+      fetchArticles()
+    })
+  }
+
   // فقط مقالات منتشر شده برای ویترین
   const publishedArticles = computed(() => {
     return sharedJournalArticles.value.filter(article => article.status === 'published')

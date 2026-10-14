@@ -95,6 +95,23 @@ const isInquiring = ref(false)
 const activeInquiryResult = ref<CarrierInquiryResult | null>(null)
 
 export function useAdminOrders() {
+  const fetchOrders = async () => {
+    try {
+      const data = await $fetch<TrackOrderResponse[]>('/api/user/orders')
+      if (Array.isArray(data) && data.length > 0) {
+        ordersList.value = data
+      }
+    } catch {
+      // keep fallback
+    }
+  }
+
+  if (import.meta.client) {
+    onMounted(() => {
+      fetchOrders()
+    })
+  }
+
   // فیلتر سفارش‌ها
   const filteredOrders = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
