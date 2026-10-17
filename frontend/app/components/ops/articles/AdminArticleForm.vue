@@ -156,7 +156,7 @@ const getLinkedGarments = (): LinkedGarment[] => {
 }
 
 // ذخیره فرم به عنوان پیش‌نویس یا انتشار قطعی
-const handleSave = (targetStatus: 'published' | 'draft') => {
+const handleSave = async (targetStatus: 'published' | 'draft') => {
   if (!title.value.trim()) {
     toast.error('لطفاً عنوان مقاله را وارد فرمایید.')
     return
@@ -177,7 +177,7 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
   const linkedGarments = getLinkedGarments()
 
   if (props.mode === 'new') {
-    createArticle({
+    await createArticle({
       title: title.value,
       slug: slug.value,
       category: category.value,
@@ -193,7 +193,7 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
     })
     router.push('/internal-ops-nexus/articles')
   } else if (props.mode === 'edit' && props.articleId) {
-    updateArticle(props.articleId, {
+    await updateArticle(props.articleId, {
       title: title.value,
       slug: slug.value,
       category: category.value,

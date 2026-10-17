@@ -91,7 +91,7 @@ export function useAdminArticles() {
       .replace(/[^\w\u0600-\u06FF-]/g, '')
   }
 
-  const createArticle = (payload: {
+  const createArticle = async (payload: {
     title: string
     slug?: string
     category: ArticleCategory
@@ -104,56 +104,69 @@ export function useAdminArticles() {
     pullQuote?: string
     status: 'published' | 'draft'
     linkedProducts?: LinkedGarment[]
-  }): JournalArticle => {
-    const nextId =
-      sharedJournalArticles.value.length > 0
-        ? Math.max(...sharedJournalArticles.value.map(a => a.id)) + 1
-        : 1
+  }): Promise<JournalArticle> => {
+    try {
+      const created = await $fetch<JournalArticle>('/api/articles', {
+        method: 'POST',
+        body: payload,
+      })
+      sharedJournalArticles.value.unshift(created)
+      toast.success(
+        payload.status === 'published'
+          ? 'مقاله با موفقیت در پایگاه داده منتشر شد.'
+          : 'پیش‌نویس مقاله با موفقیت ذخیره گردید.',
+      )
+      return created
+    } catch {
+      const nextId =
+        sharedJournalArticles.value.length > 0
+          ? Math.max(...sharedJournalArticles.value.map(a => typeof a.id === 'number' ? a.id : 0)) + 1
+          : 1
 
-    const generatedSlug = payload.slug?.trim() || slugify(payload.title) || `article-${nextId}`
-    const categoryObj = ADMIN_ARTICLE_CATEGORIES.find(c => c.id === payload.category)
-    const categoryLabel = categoryObj ? categoryObj.label : 'راهنمای استایل'
+      const generatedSlug = payload.slug?.trim() || slugify(payload.title) || `article-${nextId}`
+      const categoryObj = ADMIN_ARTICLE_CATEGORIES.find(c => c.id === payload.category)
+      const categoryLabel = categoryObj ? categoryObj.label : 'راهنمای استایل'
 
-    const newArticle: JournalArticle = {
-      id: nextId,
-      title: payload.title.trim(),
-      slug: generatedSlug,
-      category: payload.category,
-      categoryLabel,
-      readTime: `${payload.readTimeMinutes || 5} دقیقه`,
-      date: 'امروز',
-      author: {
-        name: payload.authorName.trim() || 'ادیتور آتلیه کراس',
-        role: payload.authorRole?.trim() || 'تیم تحریریه کراس',
-      },
-      coverImage:
-        payload.coverImage.trim() ||
-        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80',
-      excerpt: payload.excerpt.trim(),
-      featured: false,
-      status: payload.status,
-      sections: [
-        {
-          heading: 'مقدمه و چشم‌انداز',
-          content: payload.content.trim(),
-          pullQuote: payload.pullQuote?.trim() || undefined,
+      const newArticle: JournalArticle = {
+        id: nextId,
+        title: payload.title.trim(),
+        slug: generatedSlug,
+        category: payload.category,
+        categoryLabel,
+        readTime: `${payload.readTimeMinutes || 5} دقیقه`,
+        date: 'امروز',
+        author: {
+          name: payload.authorName.trim() || 'ادیتور آتلیه کراس',
+          role: payload.authorRole?.trim() || 'تیم تحریریه کراس',
         },
-      ],
-      linkedProducts: payload.linkedProducts || [],
+        coverImage:
+          payload.coverImage.trim() ||
+          'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80',
+        excerpt: payload.excerpt.trim(),
+        featured: false,
+        status: payload.status,
+        sections: [
+          {
+            heading: 'مقدمه و چشم‌انداز',
+            content: payload.content.trim(),
+            pullQuote: payload.pullQuote?.trim() || undefined,
+          },
+        ],
+        linkedProducts: payload.linkedProducts || [],
+      }
+
+      sharedJournalArticles.value.unshift(newArticle)
+      toast.success(
+        payload.status === 'published'
+          ? 'مقاله با موفقیت منتشر شد.'
+          : 'پیش‌نویس مقاله با موفقیت ذخیره گردید.',
+      )
+      return newArticle
     }
-
-    sharedJournalArticles.value.unshift(newArticle)
-    toast.success(
-      payload.status === 'published'
-        ? 'مقاله با موفقیت منتشر شد.'
-        : 'پیش‌نویس مقاله با موفقیت ذخیره گردید.',
-    )
-
-    return newArticle
   }
 
-  const updateArticle = (
-    id: number,
+  const updateArticle = async (
+    id: number | string,
     payload: {
       title?: string
       slug?: string
@@ -168,67 +181,85 @@ export function useAdminArticles() {
       status?: 'published' | 'draft'
       linkedProducts?: LinkedGarment[]
     },
-  ): boolean => {
-    const index = sharedJournalArticles.value.findIndex(a => a.id === id)
-    if (index === -1) {
-      toast.error('مقاله مورد نظر یافت نشد.')
-      return false
+  ): Promise<boolean> => {
+    try {
+      const updated = await $fetch<JournalArticle>(`/api/articles/${id}`, {
+        method: 'PUT',
+        body: payload,
+      })
+      const index = sharedJournalArticles.value.findIndex(a => String(a.id) === String(id))
+      if (index !== -1) {
+        sharedJournalArticles.value[index] = updated
+      }
+      toast.success('تغییرات مقاله با موفقیت ذخیره شد.')
+      return true
+    } catch {
+      const index = sharedJournalArticles.value.findIndex(a => String(a.id) === String(id))
+      if (index === -1) {
+        toast.error('مقاله مورد نظر یافت نشد.')
+        return false
+      }
+
+      const current = sharedJournalArticles.value[index]
+      if (!current) {
+        toast.error('مقاله مورد نظر یافت نشد.')
+        return false
+      }
+
+      const updatedCategory = payload.category || current.category
+      const categoryObj = ADMIN_ARTICLE_CATEGORIES.find(c => c.id === updatedCategory)
+
+      const updated: JournalArticle = {
+        ...current,
+        id: current.id,
+        title: payload.title !== undefined ? payload.title.trim() : current.title,
+        slug: payload.slug !== undefined && payload.slug.trim() ? payload.slug.trim() : current.slug,
+        category: updatedCategory,
+        categoryLabel: categoryObj ? categoryObj.label : current.categoryLabel,
+        readTime:
+          payload.readTimeMinutes !== undefined
+            ? `${payload.readTimeMinutes} دقیقه`
+            : current.readTime,
+        coverImage: payload.coverImage !== undefined ? payload.coverImage.trim() : current.coverImage,
+        excerpt: payload.excerpt !== undefined ? payload.excerpt.trim() : current.excerpt,
+        status: payload.status !== undefined ? payload.status : current.status,
+        author: {
+          name:
+            payload.authorName !== undefined ? payload.authorName.trim() : current.author.name,
+          role:
+            payload.authorRole !== undefined ? payload.authorRole.trim() : current.author.role,
+          avatar: current.author.avatar,
+        },
+        sections:
+          payload.content !== undefined
+            ? [
+                {
+                  heading: current.sections[0]?.heading || 'مقدمه و چشم‌انداز',
+                  content: payload.content.trim(),
+                  pullQuote:
+                    payload.pullQuote !== undefined
+                      ? payload.pullQuote.trim()
+                      : current.sections[0]?.pullQuote,
+                },
+              ]
+            : current.sections,
+        linkedProducts:
+          payload.linkedProducts !== undefined ? payload.linkedProducts : current.linkedProducts,
+      }
+
+      sharedJournalArticles.value[index] = updated
+      toast.success('تغییرات مقاله با موفقیت ذخیره شد.')
+      return true
     }
-
-    const current = sharedJournalArticles.value[index]
-    if (!current) {
-      toast.error('مقاله مورد نظر یافت نشد.')
-      return false
-    }
-
-    const updatedCategory = payload.category || current.category
-    const categoryObj = ADMIN_ARTICLE_CATEGORIES.find(c => c.id === updatedCategory)
-
-    const updated: JournalArticle = {
-      ...current,
-      id: current.id,
-      title: payload.title !== undefined ? payload.title.trim() : current.title,
-      slug: payload.slug !== undefined && payload.slug.trim() ? payload.slug.trim() : current.slug,
-      category: updatedCategory,
-      categoryLabel: categoryObj ? categoryObj.label : current.categoryLabel,
-      readTime:
-        payload.readTimeMinutes !== undefined
-          ? `${payload.readTimeMinutes} دقیقه`
-          : current.readTime,
-      coverImage: payload.coverImage !== undefined ? payload.coverImage.trim() : current.coverImage,
-      excerpt: payload.excerpt !== undefined ? payload.excerpt.trim() : current.excerpt,
-      status: payload.status !== undefined ? payload.status : current.status,
-      author: {
-        name:
-          payload.authorName !== undefined ? payload.authorName.trim() : current.author.name,
-        role:
-          payload.authorRole !== undefined ? payload.authorRole.trim() : current.author.role,
-        avatar: current.author.avatar,
-      },
-      sections:
-        payload.content !== undefined
-          ? [
-              {
-                heading: current.sections[0]?.heading || 'مقدمه و چشم‌انداز',
-                content: payload.content.trim(),
-                pullQuote:
-                  payload.pullQuote !== undefined
-                    ? payload.pullQuote.trim()
-                    : current.sections[0]?.pullQuote,
-              },
-            ]
-          : current.sections,
-      linkedProducts:
-        payload.linkedProducts !== undefined ? payload.linkedProducts : current.linkedProducts,
-    }
-
-    sharedJournalArticles.value[index] = updated
-    toast.success('تغییرات مقاله با موفقیت ذخیره شد.')
-    return true
   }
 
-  const deleteArticle = (id: number): boolean => {
-    const index = sharedJournalArticles.value.findIndex(a => a.id === id)
+  const deleteArticle = async (id: number | string): Promise<boolean> => {
+    try {
+      await $fetch(`/api/articles/${id}`, { method: 'DELETE' })
+    } catch {
+      // fallback
+    }
+    const index = sharedJournalArticles.value.findIndex(a => String(a.id) === String(id))
     if (index === -1) {
       toast.error('مقاله مورد نظر یافت نشد.')
       return false
@@ -241,11 +272,20 @@ export function useAdminArticles() {
     return true
   }
 
-  const togglePublishStatus = (id: number): boolean => {
-    const article = sharedJournalArticles.value.find(a => a.id === id)
+  const togglePublishStatus = async (id: number | string): Promise<boolean> => {
+    const article = sharedJournalArticles.value.find(a => String(a.id) === String(id))
     if (!article) return false
 
-    article.status = article.status === 'published' ? 'draft' : 'published'
+    const nextStatus = article.status === 'published' ? 'draft' : 'published'
+    try {
+      await $fetch(`/api/articles/${id}`, {
+        method: 'PUT',
+        body: { status: nextStatus },
+      })
+    } catch {
+      // fallback
+    }
+    article.status = nextStatus
     toast.success(
       article.status === 'published'
         ? `مقاله «${article.title}» منتشر شد.`

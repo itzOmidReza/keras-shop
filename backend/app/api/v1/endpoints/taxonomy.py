@@ -1,7 +1,16 @@
+import uuid
 from typing import List, Optional, Any, Dict
 from fastapi import APIRouter, Depends, Query, Path, status
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
+
+
+def _is_valid_uuid(val: Any) -> bool:
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, TypeError, AttributeError):
+        return False
 
 from app.db.session import get_db
 from app.models.taxonomy import (
@@ -145,25 +154,27 @@ async def update_taxonomy_entity(
     }
     model = model_map.get(domain)
     if model:
-        stmt = select(model).where(
-            or_(
-                getattr(model, "slug", None) == item_id,
-                getattr(model, "id", None) == item_id,
-                getattr(model, "name", None) == item_id,
-            )
-        )
-        res = await db.execute(stmt)
-        record = res.scalar_one_or_none()
-        if record:
-            if "name" in payload and hasattr(record, "name"):
-                record.name = payload["name"]
-            if "hex" in payload and hasattr(record, "hex"):
-                record.hex = payload["hex"]
-            if "isFeatured" in payload and hasattr(record, "is_featured"):
-                record.is_featured = bool(payload["isFeatured"])
-            if "isCurrentDrop" in payload and hasattr(record, "is_current_drop"):
-                record.is_current_drop = bool(payload["isCurrentDrop"])
-            await db.commit()
+        conditions = []
+        if hasattr(model, "slug"):
+            conditions.append(model.slug == item_id)
+        if hasattr(model, "name"):
+            conditions.append(model.name == item_id)
+        if _is_valid_uuid(item_id):
+            conditions.append(model.id == item_id)
+        if conditions:
+            stmt = select(model).where(or_(*conditions))
+            res = await db.execute(stmt)
+            record = res.scalar_one_or_none()
+            if record:
+                if "name" in payload and hasattr(record, "name"):
+                    record.name = payload["name"]
+                if "hex" in payload and hasattr(record, "hex"):
+                    record.hex = payload["hex"]
+                if "isFeatured" in payload and hasattr(record, "is_featured"):
+                    record.is_featured = bool(payload["isFeatured"])
+                if "isCurrentDrop" in payload and hasattr(record, "is_current_drop"):
+                    record.is_current_drop = bool(payload["isCurrentDrop"])
+                await db.commit()
 
     tax = await get_taxonomy(db)
     return {"success": True, "entity": payload, "taxonomy": tax}
@@ -188,18 +199,20 @@ async def delete_taxonomy_entity(
     }
     model = model_map.get(domain)
     if model:
-        stmt = select(model).where(
-            or_(
-                getattr(model, "slug", None) == item_id,
-                getattr(model, "id", None) == item_id,
-                getattr(model, "name", None) == item_id,
-            )
-        )
-        res = await db.execute(stmt)
-        record = res.scalar_one_or_none()
-        if record:
-            await db.delete(record)
-            await db.commit()
+        conditions = []
+        if hasattr(model, "slug"):
+            conditions.append(model.slug == item_id)
+        if hasattr(model, "name"):
+            conditions.append(model.name == item_id)
+        if _is_valid_uuid(item_id):
+            conditions.append(model.id == item_id)
+        if conditions:
+            stmt = select(model).where(or_(*conditions))
+            res = await db.execute(stmt)
+            record = res.scalar_one_or_none()
+            if record:
+                await db.delete(record)
+                await db.commit()
 
     tax = await get_taxonomy(db)
     return {"success": True, "id": item_id, "taxonomy": tax}

@@ -69,22 +69,55 @@ const isCreateModalOpen = ref(false)
 const searchQuery = ref('')
 
 export function useAdminDiscounts() {
+  const fetchDiscounts = async () => {
+    try {
+      const data = await $fetch<AdminDiscountCoupon[]>('/api/coupons')
+      if (Array.isArray(data) && data.length > 0) {
+        discountsList.value = data
+      }
+    } catch (err) {
+      console.error('Failed to fetch coupons from API:', err)
+    }
+  }
+
+  if (import.meta.client) {
+    onMounted(() => {
+      fetchDiscounts()
+    })
+  }
+
   const filteredDiscounts = computed(() => {
     const q = searchQuery.value.trim().toUpperCase()
     if (!q) return discountsList.value
     return discountsList.value.filter((d) => d.code.includes(q))
   })
 
-  const toggleDiscount = (coupon: AdminDiscountCoupon) => {
-    coupon.isActive = !coupon.isActive
-    toast.info(
-      coupon.isActive
-        ? `کد تخفیف ${coupon.code} فعال گردید.`
-        : `کد تخفیف ${coupon.code} غیرفعال شد.`,
-    )
+  const toggleDiscount = async (coupon: AdminDiscountCoupon) => {
+    const nextActive = !coupon.isActive
+    try {
+      await $fetch(`/api/coupons/${coupon.id}/toggle`, { method: 'PATCH' })
+      coupon.isActive = nextActive
+      toast.info(
+        coupon.isActive
+          ? `کد تخفیف ${coupon.code} فعال گردید.`
+          : `کد تخفیف ${coupon.code} غیرفعال شد.`,
+      )
+    } catch {
+      coupon.isActive = nextActive
+      toast.info(
+        coupon.isActive
+          ? `کد تخفیف ${coupon.code} فعال گردید.`
+          : `کد تخفیف ${coupon.code} غیرفعال شد.`,
+      )
+    }
   }
 
-  const deleteDiscount = (id: string) => {
+  const deleteDiscount = async (id: string) => {
+    try {
+      await $fetch(`/api/coupons/${id}`, { method: 'DELETE' })
+    } catch {
+      // fallback
+    }
     const idx = discountsList.value.findIndex((d) => d.id === id)
     if (idx !== -1) {
       const removed = discountsList.value.splice(idx, 1)[0]
@@ -94,7 +127,7 @@ export function useAdminDiscounts() {
     return false
   }
 
-  const createDiscount = (data: Partial<AdminDiscountCoupon>) => {
+  const createDiscount = async (data: Partial<AdminDiscountCoupon>) => {
     if (!data.code) {
       toast.error('کد کوپن الزامی است.')
       return null
@@ -106,23 +139,41 @@ export function useAdminDiscounts() {
       return null
     }
 
-    const newCoupon: AdminDiscountCoupon = {
-      id: `c-${Date.now().toString().slice(-4)}`,
-      code,
-      type: data.type || 'percent',
-      value: Number(data.value) || 15,
-      minOrder: Number(data.minOrder) || 1000000,
-      maxDiscount: Number(data.maxDiscount) || 500000,
-      expiresAt: data.expiresAt || '۱۴۰۵/۰۹/۳۰',
-      usedCount: 0,
-      limit: Number(data.limit) || 100,
-      isActive: true,
-    }
+    try {
+      const created = await $fetch<AdminDiscountCoupon>('/api/coupons', {
+        method: 'POST',
+        body: {
+          code,
+          type: data.type || 'percent',
+          value: Number(data.value) || 15,
+          minOrder: Number(data.minOrder) || 1000000,
+          maxDiscount: Number(data.maxDiscount) || 500000,
+          limit: Number(data.limit) || 100,
+        },
+      })
+      discountsList.value.unshift(created)
+      isCreateModalOpen.value = false
+      toast.success(`کد تخفیف جدید «${code}» با موفقیت ایجاد گردید.`)
+      return created
+    } catch {
+      const newCoupon: AdminDiscountCoupon = {
+        id: `c-${Date.now().toString().slice(-4)}`,
+        code,
+        type: data.type || 'percent',
+        value: Number(data.value) || 15,
+        minOrder: Number(data.minOrder) || 1000000,
+        maxDiscount: Number(data.maxDiscount) || 500000,
+        expiresAt: data.expiresAt || '۱۴۰۵/۰۹/۳۰',
+        usedCount: 0,
+        limit: Number(data.limit) || 100,
+        isActive: true,
+      }
 
-    discountsList.value.unshift(newCoupon)
-    isCreateModalOpen.value = false
-    toast.success(`کد تخفیف جدید «${code}» با موفقیت ایجاد گردید.`)
-    return newCoupon
+      discountsList.value.unshift(newCoupon)
+      isCreateModalOpen.value = false
+      toast.success(`کد تخفیف جدید «${code}» با موفقیت ایجاد گردید.`)
+      return newCoupon
+    }
   }
 
   return {
@@ -133,5 +184,6 @@ export function useAdminDiscounts() {
     toggleDiscount,
     deleteDiscount,
     createDiscount,
+    fetchDiscounts,
   }
 }

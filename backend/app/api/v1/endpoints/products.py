@@ -39,6 +39,24 @@ SLUG_ALIASES: Dict[str, str] = {
 }
 
 
+def _is_valid_uuid(val: Any) -> bool:
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, TypeError, AttributeError):
+        return False
+
+
+def _product_lookup_filter(identifier: str):
+    real_slug = SLUG_ALIASES.get(identifier, identifier)
+    conditions = [Product.slug == real_slug, Product.slug == identifier]
+    if _is_valid_uuid(identifier):
+        conditions.append(Product.id == str(identifier))
+    if str(identifier).isdigit():
+        conditions.append(Product.numeric_id == int(identifier))
+    return or_(*conditions)
+
+
 def _clean_persian_str(col):
     return func.replace(
         func.replace(
@@ -420,10 +438,9 @@ async def get_product_by_slug(
     slug: str,
     db: AsyncSession = Depends(get_db),
 ):
-    real_slug = SLUG_ALIASES.get(slug, slug)
     stmt = (
         select(Product)
-        .where(or_(Product.slug == real_slug, Product.slug == slug), Product.is_active == True)
+        .where(_product_lookup_filter(slug), Product.is_active == True)
         .options(selectinload(Product.variants), selectinload(Product.category))
     )
     result = await db.execute(stmt)
@@ -574,13 +591,7 @@ async def update_product(
 ):
     stmt = (
         select(Product)
-        .where(
-            or_(
-                Product.id == product_id,
-                Product.slug == product_id,
-                func.cast(Product.numeric_id, String) == str(product_id),
-            )
-        )
+        .where(_product_lookup_filter(product_id))
         .options(selectinload(Product.variants), selectinload(Product.category))
     )
     res = await db.execute(stmt)
@@ -635,13 +646,7 @@ async def delete_product(
 ):
     stmt = (
         select(Product)
-        .where(
-            or_(
-                Product.id == product_id,
-                Product.slug == product_id,
-                func.cast(Product.numeric_id, String) == str(product_id),
-            )
-        )
+        .where(_product_lookup_filter(product_id))
         .options(selectinload(Product.variants))
     )
     res = await db.execute(stmt)

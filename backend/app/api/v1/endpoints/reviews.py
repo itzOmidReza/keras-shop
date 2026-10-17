@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select, or_
@@ -10,6 +11,14 @@ from app.schemas.review import ProductReviewSchema
 from app.core.exceptions import DomainException
 
 router = APIRouter(prefix="/reviews", tags=["Reviews Moderation"])
+
+
+def _is_valid_uuid(val: Any) -> bool:
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, TypeError, AttributeError):
+        return False
 
 
 def _map_review(r: ProductReview) -> ProductReviewSchema:
@@ -59,11 +68,14 @@ async def list_all_reviews(
 
 
 @router.put("/{review_id}/status")
+@router.patch("/{review_id}/status")
 async def update_review_status(
     review_id: str,
     payload: Dict[str, Any],
     db: AsyncSession = Depends(get_db),
 ):
+    if not _is_valid_uuid(review_id):
+        raise DomainException(message="Review not found", code="NOT_FOUND", status_code=404)
     res = await db.execute(select(ProductReview).where(ProductReview.id == review_id))
     rev = res.scalar_one_or_none()
     if not rev:
@@ -80,6 +92,8 @@ async def reply_to_review(
     payload: Dict[str, Any],
     db: AsyncSession = Depends(get_db),
 ):
+    if not _is_valid_uuid(review_id):
+        raise DomainException(message="Review not found", code="NOT_FOUND", status_code=404)
     res = await db.execute(select(ProductReview).where(ProductReview.id == review_id))
     rev = res.scalar_one_or_none()
     if not rev:
@@ -100,6 +114,8 @@ async def delete_review(
     review_id: str,
     db: AsyncSession = Depends(get_db),
 ):
+    if not _is_valid_uuid(review_id):
+        return {"success": True}
     res = await db.execute(select(ProductReview).where(ProductReview.id == review_id))
     rev = res.scalar_one_or_none()
     if rev:

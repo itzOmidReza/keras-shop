@@ -96,6 +96,12 @@ async def root():
     status_code=status.HTTP_200_OK,
     summary="Service Health Check",
 )
+@app.get(
+    "/api/health",
+    tags=["System Diagnostics"],
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
 async def health_check():
     return {
         "status": "healthy",
