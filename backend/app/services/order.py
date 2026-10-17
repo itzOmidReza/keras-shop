@@ -328,42 +328,42 @@ class OrderService:
 
 
 
-        @staticmethod
-        async def cancel_expired_pending_orders(db: AsyncSession, older_than_minutes: int = 30) -> int:
-            """
-            Releases reserved stock for PENDING orders older than the cutoff threshold.
-            """
-            from datetime import datetime, timedelta, timezone
-            cutoff = datetime.now(timezone.utc) - timedelta(minutes=older_than_minutes)
+    @staticmethod
+    async def cancel_expired_pending_orders(db: AsyncSession, older_than_minutes: int = 30) -> int:
+        """
+        Releases reserved stock for PENDING orders older than the cutoff threshold.
+        """
+        from datetime import datetime, timedelta, timezone
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=older_than_minutes)
 
-            stmt = (
-                select(Order)
-                .where(Order.status == OrderStatus.PENDING, Order.created_at < cutoff)
-                .options(selectinload(Order.items))
-                .with_for_update()
-            )
-            res = await db.execute(stmt)
-            expired_orders = res.scalars().all()
+        stmt = (
+            select(Order)
+            .where(Order.status == OrderStatus.PENDING, Order.created_at < cutoff)
+            .options(selectinload(Order.items))
+            .with_for_update()
+        )
+        res = await db.execute(stmt)
+        expired_orders = res.scalars().all()
 
-            cancelled_count = 0
-            for order in expired_orders:
-                for item in order.items:
-                    stmt_v = (
-                        select(ProductVariant)
-                        .where(ProductVariant.id == item.variant_id)
-                        .with_for_update()
-                    )
-                    variant = (await db.execute(stmt_v)).scalar_one_or_none()
-                    if variant:
-                        variant.stock += item.quantity
+        cancelled_count = 0
+        for order in expired_orders:
+            for item in order.items:
+                stmt_v = (
+                    select(ProductVariant)
+                    .where(ProductVariant.id == item.variant_id)
+                    .with_for_update()
+                )
+                variant = (await db.execute(stmt_v)).scalar_one_or_none()
+                if variant:
+                    variant.stock += item.quantity
 
-                order.status = OrderStatus.CANCELLED
-                cancelled_count += 1
+            order.status = OrderStatus.CANCELLED
+            cancelled_count += 1
 
-            if cancelled_count > 0:
-                await db.commit()
+        if cancelled_count > 0:
+            await db.commit()
 
-            return cancelled_count
+        return cancelled_count
 
 
 order_service = OrderService()

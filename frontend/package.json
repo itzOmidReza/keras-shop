@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "nuxi typecheck",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "@lucide/vue": "^1.49.0",

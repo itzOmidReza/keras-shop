@@ -17,8 +17,7 @@ import {
   UploadCloud,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
-import { mockProducts } from '../../../../server/mock/products'
-import type { ArticleCategory, LinkedGarment } from '~/types/domain'
+import type { ArticleCategory, LinkedGarment, ProductListItem } from '~/types/domain'
 
 const props = defineProps<{
   mode: 'new' | 'edit'
@@ -27,7 +26,13 @@ const props = defineProps<{
 
 const router = useRouter()
 const { getArticleById, createArticle, updateArticle } = useAdminArticles()
+const { getProducts } = useProducts()
 const isSidebarCollapsed = useState('ops_sidebar_collapsed', () => false)
+const availableProducts = ref<ProductListItem[]>([])
+
+onMounted(async () => {
+  availableProducts.value = await getProducts()
+})
 
 // متغیرهای فرم
 const title = ref('')
@@ -138,7 +143,7 @@ const toggleProductLink = (productId: number) => {
 
 // ساخت لیست کالاهای متصل جهت ذخیره
 const getLinkedGarments = (): LinkedGarment[] => {
-  return mockProducts
+  return availableProducts.value
     .filter(p => selectedProductIds.value.includes(p.id))
     .map(p => ({
       id: p.id,
@@ -407,7 +412,7 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto p-1" data-testid="linked-products-picker">
             <div
-              v-for="product in mockProducts"
+              v-for="product in availableProducts"
               :key="product.id"
               class="flex items-center gap-3 p-2.5 rounded-xl border transition-all cursor-pointer text-start"
               :class="[

@@ -1,6 +1,5 @@
 // frontend/app/composables/journal/useJournalArticles.ts
 import { toast } from 'vue-sonner'
-import { mockArticles } from '../../../server/mock/articles'
 import type { JournalArticle } from '~/types/domain'
 
 export const JOURNAL_CATEGORIES = [
@@ -13,24 +12,30 @@ export const JOURNAL_CATEGORIES = [
 export type JournalCategoryTab = typeof JOURNAL_CATEGORIES[number]['id']
 
 // حالت اشتراکی مشترک میان ویترین ژورنال و پنل مدیریت
-export const sharedJournalArticles = ref<JournalArticle[]>(
-  JSON.parse(JSON.stringify(mockArticles)),
-)
+export const sharedJournalArticles = ref<JournalArticle[]>([])
 
 export function useJournalArticles() {
   const activeCategory = ref<JournalCategoryTab>('all')
   const searchQuery = ref('')
   const newsletterEmail = ref('')
 
-  const fetchArticles = async () => {
+  const fetchArticles = async (force = false) => {
+    if (sharedJournalArticles.value.length > 0 && !force) return
     try {
       const data = await $fetch<JournalArticle[]>('/api/articles')
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         sharedJournalArticles.value = data
       }
-    } catch {
-      // keep fallback
+    } catch (err) {
+      console.error('Failed to fetch journal articles from API:', err)
     }
+  }
+
+  if (sharedJournalArticles.value.length === 0) {
+    useAsyncData('journal-articles-list', async () => {
+      await fetchArticles()
+      return sharedJournalArticles.value
+    })
   }
 
   if (import.meta.client) {

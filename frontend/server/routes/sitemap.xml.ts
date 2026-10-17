@@ -1,11 +1,10 @@
 // server/routes/sitemap.xml.ts
-import { mockProducts } from '../mock/products';
-import { mockArticles } from '../mock/articles';
-
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const reqHost = getRequestHost(event);
   const protocol = getRequestProtocol(event);
-  const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || `${protocol}://${reqHost}`;
+  const config = useRuntimeConfig(event);
+  const siteUrl = config.public?.siteUrl || process.env.NUXT_PUBLIC_SITE_URL || `${protocol}://${reqHost}`;
+  const targetBase = (config.backendUrl || process.env.BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
   const today = new Date().toISOString().split('T')[0];
 
   const staticUrls = [
@@ -18,14 +17,30 @@ export default defineEventHandler((event) => {
     { loc: '/tracking', priority: '0.5', changefreq: 'monthly' },
   ];
 
-  const productUrls = mockProducts.map((p) => ({
+  let productList: { slug: string }[] = [];
+  try {
+    const res = await $fetch<{ slug: string }[]>(`${targetBase}/api/products`);
+    if (Array.isArray(res)) productList = res;
+  } catch {
+    // continue with static urls
+  }
+
+  let articleList: { slug: string; status?: string }[] = [];
+  try {
+    const res = await $fetch<{ slug: string; status?: string }[]>(`${targetBase}/api/articles`);
+    if (Array.isArray(res)) articleList = res;
+  } catch {
+    // continue with static urls
+  }
+
+  const productUrls = productList.map((p) => ({
     loc: `/products/${p.slug}`,
     priority: '0.8',
     changefreq: 'weekly',
   }));
 
-  const articleUrls = mockArticles
-    .filter((a) => a.status === 'published')
+  const articleUrls = articleList
+    .filter((a) => !a.status || a.status === 'published')
     .map((a) => ({
       loc: `/journal/${a.slug}`,
       priority: '0.7',

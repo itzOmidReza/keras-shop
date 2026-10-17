@@ -180,111 +180,41 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * ورود سریع آزمایشی در محیط توسعه (Bypass Mock Auth)
-   * جهت دسترسی فوری به پیشخوان کاربری و تست امکانات بدون نیاز به دریافت پیامک
+   * ورود سریع آزمایشی در محیط توسعه با احراز هویت واقعی (Real OTP Auth)
+   * جهت دسترسی فوری به پیشخوان کاربری و تست امکانات با دریافت توکن معتبر از سرور
    */
-  function loginAsMockUser(): void {
-    const demoUser: User & { name?: string; phone?: string; ordersCount?: number } = {
-      id: 'usr_demo_1405',
-      name: 'سارا رادمنش',
-      fullName: 'سارا رادمنش',
-      phone: '09121112233',
-      phoneNumber: '09121112233',
-      email: 'sara.rad@example.com',
-      role: 'customer',
-      createdAt: '2026-09-01T10:00:00Z',
-      ordersCount: 3,
-    };
-
-    const demoAddress: UserAddress & { fullAddress: string } = {
-      id: 'addr_1',
-      title: 'منزل',
-      fullName: 'سارا رادمنش',
-      phoneNumber: '09121112233',
-      province: 'تهران',
-      city: 'تهران',
-      postalCode: '1983963111',
-      exactAddress: 'زعفرانیه، خیابان مقدس اردبیلی، پلاک ۲۴، واحد ۶',
-      fullAddress: 'زعفرانیه، خیابان مقدس اردبیلی، پلاک ۲۴، واحد ۶',
-      buildingNumber: '۲۴',
-      unit: '۶',
-      isDefault: true,
-    };
-
-    const demoToken = 'keras_jwt_mock_dev_token_1405';
-
-    token.value = demoToken;
-    user.value = demoUser;
-    addresses.value = [demoAddress];
-
-    // ذخیره در کوکی‌های SSR
-    cookieAuthToken.value = demoToken;
-    cookieAuthUser.value = demoUser;
-    cookieKerasToken.value = demoToken;
-    cookieKerasUser.value = demoUser;
-
-    // ذخیره در فضای محلی مرورگر
-    if (import.meta.client && typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      try {
-        window.localStorage.setItem('keras_auth_token', demoToken);
-        window.localStorage.setItem('keras_user_data', JSON.stringify(demoUser));
-      } catch {
-        // نادیده گرفتن خطای استوریج
+  async function loginAsMockUser(): Promise<void> {
+    isLoading.value = true;
+    try {
+      await sendOtp('09121112233');
+      const ok = await verifyOtp('09121112233', '12345');
+      if (ok) {
+        toast.success('ورود حساب کاربری (سارا رادمنش) با موفقیت انجام شد.');
       }
+    } catch (err) {
+      console.error('Failed to log in as demo user:', err);
+    } finally {
+      isLoading.value = false;
     }
-
-    isHydrated.value = true;
-    closeAuthModal();
-
-    // واکشی سوابق سفارش‌ها
-    fetchOrders();
-
-    toast.success('ورود سریع آزمایشی انجام شد (اکانت دمو سارا رادمنش).');
   }
 
   /**
-   * ورود سریع مدیریت ارشد در محیط توسعه (Bypass Mock Super Admin)
+   * ورود سریع مدیریت ارشد در محیط توسعه با احراز هویت واقعی (Real Super Admin Auth)
    * جهت دسترسی فوری به مرکز فرماندهی و عملیات آتلیه (HQ Nexus)
    */
-  function loginAsSuperAdmin(): void {
-    const adminUser: User & { name?: string; phone?: string; ordersCount?: number } = {
-      id: 'usr_super_admin_nexus',
-      name: 'مدیریت ارشد آتلیه کراس',
-      fullName: 'مدیریت ارشد آتلیه کراس',
-      phone: '09129990000',
-      phoneNumber: '09129990000',
-      email: 'ciso.director@keras-atelier.com',
-      role: 'super_admin',
-      createdAt: '2026-01-01T00:00:00Z',
-      ordersCount: 12,
-    };
-
-    const adminToken = 'keras_jwt_mock_super_admin_token_nexus_1405';
-
-    token.value = adminToken;
-    user.value = adminUser;
-
-    cookieAuthToken.value = adminToken;
-    cookieAuthUser.value = adminUser;
-    cookieKerasToken.value = adminToken;
-    cookieKerasUser.value = adminUser;
-
-    if (import.meta.client && typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      try {
-        window.localStorage.setItem('keras_auth_token', adminToken);
-        window.localStorage.setItem('keras_user_data', JSON.stringify(adminUser));
-      } catch {
-        // نادیده گرفتن خطای استوریج
+  async function loginAsSuperAdmin(): Promise<void> {
+    isLoading.value = true;
+    try {
+      await sendOtp('09129990000');
+      const ok = await verifyOtp('09129990000', '12345');
+      if (ok) {
+        toast.success('ورود به عنوان مدیریت ارشد آتلیه (Super Admin HQ Nexus) با موفقیت انجام شد.');
       }
+    } catch (err) {
+      console.error('Failed to log in as super admin:', err);
+    } finally {
+      isLoading.value = false;
     }
-
-    isHydrated.value = true;
-    closeAuthModal();
-
-    fetchAddresses();
-    fetchOrders();
-
-    toast.success('ورود به عنوان مدیریت ارشد آتلیه (Super Admin HQ Nexus) با موفقیت انجام شد.');
   }
 
   // ۵. اکشن‌های پروفایل و اطلاعات کاربر

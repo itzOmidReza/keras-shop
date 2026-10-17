@@ -1,6 +1,5 @@
 // frontend/app/composables/ops/useAdminProducts.ts
 import { toast } from 'vue-sonner'
-import { mockProducts } from '../../../server/mock/products'
 import type { ProductDetail, ProductCategory, ProductSeason, Variant } from '~/types/domain'
 
 export interface AdminProductVariant {
@@ -53,24 +52,30 @@ export interface AdminProductForm {
 }
 
 // لیست مشترک محصولات در کل ادمین
-const productsList = ref<ProductDetail[]>(
-  JSON.parse(JSON.stringify(mockProducts)),
-)
+const productsList = ref<ProductDetail[]>([])
 
 const searchQuery = ref('')
 const selectedCategory = ref('all')
 const isDeletingId = ref<number | null>(null)
 
 export function useAdminProducts() {
-  const fetchProducts = async () => {
+  const fetchProducts = async (force = false) => {
+    if (productsList.value.length > 0 && !force) return
     try {
       const data = await $fetch<ProductDetail[]>('/api/products')
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         productsList.value = data
       }
-    } catch {
-      // keep fallback
+    } catch (err) {
+      console.error('Failed to fetch products from API:', err)
     }
+  }
+
+  if (productsList.value.length === 0) {
+    useAsyncData('admin-products-list', async () => {
+      await fetchProducts()
+      return productsList.value
+    })
   }
 
   if (import.meta.client) {

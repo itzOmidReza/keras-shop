@@ -1,6 +1,5 @@
 // frontend/app/composables/admin/useAdminOrders.ts
 import { toast } from 'vue-sonner'
-import { mockOrders } from '../../../server/mock/orders'
 import type {
   TrackOrderResponse,
   OrderStatus,
@@ -70,9 +69,7 @@ export const SHIPPING_CARRIERS = [
   { id: 'courier', name: 'پیک اختصاصی آتلیه', portalUrl: '' },
 ] as const
 
-const ordersList = ref<TrackOrderResponse[]>(
-  JSON.parse(JSON.stringify(mockOrders)),
-)
+const ordersList = ref<TrackOrderResponse[]>([])
 
 const activeStatusTab = ref<AdminOrderStatusTab>('all')
 const searchQuery = ref('')
@@ -95,15 +92,23 @@ const isInquiring = ref(false)
 const activeInquiryResult = ref<CarrierInquiryResult | null>(null)
 
 export function useAdminOrders() {
-  const fetchOrders = async () => {
+  const fetchOrders = async (force = false) => {
+    if (ordersList.value.length > 0 && !force) return
     try {
       const data = await $fetch<TrackOrderResponse[]>('/api/user/orders')
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         ordersList.value = data
       }
-    } catch {
-      // keep fallback
+    } catch (err) {
+      console.error('Failed to fetch admin orders from API:', err)
     }
+  }
+
+  if (ordersList.value.length === 0) {
+    useAsyncData('admin-orders-list', async () => {
+      await fetchOrders()
+      return ordersList.value
+    })
   }
 
   if (import.meta.client) {

@@ -57,16 +57,9 @@ export function useAdminReviews() {
 
     try {
       isLoading.value = true
-      const data = await $fetch<{
-        reviews: ProductReview[]
-        total: number
-        pendingCount: number
-        approvedCount: number
-        rejectedCount: number
-        allCount: number
-      }>('/api/reviews')
-
-      reviews.value = data.reviews || []
+      const data = await $fetch<ProductReview[] | { reviews: ProductReview[] }>('/api/reviews')
+      const items = Array.isArray(data) ? data : (data?.reviews || [])
+      reviews.value = items
       isInitialized.value = true
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'خطا در واکشی نظرات'
