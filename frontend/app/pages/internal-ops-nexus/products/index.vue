@@ -54,7 +54,7 @@ const confirmDelete = () => {
         class="h-10 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs transition-all w-fit"
       >
         <Plus class="w-4 h-4" />
-        <span>+ افزودن محصول جدید</span>
+        <span>افزودن محصول جدید</span>
       </NuxtLink>
     </div>
 

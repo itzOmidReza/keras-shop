@@ -5,8 +5,6 @@ import {
   Sparkles,
   Save,
   Plus,
-  Trash2,
-  Image as ImageIcon,
   Palette,
   Ruler,
   FolderTree,
@@ -41,7 +39,7 @@ const {
 } = useAdminProducts()
 
 const taxonomyStore = useTaxonomyStore()
-const newImageUrl = ref('')
+const isSidebarCollapsed = useState('ops_sidebar_collapsed', () => false)
 
 const dynamicColors = computed(() => taxonomyStore.colors)
 const dynamicSizes = computed(() => taxonomyStore.sizes)
@@ -164,23 +162,6 @@ onMounted(() => {
   }
 })
 
-const handleAddImage = () => {
-  if (newImageUrl.value.trim()) {
-    productForm.value.galleryImages.push(newImageUrl.value.trim())
-    if (!productForm.value.mainImage) {
-      productForm.value.mainImage = newImageUrl.value.trim()
-    }
-    newImageUrl.value = ''
-  }
-}
-
-const handleRemoveImage = (index: number) => {
-  productForm.value.galleryImages.splice(index, 1)
-  if (productForm.value.galleryImages[0]) {
-    productForm.value.mainImage = productForm.value.galleryImages[0]
-  }
-}
-
 const handleSave = () => {
   const result = saveProduct()
   if (result) {
@@ -204,7 +185,7 @@ const autoGenerateSlug = () => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto space-y-6 pb-28 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6 pb-36 font-sans">
     <!-- هدر استودیو -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200/80">
       <div class="flex items-center gap-3">
@@ -286,7 +267,7 @@ const autoGenerateSlug = () => {
                 @click="openQuickModal('category')"
               >
                 <Plus class="w-3 h-3" />
-                <span>+ تعریف جدید</span>
+                <span>تعریف جدید</span>
               </button>
             </div>
             <select
@@ -320,7 +301,7 @@ const autoGenerateSlug = () => {
                 @click="openQuickModal('brand')"
               >
                 <Plus class="w-3 h-3" />
-                <span>+ برند جدید</span>
+                <span>برند جدید</span>
               </button>
             </div>
             <select
@@ -382,60 +363,10 @@ const autoGenerateSlug = () => {
           <span>۳. گالری تصاویر محصول</span>
         </h2>
 
-        <!-- ورودی آدرس تصویر یا آپلود مستقیم -->
-        <div class="flex items-center gap-2">
-          <input
-            v-model="newImageUrl"
-            type="text"
-            placeholder="آدرس اینترنتی تصویر را وارد کنید (https://...)"
-            dir="ltr"
-            class="flex-1 h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 placeholder:text-slate-400 bg-slate-50 focus:bg-white outline-hidden focus:border-ink text-start"
-            @keydown.enter.prevent="handleAddImage"
-          >
-          <button
-            type="button"
-            class="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
-            @click="handleAddImage"
-          >
-            <Plus class="w-4 h-4" />
-            <span>افزودن تصویر</span>
-          </button>
-        </div>
-
-        <!-- گرید تصاویر اضافه شده -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-          <div
-            v-for="(img, idx) in productForm.galleryImages"
-            :key="idx"
-            class="relative rounded-xl border border-slate-200 overflow-hidden group aspect-3/4 bg-slate-100"
-          >
-            <img :src="img" alt="پیش‌نمایش تصویر" class="w-full h-full object-cover">
-            <!-- برچسب تصویر اصلی -->
-            <span
-              v-if="idx === 0"
-              class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-ink/80 text-white text-[10px] font-bold"
-            >
-              تصویر اصلی
-            </span>
-            <!-- دکمه حذف -->
-            <button
-              type="button"
-              class="absolute top-2 end-2 p-1.5 rounded-lg bg-white/90 text-rose hover:bg-white shadow-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              title="حذف تصویر"
-              @click="handleRemoveImage(idx)"
-            >
-              <Trash2 class="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div
-            v-if="productForm.galleryImages.length === 0"
-            class="col-span-full p-8 rounded-xl border-2 border-dashed border-slate-200 text-center text-slate-400 text-xs space-y-1"
-          >
-            <ImageIcon class="w-8 h-8 text-slate-300 mx-auto" />
-            <p>هنوز تصویری به گالری اضافه نشده است.</p>
-          </div>
-        </div>
+        <ProductStudioMedia
+          v-model:gallery-images="productForm.galleryImages"
+          v-model:main-image="productForm.mainImage"
+        />
       </section>
 
       <!-- ۴. تنوع رنگ و سایز (Variants) -->
@@ -457,7 +388,7 @@ const autoGenerateSlug = () => {
               @click="openQuickModal('color')"
             >
               <Plus class="w-3 h-3" />
-              <span>+ رنگ جدید</span>
+              <span>رنگ جدید</span>
             </button>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -494,7 +425,7 @@ const autoGenerateSlug = () => {
               @click="openQuickModal('size')"
             >
               <Plus class="w-3 h-3" />
-              <span>+ سایز جدید</span>
+              <span>سایز جدید</span>
             </button>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -607,7 +538,7 @@ const autoGenerateSlug = () => {
                 @click="openQuickModal('season')"
               >
                 <Plus class="w-3 h-3" />
-                <span>+ کالکشن جدید</span>
+                <span>کالکشن جدید</span>
               </button>
             </div>
             <select
@@ -709,7 +640,10 @@ const autoGenerateSlug = () => {
     </div>
 
     <!-- نوار ثابت اکشن پایین صفحه -->
-    <div class="fixed bottom-14 lg:bottom-0 inset-x-0 lg:ps-60 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 sm:px-8 py-3.5 shadow-lg flex items-center justify-between">
+    <div
+      class="fixed bottom-14 lg:bottom-0 start-0 end-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 sm:px-8 py-3.5 shadow-lg flex items-center justify-between transition-all duration-200"
+      :class="isSidebarCollapsed ? 'lg:start-[72px]' : 'lg:start-60'"
+    >
       <div class="text-xs text-slate-500 hidden sm:block">
         وضعیت: <strong class="text-slate-900">{{ productForm.isPublished ? 'آماده انتشار در فروشگاه' : 'پیش‌نویس' }}</strong>
       </div>

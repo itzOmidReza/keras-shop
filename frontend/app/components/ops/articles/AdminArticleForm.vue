@@ -14,6 +14,7 @@ import {
   Send,
   Save,
   Wand2,
+  UploadCloud,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { mockProducts } from '../../../../server/mock/products'
@@ -26,6 +27,7 @@ const props = defineProps<{
 
 const router = useRouter()
 const { getArticleById, createArticle, updateArticle } = useAdminArticles()
+const isSidebarCollapsed = useState('ops_sidebar_collapsed', () => false)
 
 // متغیرهای فرم
 const title = ref('')
@@ -40,6 +42,44 @@ const content = ref('')
 const pullQuote = ref('')
 const selectedProductIds = ref<number[]>([1, 5]) // پیش‌فرض چند لباس کاتالوگ
 const isSaving = ref(false)
+
+const coverFileInput = ref<HTMLInputElement | null>(null)
+const isDraggingCover = ref(false)
+
+const handleCoverFileChange = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  if (input.files?.[0]) {
+    const file = input.files[0]
+    if (!file.type.startsWith('image/')) {
+      toast.error('لطفاً یک فایل تصویری معتبر انتخاب کنید.')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      coverImage.value = reader.result as string
+      toast.success('تصویر کاور مقاله با موفقیت بارگذاری شد.')
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const handleCoverDrop = (e: DragEvent) => {
+  e.preventDefault()
+  isDraggingCover.value = false
+  if (e.dataTransfer?.files?.[0]) {
+    const file = e.dataTransfer.files[0]
+    if (!file.type.startsWith('image/')) {
+      toast.error('لطفاً یک فایل تصویری معتبر انتخاب کنید.')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      coverImage.value = reader.result as string
+      toast.success('تصویر کاور مقاله با موفقیت بارگذاری شد.')
+    }
+    reader.readAsDataURL(file)
+  }
+}
 
 // بارگذاری داده‌ها در حالت ویرایش
 onMounted(() => {
@@ -170,7 +210,7 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
 </script>
 
 <template>
-  <div class="space-y-6 pb-28 lg:pb-20 font-sans" dir="rtl" data-testid="admin-article-form">
+  <div class="space-y-6 pb-32 font-sans" dir="rtl" data-testid="admin-article-form">
     <!-- هدر استودیوی نگارش مقاله -->
     <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -410,30 +450,69 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
             <span>تصویر کاور مقاله</span>
           </h2>
 
-          <!-- پیش‌نمایش تصویر فعلی -->
-          <div class="overflow-hidden rounded-xl aspect-4/5 bg-slate-100 relative border border-slate-200">
+          <!-- پیش‌نمایش و دراگ اند دراپ تصویر کاور -->
+          <div
+            class="overflow-hidden rounded-xl aspect-4/5 bg-slate-100 relative border-2 transition-all cursor-pointer group"
+            :class="[
+              isDraggingCover
+                ? 'border-amber-500 bg-amber-50/50 ring-4 ring-amber-500/10 scale-[1.01]'
+                : 'border-slate-200 hover:border-slate-400',
+            ]"
+            @dragover.prevent="isDraggingCover = true"
+            @dragleave.prevent="isDraggingCover = false"
+            @drop="handleCoverDrop"
+            @click="coverFileInput?.click()"
+          >
+            <input
+              ref="coverFileInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleCoverFileChange"
+            >
+
             <img
               v-if="coverImage"
               :src="coverImage"
               alt="پیش‌نمایش کاور"
               class="w-full h-full object-cover"
             >
-            <div v-else class="flex items-center justify-center h-full text-slate-400 text-xs">
-              تصویری انتخاب نشده است
+            <div v-else class="flex flex-col items-center justify-center h-full text-slate-400 text-xs p-4 text-center space-y-2">
+              <UploadCloud class="w-8 h-8 text-slate-300" />
+              <p class="font-bold text-slate-600">برای بارگذاری تصویر کاور کلیک کنید</p>
+              <p class="text-[10px] text-slate-400">یا فایل را به اینجا بکشید و رها کنید</p>
+            </div>
+
+            <!-- دکمه هاور برای تعویض تصویر -->
+            <div
+              v-if="coverImage"
+              class="absolute inset-0 bg-black/40 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1.5"
+            >
+              <UploadCloud class="w-6 h-6" />
+              <span>کلیک برای تغییر تصویر کاور</span>
             </div>
           </div>
 
-          <!-- فیلد آدرس عکس -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">
-              آدرس URL تصویر
-            </label>
+          <!-- دکمه‌های اقدام و فیلد آدرس عکس -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-700">
+                آدرس URL تصویر:
+              </label>
+              <button
+                type="button"
+                class="text-[11px] font-bold text-amber-600 hover:text-amber-700 cursor-pointer"
+                @click="coverFileInput?.click()"
+              >
+                انتخاب از دستگاه
+              </button>
+            </div>
             <input
               v-model="coverImage"
               type="text"
               data-testid="article-cover-input"
               placeholder="https://images.unsplash.com/..."
-              class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden font-mono"
+              class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden font-mono text-start"
               dir="ltr"
             >
           </div>
@@ -496,7 +575,10 @@ const handleSave = (targetStatus: 'published' | 'draft') => {
     </div>
 
     <!-- نوار ذخیره شناور پایین صفحه (Sticky Action Bar) -->
-    <div class="fixed bottom-14 lg:bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3.5 px-4 sm:px-8 z-40 shadow-lg">
+    <div
+      class="fixed bottom-14 lg:bottom-0 start-0 end-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3.5 px-4 sm:px-8 z-30 shadow-lg transition-all duration-200"
+      :class="isSidebarCollapsed ? 'lg:start-[72px]' : 'lg:start-60'"
+    >
       <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div class="flex items-center gap-2 text-xs text-slate-500 hidden sm:flex">
           <Sparkles class="w-4 h-4 text-amber-500" />

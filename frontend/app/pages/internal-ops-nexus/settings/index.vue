@@ -17,6 +17,7 @@ definePageMeta({ layout: 'ops', middleware: ['ops-guard'] })
 useSeoMeta({ title: 'تنظیمات فروشگاه | مرکز عملیات کراس', robots: 'noindex, nofollow' })
 
 const settingsStore = useSettingsStore()
+const isSidebarCollapsed = useState('ops_sidebar_collapsed', () => false)
 const currentTab = ref('shipping')
 const form = ref<SiteSettings>(JSON.parse(JSON.stringify(settingsStore.settings)))
 
@@ -41,7 +42,7 @@ const handleReset = async () => {
 </script>
 
 <template>
-  <div class="space-y-6 font-sans pb-24" dir="rtl" data-testid="ops-settings-workspace">
+  <div class="space-y-6 font-sans pb-32" dir="rtl" data-testid="ops-settings-workspace">
     <!-- هدر صفحه و دکمه‌های اقدام -->
     <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sand pb-5">
       <div>
@@ -90,7 +91,10 @@ const handleReset = async () => {
     </Tabs>
 
     <!-- داک چسبان وضعیت و ذخیره نهایی -->
-    <aside class="fixed bottom-0 start-0 end-0 z-30 bg-paper/95 backdrop-blur-md border-t border-sand px-4 sm:px-8 py-3 flex items-center justify-between">
+    <aside
+      class="fixed bottom-14 lg:bottom-0 start-0 end-0 z-30 bg-paper/95 backdrop-blur-md border-t border-sand px-4 sm:px-8 py-3 flex items-center justify-between transition-all duration-200"
+      :class="isSidebarCollapsed ? 'lg:start-[72px]' : 'lg:start-60'"
+    >
       <div class="flex items-center gap-2 text-xs">
         <template v-if="isDirty">
           <AlertCircle class="w-4 h-4 text-clay" />

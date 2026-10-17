@@ -9,6 +9,6 @@ import { Toaster } from '@/components/ui/sonner'
       <NuxtRouteAnnouncer />
       <NuxtPage />
     </NuxtLayout>
-    <Toaster dir="rtl" position="bottom-center" />
+    <Toaster dir="rtl" position="top-center" />
   </ConfigProvider>
 </template>

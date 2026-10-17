@@ -27,7 +27,7 @@ const router = useRouter()
 const { isCommandPaletteOpen } = useOpsModals()
 const { pendingCount } = useAdminReviews()
 
-const isSidebarCollapsed = ref(false)
+const isSidebarCollapsed = useState('ops_sidebar_collapsed', () => false)
 const isMobileSidebarOpen = ref(false)
 const isProfileMenuOpen = ref(false)
 

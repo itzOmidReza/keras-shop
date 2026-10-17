@@ -159,6 +159,25 @@
   }
 }
 
+/* ---------- Toast / Sonner RTL & Layering ---------- */
+[data-sonner-toaster] {
+  z-index: 99999 !important;
+  font-family: var(--font-sans) !important;
+}
+
+[data-sonner-toast] {
+  direction: rtl !important;
+  text-align: start !important;
+  font-family: var(--font-sans) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 30px -5px rgba(59, 47, 44, 0.12), 0 4px 10px -2px rgba(59, 47, 44, 0.06) !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  margin-inline-end: 0.5rem !important;
+  margin-inline-start: 0 !important;
+}
+
 .dark {
   --background: #2b2220;
   --foreground: #fbf6f1;

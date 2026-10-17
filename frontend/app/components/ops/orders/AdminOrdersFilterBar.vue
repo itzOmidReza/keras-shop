@@ -38,7 +38,7 @@ const emit = defineEmits<{
         @click="emit('openManualOrder')"
       >
         <Plus class="w-4 h-4" />
-        <span>+ ثبت سفارش دستی جدید</span>
+        <span>ثبت سفارش دستی جدید</span>
       </button>
     </div>
 

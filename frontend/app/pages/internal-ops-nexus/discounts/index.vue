@@ -41,7 +41,7 @@ const handleCreate = (couponData: Parameters<typeof createDiscount>[0]) => {
         @click="isCreateModalOpen = true"
       >
         <Plus class="w-4 h-4" />
-        <span>+ ایجاد کد تخفیف جدید</span>
+        <span>ایجاد کد تخفیف جدید</span>
       </button>
     </div>
 
