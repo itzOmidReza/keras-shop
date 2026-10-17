@@ -235,4 +235,62 @@ describe('Full-Stack Contract & Real Backend Integration Suite', () => {
     const finalOrder = await trackRes.json()
     expect(finalOrder.status).toBe('processing')
   })
+
+  it('10. Order Fulfillment Desk: Server pagination, status counts, live mutations and tracking dispatch', async () => {
+    // 1. Fetch paginated orders desk list
+    const res = await fetch(`${BACKEND_URL}/api/orders?page=1&limit=5`)
+    expect(res.status).toBe(200)
+    const deskData = await res.json()
+    expect(Array.isArray(deskData.items)).toBe(true)
+    expect(deskData.total).toBeGreaterThan(0)
+    expect(deskData.counts).toBeDefined()
+    expect(deskData.counts.all).toBeGreaterThan(0)
+    expect(deskData.counts.processing).toBeDefined()
+
+    const targetOrder = deskData.items[0]
+    expect(targetOrder.orderNumber).toBeDefined()
+
+    // 2. Test status mutation
+    const statusRes = await fetch(`${BACKEND_URL}/api/orders/${targetOrder.orderNumber}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'shipped',
+        customNote: 'سفارش در تست یکپارچگی به وضعیت ارسال‌شده منتقل شد.',
+      }),
+    })
+    expect(statusRes.status).toBe(200)
+    const updatedStatusOrder = await statusRes.json()
+    expect(updatedStatusOrder.status).toMatch(/shipped|handed_over/)
+
+    // 3. Test tracking code and carrier assignment
+    const trackingRes = await fetch(`${BACKEND_URL}/api/orders/${targetOrder.orderNumber}/tracking`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        trackingCode: '626019999888777666555444',
+        carrier: 'شرکت ملی پست (پیشتاز)',
+      }),
+    })
+    expect(trackingRes.status).toBe(200)
+    const updatedTrackingOrder = await trackingRes.json()
+    expect(updatedTrackingOrder.trackingCode).toBe('626019999888777666555444')
+
+    // 4. Test manual order entry
+    const manualRes = await fetch(`${BACKEND_URL}/api/orders/manual`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipientName: 'مهسا امینیان',
+        recipientPhone: '09129998877',
+        shippingAddress: 'تهران، نیاوران، خ باهنر، پلاک ۴',
+        totalAmount: 4500000,
+      }),
+    })
+    expect(manualRes.status).toBe(201)
+    const manualOrder = await manualRes.json()
+    expect(manualOrder.orderNumber).toMatch(/^KRS-/)
+    expect(manualOrder.recipientName).toBe('مهسا امینیان')
+    expect(manualOrder.totalAmount).toBe(4500000)
+  })
 })

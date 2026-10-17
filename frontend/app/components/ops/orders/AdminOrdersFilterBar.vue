@@ -50,6 +50,7 @@ const emit = defineEmits<{
           <button
             v-for="t in tabs"
             :key="t.id"
+            :data-testid="`orders-tab-${t.id}`"
             type="button"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0"
             :class="activeStatusTab === t.id ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'"
@@ -71,6 +72,7 @@ const emit = defineEmits<{
           <div class="relative w-full sm:w-44">
             <select
               :value="carrierFilter"
+              data-testid="orders-carrier-select"
               class="w-full h-9.5 ps-8 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 outline-hidden focus:bg-white focus:border-slate-400 cursor-pointer"
               @change="emit('update:carrierFilter', ($event.target as HTMLSelectElement).value)"
             >
@@ -86,6 +88,7 @@ const emit = defineEmits<{
           <div class="relative w-full sm:w-72">
             <input
               :value="searchQuery"
+              data-testid="orders-search-input"
               type="text"
               placeholder="جستجو با شماره سفارش، نام، تلفن یا بارکد..."
               class="w-full h-9.5 ps-9 pe-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white outline-hidden focus:border-slate-400"

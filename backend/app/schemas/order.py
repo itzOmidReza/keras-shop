@@ -161,3 +161,39 @@ class PaymentInitResponse(BaseModel):
     total_amount_rial: Optional[int] = None
     payment_url: Optional[str] = None
     authority: Optional[str] = None
+
+
+class OrderStatusCounts(BaseModel):
+    all: int = 0
+    processing: int = 0
+    shipped: int = 0
+    delivered: int = 0
+    archived: int = 0
+
+
+class PaginatedOrdersResponse(BaseModel):
+    items: List[TrackOrderResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    counts: OrderStatusCounts
+
+
+class OrderDeskStatusUpdateRequest(BaseModel):
+    status: str
+    customNote: Optional[str] = None
+
+
+class OrderDeskTrackingUpdateRequest(BaseModel):
+    trackingCode: str
+    carrier: Optional[str] = None
+
+
+class ManualOrderCreateRequest(BaseModel):
+    recipientName: str
+    recipientPhone: str
+    shippingAddress: str
+    totalAmount: int
+    postalCode: Optional[str] = "1965943211"
+    items: Optional[List[Dict[str, Any]]] = None

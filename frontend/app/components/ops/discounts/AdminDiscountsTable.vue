@@ -49,18 +49,18 @@ const emit = defineEmits<{
                 {{ toFa(coupon.value) }}٪ تخفیف
               </span>
               <span v-else class="text-emerald-700 font-mono">
-                {{ formatToman(coupon.value) }} تومان
+                {{ formatToman(coupon.value) }}
               </span>
             </td>
 
             <!-- حداقل خرید -->
             <td class="p-3.5 font-mono text-slate-700">
-              {{ formatToman(coupon.minOrder) }} تومان
+              {{ formatToman(coupon.minOrder) }}
             </td>
 
             <!-- سقف تخفیف -->
             <td class="p-3.5 font-mono text-slate-700">
-              {{ formatToman(coupon.maxDiscount) }} تومان
+              {{ formatToman(coupon.maxDiscount) }}
             </td>
 
             <!-- تاریخ انقضا -->

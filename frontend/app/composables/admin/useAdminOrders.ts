@@ -4,76 +4,40 @@ import type {
   TrackOrderResponse,
   OrderStatus,
   CarrierInquiryResult,
+  OrderStatusCounts,
+  PaginatedOrdersResponse,
 } from '~/types/domain'
+import {
+  ORDER_STATUS_CONFIG,
+  PIPELINE_STATUSES,
+  SHIPPING_CARRIERS,
+  getOrderStatusBadge,
+} from '~/utils/orders'
 
 export type AdminOrderStatusTab = 'all' | 'processing' | 'shipped' | 'delivered' | 'archived'
 
-export const ORDER_STATUS_CONFIG: Record<
-  OrderStatus,
-  { label: string; badgeClass: string; step: number }
-> = {
-  pending: {
-    label: 'در انتظار بررسی',
-    badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-    step: 1,
-  },
-  registered: {
-    label: 'در انتظار بررسی',
-    badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-    step: 1,
-  },
-  processing: {
-    label: 'در حال بسته‌بندی',
-    badgeClass: 'bg-blue-50 text-blue-800 border-blue-200',
-    step: 2,
-  },
-  shipped: {
-    label: 'تحویل به پست / تیپاکس',
-    badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-200',
-    step: 3,
-  },
-  handed_over: {
-    label: 'ارسال با پست پیشتاز',
-    badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-200',
-    step: 3,
-  },
-  delivered: {
-    label: 'تحویل نهایی به مشتری',
-    badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    step: 4,
-  },
-  canceled: {
-    label: 'لغو شده / انصراف',
-    badgeClass: 'bg-rose-50 text-rose border-rose-200',
-    step: 0,
-  },
-  returned: {
-    label: 'مرجوعی',
-    badgeClass: 'bg-purple-50 text-purple-800 border-purple-200',
-    step: 0,
-  },
-}
-
-export const PIPELINE_STATUSES: { value: OrderStatus; label: string }[] = [
-  { value: 'pending', label: 'در انتظار پرداخت / بررسی' },
-  { value: 'processing', label: 'تاییدشده و در حال بسته‌بندی' },
-  { value: 'shipped', label: 'تحویل به پست / تیپاکس' },
-  { value: 'delivered', label: 'تحویل نهایی به مشتری' },
-  { value: 'canceled', label: 'لغو شده / انصراف' },
-  { value: 'returned', label: 'مرجوعی' },
-]
-
-export const SHIPPING_CARRIERS = [
-  { id: 'post', name: 'شرکت ملی پست (پیشتاز)', portalUrl: 'https://tracking.post.ir/?id=' },
-  { id: 'tipax', name: 'تیپاکس (Tipax)', portalUrl: 'https://tipaxco.com/tracking?id=' },
-  { id: 'courier', name: 'پیک اختصاصی آتلیه', portalUrl: '' },
-] as const
-
+// لیست مشترک سفارش‌ها
 const ordersList = ref<TrackOrderResponse[]>([])
 
+// وضعیت‌های فیلتر و صفحه‌بندی
 const activeStatusTab = ref<AdminOrderStatusTab>('all')
 const searchQuery = ref('')
+const debouncedSearch = ref('')
 const carrierFilter = ref<string>('all')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const totalOrders = ref(0)
+const totalPages = ref(1)
+const isLoading = ref(false)
+
+// شمارنده‌های تجمیعی وضعیت‌ها
+const counts = ref<OrderStatusCounts>({
+  all: 0,
+  processing: 0,
+  shipped: 0,
+  delivered: 0,
+  archived: 0,
+})
 
 // دراور و مودال‌ها
 const isDetailDrawerOpen = ref(false)
@@ -91,156 +55,227 @@ const isManualOrderModalOpen = ref(false)
 const isInquiring = ref(false)
 const activeInquiryResult = ref<CarrierInquiryResult | null>(null)
 
+// ردیابی ترتیب درخواست‌ها برای جلوگیری از تداخل (Data Fetching De-duplication)
+let currentRequestId = 0
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
 export function useAdminOrders() {
-  const fetchOrders = async (force = false) => {
-    if (ordersList.value.length > 0 && !force) return
+  const route = useRoute()
+  const router = useRouter()
+
+  // بارگذاری داده‌ها از اندپوینت سرور
+  const fetchOrders = async () => {
+    const reqId = ++currentRequestId
+    isLoading.value = true
+
     try {
-      const data = await $fetch<TrackOrderResponse[]>('/api/user/orders')
-      if (Array.isArray(data)) {
-        ordersList.value = data
+      const params: Record<string, string | number> = {
+        page: currentPage.value,
+        limit: pageSize.value,
+      }
+      if (activeStatusTab.value && activeStatusTab.value !== 'all') {
+        params.status = activeStatusTab.value
+      }
+      if (carrierFilter.value && carrierFilter.value !== 'all') {
+        params.carrier = carrierFilter.value
+      }
+      if (debouncedSearch.value && debouncedSearch.value.trim()) {
+        params.search = debouncedSearch.value.trim()
+      }
+
+      const res = await $fetch<PaginatedOrdersResponse>('/api/orders', { params })
+
+      // اگر در حین فراخوانی، درخواست جدیدتری ارسال شده بود، درخواست قبلی دور ریخته می‌شود
+      if (reqId !== currentRequestId) return
+
+      if (res && Array.isArray(res.items)) {
+        ordersList.value = res.items
+        totalOrders.value = res.total ?? res.items.length
+        totalPages.value = res.total_pages ?? Math.max(1, Math.ceil(totalOrders.value / pageSize.value))
+        if (res.counts) {
+          counts.value = {
+            all: res.counts.all ?? 0,
+            processing: res.counts.processing ?? 0,
+            shipped: res.counts.shipped ?? 0,
+            delivered: res.counts.delivered ?? 0,
+            archived: res.counts.archived ?? 0,
+          }
+        }
       }
     } catch (err) {
+      if (reqId !== currentRequestId) return
       console.error('Failed to fetch admin orders from API:', err)
+      // در صورت بروز خطا از آرایه خالی استفاده می‌شود
+      ordersList.value = []
+    } finally {
+      if (reqId === currentRequestId) {
+        isLoading.value = false
+      }
     }
   }
 
-  if (ordersList.value.length === 0) {
-    useAsyncData('admin-orders-list', async () => {
-      await fetchOrders()
-      return ordersList.value
-    })
+  // ۱. همگام‌سازی دوطرفه اولیه با Query پارامترهای آدرس URL (SSR & Client Hydration)
+  const syncFromRouteQuery = () => {
+    if (!route || !route.query) return
+
+    const qPage = parseInt(route.query.page as string, 10)
+    if (!isNaN(qPage) && qPage >= 1) {
+      currentPage.value = qPage
+    }
+
+    const qLimit = parseInt(route.query.limit as string, 10)
+    if (!isNaN(qLimit) && [10, 20, 50, 100].includes(qLimit)) {
+      pageSize.value = qLimit
+    }
+
+    const qStatus = route.query.status as string
+    if (['all', 'processing', 'shipped', 'delivered', 'archived'].includes(qStatus)) {
+      activeStatusTab.value = qStatus as AdminOrderStatusTab
+    }
+
+    const qCarrier = route.query.carrier as string
+    if (qCarrier) {
+      carrierFilter.value = qCarrier
+    }
+
+    const qSearch = route.query.search as string
+    if (typeof qSearch === 'string') {
+      searchQuery.value = qSearch
+      debouncedSearch.value = qSearch
+    }
   }
 
+  // اعمال اولیه کوئری در کلاینت یا سرور
+  syncFromRouteQuery()
+
+  // ۲. ناظر دیبانس ۳۰۰ میلی‌ثانیه‌ای فیلد جست‌وجو (Debounced Search)
+  watch(searchQuery, (newVal) => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      debouncedSearch.value = newVal
+    }, 300)
+  })
+
+  // ۳. بازنشانی صفحه به ۱ در زمان تغییر فیلترها و اعمال در URL
+  watch([activeStatusTab, carrierFilter, debouncedSearch, pageSize], () => {
+    currentPage.value = 1
+    updateRouteQuery()
+    fetchOrders()
+  })
+
+  // تغییر شماره صفحه
+  watch(currentPage, () => {
+    updateRouteQuery()
+    fetchOrders()
+  })
+
+  // ۴. به‌روزرسانی route.query در جهت همگام‌سازی ۲ طرفه
+  const updateRouteQuery = () => {
+    if (!import.meta.client || !router) return
+
+    const query: Record<string, string> = {}
+    if (currentPage.value > 1) query.page = String(currentPage.value)
+    if (pageSize.value !== 10) query.limit = String(pageSize.value)
+    if (activeStatusTab.value !== 'all') query.status = activeStatusTab.value
+    if (carrierFilter.value !== 'all') query.carrier = carrierFilter.value
+    if (debouncedSearch.value.trim()) query.search = debouncedSearch.value.trim()
+
+    router.replace({ query }).catch(() => {})
+  }
+
+  // ۵. گوش دادن به ناوبری عقب/جلو مرورگر (Back/Forward)
   if (import.meta.client) {
+    watch(
+      () => route.query,
+      (newQ, oldQ) => {
+        if (JSON.stringify(newQ) === JSON.stringify(oldQ)) return
+        syncFromRouteQuery()
+      },
+    )
+
     onMounted(() => {
       fetchOrders()
     })
+  } else {
+    // SSR
+    useAsyncData('admin-orders-page', async () => {
+      await fetchOrders()
+      return {
+        items: ordersList.value,
+        total: totalOrders.value,
+        counts: counts.value,
+      }
+    })
   }
 
-  // فیلتر سفارش‌ها
-  const filteredOrders = computed(() => {
-    const q = searchQuery.value.trim().toLowerCase()
-    const c = carrierFilter.value
+  // لیست فیلترشده جاری (در صورت پردازش سمت کلاینت یا تغییرات فوری)
+  const filteredOrders = computed(() => ordersList.value)
 
-    return ordersList.value.filter((order) => {
-      const orderNum = (order.orderNumber || '').toLowerCase()
-      const recipientName = (order.recipientName || '').toLowerCase()
-      const recipientPhone = order.recipientPhone || ''
-      const trackingCode = (order.trackingCode || '').toLowerCase()
-
-      const matchesSearch =
-        !q ||
-        orderNum.includes(q) ||
-        recipientName.includes(q) ||
-        recipientPhone.includes(q) ||
-        trackingCode.includes(q)
-
-      // فیلتر تب وضعیت
-      let matchesTab = true
-      const st = order.status
-      if (activeStatusTab.value === 'processing') {
-        matchesTab =
-          st === 'registered' ||
-          st === 'processing' ||
-          st === 'pending'
-      } else if (activeStatusTab.value === 'shipped') {
-        matchesTab = st === 'handed_over' || st === 'shipped'
-      } else if (activeStatusTab.value === 'delivered') {
-        matchesTab = st === 'delivered'
-      } else if (activeStatusTab.value === 'archived') {
-        matchesTab = st === 'canceled' || (st as string) === 'cancelled' || st === 'returned'
-      }
-
-      // فیلتر شرکت حمل
-      let matchesCarrier = true
-      const carrier = (order.carrier || '').toLowerCase()
-      if (c !== 'all') {
-        if (c === 'post') {
-          matchesCarrier = carrier.includes('پست') || carrier.includes('post')
-        } else if (c === 'tipax') {
-          matchesCarrier = carrier.includes('تیپاکس') || carrier.includes('tipax')
-        } else if (c === 'courier') {
-          matchesCarrier = carrier.includes('پیک') || carrier.includes('courier')
-        }
-      }
-
-      return matchesSearch && matchesTab && matchesCarrier
-    })
-  })
-
-  // شمارنده‌های داینامیک تب‌ها
-  const counts = computed(() => {
-    let processing = 0
-    let shipped = 0
-    let delivered = 0
-    let archived = 0
-
-    for (const order of ordersList.value) {
-      if (
-        order.status === 'registered' ||
-        order.status === 'processing' ||
-        order.status === 'pending'
-      ) {
-        processing++
-      } else if (order.status === 'handed_over' || order.status === 'shipped') {
-        shipped++
-      } else if (order.status === 'delivered') {
-        delivered++
-      } else if (order.status === 'canceled' || (order.status as string) === 'cancelled' || order.status === 'returned') {
-        archived++
-      }
-    }
-
-    return {
-      all: ordersList.value.length,
-      processing,
-      shipped,
-      delivered,
-      archived,
-    }
-  })
-
-  // تغییر مستقیم وضعیت با ثبت تاریخچه
-  const updateStatus = (
+  // تغییر مستقیم وضعیت با ثبت در دیتابیس و تاریخچه
+  const updateStatus = async (
     orderNumber: string,
     newStatus: OrderStatus,
     customNote?: string,
-  ): boolean => {
+  ): Promise<boolean> => {
     const order = ordersList.value.find((o) => o.orderNumber === orderNumber)
-    if (!order) return false
+    const prevStatus = order?.status
+    const prevStatusLabel = order?.statusLabel
 
-    order.status = newStatus
     const config = ORDER_STATUS_CONFIG[newStatus] || {
       label: newStatus,
       badgeClass: '',
       step: 0,
     }
-    order.statusLabel = config.label
 
-    const now = new Date()
-    const faDate = now.toLocaleDateString('fa-IR')
-    const faTime = now.toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    const timestampStr = `${faDate} - ${faTime}`
+    // به‌روزرسانی خوش‌بینانه در استیت کلاینت
+    if (order) {
+      order.status = newStatus
+      order.statusLabel = config.label
 
-    // ثبت در تاریخچه سفارش
-    if (!order.timeline) order.timeline = []
-    order.timeline.push({
-      status: newStatus,
-      title: `تغییر وضعیت به ${config.label}`,
-      description:
-        customNote || `وضعیت سفارش توسط مدیر عملیات به ${config.label} تغییر یافت.`,
-      timestamp: timestampStr,
-      location: 'مرکز عملیات آتلیه کراس',
-      completed: true,
-    })
+      const now = new Date()
+      const faDate = now.toLocaleDateString('fa-IR')
+      const faTime = now.toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+      const timestampStr = `${faDate} - ${faTime}`
 
-    toast.success(
-      `وضعیت سفارش ${orderNumber} به «${config.label}» به‌روزرسانی شد.`,
-    )
-    return true
+      if (!order.timeline) order.timeline = []
+      order.timeline.push({
+        status: newStatus,
+        title: `تغییر وضعیت به ${config.label}`,
+        description:
+          customNote || `وضعیت سفارش توسط مدیر عملیات به ${config.label} تغییر یافت.`,
+        timestamp: timestampStr,
+        location: 'مرکز عملیات آتلیه کراس',
+        completed: true,
+      })
+    }
+
+    try {
+      await $fetch(`/api/orders/${orderNumber}/status`, {
+        method: 'PATCH',
+        body: {
+          status: newStatus,
+          customNote,
+        },
+      })
+      toast.success(
+        `وضعیت سفارش ${orderNumber} به «${config.label}» به‌روزرسانی شد.`,
+      )
+      // بازخوانی سبک شمارنده‌ها برای تضمین انطباق کامل با پایگاه داده
+      fetchOrders()
+      return true
+    } catch (err) {
+      console.error('Failed to patch order status:', err)
+      // بازگرداندن وضعیت در صورت خطای سرور
+      if (order && prevStatus) {
+        order.status = prevStatus
+        order.statusLabel = prevStatusLabel || ''
+      }
+      toast.error('خطا در به‌روزرسانی وضعیت در سرور.')
+      return false
+    }
   }
 
   // ارتقای گام‌به‌گام وضعیت (پشتیبانی از سناریوهای سریع و تست‌ها)
@@ -256,17 +291,19 @@ export function useAdminOrders() {
       if (!order.trackingCode) {
         order.trackingCode = generate24DigitBarcode('post')
       }
-      return updateStatus(
+      updateStatus(
         orderNumber,
         'shipped',
         'مرسوله جهت ارسال تحویل باجه پستی شد.',
       )
+      return true
     } else if (order.status === 'handed_over' || order.status === 'shipped') {
-      return updateStatus(
+      updateStatus(
         orderNumber,
         'delivered',
         'مرسوله با امضای تحویل‌گیرنده تحویل داده شد.',
       )
+      return true
     }
     return false
   }
@@ -283,52 +320,52 @@ export function useAdminOrders() {
     return `626019${random18Digits}`.slice(0, 24)
   }
 
+  // ثبت دستی بارکد رهگیری
+  const setTrackingCode = async (
+    orderNumber: string,
+    trackingCode: string,
+    carrierName?: string,
+  ): Promise<boolean> => {
+    const order = ordersList.value.find((o) => o.orderNumber === orderNumber)
+    if (order) {
+      order.trackingCode = trackingCode.trim()
+      if (carrierName) order.carrier = carrierName
+      order.status = 'shipped'
+      order.statusLabel = 'تحویل به پست / تیپاکس'
+    }
+
+    try {
+      await $fetch(`/api/orders/${orderNumber}/tracking`, {
+        method: 'PATCH',
+        body: {
+          trackingCode: trackingCode.trim(),
+          carrier: carrierName || order?.carrier || 'شرکت ملی پست (پیشتاز)',
+        },
+      })
+      toast.success(`کد رهگیری مرسوله ${orderNumber} با موفقیت ثبت شد.`)
+      fetchOrders()
+      return true
+    } catch (err) {
+      console.error('Failed to set tracking code on server:', err)
+      toast.error('خطا در ثبت کد رهگیری مرسوله در سرور.')
+      return false
+    }
+  }
+
   // صدور اتوماتیک بارکد از وب‌سرویس پستی و انتقال به وضعیت ارسال‌شده
   const dispatchShippingAPI = (
     orderNumber: string,
     carrierName: string = 'شرکت ملی پست (پیشتاز)',
   ): string => {
-    const order = ordersList.value.find((o) => o.orderNumber === orderNumber)
-    if (!order) return ''
-
     const carrierType = carrierName.includes('تیپاکس') ? 'tipax' : 'post'
     const newBarcode = generate24DigitBarcode(carrierType)
 
-    order.trackingCode = newBarcode
-    order.carrier = carrierName
-
-    updateStatus(
-      orderNumber,
-      'shipped',
-      `بارکد ۲۴ رقمی ${newBarcode} از وب‌سرویس پستی صادر و مرسوله به مامور جمع‌آوری تحویل شد.`,
-    )
+    setTrackingCode(orderNumber, newBarcode, carrierName)
 
     toast.success(
       `وب‌سرویس پستی: بارکد ۲۴ رقمی ${newBarcode} با موفقیت صادر و وضعیت به «ارسال‌شده» تغییر یافت.`,
     )
     return newBarcode
-  }
-
-  // ثبت دستی بارکد رهگیری
-  const setTrackingCode = (
-    orderNumber: string,
-    trackingCode: string,
-    carrierName?: string,
-  ): boolean => {
-    const order = ordersList.value.find((o) => o.orderNumber === orderNumber)
-    if (!order) return false
-
-    order.trackingCode = trackingCode.trim()
-    if (carrierName) order.carrier = carrierName
-
-    updateStatus(
-      orderNumber,
-      'shipped',
-      `کد رهگیری مرسوله ثبت و سفارش به وضعیت ارسال‌شده منتقل شد.`,
-    )
-
-    toast.success(`کد رهگیری مرسوله ${orderNumber} با موفقیت ثبت شد.`)
-    return true
   }
 
   // استعلام آنلاین وضعیت پستی از وب‌سرویس
@@ -349,7 +386,7 @@ export function useAdminOrders() {
       carrierName: order.carrier || 'شرکت ملی پست (پیشتاز)',
       status: 'در حال توزیع توسط مامور پست (موزع)',
       lastUpdate: `${faDate} - ساعت ${faTime}`,
-      destination: order.shippingAddress.slice(0, 30) + '...',
+      destination: (order.shippingAddress || '').slice(0, 30) + '...',
       checkpoints: [
         {
           title: 'ثبت و قبول در باجه مبدا',
@@ -381,15 +418,13 @@ export function useAdminOrders() {
     activeInquiryResult.value = inquiry
     isInquiring.value = false
 
-    toast.info(
-      `آخرین وضعیت پستی استعلام شد: ${inquiry.status}`,
-    )
+    toast.info(`آخرین وضعیت پستی استعلام شد: ${inquiry.status}`)
     return inquiry
   }
 
   // تولید متن پیامک ارسال مرسوله برای مشتری
   const generateCustomerSMS = (order: TrackOrderResponse): string => {
-    const isTipax = order.carrier.includes('تیپاکس')
+    const isTipax = (order.carrier || '').includes('تیپاکس')
     const trackUrl = isTipax
       ? `https://tipaxco.com/tracking?id=${order.trackingCode}`
       : `https://tracking.post.ir/?id=${order.trackingCode}`
@@ -443,56 +478,81 @@ export function useAdminOrders() {
     isManualOrderModalOpen.value = true
   }
 
-  const createManualOrder = (orderData?: Partial<TrackOrderResponse>) => {
-    const num = Math.floor(1000 + Math.random() * 9000)
-    const newOrder: TrackOrderResponse = {
-      orderNumber: `KRS-${num}`,
+  const createManualOrder = async (orderData?: Partial<TrackOrderResponse>) => {
+    const payload = {
       recipientName: orderData?.recipientName || 'سارا رادمنش',
       recipientPhone: orderData?.recipientPhone || '09121112233',
       shippingAddress:
         orderData?.shippingAddress ||
         'تهران، بلوار اندرزگو، خیابان سلیمی شمالی، ساختمان نگین، طبقه ۳',
-      postalCode: '1965943211',
       totalAmount: orderData?.totalAmount || 3200000,
-      status: 'pending',
-      statusLabel: 'در انتظار بررسی',
-      paymentMethod: 'کارت به کارت / فیش بانکی',
-      createdAt: new Date().toLocaleDateString('fa-IR'),
-      trackingCode: '',
-      carrier: 'شرکت ملی پست (پیشتاز)',
-      estimatedDelivery: '۲ الی ۳ روز کاری',
-      timeline: [
-        {
-          status: 'pending',
-          title: 'ثبت سفارش دستی',
-          description: 'سفارش دستی توسط مدیر سیستم در پنل ثبت گردید.',
-          timestamp: new Date().toLocaleTimeString('fa-IR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          location: 'مرکز عملیات آتلیه کراس',
-          completed: true,
-        },
-      ],
+      postalCode: orderData?.postalCode || '1965943211',
       items: orderData?.items || [
         {
           title: 'پالتو کشمیر لیمیتد آتلیه',
           size: 'M',
           color: 'مشکی زغالی',
           quantity: 1,
-          price: 3200000,
+          price: orderData?.totalAmount || 3200000,
           image:
             'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
         },
       ],
     }
 
-    ordersList.value.unshift(newOrder)
-    isManualOrderModalOpen.value = false
-    toast.success(
-      `سفارش دستی جدید به شماره ${newOrder.orderNumber} با موفقیت ثبت شد.`,
-    )
-    return newOrder
+    try {
+      const created = await $fetch<TrackOrderResponse>('/api/orders/manual', {
+        method: 'POST',
+        body: payload,
+      })
+
+      ordersList.value.unshift(created)
+      counts.value.all++
+      counts.value.processing++
+      totalOrders.value++
+      isManualOrderModalOpen.value = false
+      toast.success(
+        `سفارش دستی جدید به شماره ${created.orderNumber} با موفقیت ثبت شد.`,
+      )
+      return created
+    } catch (err) {
+      console.error('Failed to create manual order on backend:', err)
+      // Fallback local addition if network issue
+      const num = Math.floor(1000 + Math.random() * 9000)
+      const fallbackOrder: TrackOrderResponse = {
+        orderNumber: `KRS-${num}`,
+        recipientName: payload.recipientName,
+        recipientPhone: payload.recipientPhone,
+        shippingAddress: payload.shippingAddress,
+        postalCode: payload.postalCode,
+        totalAmount: payload.totalAmount,
+        status: 'pending',
+        statusLabel: 'در انتظار بررسی',
+        paymentMethod: 'کارت به کارت / فیش بانکی',
+        createdAt: new Date().toLocaleDateString('fa-IR'),
+        trackingCode: '',
+        carrier: 'شرکت ملی پست (پیشتاز)',
+        estimatedDelivery: '۲ الی ۳ روز کاری',
+        timeline: [],
+        items: payload.items,
+      }
+      ordersList.value.unshift(fallbackOrder)
+      isManualOrderModalOpen.value = false
+      toast.success(
+        `سفارش دستی جدید به شماره ${fallbackOrder.orderNumber} ثبت گردید.`,
+      )
+      return fallbackOrder
+    }
+  }
+
+  const setPage = (page: number) => {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page
+    }
+  }
+
+  const setPageSize = (size: number) => {
+    pageSize.value = size
   }
 
   return {
@@ -502,6 +562,14 @@ export function useAdminOrders() {
     carrierFilter,
     filteredOrders,
     counts,
+    currentPage,
+    pageSize,
+    totalOrders,
+    totalPages,
+    isLoading,
+    setPage,
+    setPageSize,
+    fetchOrders,
     isDetailDrawerOpen,
     selectedOrderForDetail,
     isPackingSlipOpen,

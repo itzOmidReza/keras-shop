@@ -407,6 +407,23 @@ export interface TrackOrderRequest {
   query: string;
 }
 
+export interface OrderStatusCounts {
+  all: number;
+  processing: number;
+  shipped: number;
+  delivered: number;
+  archived: number;
+}
+
+export interface PaginatedOrdersResponse {
+  items: TrackOrderResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  counts: OrderStatusCounts;
+}
+
 // -------------------------------------------------------------
 // Live Search Autocomplete Contracts (FastAPI-Ready)
 // -------------------------------------------------------------

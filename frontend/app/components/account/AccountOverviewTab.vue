@@ -132,7 +132,7 @@ const emit = defineEmits<{
             </div>
             <div class="ps-2">
               <span class="text-xs font-bold text-ink block font-mono">
-                {{ formatToman(recentOrder.finalTotal) }} تومان
+                {{ formatToman(recentOrder.finalTotal) }}
               </span>
               <span class="text-[11px] text-muted-foreground block">
                 {{ recentOrder.items.length }} قلم کالا

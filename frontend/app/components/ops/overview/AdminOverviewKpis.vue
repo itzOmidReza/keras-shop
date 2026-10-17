@@ -29,7 +29,7 @@ defineProps<{
       </div>
       <div class="space-y-1">
         <div class="text-xl sm:text-2xl font-black text-slate-900 font-mono tabular-nums">
-          {{ formatToman(todaySales) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
+          {{ formatToman(todaySales, false) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
         </div>
         <div class="flex items-center gap-1 text-[11px] text-emerald-600 font-bold">
           <ArrowUpRight class="w-3.5 h-3.5" />
@@ -48,7 +48,7 @@ defineProps<{
       </div>
       <div class="space-y-1">
         <div class="text-xl sm:text-2xl font-black text-slate-900 font-mono tabular-nums">
-          {{ formatToman(monthSales) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
+          {{ formatToman(monthSales, false) }} <span class="text-xs font-sans font-normal text-slate-500">تومان</span>
         </div>
         <div class="text-[11px] text-slate-400 font-medium">
           تارگت ماهانه: ۲۰۰ میلیون تومان

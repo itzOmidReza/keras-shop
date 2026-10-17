@@ -14,12 +14,12 @@ import {
   Clock,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
+import { useAdminOrders } from '~/composables/admin/useAdminOrders'
 import {
-  useAdminOrders,
   PIPELINE_STATUSES,
   ORDER_STATUS_CONFIG,
   SHIPPING_CARRIERS,
-} from '~/composables/admin/useAdminOrders'
+} from '~/utils/orders'
 import { toFa, formatToman } from '~/utils/format'
 import type { OrderStatus } from '~/types/domain'
 
@@ -412,7 +412,7 @@ const trackingPortalUrl = computed(() => {
                     <span>تعداد: <strong class="font-mono">{{ toFa(item.quantity) }}</strong></span>
                   </div>
                   <div class="text-[11px] font-mono font-bold text-slate-800 mt-1">
-                    {{ formatToman(item.price) }} تومان
+                    {{ formatToman(item.price) }}
                   </div>
                 </div>
               </div>
@@ -448,7 +448,7 @@ const trackingPortalUrl = computed(() => {
             </div>
             <div class="flex items-center justify-between text-sm font-bold text-slate-900 pt-1">
               <span>مبلغ کل فاکتور:</span>
-              <span class="font-mono tabular-nums">{{ formatToman(selectedOrderForDetail.totalAmount) }} تومان</span>
+              <span class="font-mono tabular-nums">{{ formatToman(selectedOrderForDetail.totalAmount) }}</span>
             </div>
           </div>
         </div>

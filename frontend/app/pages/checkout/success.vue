@@ -343,19 +343,19 @@ onMounted(() => {
         <div class="border border-black rounded-lg p-3 min-w-64 space-y-2 text-xs bg-slate-50/50">
           <div class="flex items-center justify-between text-slate-700">
             <span>جمع کل اقلام:</span>
-            <span class="font-mono font-bold">{{ formatToman(order.subtotal) }} تومان</span>
+            <span class="font-mono font-bold">{{ formatToman(order.subtotal) }}</span>
           </div>
           <div v-if="order.discount > 0" class="flex items-center justify-between text-slate-700">
             <span>تخفیف:</span>
-            <span class="font-mono font-bold">{{ formatToman(order.discount) }}- تومان</span>
+            <span class="font-mono font-bold">{{ formatToman(order.discount) }}-</span>
           </div>
           <div class="flex items-center justify-between text-slate-700">
             <span>هزینه بسته‌بندی و ارسال:</span>
-            <span class="font-mono font-bold">{{ order.shippingCost === 0 ? 'رایگان' : formatToman(order.shippingCost) + ' تومان' }}</span>
+            <span class="font-mono font-bold">{{ order.shippingCost === 0 ? 'رایگان' : formatToman(order.shippingCost) }}</span>
           </div>
           <div class="border-t border-black pt-2 flex items-center justify-between font-bold text-sm text-black">
             <span>مبلغ نهایی پرداخت شده:</span>
-            <span class="font-mono">{{ formatToman(order.finalTotal) }} تومان</span>
+            <span class="font-mono">{{ formatToman(order.finalTotal) }}</span>
           </div>
         </div>
       </div>

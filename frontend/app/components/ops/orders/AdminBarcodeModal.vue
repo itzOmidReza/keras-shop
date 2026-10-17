@@ -6,10 +6,8 @@ import {
   Sparkles,
   Zap,
 } from '@lucide/vue'
-import {
-  useAdminOrders,
-  SHIPPING_CARRIERS,
-} from '~/composables/admin/useAdminOrders'
+import { useAdminOrders } from '~/composables/admin/useAdminOrders'
+import { SHIPPING_CARRIERS } from '~/utils/orders'
 
 const {
   isBarcodeModalOpen,

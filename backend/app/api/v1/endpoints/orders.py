@@ -1,10 +1,12 @@
 import uuid
+import math
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from fastapi import APIRouter, Depends, Query, Request, status
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.core.config import settings
 from app.core.exceptions import DomainException
@@ -24,12 +26,31 @@ from app.schemas.order import (
     CartItemSchema,
     ShippingAddressSchema,
     TrackingEventSchema,
+    OrderStatusCounts,
+    PaginatedOrdersResponse,
+    OrderDeskStatusUpdateRequest,
+    OrderDeskTrackingUpdateRequest,
+    ManualOrderCreateRequest,
 )
 from app.services.order import order_service
 
 router = APIRouter(prefix="/orders", tags=["Orders & Payments"])
 
 _TOMAN = 10
+
+
+def _is_valid_uuid(val: str) -> bool:
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+def _order_lookup_filter(identifier: str):
+    if _is_valid_uuid(identifier):
+        return or_(Order.order_number == identifier, Order.id == identifier)
+    return Order.order_number == identifier
 
 
 def _build_receipt_response(order: Order) -> OrderReceiptResponse:
@@ -295,6 +316,322 @@ async def track_order(
     return _build_tracking_response(order)
 
 
+@router.get("", response_model=PaginatedOrdersResponse, summary="List orders with server pagination, filters, and tab counts")
+@router.get("/", response_model=PaginatedOrdersResponse, include_in_schema=False)
+async def list_orders_desk(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
+    status: Optional[str] = Query(default=None),
+    carrier: Optional[str] = Query(default=None),
+    search: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    # 1. Compute aggregate tab counts across ALL orders
+    all_res = await db.execute(select(func.count(Order.id)))
+    total_all = all_res.scalar() or 0
+
+    processing_res = await db.execute(
+        select(func.count(Order.id)).where(
+            Order.status.in_([OrderStatus.PENDING, OrderStatus.PROCESSING])
+        )
+    )
+    total_processing = processing_res.scalar() or 0
+
+    shipped_res = await db.execute(
+        select(func.count(Order.id)).where(Order.status == OrderStatus.SHIPPED)
+    )
+    total_shipped = shipped_res.scalar() or 0
+
+    delivered_res = await db.execute(
+        select(func.count(Order.id)).where(Order.status == OrderStatus.DELIVERED)
+    )
+    total_delivered = delivered_res.scalar() or 0
+
+    archived_res = await db.execute(
+        select(func.count(Order.id)).where(Order.status == OrderStatus.CANCELLED)
+    )
+    total_archived = archived_res.scalar() or 0
+
+    counts = OrderStatusCounts(
+        all=total_all,
+        processing=total_processing,
+        shipped=total_shipped,
+        delivered=total_delivered,
+        archived=total_archived,
+    )
+
+    # 2. Build filtered query
+    stmt = select(Order).options(selectinload(Order.items))
+    count_stmt = select(func.count(Order.id))
+
+    if status and status != "all":
+        st_lower = status.lower()
+        if st_lower == "processing":
+            stmt = stmt.where(Order.status.in_([OrderStatus.PENDING, OrderStatus.PROCESSING]))
+            count_stmt = count_stmt.where(Order.status.in_([OrderStatus.PENDING, OrderStatus.PROCESSING]))
+        elif st_lower in ("shipped", "handed_over"):
+            stmt = stmt.where(Order.status == OrderStatus.SHIPPED)
+            count_stmt = count_stmt.where(Order.status == OrderStatus.SHIPPED)
+        elif st_lower == "delivered":
+            stmt = stmt.where(Order.status == OrderStatus.DELIVERED)
+            count_stmt = count_stmt.where(Order.status == OrderStatus.DELIVERED)
+        elif st_lower in ("archived", "canceled", "cancelled", "returned"):
+            stmt = stmt.where(Order.status == OrderStatus.CANCELLED)
+            count_stmt = count_stmt.where(Order.status == OrderStatus.CANCELLED)
+        elif st_lower == "pending":
+            stmt = stmt.where(Order.status == OrderStatus.PENDING)
+            count_stmt = count_stmt.where(Order.status == OrderStatus.PENDING)
+
+    if carrier and carrier != "all":
+        c_lower = carrier.lower()
+        if c_lower == "post":
+            carrier_filter = or_(
+                Order.shipping_provider.ilike("%پست%"),
+                Order.shipping_provider.ilike("%post%"),
+                Order.shipping_method.ilike("%standard%"),
+            )
+            stmt = stmt.where(carrier_filter)
+            count_stmt = count_stmt.where(carrier_filter)
+        elif c_lower == "tipax":
+            carrier_filter = or_(
+                Order.shipping_provider.ilike("%تیپاکس%"),
+                Order.shipping_provider.ilike("%tipax%"),
+            )
+            stmt = stmt.where(carrier_filter)
+            count_stmt = count_stmt.where(carrier_filter)
+        elif c_lower == "courier":
+            carrier_filter = or_(
+                Order.shipping_provider.ilike("%پیک%"),
+                Order.shipping_provider.ilike("%courier%"),
+            )
+            stmt = stmt.where(carrier_filter)
+            count_stmt = count_stmt.where(carrier_filter)
+
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        search_filter = or_(
+            Order.order_number.ilike(term),
+            Order.customer_name.ilike(term),
+            Order.phone_number.ilike(term),
+            Order.tracking_code.ilike(term),
+        )
+        stmt = stmt.where(search_filter)
+        count_stmt = count_stmt.where(search_filter)
+
+    filtered_res = await db.execute(count_stmt)
+    total_filtered = filtered_res.scalar() or 0
+
+    offset = (page - 1) * limit
+    stmt = stmt.order_by(Order.created_at.desc()).offset(offset).limit(limit)
+
+    orders_res = await db.execute(stmt)
+    orders = orders_res.scalars().unique().all()
+
+    total_pages = math.ceil(total_filtered / limit) if total_filtered > 0 else 1
+
+    return PaginatedOrdersResponse(
+        items=[_build_tracking_response(o) for o in orders],
+        total=total_filtered,
+        page=page,
+        limit=limit,
+        total_pages=total_pages,
+        counts=counts,
+    )
+
+
+@router.patch("/{order_number}/status", response_model=TrackOrderResponse)
+async def update_order_status_desk(
+    order_number: str,
+    payload: OrderDeskStatusUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(Order)
+        .where(_order_lookup_filter(order_number))
+        .options(selectinload(Order.items))
+    )
+    res = await db.execute(stmt)
+    order = res.scalar_one_or_none()
+    if not order:
+        raise DomainException(
+            message=f"Order '{order_number}' not found.",
+            code="ORDER_NOT_FOUND",
+            status_code=404,
+        )
+
+    st_map = {
+        "pending": OrderStatus.PENDING,
+        "processing": OrderStatus.PROCESSING,
+        "shipped": OrderStatus.SHIPPED,
+        "handed_over": OrderStatus.SHIPPED,
+        "delivered": OrderStatus.DELIVERED,
+        "canceled": OrderStatus.CANCELLED,
+        "cancelled": OrderStatus.CANCELLED,
+        "returned": OrderStatus.CANCELLED,
+    }
+    new_enum = st_map.get(payload.status.lower(), OrderStatus.PENDING)
+    order.status = new_enum
+
+    label_map = {
+        OrderStatus.PENDING: "در انتظار بررسی",
+        OrderStatus.PROCESSING: "در حال بسته‌بندی",
+        OrderStatus.SHIPPED: "تحویل به پست / تیپاکس",
+        OrderStatus.DELIVERED: "تحویل نهایی به مشتری",
+        OrderStatus.CANCELLED: "لغو شده / انصراف",
+    }
+    order.status_label = label_map.get(new_enum, payload.status)
+
+    now_str = datetime.now(timezone.utc).strftime("%Y/%m/%d - %H:%M")
+    if not order.timeline:
+        order.timeline = []
+
+    order.timeline.append({
+        "status": payload.status,
+        "title": f"تغییر وضعیت به {order.status_label}",
+        "description": payload.customNote or f"وضعیت سفارش توسط مدیر عملیات به {order.status_label} تغییر یافت.",
+        "timestamp": now_str,
+        "location": "مرکز عملیات آتلیه کراس",
+        "completed": True,
+    })
+    flag_modified(order, "timeline")
+
+    await db.commit()
+    res = await db.execute(stmt)
+    return _build_tracking_response(res.scalar_one())
+
+
+@router.patch("/{order_number}/tracking", response_model=TrackOrderResponse)
+async def update_order_tracking_desk(
+    order_number: str,
+    payload: OrderDeskTrackingUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(Order)
+        .where(_order_lookup_filter(order_number))
+        .options(selectinload(Order.items))
+    )
+    res = await db.execute(stmt)
+    order = res.scalar_one_or_none()
+    if not order:
+        raise DomainException(
+            message=f"Order '{order_number}' not found.",
+            code="ORDER_NOT_FOUND",
+            status_code=404,
+        )
+
+    order.tracking_code = payload.trackingCode.strip()
+    if payload.carrier:
+        order.shipping_provider = payload.carrier
+    if order.status in (OrderStatus.PENDING, OrderStatus.PROCESSING):
+        order.status = OrderStatus.SHIPPED
+        order.status_label = "تحویل به پست / تیپاکس"
+
+    now_str = datetime.now(timezone.utc).strftime("%Y/%m/%d - %H:%M")
+    if not order.timeline:
+        order.timeline = []
+
+    order.timeline.append({
+        "status": "shipped",
+        "title": "صدور بارکد و تحویل مرسوله",
+        "description": f"کد رهگیری {order.tracking_code} ثبت و مرسوله به شرکت حمل تحویل داده شد.",
+        "timestamp": now_str,
+        "location": "مرکز عملیات آتلیه کراس",
+        "completed": True,
+    })
+    flag_modified(order, "timeline")
+
+    await db.commit()
+    res = await db.execute(stmt)
+    return _build_tracking_response(res.scalar_one())
+
+
+@router.post("/manual", response_model=TrackOrderResponse, status_code=status.HTTP_201_CREATED)
+async def create_manual_order_desk(
+    payload: ManualOrderCreateRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    res_user = await db.execute(select(User).where(User.phone == payload.recipientPhone))
+    user = res_user.scalar_one_or_none()
+    if not user:
+        user = User(
+            phone=payload.recipientPhone,
+            full_name=payload.recipientName,
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+
+    num = str(uuid.uuid4().int)[:6]
+    order_num = f"KRS-{num}"
+
+    total_toman = payload.totalAmount
+    order = Order(
+        order_number=order_num,
+        user_id=user.id,
+        customer_name=payload.recipientName,
+        phone_number=payload.recipientPhone,
+        province="تهران",
+        city="تهران",
+        postal_address=payload.shippingAddress,
+        postal_code=payload.postalCode or "1965943211",
+        subtotal_amount_rial=total_toman * _TOMAN,
+        discount_amount_rial=0,
+        shipping_cost_rial=0,
+        total_amount_rial=total_toman * _TOMAN,
+        status=OrderStatus.PENDING,
+        status_label="در انتظار بررسی",
+        shipping_method="standard",
+        payment_method="کارت به کارت / فیش بانکی",
+        tracking_code="",
+        shipping_provider="شرکت ملی پست (پیشتاز)",
+        estimated_delivery="۲ الی ۳ روز کاری",
+        timeline=[
+            {
+                "status": "pending",
+                "title": "ثبت سفارش دستی",
+                "description": "سفارش دستی توسط مدیر سیستم در پنل ثبت گردید.",
+                "timestamp": datetime.now(timezone.utc).strftime("%Y/%m/%d - %H:%M"),
+                "location": "مرکز عملیات آتلیه کراس",
+                "completed": True,
+            }
+        ],
+    )
+    db.add(order)
+    await db.flush()
+
+    items_to_add = payload.items or [
+        {
+            "title": "پالتو کشمیر لیمیتد آتلیه",
+            "size": "M",
+            "color": "مشکی زغالی",
+            "quantity": 1,
+            "price": total_toman,
+            "image": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80",
+        }
+    ]
+
+    for it in items_to_add:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=it.get("productId") or 1,
+            product_slug="atelier-cashmere-coat",
+            product_title=it.get("title") or "پالتو کشمیر لیمیتد آتلیه",
+            variant_title=f"{it.get('color', 'مشکی')} / {it.get('size', 'M')}",
+            size=it.get("size") or "M",
+            color=it.get("color") or "مشکی زغالی",
+            image=it.get("image") or "",
+            quantity=it.get("quantity") or 1,
+            unit_price_rial=int(it.get("price", total_toman) * _TOMAN),
+            total_price_rial=int(it.get("price", total_toman) * it.get("quantity", 1) * _TOMAN),
+        )
+        db.add(order_item)
+
+    await db.commit()
+    res = await db.execute(select(Order).where(Order.id == order.id).options(selectinload(Order.items)))
+    return _build_tracking_response(res.scalar_one())
+
+
 @router.get(
     "/{order_identifier}",
     response_model=Union[OrderReceiptResponse, OrderResponse],
@@ -307,12 +644,7 @@ async def get_order_by_identifier(
 ):
     stmt = (
         select(Order)
-        .where(
-            or_(
-                Order.id == order_identifier,
-                Order.order_number == order_identifier,
-            )
-        )
+        .where(_order_lookup_filter(order_identifier))
         .options(selectinload(Order.items))
     )
     res = await db.execute(stmt)

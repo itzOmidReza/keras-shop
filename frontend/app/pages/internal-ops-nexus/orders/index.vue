@@ -16,6 +16,13 @@ const {
   carrierFilter,
   filteredOrders,
   counts,
+  currentPage,
+  pageSize,
+  totalOrders,
+  totalPages,
+  isLoading,
+  setPage,
+  setPageSize,
   updateStatus,
   openOrderDetail,
   openPackingSlip,
@@ -43,9 +50,16 @@ const tabs = computed(() => [
       @open-manual-order="openManualOrderModal"
     />
 
-    <!-- جدول استاندارد سفارش‌ها با سلکتور وضعیت خط لوله -->
+    <!-- جدول استاندارد سفارش‌ها با سلکتور وضعیت خط لوله و صفحه‌بندی سروری -->
     <AdminOrdersTable
       :orders="filteredOrders"
+      :is-loading="isLoading"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      :total-orders="totalOrders"
+      :total-pages="totalPages"
+      @page-change="setPage"
+      @page-size-change="setPageSize"
       @update-status="updateStatus"
       @open-detail="openOrderDetail"
       @open-packing-slip="openPackingSlip"

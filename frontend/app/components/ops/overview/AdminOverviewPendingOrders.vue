@@ -51,7 +51,7 @@ const emit = defineEmits<{
             {{ order.items.map(i => `${i.title} (${i.size})`).join('، ') }}
           </div>
           <div class="text-[11px] font-mono font-bold text-slate-700">
-            {{ formatToman(order.totalAmount) }} تومان
+            {{ formatToman(order.totalAmount) }}
           </div>
         </div>
 
