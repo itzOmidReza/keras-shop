@@ -123,38 +123,44 @@ export function useAdminOrders() {
     const c = carrierFilter.value
 
     return ordersList.value.filter((order) => {
-      // جستجو در فیلدهای مختلف
+      const orderNum = (order.orderNumber || '').toLowerCase()
+      const recipientName = (order.recipientName || '').toLowerCase()
+      const recipientPhone = order.recipientPhone || ''
+      const trackingCode = (order.trackingCode || '').toLowerCase()
+
       const matchesSearch =
         !q ||
-        order.orderNumber.toLowerCase().includes(q) ||
-        order.recipientName.toLowerCase().includes(q) ||
-        (order.recipientPhone && order.recipientPhone.includes(q)) ||
-        (order.trackingCode && order.trackingCode.toLowerCase().includes(q))
+        orderNum.includes(q) ||
+        recipientName.includes(q) ||
+        recipientPhone.includes(q) ||
+        trackingCode.includes(q)
 
       // فیلتر تب وضعیت
       let matchesTab = true
+      const st = order.status
       if (activeStatusTab.value === 'processing') {
         matchesTab =
-          order.status === 'registered' ||
-          order.status === 'processing' ||
-          order.status === 'pending'
+          st === 'registered' ||
+          st === 'processing' ||
+          st === 'pending'
       } else if (activeStatusTab.value === 'shipped') {
-        matchesTab = order.status === 'handed_over' || order.status === 'shipped'
+        matchesTab = st === 'handed_over' || st === 'shipped'
       } else if (activeStatusTab.value === 'delivered') {
-        matchesTab = order.status === 'delivered'
+        matchesTab = st === 'delivered'
       } else if (activeStatusTab.value === 'archived') {
-        matchesTab = order.status === 'canceled' || order.status === 'returned'
+        matchesTab = st === 'canceled' || (st as string) === 'cancelled' || st === 'returned'
       }
 
       // فیلتر شرکت حمل
       let matchesCarrier = true
+      const carrier = (order.carrier || '').toLowerCase()
       if (c !== 'all') {
         if (c === 'post') {
-          matchesCarrier = order.carrier.includes('پست')
+          matchesCarrier = carrier.includes('پست') || carrier.includes('post')
         } else if (c === 'tipax') {
-          matchesCarrier = order.carrier.toLowerCase().includes('تیپاکس') || order.carrier.toLowerCase().includes('tipax')
+          matchesCarrier = carrier.includes('تیپاکس') || carrier.includes('tipax')
         } else if (c === 'courier') {
-          matchesCarrier = order.carrier.includes('پیک')
+          matchesCarrier = carrier.includes('پیک') || carrier.includes('courier')
         }
       }
 
@@ -180,7 +186,7 @@ export function useAdminOrders() {
         shipped++
       } else if (order.status === 'delivered') {
         delivered++
-      } else if (order.status === 'canceled' || order.status === 'returned') {
+      } else if (order.status === 'canceled' || (order.status as string) === 'cancelled' || order.status === 'returned') {
         archived++
       }
     }

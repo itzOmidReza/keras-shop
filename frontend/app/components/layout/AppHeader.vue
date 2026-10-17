@@ -10,6 +10,7 @@ import {
   LogOut,
 } from '@lucide/vue'
 import { headerNav, announcementBar, siteConfig } from '~/data'
+import { formatToman } from '~/utils/format'
 
 defineEmits<{
   openMobileMenu: []
@@ -77,7 +78,7 @@ class="sticky top-0 z-40 w-full transition-all duration-300" :class="[
       <div
         class="container mx-auto flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground"
       >
-        <span>{{ settings.shipping.announcementBarText || announcementBar.text }}</span>
+        <span>{{ settings.shipping.announcementBarText || (settings.shipping.freeShippingThreshold ? `ارسال رایگان برای تمام سفارش‌های بالای ${formatToman(settings.shipping.freeShippingThreshold)}` : announcementBar.text) }}</span>
         <template v-if="settings.shipping.announcementBarHighlight || announcementBar.highlight">
           <span class="inline-block w-1 h-1 rounded-full bg-rose shrink-0" />
           <span class="hidden sm:inline">{{ settings.shipping.announcementBarHighlight || announcementBar.highlight }}</span>

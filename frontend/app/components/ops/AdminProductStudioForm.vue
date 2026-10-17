@@ -162,16 +162,28 @@ onMounted(() => {
   }
 })
 
-const handleSave = () => {
-  const result = saveProduct()
-  if (result) {
-    router.push('/internal-ops-nexus/products')
+const isSubmitting = ref(false)
+
+const handleSave = async () => {
+  isSubmitting.value = true
+  try {
+    const result = await saveProduct()
+    if (result) {
+      router.push('/internal-ops-nexus/products')
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
-const handleSaveDraft = () => {
-  productForm.value.isPublished = false
-  saveProduct()
+const handleSaveDraft = async () => {
+  isSubmitting.value = true
+  try {
+    productForm.value.isPublished = false
+    await saveProduct()
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const autoGenerateSlug = () => {

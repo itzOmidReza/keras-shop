@@ -2,6 +2,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.db.session import get_db
 from app.models.review import ProductReview
@@ -73,7 +74,6 @@ async def update_review_status(
     await db.commit()
     return {"success": True, "status": rev.status}
 
-
 @router.post("/{review_id}/reply")
 async def reply_to_review(
     review_id: str,
@@ -90,6 +90,7 @@ async def reply_to_review(
         "date": "۱۴۰۵/۰۷/۱۵",
         "author": "آتلیه کراس",
     }
+    flag_modified(rev, "reply")
     await db.commit()
     return {"success": True, "review": _map_review(rev)}
 

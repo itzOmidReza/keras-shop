@@ -13,7 +13,10 @@ useSeoMeta({ title: 'محصولات و لباس‌ها | مدیریت آتلیه
 const {
   searchQuery,
   selectedCategory,
-  filteredProducts,
+  paginatedProducts,
+  totalFilteredCount,
+  currentPage,
+  pageSize,
   deleteProduct,
   toggleProductActive,
 } = useAdminProducts()
@@ -64,9 +67,14 @@ const confirmDelete = () => {
       v-model:selected-category="selectedCategory"
     />
 
-    <!-- جدول محصولات -->
+    <!-- جدول محصولات با صفحه‌بندی -->
     <AdminProductsTable
-      :products="filteredProducts"
+      :products="paginatedProducts"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      :total-count="totalFilteredCount"
+      @update:current-page="currentPage = $event"
+      @update:page-size="pageSize = $event"
       @toggle-active="toggleProductActive"
       @delete="openDeleteConfirm"
     />

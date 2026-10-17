@@ -1,7 +1,10 @@
+import json
+import time
+import uuid
 from typing import List, Optional, Union, Dict, Any
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic import BaseModel
-from sqlalchemy import func, or_, and_, select
+from sqlalchemy import func, or_, and_, select, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -175,6 +178,7 @@ def _build_product_detail_response(p: Product) -> ProductDetailResponse:
     summary="List Products",
 )
 async def list_products(
+    response: Response,
     q: Optional[str] = Query(None, description="Search query"),
     division: Optional[str] = Query(None, description="Division: apparel | accessories"),
     category: Optional[str] = Query(None, description="Category slug"),
@@ -186,41 +190,56 @@ async def list_products(
     limit: Optional[int] = Query(None, ge=1, le=100),
     min_price: Optional[int] = Query(None),
     max_price: Optional[int] = Query(None),
+    include_inactive: Optional[bool] = Query(False),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(Product)
-        .where(Product.is_active == True)
         .options(selectinload(Product.variants), selectinload(Product.category))
     )
+    count_stmt = select(func.count(Product.id))
+
+    if not include_inactive:
+        stmt = stmt.where(Product.is_active == True)
+        count_stmt = count_stmt.where(Product.is_active == True)
 
     if q:
         search_clause = _build_search_clause(q)
         if search_clause is not None:
             stmt = stmt.where(search_clause)
+            count_stmt = count_stmt.where(search_clause)
 
     if division and division != "all":
         stmt = stmt.where(Product.division == division)
+        count_stmt = count_stmt.where(Product.division == division)
 
     if category and category != "all":
-        stmt = stmt.join(Product.category, isouter=True).where(
-            or_(Category.slug == category, Product.category_id == category)
-        )
+        cat_filter = or_(Category.slug == category, Product.category_id == category)
+        stmt = stmt.join(Product.category, isouter=True).where(cat_filter)
+        count_stmt = count_stmt.join(Product.category, isouter=True).where(cat_filter)
 
     if season and season != "all":
         stmt = stmt.where(Product.season == season)
+        count_stmt = count_stmt.where(Product.season == season)
 
     if brand and brand != "all":
         stmt = stmt.where(Product.brand == brand)
+        count_stmt = count_stmt.where(Product.brand == brand)
 
     if line and line != "all":
         stmt = stmt.where(Product.line == line)
+        count_stmt = count_stmt.where(Product.line == line)
 
     if min_price:
         stmt = stmt.where(Product.base_price_rial >= (min_price * _TOMAN))
+        count_stmt = count_stmt.where(Product.base_price_rial >= (min_price * _TOMAN))
 
     if max_price:
         stmt = stmt.where(Product.base_price_rial <= (max_price * _TOMAN))
+        count_stmt = count_stmt.where(Product.base_price_rial <= (max_price * _TOMAN))
+
+    total = int((await db.execute(count_stmt)).scalar_one() or 0)
+    response.headers["X-Total-Count"] = str(total)
 
     # Order by
     if sort == "price_asc":
@@ -418,3 +437,220 @@ async def get_product_by_slug(
         )
 
     return _build_product_detail_response(product)
+
+
+@router.post(
+    "",
+    response_model=ProductDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create New Product",
+)
+async def create_product(
+    payload: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    title = (payload.get("title") or "").strip() or "محصول جدید کراس"
+    slug = (payload.get("slug") or "").strip()
+    if not slug:
+        slug = f"item-{int(time.time())}"
+
+    # Ensure unique slug
+    existing = (await db.execute(select(Product.id).where(Product.slug == slug))).scalar_one_or_none()
+    if existing:
+        slug = f"{slug}-{str(uuid.uuid4())[:4]}"
+
+    # Find category
+    category_id = None
+    cat_slug = payload.get("category")
+    if cat_slug:
+        cat_res = await db.execute(select(Category).where(Category.slug == str(cat_slug)))
+        cat_obj = cat_res.scalar_one_or_none()
+        if not cat_obj:
+            try:
+                uuid.UUID(str(cat_slug))
+                cat_res = await db.execute(select(Category).where(Category.id == str(cat_slug)))
+                cat_obj = cat_res.scalar_one_or_none()
+            except (ValueError, TypeError):
+                pass
+        if cat_obj:
+            category_id = cat_obj.id
+
+    max_num_id = (await db.execute(select(func.coalesce(func.max(Product.numeric_id), 0)))).scalar_one() or 0
+    numeric_id = max_num_id + 1
+
+    price = int(payload.get("price") or payload.get("salePrice") or payload.get("basePrice") or 0)
+    base_price = int(payload.get("basePrice") or price)
+    compare_at = base_price if base_price > price else None
+
+    images_raw = payload.get("images") or payload.get("galleryImages") or []
+    if isinstance(images_raw, list):
+        img_urls = [it["url"] if isinstance(it, dict) and "url" in it else str(it) for it in images_raw if it]
+    else:
+        img_urls = [str(images_raw)]
+    if not img_urls and payload.get("mainImage"):
+        img_urls = [payload.get("mainImage")]
+
+    is_active = bool(payload.get("is_active", payload.get("isPublished", True)))
+
+    product = Product(
+        numeric_id=numeric_id,
+        title=title,
+        slug=slug,
+        description=payload.get("description") or f"{title} — طراحی اختصاصی در آتلیه مد کراس",
+        category_id=category_id,
+        images=json.dumps(img_urls),
+        base_price_rial=price * _TOMAN,
+        compare_at_price_rial=compare_at * _TOMAN if compare_at else None,
+        is_active=is_active,
+        brand=payload.get("brand") or "keras-atelier",
+        division=payload.get("division") or "apparel",
+        season=payload.get("season") or "fall-1405",
+        badge=payload.get("badge") or ("جدید" if is_active else None),
+        fit_note=payload.get("fit_note") or payload.get("fitNote"),
+        fabric=payload.get("fabric") if isinstance(payload.get("fabric"), dict) else {"composition": payload.get("fabric") or "۱۰۰٪ الیاف طبیعی", "care": payload.get("careInstructions") or "شست‌وشوی ملایم"},
+        sizes=payload.get("sizes") or payload.get("selectedSizes") or ["S", "M", "L"],
+        available_sizes=payload.get("available_sizes") or payload.get("selectedSizes") or ["S", "M", "L"],
+        colors=payload.get("colors") or payload.get("selectedColors") or [{"name": "مشکی", "hex": "#1C1917"}],
+    )
+    db.add(product)
+    await db.flush()
+
+    variants_input = payload.get("variants") or []
+    if variants_input:
+        for idx, v in enumerate(variants_input):
+            v_sku = v.get("sku") or f"{slug}-{idx + 1}"
+            v_stock = int(v.get("stock") or 0)
+            v_color = v.get("color") or "پیش‌فرض"
+            v_color_hex = v.get("colorHex") or v.get("color_hex") or "#1C1917"
+            v_size = v.get("size") or "Free"
+            v_price = int(v.get("price") or price)
+            v_obj = ProductVariant(
+                product_id=product.id,
+                sku=v_sku,
+                title=f"{title} - {v_color} / {v_size}",
+                color=v_color,
+                color_hex=v_color_hex,
+                size=v_size,
+                stock=v_stock,
+                price_rial=v_price * _TOMAN,
+                is_active=True,
+            )
+            db.add(v_obj)
+    else:
+        default_v = ProductVariant(
+            product_id=product.id,
+            sku=f"{slug}-std",
+            title=f"{title} - استاندارد",
+            color="پیش‌فرض",
+            color_hex="#1C1917",
+            size="Free",
+            stock=10,
+            price_rial=price * _TOMAN,
+            is_active=True,
+        )
+        db.add(default_v)
+
+    await db.commit()
+    stmt = (
+        select(Product)
+        .where(Product.id == product.id)
+        .options(selectinload(Product.variants), selectinload(Product.category))
+    )
+    res = await db.execute(stmt)
+    saved_product = res.scalar_one()
+    return _build_product_detail_response(saved_product)
+
+
+@router.put(
+    "/{product_id}",
+    response_model=ProductDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Update Product",
+)
+async def update_product(
+    product_id: str,
+    payload: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(Product)
+        .where(
+            or_(
+                Product.id == product_id,
+                Product.slug == product_id,
+                func.cast(Product.numeric_id, String) == str(product_id),
+            )
+        )
+        .options(selectinload(Product.variants), selectinload(Product.category))
+    )
+    res = await db.execute(stmt)
+    product = res.scalar_one_or_none()
+    if not product:
+        raise DomainException(message="Product not found", code="PRODUCT_NOT_FOUND", status_code=404)
+
+    if "title" in payload:
+        product.title = payload["title"]
+    if "description" in payload:
+        product.description = payload["description"]
+    if "is_active" in payload:
+        product.is_active = bool(payload["is_active"])
+    elif "isPublished" in payload:
+        product.is_active = bool(payload["isPublished"])
+    if "price" in payload or "salePrice" in payload:
+        price = int(payload.get("salePrice") or payload.get("price"))
+        product.base_price_rial = price * _TOMAN
+    if "category" in payload:
+        cat_slug = payload["category"]
+        cat_res = await db.execute(select(Category).where(Category.slug == str(cat_slug)))
+        cat_obj = cat_res.scalar_one_or_none()
+        if not cat_obj:
+            try:
+                uuid.UUID(str(cat_slug))
+                cat_res = await db.execute(select(Category).where(Category.id == str(cat_slug)))
+                cat_obj = cat_res.scalar_one_or_none()
+            except (ValueError, TypeError):
+                pass
+        if cat_obj:
+            product.category_id = cat_obj.id
+
+    if "images" in payload or "galleryImages" in payload:
+        images_raw = payload.get("images") or payload.get("galleryImages") or []
+        img_urls = [it["url"] if isinstance(it, dict) and "url" in it else str(it) for it in images_raw if it]
+        if img_urls:
+            product.images = json.dumps(img_urls)
+
+    await db.commit()
+    await db.refresh(product)
+    return _build_product_detail_response(product)
+
+
+@router.delete(
+    "/{product_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Delete Product",
+)
+async def delete_product(
+    product_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(Product)
+        .where(
+            or_(
+                Product.id == product_id,
+                Product.slug == product_id,
+                func.cast(Product.numeric_id, String) == str(product_id),
+            )
+        )
+        .options(selectinload(Product.variants))
+    )
+    res = await db.execute(stmt)
+    product = res.scalar_one_or_none()
+    if not product:
+        raise DomainException(message="Product not found", code="PRODUCT_NOT_FOUND", status_code=404)
+
+    for v in product.variants:
+        await db.delete(v)
+    await db.delete(product)
+    await db.commit()
+    return {"success": True, "message": "محصول با موفقیت حذف شد."}

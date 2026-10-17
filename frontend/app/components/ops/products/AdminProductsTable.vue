@@ -6,18 +6,36 @@ import {
   Shirt,
   CheckCircle2,
   XCircle,
+  ChevronRight,
+  ChevronLeft,
 } from '@lucide/vue'
 import { toFa, formatToman } from '~/utils/format'
 import type { ProductDetail } from '~/types/domain'
 
-defineProps<{
-  products: ProductDetail[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    products: ProductDetail[]
+    currentPage?: number
+    pageSize?: number
+    totalCount?: number
+  }>(),
+  {
+    currentPage: 1,
+    pageSize: 10,
+    totalCount: 0,
+  },
+)
 
 const emit = defineEmits<{
   toggleActive: [product: ProductDetail]
   delete: [product: ProductDetail]
+  'update:currentPage': [page: number]
+  'update:pageSize': [size: number]
 }>()
+
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil((props.totalCount || props.products.length) / props.pageSize)),
+)
 
 const getTotalStock = (p: ProductDetail): number => {
   if (p.variants && p.variants.length > 0) {
@@ -177,6 +195,61 @@ const getCategoryLabel = (category: string) => {
     <div v-if="products.length === 0" class="p-10 text-center text-slate-400 text-xs space-y-1">
       <p class="font-bold text-slate-700">هیچ محصولی با این فیلترها یافت نشد.</p>
       <p class="text-[11px]">می‌توانید کلمه جست‌وجو را تغییر دهید.</p>
+    </div>
+
+    <!-- نوار صفحه‌بندی هوشمند (Responsive Pagination Bar) -->
+    <div
+      v-if="totalCount > 0 || products.length > 0"
+      class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-200/80 bg-slate-50/50 text-xs text-slate-600"
+    >
+      <div class="flex items-center gap-2">
+        <span>نمایش</span>
+        <select
+          :value="pageSize"
+          class="h-8 px-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 outline-hidden focus:border-slate-400 cursor-pointer"
+          @change="emit('update:pageSize', Number(($event.target as HTMLSelectElement).value))"
+        >
+          <option :value="10">۱۰ مورد</option>
+          <option :value="15">۱۵ مورد</option>
+          <option :value="25">۲۵ مورد</option>
+        </select>
+        <span>از مجموع <strong class="text-slate-900 font-bold font-mono">{{ toFa(totalCount || products.length) }}</strong> کالا</span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button
+          type="button"
+          class="h-8 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+          :disabled="currentPage <= 1"
+          @click="emit('update:currentPage', currentPage - 1)"
+        >
+          <ChevronRight class="w-3.5 h-3.5" />
+          <span>قبلی</span>
+        </button>
+
+        <div class="flex items-center gap-1 font-mono font-bold text-xs">
+          <button
+            v-for="p in totalPages"
+            :key="p"
+            type="button"
+            class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+            :class="p === currentPage ? 'bg-slate-900 text-white font-black' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'"
+            @click="emit('update:currentPage', p)"
+          >
+            {{ toFa(p) }}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="h-8 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+          :disabled="currentPage >= totalPages"
+          @click="emit('update:currentPage', currentPage + 1)"
+        >
+          <span>بعدی</span>
+          <ChevronLeft class="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

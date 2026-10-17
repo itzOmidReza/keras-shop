@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.models.settings import SiteSetting
 from app.schemas.settings import SiteSettingsResponse, SiteBrandingSettings, SiteContactSettings, SiteShippingSettings, SiteCheckoutRules, SiteSocialSettings, SiteIntegrationsSettings, SiteHomeHeroSettings
+from sqlalchemy.orm.attributes import flag_modified
 
 router = APIRouter(tags=["Site Settings"])
 
@@ -60,12 +61,13 @@ async def update_site_settings(
             res = await db.execute(select(SiteSetting).where(SiteSetting.key == key))
             record = res.scalar_one_or_none()
             if not record:
-                record = SiteSetting(key=key, value=value)
+                record = SiteSetting(key=key, value=dict(value))
                 db.add(record)
             else:
-                current_val = record.value or {}
+                current_val = dict(record.value or {})
                 current_val.update(value)
                 record.value = current_val
+                flag_modified(record, "value")
 
     await db.commit()
     return await get_site_settings(db)

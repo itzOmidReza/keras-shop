@@ -282,22 +282,38 @@ async def get_user_orders(
                 "image": it.image or "",
             })
 
+        recipient_name = o.customer_name or "مشتری کراس"
+        recipient_phone = o.phone_number or ""
+        carrier_name = o.shipping_method or "پست پیشتاز"
+        if carrier_name == "standard":
+            carrier_name = "شرکت ملی پست (پیشتاز)"
+        formatted_address = f"{o.province or ''}، {o.city or ''}، {o.postal_address or ''}".strip("، ")
+
+        st_val = o.status.value
+        if st_val == "cancelled":
+            st_val = "canceled"
+
         output.append({
             "orderNumber": o.order_number,
-            "createdAt": o.created_at.isoformat() if o.created_at else "",
-            "status": o.status.value,
+            "createdAt": o.created_at.strftime("%Y/%m/%d - %H:%M") if o.created_at else "",
+            "status": st_val,
             "statusLabel": o.status_label or "در حال پردازش",
-            "finalTotal": int(o.total_amount_rial // 10),
-            "itemCount": len(items),
-            "items": items,
-            "shippingAddress": {
-                "fullName": o.customer_name,
-                "phoneNumber": o.phone_number,
+            "recipientName": recipient_name,
+            "recipientPhone": recipient_phone,
+            "shippingAddress": formatted_address or "تهران، آتلیه کراس",
+            "shippingAddressDetails": {
+                "fullName": recipient_name,
+                "phoneNumber": recipient_phone,
                 "province": o.province,
                 "city": o.city,
                 "postalCode": o.postal_code,
                 "exactAddress": o.postal_address,
             },
-            "trackingCode": o.tracking_code,
+            "carrier": carrier_name,
+            "trackingCode": o.tracking_code or "",
+            "finalTotal": int(o.total_amount_rial // 10),
+            "totalAmount": int(o.total_amount_rial // 10),
+            "itemCount": len(items),
+            "items": items,
         })
     return output

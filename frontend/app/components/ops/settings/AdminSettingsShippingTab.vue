@@ -8,9 +8,16 @@ import {
   AlertCircle,
 } from '@lucide/vue'
 import type { SiteShippingSettings, SiteCheckoutRules } from '~/types/domain'
+import { formatToman } from '~/utils/format'
 
 const shipping = defineModel<SiteShippingSettings>('shipping', { required: true })
 const checkoutRules = defineModel<SiteCheckoutRules>('checkoutRules', { required: true })
+
+watch(() => shipping.value.freeShippingThreshold, (newVal) => {
+  if (newVal && (!shipping.value.announcementBarText || shipping.value.announcementBarText.includes('ارسال رایگان برای تمام سفارش‌های بالای'))) {
+    shipping.value.announcementBarText = `ارسال رایگان برای تمام سفارش‌های بالای ${formatToman(newVal)}`
+  }
+})
 </script>
 
 <template>

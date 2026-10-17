@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,6 +18,28 @@ router = APIRouter(prefix="/search", tags=["Search"])
 _TOMAN = 10
 
 
+def _clean_persian_str(col):
+    return func.replace(
+        func.replace(
+            func.replace(func.replace(col, "ي", "ی"), "ك", "ک"),
+            "\u200c", " "
+        ),
+        "آ", "ا"
+    )
+
+
+def _normalize_text(text: str) -> str:
+    if not text:
+        return ""
+    return (
+        text.replace("ي", "ی")
+        .replace("ك", "ک")
+        .replace("\u200c", " ")
+        .replace("آ", "ا")
+        .strip()
+    )
+
+
 @router.get(
     "/suggestions",
     response_model=SearchSuggestionsResponse,
@@ -32,12 +54,20 @@ async def get_search_suggestions(
     if len(trimmed) < 2:
         return SearchSuggestionsResponse(query=trimmed, products=[], categories=[], totalMatches=0)
 
-    term = f"%{trimmed}%"
+    norm_term = f"%{_normalize_text(trimmed)}%"
+    raw_term = f"%{trimmed}%"
+    normalized_title = _clean_persian_str(Product.title)
+    normalized_desc = _clean_persian_str(Product.description)
+
     stmt = (
         select(Product)
         .where(
             Product.is_active == True,
-            or_(Product.title.ilike(term), Product.slug.ilike(term), Product.description.ilike(term)),
+            or_(
+                normalized_title.ilike(norm_term),
+                Product.slug.ilike(raw_term),
+                normalized_desc.ilike(norm_term),
+            ),
         )
         .options(selectinload(Product.variants), selectinload(Product.category))
         .limit(6)
@@ -69,7 +99,7 @@ async def get_search_suggestions(
         )
 
     # Categories suggestions
-    cat_stmt = select(Category).where(Category.title.ilike(term)).limit(4)
+    cat_stmt = select(Category).where(or_(Category.title.ilike(norm_term), Category.slug.ilike(raw_term))).limit(4)
     cat_res = await db.execute(cat_stmt)
     cats = cat_res.scalars().all()
     cat_items = [SearchCategorySuggestion(name=c.title, slug=c.slug, count=1) for c in cats]

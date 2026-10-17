@@ -1,6 +1,6 @@
 // frontend/app/composables/ops/useAdminProducts.ts
 import { toast } from 'vue-sonner'
-import type { ProductDetail, ProductCategory, ProductSeason, Variant } from '~/types/domain'
+import type { ProductDetail, ProductSeason, Variant } from '~/types/domain'
 
 export interface AdminProductVariant {
   color: string
@@ -84,6 +84,13 @@ export function useAdminProducts() {
     })
   }
 
+  const currentPage = ref(1)
+  const pageSize = ref(10)
+
+  watch([searchQuery, selectedCategory], () => {
+    currentPage.value = 1
+  })
+
   const filteredProducts = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     return productsList.value.filter((p) => {
@@ -100,6 +107,12 @@ export function useAdminProducts() {
 
       return matchesSearch && matchesCat
     })
+  })
+
+  const totalFilteredCount = computed(() => filteredProducts.value.length)
+  const paginatedProducts = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value
+    return filteredProducts.value.slice(start, start + pageSize.value)
   })
 
   // فرم فعال استودیوی محصول
@@ -245,9 +258,8 @@ export function useAdminProducts() {
   }
 
   // ذخیره فرم (ایجاد یا ویرایش)
-  const saveProduct = (): ProductDetail => {
+  const saveProduct = async (): Promise<ProductDetail | null> => {
     const f = productForm.value
-    const totalStock = f.variants.reduce((sum, v) => sum + v.stock, 0)
     const mappedImages = (f.galleryImages.length > 0 ? f.galleryImages : [f.mainImage]).map((url, i) => ({
       id: i + 1,
       url,
@@ -269,105 +281,110 @@ export function useAdminProducts() {
 
     if (f.id) {
       // ویرایش محصول موجود
-      const idx = productsList.value.findIndex((p) => p.id === f.id)
-      if (idx !== -1) {
-        const updated: ProductDetail = {
-          ...productsList.value[idx]!,
-          title: f.title,
-          slug: f.slug || f.title.toLowerCase().replace(/\s+/g, '-'),
+      try {
+        const updated = await $fetch<ProductDetail>(`/api/products/${f.id}`, {
+          method: 'PUT',
+          body: {
+            title: f.title,
+            slug: f.slug || f.title.toLowerCase().replace(/\s+/g, '-'),
+            division: f.division,
+            category: f.category,
+            brand: f.brand || 'keras-atelier',
+            season: f.season || 'fall-1405',
+            basePrice: Number(f.basePrice),
+            salePrice: Number(f.salePrice),
+            isPublished: f.isPublished,
+            is_active: f.isPublished,
+            images: mappedImages,
+            sizes: f.selectedSizes,
+            available_sizes: f.selectedSizes,
+            colors: f.selectedColors,
+            variants: mappedVariants,
+            fabric: f.fabric,
+            careInstructions: f.careInstructions,
+            fitNote: f.fitNote,
+          },
+        })
+        const idx = productsList.value.findIndex((p) => p.id === f.id)
+        if (idx !== -1) {
+          productsList.value[idx] = updated
+        }
+        toast.success(`محصول «${updated.title}» با موفقیت به‌روزرسانی شد.`)
+        return updated
+      } catch {
+        toast.error('خطا در به‌روزرسانی محصول.')
+        return null
+      }
+    }
+
+    // ایجاد محصول تازه در دیتابیس
+    try {
+      const created = await $fetch<ProductDetail>('/api/products', {
+        method: 'POST',
+        body: {
+          title: f.title || 'محصول جدید آتلیه کراس',
+          slug: f.slug || (f.title ? f.title.toLowerCase().replace(/\s+/g, '-') : undefined),
           division: f.division,
-          category: f.category as ProductCategory,
+          category: f.category,
           brand: f.brand || 'keras-atelier',
-          season: (f.season as ProductSeason) || productsList.value[idx]?.season || 'fall-1405',
-          base_price: Number(f.basePrice),
-          price: Number(f.salePrice),
-          compare_at_price: Number(f.basePrice) > Number(f.salePrice) ? Number(f.basePrice) : undefined,
-          inStock: totalStock > 0 && f.isPublished,
+          season: f.season || 'fall-1405',
+          basePrice: Number(f.basePrice) || 2000000,
+          salePrice: Number(f.salePrice) || Number(f.basePrice) || 2000000,
+          isPublished: f.isPublished,
           is_active: f.isPublished,
           images: mappedImages,
           sizes: f.selectedSizes,
           available_sizes: f.selectedSizes,
-          colors: f.selectedColors.map((c) => ({
-            name: c.name,
-            hex: c.hex,
-            inStock: true,
-            images: [f.mainImage],
-          })),
+          colors: f.selectedColors,
           variants: mappedVariants,
-          fabric: {
-            composition: f.fabric,
-            care: f.careInstructions,
-          },
-          fit_note: f.fitNote,
-        }
-        productsList.value[idx] = updated
-        toast.success(`محصول «${updated.title}» با موفقیت به‌روزرسانی شد.`)
-        return updated
-      }
+          fabric: f.fabric,
+          careInstructions: f.careInstructions,
+          fitNote: f.fitNote,
+        },
+      })
+      productsList.value.unshift(created)
+      toast.success(`محصول «${created.title}» با موفقیت در کاتالوگ ذخیره شد.`)
+      return created
+    } catch {
+      toast.error('خطا در ثبت محصول در پایگاه داده.')
+      return null
     }
-
-    // ایجاد محصول تازه
-    const newId = Math.max(...productsList.value.map((p) => p.id), 0) + 1
-    const newProduct: ProductDetail = {
-      id: newId,
-      title: f.title || 'محصول جدید آتلیه کراس',
-      slug: f.slug || (f.title ? f.title.toLowerCase().replace(/\s+/g, '-') : `item-${newId}`),
-      division: f.division,
-      category: f.category as ProductCategory,
-      brand: f.brand || 'keras-atelier',
-      season: (f.season as ProductSeason) || 'fall-1405',
-      base_price: Number(f.basePrice) || 2000000,
-      price: Number(f.salePrice) || Number(f.basePrice) || 2000000,
-      compare_at_price: Number(f.basePrice) > Number(f.salePrice) ? Number(f.basePrice) : undefined,
-      rating: 5,
-      rating_avg: 5,
-      reviewCount: 0,
-      rating_count: 0,
-      inStock: totalStock > 0 && f.isPublished,
-      is_active: f.isPublished,
-      badge: 'جدید',
-      images: mappedImages,
-      sizes: f.selectedSizes,
-      available_sizes: f.selectedSizes,
-      colors: f.selectedColors.map((c) => ({
-        name: c.name,
-        hex: c.hex,
-        inStock: true,
-        images: [f.mainImage],
-      })),
-      description: `${f.title} — طراحی اختصاصی در آتلیه مد کراس`,
-      fabric: {
-        composition: f.fabric,
-        care: f.careInstructions,
-      },
-      fit_note: f.fitNote,
-      variants: mappedVariants,
-    }
-
-    productsList.value.unshift(newProduct)
-    toast.success(`محصول «${newProduct.title}» به کاتالوگ آتلیه افزوده شد.`)
-    return newProduct
   }
 
   // حذف محصول
-  const deleteProduct = (id: number) => {
-    const idx = productsList.value.findIndex((p) => p.id === id)
-    if (idx !== -1) {
-      const removed = productsList.value.splice(idx, 1)[0]
-      toast.success(`محصول «${removed?.title}» از کاتالوگ حذف گردید.`)
+  const deleteProduct = async (id: number | string) => {
+    try {
+      await $fetch(`/api/products/${id}`, { method: 'DELETE' })
+      const idx = productsList.value.findIndex((p) => p.id === id)
+      if (idx !== -1) {
+        const removed = productsList.value.splice(idx, 1)[0]
+        toast.success(`محصول «${removed?.title}» از کاتالوگ حذف گردید.`)
+      }
       return true
+    } catch {
+      toast.error('خطا در حذف محصول.')
+      return false
     }
-    return false
   }
 
   // تغییر وضعیت فعال/موجودی
-  const toggleProductActive = (product: ProductDetail) => {
-    product.inStock = !product.inStock
-    toast.info(
-      product.inStock
-        ? `محصول «${product.title}» در فروشگاه فعال شد.`
-        : `محصول «${product.title}» موقتاً ناموجود شد.`,
-    )
+  const toggleProductActive = async (product: ProductDetail) => {
+    const nextStatus = !product.inStock
+    try {
+      await $fetch(`/api/products/${product.id}`, {
+        method: 'PUT',
+        body: { is_active: nextStatus },
+      })
+      product.inStock = nextStatus
+      product.is_active = nextStatus
+      toast.info(
+        product.inStock
+          ? `محصول «${product.title}» در فروشگاه فعال شد.`
+          : `محصول «${product.title}» موقتاً ناموجود شد.`,
+      )
+    } catch {
+      toast.error('خطا در تغییر وضعیت محصول.')
+    }
   }
 
   // افزودن / حذف رنگ
@@ -399,6 +416,10 @@ export function useAdminProducts() {
     searchQuery,
     selectedCategory,
     filteredProducts,
+    paginatedProducts,
+    totalFilteredCount,
+    currentPage,
+    pageSize,
     isDeletingId,
     productForm,
     initNewProductForm,

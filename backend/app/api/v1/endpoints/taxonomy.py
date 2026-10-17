@@ -136,6 +136,35 @@ async def update_taxonomy_entity(
     payload: Dict[str, Any],
     db: AsyncSession = Depends(get_db),
 ):
+    model_map = {
+        "colors": CustomColor,
+        "sizes": CustomSize,
+        "categories": TaxonomyCategory,
+        "brands": TaxonomyBrand,
+        "seasons": TaxonomySeason,
+    }
+    model = model_map.get(domain)
+    if model:
+        stmt = select(model).where(
+            or_(
+                getattr(model, "slug", None) == item_id,
+                getattr(model, "id", None) == item_id,
+                getattr(model, "name", None) == item_id,
+            )
+        )
+        res = await db.execute(stmt)
+        record = res.scalar_one_or_none()
+        if record:
+            if "name" in payload and hasattr(record, "name"):
+                record.name = payload["name"]
+            if "hex" in payload and hasattr(record, "hex"):
+                record.hex = payload["hex"]
+            if "isFeatured" in payload and hasattr(record, "is_featured"):
+                record.is_featured = bool(payload["isFeatured"])
+            if "isCurrentDrop" in payload and hasattr(record, "is_current_drop"):
+                record.is_current_drop = bool(payload["isCurrentDrop"])
+            await db.commit()
+
     tax = await get_taxonomy(db)
     return {"success": True, "entity": payload, "taxonomy": tax}
 
@@ -150,6 +179,28 @@ async def delete_taxonomy_entity(
     item_id: str,
     db: AsyncSession = Depends(get_db),
 ):
+    model_map = {
+        "colors": CustomColor,
+        "sizes": CustomSize,
+        "categories": TaxonomyCategory,
+        "brands": TaxonomyBrand,
+        "seasons": TaxonomySeason,
+    }
+    model = model_map.get(domain)
+    if model:
+        stmt = select(model).where(
+            or_(
+                getattr(model, "slug", None) == item_id,
+                getattr(model, "id", None) == item_id,
+                getattr(model, "name", None) == item_id,
+            )
+        )
+        res = await db.execute(stmt)
+        record = res.scalar_one_or_none()
+        if record:
+            await db.delete(record)
+            await db.commit()
+
     tax = await get_taxonomy(db)
     return {"success": True, "id": item_id, "taxonomy": tax}
 
