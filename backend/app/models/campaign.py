@@ -25,7 +25,7 @@ campaign_products = Table(
     "campaign_products",
     Base.metadata,
     Column("campaign_id", UUID(as_uuid=False), ForeignKey("campaigns.id", ondelete="CASCADE"), primary_key=True),
-    Column("product_id", UUID(as_uuid=False), ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
+    Column("product_id", UUID(as_uuid=False), ForeignKey("products.id", ondelete="CASCADE"), primary_key=True, index=True),
 )
 
 # Association table for campaigns targeting whole categories
@@ -33,7 +33,7 @@ campaign_categories = Table(
     "campaign_categories",
     Base.metadata,
     Column("campaign_id", UUID(as_uuid=False), ForeignKey("campaigns.id", ondelete="CASCADE"), primary_key=True),
-    Column("category_id", UUID(as_uuid=False), ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True),
+    Column("category_id", UUID(as_uuid=False), ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True, index=True),
 )
 
 

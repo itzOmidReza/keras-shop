@@ -20,8 +20,8 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Override sqlalchemy.url with runtime application settings
-config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI)
+# Override sqlalchemy.url with runtime application settings (escaping % for configparser)
+config.set_main_option("sqlalchemy.url", settings.ASYNC_DATABASE_URI.replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:

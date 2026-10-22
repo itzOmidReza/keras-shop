@@ -1,3 +1,7 @@
+# Central model registry for SQLAlchemy metadata.
+# Alembic autogenerate and Base.metadata rely on this file importing every
+# model module and association table in the application.
+
 from app.db.base import Base
 from app.models.enums import (
     UserRole,
@@ -22,6 +26,7 @@ from app.models.taxonomy import (
 )
 from app.models.review import ProductReview
 from app.models.article import JournalArticle
+from app.models.campaign import Campaign, campaign_products, campaign_categories
 
 __all__ = [
     "Base",
@@ -49,4 +54,7 @@ __all__ = [
     "TaxonomySeason",
     "ProductReview",
     "JournalArticle",
+    "Campaign",
+    "campaign_products",
+    "campaign_categories",
 ]
