@@ -115,45 +115,41 @@ export function useAdminProducts() {
     return filteredProducts.value.slice(start, start + pageSize.value)
   })
 
-  // فرم فعال استودیوی محصول
-  const productForm = ref<AdminProductForm>({
+  const createBlankProductForm = (): AdminProductForm => ({
     title: '',
     slug: '',
     division: 'apparel',
-    category: 'coats-jackets',
-    basePrice: 2450000,
-    salePrice: 2150000,
-    mainImage: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
-    galleryImages: [
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
-    ],
-    selectedColors: [
-      { name: 'مشکی زغالی', hex: '#1C1917' },
-      { name: 'کرم شنی', hex: '#E7E2D7' },
-    ],
-    selectedSizes: ['S', 'M', 'L'],
+    category: '',
+    brand: '',
+    season: undefined,
+    basePrice: 0,
+    salePrice: 0,
+    mainImage: '',
+    galleryImages: [],
+    selectedColors: [],
+    selectedSizes: [],
     variants: [],
-    fabric: '۱۰۰٪ لینن نچرال شسته‌شده فرانسوی با تنفس‌پذیری بالا',
-    careInstructions: 'شست‌وشوی دستی با آب سرد حداکثر ۳۰ درجه سانتی‌گراد، بدون استفاده از مواد سفیدکننده و خشک‌کن چرخشی.',
-    sizeGuide: [
-      { size: 'S', chest: 96, waist: 88, hip: 102, length: 118, sleeve: 60 },
-      { size: 'M', chest: 102, waist: 94, hip: 108, length: 120, sleeve: 61 },
-      { size: 'L', chest: 108, waist: 100, hip: 114, length: 122, sleeve: 62 },
-    ],
+    fabric: '',
+    fitNote: '',
+    careInstructions: '',
+    sizeGuide: [],
     isPublished: true,
   })
 
+  // فرم فعال استودیوی محصول
+  const productForm = ref<AdminProductForm>(createBlankProductForm())
+
   // تولید خودکار جدول تنوع‌ها
   const regenerateVariants = () => {
-    const newVariants: AdminProductVariant[] = []
-    const colors = productForm.value.selectedColors.length > 0
-      ? productForm.value.selectedColors
-      : [{ name: 'تک‌رنگ', hex: '#1C1917' }]
-    const sizes = productForm.value.selectedSizes.length > 0
-      ? productForm.value.selectedSizes
-      : ['Free Size']
+    const colors = productForm.value.selectedColors
+    const sizes = productForm.value.selectedSizes
 
+    if (colors.length === 0 || sizes.length === 0) {
+      productForm.value.variants = []
+      return
+    }
+
+    const newVariants: AdminProductVariant[] = []
     for (const color of colors) {
       for (const size of sizes) {
         // جستجوی موجودی قبلی در صورت وجود
@@ -164,7 +160,7 @@ export function useAdminProducts() {
           color: color.name,
           colorHex: color.hex,
           size,
-          stock: existing ? existing.stock : 4,
+          stock: existing ? existing.stock : 0,
           sku: `KRS-${productForm.value.slug || 'ITEM'}-${size}-${color.name.slice(0, 3)}`,
         })
       }
@@ -172,38 +168,9 @@ export function useAdminProducts() {
     productForm.value.variants = newVariants
   }
 
-  // آماده‌سازی فرم جدید
+  // آماده‌سازی فرم جدید (Clean State)
   const initNewProductForm = () => {
-    productForm.value = {
-      title: '',
-      slug: '',
-      division: 'apparel',
-      category: 'coats-jackets',
-      brand: 'keras-atelier',
-      season: 'fall-1405',
-      basePrice: 2850000,
-      salePrice: 2850000,
-      mainImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
-      galleryImages: [
-        'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
-      ],
-      selectedColors: [
-        { name: 'مشکی زغالی', hex: '#1C1917' },
-        { name: 'کرم کاراملی', hex: '#C2A68C' },
-      ],
-      selectedSizes: ['S', 'M', 'L'],
-      variants: [],
-      fabric: 'پشم و کشمیر اعلا ایتالیایی با آستر ابریشم ساتن',
-      fitNote: 'قواره آزاد و ادیتوریال (Oversized) با آزادی کامل در حرکت و ایستایی مطلوب.',
-      careInstructions: 'خشکشویی تخصصی با بخار ملایم، اتوکشی در دمای پایین با پارچه محافظ.',
-      sizeGuide: [
-        { size: 'S', chest: 96, waist: 88, hip: 102, length: 115, sleeve: 59 },
-        { size: 'M', chest: 102, waist: 94, hip: 108, length: 118, sleeve: 61 },
-        { size: 'L', chest: 108, waist: 100, hip: 114, length: 120, sleeve: 62 },
-      ],
-      isPublished: true,
-    }
-    regenerateVariants()
+    productForm.value = createBlankProductForm()
   }
 
   // بارگذاری اطلاعات محصول برای ویرایش
@@ -260,7 +227,21 @@ export function useAdminProducts() {
   // ذخیره فرم (ایجاد یا ویرایش)
   const saveProduct = async (): Promise<ProductDetail | null> => {
     const f = productForm.value
-    const mappedImages = (f.galleryImages.length > 0 ? f.galleryImages : [f.mainImage]).map((url, i) => ({
+
+    if (!f.title.trim()) {
+      toast.error('لطفاً عنوان محصول را وارد کنید.')
+      return null
+    }
+    if (!f.category) {
+      toast.error('لطفاً دسته‌بندی اصلی محصول را انتخاب کنید.')
+      return null
+    }
+    if (!f.basePrice || Number(f.basePrice) <= 0) {
+      toast.error('لطفاً قیمت اصلی معتبر وارد کنید.')
+      return null
+    }
+
+    const mappedImages = (f.galleryImages.length > 0 ? f.galleryImages : (f.mainImage ? [f.mainImage] : [])).map((url, i) => ({
       id: i + 1,
       url,
       alt: f.title,
@@ -275,7 +256,7 @@ export function useAdminProducts() {
       size: (v.size as Variant['size']) || 'M',
       stock: Number(v.stock),
       reserved: 0,
-      price_override: Number(f.salePrice),
+      price_override: Number(f.salePrice) || Number(f.basePrice),
       compare_at_price: Number(f.basePrice) > Number(f.salePrice) ? Number(f.basePrice) : undefined,
     }))
 
@@ -285,14 +266,14 @@ export function useAdminProducts() {
         const updated = await $fetch<ProductDetail>(`/api/products/${f.id}`, {
           method: 'PUT',
           body: {
-            title: f.title,
-            slug: f.slug || f.title.toLowerCase().replace(/\s+/g, '-'),
+            title: f.title.trim(),
+            slug: f.slug || f.title.trim().toLowerCase().replace(/\s+/g, '-'),
             division: f.division,
             category: f.category,
             brand: f.brand || 'keras-atelier',
             season: f.season || 'fall-1405',
             basePrice: Number(f.basePrice),
-            salePrice: Number(f.salePrice),
+            salePrice: Number(f.salePrice) || Number(f.basePrice),
             isPublished: f.isPublished,
             is_active: f.isPublished,
             images: mappedImages,
@@ -322,14 +303,14 @@ export function useAdminProducts() {
       const created = await $fetch<ProductDetail>('/api/products', {
         method: 'POST',
         body: {
-          title: f.title || 'محصول جدید آتلیه کراس',
-          slug: f.slug || (f.title ? f.title.toLowerCase().replace(/\s+/g, '-') : undefined),
+          title: f.title.trim(),
+          slug: f.slug?.trim() || f.title.trim().toLowerCase().replace(/\s+/g, '-'),
           division: f.division,
           category: f.category,
           brand: f.brand || 'keras-atelier',
           season: f.season || 'fall-1405',
-          basePrice: Number(f.basePrice) || 2000000,
-          salePrice: Number(f.salePrice) || Number(f.basePrice) || 2000000,
+          basePrice: Number(f.basePrice),
+          salePrice: Number(f.salePrice) || Number(f.basePrice),
           isPublished: f.isPublished,
           is_active: f.isPublished,
           images: mappedImages,
@@ -400,13 +381,17 @@ export function useAdminProducts() {
     regenerateVariants()
   }
 
-  // افزودن / حذف سایز
+  // افزودن / حذف سایز و همگام‌سازی ابعاد
   const toggleSize = (size: string) => {
     const idx = productForm.value.selectedSizes.indexOf(size)
     if (idx === -1) {
       productForm.value.selectedSizes.push(size)
+      if (!productForm.value.sizeGuide.some((m) => m.size === size)) {
+        productForm.value.sizeGuide.push({ size, chest: 0, waist: 0, hip: 0, length: 0, sleeve: 0 })
+      }
     } else {
       productForm.value.selectedSizes.splice(idx, 1)
+      productForm.value.sizeGuide = productForm.value.sizeGuide.filter((m) => m.size !== size)
     }
     regenerateVariants()
   }

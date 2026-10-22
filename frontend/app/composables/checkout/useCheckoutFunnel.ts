@@ -22,8 +22,8 @@ export function useCheckoutFunnel() {
     initialValues: {
       fullName: '',
       phoneNumber: '',
-      province: 'تهران',
-      city: 'تهران',
+      province: '',
+      city: '',
       postalCode: '',
       exactAddress: '',
       buildingNumber: '',

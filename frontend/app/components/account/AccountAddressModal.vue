@@ -97,6 +97,7 @@ const {
               v-model="newAddressForm.province"
               class="w-full h-10 rounded-xl border border-sand bg-white px-3 text-xs text-ink focus:border-rose focus:outline-none"
             >
+              <option value="" disabled selected>انتخاب استان...</option>
               <option v-for="prov in IRAN_PROVINCES" :key="prov" :value="prov">
                 {{ prov }}
               </option>

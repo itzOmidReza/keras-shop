@@ -479,25 +479,19 @@ export function useAdminOrders() {
   }
 
   const createManualOrder = async (orderData?: Partial<TrackOrderResponse>) => {
+    const recipientName = orderData?.recipientName?.trim() || 'مشتری استودیو کراس'
+    const recipientPhone = orderData?.recipientPhone?.trim() || ''
+    const shippingAddress = orderData?.shippingAddress?.trim() || ''
+    const totalAmount = Number(orderData?.totalAmount) || 0
+    const postalCode = orderData?.postalCode?.trim() || ''
+
     const payload = {
-      recipientName: orderData?.recipientName || 'سارا رادمنش',
-      recipientPhone: orderData?.recipientPhone || '09121112233',
-      shippingAddress:
-        orderData?.shippingAddress ||
-        'تهران، بلوار اندرزگو، خیابان سلیمی شمالی، ساختمان نگین، طبقه ۳',
-      totalAmount: orderData?.totalAmount || 3200000,
-      postalCode: orderData?.postalCode || '1965943211',
-      items: orderData?.items || [
-        {
-          title: 'پالتو کشمیر لیمیتد آتلیه',
-          size: 'M',
-          color: 'مشکی زغالی',
-          quantity: 1,
-          price: orderData?.totalAmount || 3200000,
-          image:
-            'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
-        },
-      ],
+      recipientName,
+      recipientPhone,
+      shippingAddress,
+      totalAmount,
+      postalCode,
+      items: orderData?.items || [],
     }
 
     try {

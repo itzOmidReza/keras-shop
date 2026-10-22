@@ -291,6 +291,7 @@ const autoGenerateSlug = () => {
                 if (found) productForm.division = found.division
               }"
             >
+              <option value="" disabled>انتخاب دسته‌بندی اصلی کاتالوگ...</option>
               <option
                 v-for="cat in dynamicCategories"
                 :key="cat.id"
@@ -320,6 +321,7 @@ const autoGenerateSlug = () => {
               v-model="productForm.brand"
               class="w-full h-10 px-3.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-hidden cursor-pointer"
             >
+              <option value="">بدون برند / استودیو مرکزی کراس</option>
               <option
                 v-for="b in dynamicBrands"
                 :key="b.id"
@@ -461,7 +463,10 @@ const autoGenerateSlug = () => {
           <label class="block text-xs font-bold text-slate-800">
             جدول موجودی انبار بر اساس رنگ و سایز:
           </label>
-          <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div v-if="productForm.variants.length === 0" class="p-6 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
+            <p class="text-xs text-slate-500 font-medium">با انتخاب حداقل یک رنگ و یک سایز از بخش‌های فوق، جدول موجودی انبار و کدهای تنوع (SKU) به صورت خودکار تشکیل می‌شوند.</p>
+          </div>
+          <div v-else class="border border-slate-200 rounded-xl overflow-hidden">
             <table class="w-full text-start text-xs border-collapse">
               <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
                 <tr>
@@ -557,6 +562,7 @@ const autoGenerateSlug = () => {
               v-model="productForm.season"
               class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink cursor-pointer font-bold"
             >
+              <option :value="undefined" disabled>انتخاب کالکشن یا فصل انتشار...</option>
               <option
                 v-for="s in dynamicSeasons"
                 :key="s.id || s.slug"
@@ -588,7 +594,10 @@ const autoGenerateSlug = () => {
           <span>۶. راهنمای ابعاد و اندازه‌گیری (سانتی‌متر)</span>
         </h2>
 
-        <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div v-if="productForm.sizeGuide.length === 0" class="p-6 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
+          <p class="text-xs text-slate-500 font-medium">با فعال کردن سایزهای محصول در بخش ۴، ردیف‌های اندازه‌گیری این جدول به طور خودکار فعال می‌شوند.</p>
+        </div>
+        <div v-else class="border border-slate-200 rounded-xl overflow-hidden">
           <table class="w-full text-start text-xs border-collapse">
             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
               <tr>

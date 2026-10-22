@@ -126,6 +126,14 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
     // پر کردن اطلاعات کالا
     await page.locator('input[placeholder*="کت پشمی"]').fill('پالتو کشمیر لیمیتد آتلیه')
+    const categorySelect = page.locator('section:has-text("اطلاعات پایه") select').first()
+    if (await categorySelect.isVisible()) {
+      await categorySelect.selectOption({ index: 1 })
+    }
+    const priceInput = page.locator('input[placeholder*="۲۸۵۰۰۰۰"]')
+    if (await priceInput.isVisible()) {
+      await priceInput.fill('3200000')
+    }
     await page.locator('[data-testid="save-product-btn"]').click()
 
     // بررسی بازگشت به لیست و افزوده شدن کالا به جدول
@@ -139,6 +147,9 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
     await page.locator('[data-testid="create-manual-order-btn"]').click()
     await expect(page.getByRole('heading', { name: /ثبت سفارش دستی جدید/ })).toBeVisible()
+    await page.locator('input[placeholder*="سارا رادمنش"]').fill('سارا رادمنش')
+    await page.locator('input[placeholder="09121112233"]').fill('09121112233')
+    await page.locator('input[placeholder*="۲۸۵۰۰۰۰"]').fill('3200000')
     await page.locator('[data-testid="submit-manual-order-btn"]').click()
 
     // باز کردن و بررسی برگ ارسال مرسوله پستی

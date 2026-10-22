@@ -1,6 +1,7 @@
 <!-- frontend/app/components/ops/discounts/AdminDiscountCreateModal.vue -->
 <script setup lang="ts">
 import { Tag, X } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 
 defineProps<{
   open: boolean
@@ -19,28 +20,29 @@ const emit = defineEmits<{
   }]
 }>()
 
-const newCoupon = ref({
+const createBlankCoupon = () => ({
   code: '',
   type: 'percent' as 'percent' | 'fixed',
-  value: 20,
-  minOrder: 1500000,
-  maxDiscount: 500000,
-  expiresAt: '۱۴۰۵/۰۹/۳۰',
-  limit: 100,
+  value: 0,
+  minOrder: 0,
+  maxDiscount: 0,
+  expiresAt: '',
+  limit: 0,
 })
 
+const newCoupon = ref(createBlankCoupon())
+
 const handleCreate = () => {
-  if (!newCoupon.value.code.trim()) return
-  emit('create', { ...newCoupon.value })
-  newCoupon.value = {
-    code: '',
-    type: 'percent',
-    value: 20,
-    minOrder: 1500000,
-    maxDiscount: 500000,
-    expiresAt: '۱۴۰۵/۰۹/۳۰',
-    limit: 100,
+  if (!newCoupon.value.code.trim()) {
+    toast.error('لطفاً کد کوپن تخفیف را وارد کنید.')
+    return
   }
+  if (!newCoupon.value.value || newCoupon.value.value <= 0) {
+    toast.error('لطفاً مقدار تخفیف معتبر (بزرگتر از صفر) وارد کنید.')
+    return
+  }
+  emit('create', { ...newCoupon.value })
+  newCoupon.value = createBlankCoupon()
 }
 </script>
 
@@ -97,6 +99,7 @@ const handleCreate = () => {
               <input
                 v-model.number="newCoupon.value"
                 type="number"
+                placeholder="مثال: ۲۰"
                 class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
               >
             </div>
@@ -108,6 +111,7 @@ const handleCreate = () => {
               <input
                 v-model.number="newCoupon.minOrder"
                 type="number"
+                placeholder="مثال: ۱۵۰۰۰۰۰"
                 class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
               >
             </div>
@@ -117,6 +121,7 @@ const handleCreate = () => {
               <input
                 v-model.number="newCoupon.maxDiscount"
                 type="number"
+                placeholder="مثال: ۵۰۰۰۰۰"
                 class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
               >
             </div>
@@ -128,7 +133,7 @@ const handleCreate = () => {
               <input
                 v-model="newCoupon.expiresAt"
                 type="text"
-                placeholder="۱۴۰۵/۰۹/۳۰"
+                placeholder="مثال: ۱۴۰۵/۰۹/۳۰"
                 class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
               >
             </div>
@@ -138,6 +143,7 @@ const handleCreate = () => {
               <input
                 v-model.number="newCoupon.limit"
                 type="number"
+                placeholder="مثال: ۱۰۰"
                 class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
               >
             </div>

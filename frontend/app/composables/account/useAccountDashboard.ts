@@ -81,11 +81,11 @@ export function useAccountDashboard() {
 
   const openNewAddressModal = () => {
     addressFormError.value = ''
-    newAddressForm.title = 'منزل'
+    newAddressForm.title = ''
     newAddressForm.fullName = authStore.user?.fullName || ''
     newAddressForm.phoneNumber = authStore.user?.phoneNumber || ''
-    newAddressForm.province = 'تهران'
-    newAddressForm.city = 'تهران'
+    newAddressForm.province = ''
+    newAddressForm.city = ''
     newAddressForm.postalCode = ''
     newAddressForm.exactAddress = ''
     newAddressForm.buildingNumber = ''

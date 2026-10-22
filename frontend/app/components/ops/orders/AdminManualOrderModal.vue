@@ -4,23 +4,41 @@ import {
   Plus,
   X,
 } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 
 const {
   isManualOrderModalOpen,
   createManualOrder,
 } = useAdminOrders()
 
-const customerName = ref('سارا رادمنش')
-const customerPhone = ref('09121112233')
-const shippingAddress = ref('تهران، سعادت‌آباد، خیابان صرافها، پلاک ۱۸')
-const orderAmount = ref(2850000)
+const customerName = ref('')
+const customerPhone = ref('')
+const shippingAddress = ref('')
+const orderAmount = ref<number | null>(null)
+
+watch(isManualOrderModalOpen, (isOpen) => {
+  if (isOpen) {
+    customerName.value = ''
+    customerPhone.value = ''
+    shippingAddress.value = ''
+    orderAmount.value = null
+  }
+})
 
 const handleSubmit = () => {
+  if (!customerName.value.trim()) {
+    toast.error('لطفاً نام خریدار را وارد فرمایید.')
+    return
+  }
+  if (!customerPhone.value.trim()) {
+    toast.error('لطفاً شماره موبایل خریدار را وارد فرمایید.')
+    return
+  }
   createManualOrder({
-    recipientName: customerName.value,
-    recipientPhone: customerPhone.value,
-    shippingAddress: shippingAddress.value,
-    totalAmount: orderAmount.value,
+    recipientName: customerName.value.trim(),
+    recipientPhone: customerPhone.value.trim(),
+    shippingAddress: shippingAddress.value.trim(),
+    totalAmount: orderAmount.value ? Number(orderAmount.value) : 0,
   })
 }
 </script>
@@ -55,6 +73,7 @@ const handleSubmit = () => {
             <input
               v-model="customerName"
               type="text"
+              placeholder="مثال: سارا رادمنش"
               class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
             >
           </div>
@@ -65,6 +84,7 @@ const handleSubmit = () => {
               v-model="customerPhone"
               type="text"
               dir="ltr"
+              placeholder="09121112233"
               class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink text-start"
             >
           </div>
@@ -74,6 +94,7 @@ const handleSubmit = () => {
             <textarea
               v-model="shippingAddress"
               rows="2"
+              placeholder="مثال: استان، شهر، نشانی دقیق، پلاک و واحد"
               class="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink resize-none"
             />
           </div>
@@ -83,6 +104,7 @@ const handleSubmit = () => {
             <input
               v-model.number="orderAmount"
               type="number"
+              placeholder="مثال: ۲۸۵۰۰۰۰"
               class="w-full h-9.5 px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 bg-slate-50 focus:bg-white outline-hidden focus:border-ink"
             >
           </div>

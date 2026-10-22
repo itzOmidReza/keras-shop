@@ -34,6 +34,16 @@ test.describe('Full 2-Step Checkout & Simulated Shaparak IPG Flow', () => {
     await phoneInput.fill('09129876543')
     await expect(phoneInput).toHaveValue('09129876543')
 
+    const provinceSelect = page.locator('#province')
+    if (await provinceSelect.isVisible()) {
+      await provinceSelect.selectOption('تهران')
+    }
+
+    const cityInput = page.locator('#city')
+    if (await cityInput.isVisible()) {
+      await cityInput.fill('تهران')
+    }
+
     const addressInput = page.locator('#exactAddress')
     await addressInput.click()
     await addressInput.fill('خیابان ولیعصر، بالاتر از پارک وی، کوچه فرشته، پلاک ۱۲')

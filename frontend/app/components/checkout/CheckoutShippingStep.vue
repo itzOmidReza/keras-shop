@@ -146,6 +146,7 @@ const acceptTerms = defineModel<boolean>('acceptTerms', { default: true })
             class="h-11 w-full rounded-xl border border-sand bg-sand/15 px-3.5 text-xs text-ink focus:border-rose focus:bg-white focus:outline-none transition-all cursor-pointer"
             :class="{ 'border-rose': errors.province }"
           >
+            <option value="" disabled selected>انتخاب استان...</option>
             <option v-for="prov in IRAN_PROVINCES" :key="prov" :value="prov">
               {{ prov }}
             </option>

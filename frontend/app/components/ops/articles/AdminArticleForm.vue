@@ -38,14 +38,14 @@ onMounted(async () => {
 const title = ref('')
 const slug = ref('')
 const category = ref<ArticleCategory>('style-guide')
-const authorName = ref('سارا کیانی')
-const authorRole = ref('سرپرست استایلینگ آتلیه کراس')
-const readTimeMinutes = ref(5)
-const coverImage = ref(PRESET_ARTICLE_COVERS[0]?.url || '')
+const authorName = ref('')
+const authorRole = ref('')
+const readTimeMinutes = ref(0)
+const coverImage = ref('')
 const excerpt = ref('')
 const content = ref('')
 const pullQuote = ref('')
-const selectedProductIds = ref<number[]>([1, 5]) // پیش‌فرض چند لباس کاتالوگ
+const selectedProductIds = ref<number[]>([])
 const isSaving = ref(false)
 
 const coverFileInput = ref<HTMLInputElement | null>(null)
@@ -559,6 +559,7 @@ const handleSave = async (targetStatus: 'published' | 'draft') => {
               <input
                 v-model="authorName"
                 type="text"
+                placeholder="مثال: سارا کیانی"
                 data-testid="article-author-input"
                 class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden"
               >
@@ -571,6 +572,7 @@ const handleSave = async (targetStatus: 'published' | 'draft') => {
               <input
                 v-model="authorRole"
                 type="text"
+                placeholder="مثال: سرپرست استایلینگ آتلیه کراس"
                 class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden"
               >
             </div>
