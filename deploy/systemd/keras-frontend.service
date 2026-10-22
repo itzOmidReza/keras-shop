@@ -1,0 +1,21 @@
+[Unit]
+Description=Keras Atelier Nuxt 4 Production Frontend
+After=network.target keras-backend.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/keras/frontend
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+Environment=BACKEND_URL=http://127.0.0.1:8000
+ExecStart=/usr/bin/node /var/www/keras/frontend/.output/server/index.mjs
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

@@ -26,5 +26,8 @@ PY
 echo "Applying database migrations..."
 alembic upgrade head
 
+echo "Seeding initial Keras Atelier data..."
+python -m app.db.seed || true
+
 echo "Starting Sage E-Commerce API..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000

@@ -19,6 +19,8 @@ from app.models.taxonomy import (
 )
 from app.models.review import ProductReview
 from app.models.article import JournalArticle
+from app.models.coupon import Coupon
+from app.models.enums import DiscountType
 
 _TOMAN = 10
 
@@ -275,6 +277,57 @@ async def seed_data():
 
         await session.commit()
         print(f"✅ Seeded {len(articles_data)} Editorial Journal Articles")
+
+        # 7. Seed Standard Boutique Coupons
+        standard_coupons = [
+            Coupon(
+                code="KERAS-PRO",
+                discount_type=DiscountType.PERCENTAGE,
+                discount_value=20,
+                min_purchase_amount_rial=2000000 * _TOMAN,
+                max_discount_amount_rial=800000 * _TOMAN,
+                usage_limit=100,
+                times_used=42,
+                is_active=True,
+            ),
+            Coupon(
+                code="SUMMER1405",
+                discount_type=DiscountType.PERCENTAGE,
+                discount_value=15,
+                min_purchase_amount_rial=1500000 * _TOMAN,
+                max_discount_amount_rial=600000 * _TOMAN,
+                usage_limit=150,
+                times_used=88,
+                is_active=True,
+            ),
+            Coupon(
+                code="VIP-ATELIER",
+                discount_type=DiscountType.FIXED_TOMAN,
+                discount_value=500000 * _TOMAN,
+                min_purchase_amount_rial=4000000 * _TOMAN,
+                max_discount_amount_rial=500000 * _TOMAN,
+                usage_limit=50,
+                times_used=15,
+                is_active=True,
+            ),
+            Coupon(
+                code="WELCOME-KERAS",
+                discount_type=DiscountType.PERCENTAGE,
+                discount_value=10,
+                min_purchase_amount_rial=1000000 * _TOMAN,
+                max_discount_amount_rial=300000 * _TOMAN,
+                usage_limit=500,
+                times_used=230,
+                is_active=True,
+            ),
+        ]
+        for sc in standard_coupons:
+            stmt = select(Coupon).where(Coupon.code == sc.code)
+            if not (await session.execute(stmt)).scalar_one_or_none():
+                session.add(sc)
+        await session.commit()
+        print(f"✅ Seeded Standard Boutique Coupons")
+
         print("🎉 Full Keras Seeding Complete!")
 
 

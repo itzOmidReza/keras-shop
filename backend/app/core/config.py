@@ -1,4 +1,5 @@
 import sys
+import urllib.parse
 from typing import Annotated, Any, List, Union
 from pydantic import AnyHttpUrl, BeforeValidator, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -54,7 +55,8 @@ class Settings(BaseSettings):
 
     @property
     def ASYNC_DATABASE_URI(self) -> str:
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        escaped_password = urllib.parse.quote_plus(self.POSTGRES_PASSWORD)
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{escaped_password}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     # Redis Cache
     REDIS_HOST: str = "localhost"
@@ -72,7 +74,7 @@ class Settings(BaseSettings):
     FARAZSMS_CODE_VARIABLE: str = "code"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",

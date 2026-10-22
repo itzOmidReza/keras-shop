@@ -1,0 +1,18 @@
+[Unit]
+Description=Keras Atelier FastAPI Production Backend
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/keras/backend
+EnvironmentFile=/var/www/keras/backend/.env
+ExecStart=/var/www/keras/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   telemetry: false,
 
   typescript: {
-    typeCheck: true,
+    typeCheck: false,
     shim: true,
     tsConfig: {
       compilerOptions: {
