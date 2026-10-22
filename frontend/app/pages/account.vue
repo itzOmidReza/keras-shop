@@ -89,16 +89,6 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
           <span>ورود یا عضویت با پیامک (OTP)</span>
           <ArrowLeft class="w-4 h-4" />
         </button>
-
-        <button
-          type="button"
-          data-testid="demo-login-btn"
-          class="w-full sm:w-auto h-12 px-5 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-          @click="authStore.loginAsMockUser()"
-        >
-          <Sparkles class="w-4 h-4 text-rose" />
-          <span>ورود سریع آزمایشی (اکانت دمو)</span>
-        </button>
       </div>
     </div>
 

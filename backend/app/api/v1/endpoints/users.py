@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db.session import get_db
-from app.api.deps import get_current_user, get_optional_current_user
+from app.api.deps import get_current_user
 from app.models.user import User, Address
 from app.models.order import Order
 from app.models.enums import UserRole
@@ -100,26 +100,8 @@ def _map_address_to_response(a: Address) -> AddressResponse:
 @router.get("/users/me", response_model=UserProfileResponse)
 @router.get("/user/profile", response_model=UserProfileResponse)
 async def get_profile(
-    current_user: Optional[User] = Depends(get_optional_current_user),
-    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    if not current_user:
-        # Fallback to demo user if not logged in (for frontend SSR/preview)
-        res = await db.execute(select(User).options(selectinload(User.addresses)).limit(1))
-        current_user = res.scalar_one_or_none()
-        if not current_user:
-            current_user = User(
-                phone="09121112233",
-                full_name="سارا رادمنش",
-                role=UserRole.CUSTOMER,
-                is_active=True,
-            )
-            db.add(current_user)
-            await db.commit()
-            await db.refresh(current_user)
-            res = await db.execute(select(User).where(User.id == current_user.id).options(selectinload(User.addresses)))
-            current_user = res.scalar_one()
-
     return _map_user_to_response(current_user)
 
 
@@ -127,16 +109,9 @@ async def get_profile(
 @router.put("/user/profile", response_model=UserProfileResponse)
 async def update_profile(
     payload: UserProfileUpdate,
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if not current_user:
-        res = await db.execute(select(User).options(selectinload(User.addresses)).limit(1))
-        current_user = res.scalar_one_or_none()
-
-    if not current_user:
-        raise DomainException(message="User not found", code="USER_NOT_FOUND", status_code=404)
-
     if payload.fullName or payload.full_name:
         current_user.full_name = payload.fullName or payload.full_name
     if payload.email is not None:
@@ -156,16 +131,9 @@ async def update_profile(
 @router.get("/users/me/addresses", response_model=List[AddressResponse])
 @router.get("/user/addresses", response_model=List[AddressResponse])
 async def list_addresses(
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if not current_user:
-        res = await db.execute(select(User).limit(1))
-        current_user = res.scalar_one_or_none()
-
-    if not current_user:
-        return []
-
     stmt = select(Address).where(Address.user_id == current_user.id).order_by(Address.is_default.desc())
     res = await db.execute(stmt)
     addresses = res.scalars().all()
@@ -176,18 +144,9 @@ async def list_addresses(
 @router.post("/user/addresses", response_model=AddressResponse, status_code=status.HTTP_200_OK)
 async def create_address(
     payload: AddressCreate,
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if not current_user:
-        res = await db.execute(select(User).limit(1))
-        current_user = res.scalar_one_or_none()
-        if not current_user:
-            current_user = User(phone="09121112233", full_name="کاربر کراس", role=UserRole.CUSTOMER)
-            db.add(current_user)
-            await db.commit()
-            await db.refresh(current_user)
-
     is_default = bool(payload.isDefault or payload.is_default)
     if is_default:
         existing = await db.execute(select(Address).where(Address.user_id == current_user.id))
@@ -217,15 +176,15 @@ async def create_address(
 @router.put("/user/addresses/{address_id}/default", status_code=status.HTTP_200_OK)
 async def set_default_address(
     address_id: str,
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    res = await db.execute(select(Address).where(Address.id == address_id))
+    res = await db.execute(select(Address).where(Address.id == address_id, Address.user_id == current_user.id))
     addr = res.scalar_one_or_none()
     if not addr:
         raise DomainException(message="Address not found", code="NOT_FOUND", status_code=404)
 
-    all_user_addr = await db.execute(select(Address).where(Address.user_id == addr.user_id))
+    all_user_addr = await db.execute(select(Address).where(Address.user_id == current_user.id))
     for a in all_user_addr.scalars().all():
         a.is_default = (a.id == addr.id)
 
@@ -237,9 +196,10 @@ async def set_default_address(
 @router.delete("/user/addresses/{address_id}")
 async def delete_address(
     address_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    res = await db.execute(select(Address).where(Address.id == address_id))
+    res = await db.execute(select(Address).where(Address.id == address_id, Address.user_id == current_user.id))
     addr = res.scalar_one_or_none()
     if addr:
         await db.delete(addr)
@@ -253,12 +213,15 @@ async def delete_address(
 
 @router.get("/user/orders")
 async def get_user_orders(
-    current_user: Optional[User] = Depends(get_optional_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(Order)
         .options(selectinload(Order.items))
+        .where(
+            (Order.user_id == current_user.id) | (Order.phone_number == current_user.phone)
+        )
         .order_by(Order.created_at.desc())
         .limit(20)
     )

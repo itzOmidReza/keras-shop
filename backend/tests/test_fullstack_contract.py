@@ -91,10 +91,10 @@ class FullStackContractTests(unittest.TestCase):
         self.assertEqual(profile_data["phoneNumber"], phone)
 
     def test_08_order_tracking(self):
-        resp = self.client.post("/api/orders/track", json={"query": "KERAS-104774"})
+        resp = self.client.post("/api/orders/track", json={"query": "KERAS-104921"})
         self.assertEqual(resp.status_code, 200)
         track_data = resp.json()
-        self.assertEqual(track_data["orderNumber"], "KERAS-104774")
+        self.assertEqual(track_data["orderNumber"], "KERAS-104921")
         self.assertIn("timeline", track_data)
         self.assertIn("items", track_data)
         self.assertGreater(len(track_data["items"]), 0)

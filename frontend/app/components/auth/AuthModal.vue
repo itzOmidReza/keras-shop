@@ -21,8 +21,6 @@ const {
   handleVerifyOtp,
   handleResendOtp,
   handleBackToPhone,
-  handleDemoLogin,
-  handleAdminLogin,
   resetFlow,
 } = useAuthFlow({
   redirectUrl: '/account',
@@ -66,12 +64,8 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
           :phone-error="phoneError"
           :is-loading="authStore.isLoading"
           :require-terms="false"
-          demo-test-id="modal-demo-login-btn"
-          admin-test-id="modal-admin-login-btn"
           phone-input-id="auth-phone-input"
           @submit="handleSendOtp"
-          @demo-login="handleDemoLogin"
-          @admin-login="handleAdminLogin"
         />
       </div>
 
@@ -84,13 +78,9 @@ watch(() => authStore.isAuthModalOpen, (isOpen) => {
           :countdown="countdown"
           :formatted-countdown="formattedCountdown"
           otp-test-id="auth-modal-otp-input"
-          demo-test-id="modal-demo-login-btn"
-          admin-test-id="modal-admin-login-btn"
           @back-to-phone="handleBackToPhone"
           @verify="handleVerifyOtp"
           @resend="handleResendOtp"
-          @demo-login="handleDemoLogin"
-          @admin-login="handleAdminLogin"
         />
       </div>
     </DialogContent>

@@ -82,59 +82,55 @@ class AuthService:
         now = datetime.now(timezone.utc)
         clean_code = code.strip()
 
-        # Dev bypass for universal test codes (1234, 12345, 123456, 1111, 11111)
-        allowed_dev_codes = ["1234", "12345", "123456", "1111", "11111"]
-        is_dev_code = clean_code in allowed_dev_codes
-
-        if not is_dev_code:
-            stmt = (
-                select(OTPCode)
-                .where(
-                    OTPCode.phone == phone,
-                    OTPCode.is_used == False,
-                )
-                .order_by(desc(OTPCode.created_at))
-                .limit(1)
+        # Check OTP in database - strictly require valid, unexpired and unused OTP record
+        stmt = (
+            select(OTPCode)
+            .where(
+                OTPCode.phone == phone,
+                OTPCode.is_used == False,
             )
-            result = await db.execute(stmt)
-            otp_record = result.scalar_one_or_none()
+            .order_by(desc(OTPCode.created_at))
+            .limit(1)
+        )
+        result = await db.execute(stmt)
+        otp_record = result.scalar_one_or_none()
 
-            if not otp_record:
-                raise DomainException(
-                    message="کد تایید منقضی شده است یا درخواست نشده است.",
-                    code="OTP_EXPIRED",
-                    status_code=400,
-                )
+        if not otp_record:
+            raise DomainException(
+                message="کد تایید منقضی شده است یا درخواست نشده است.",
+                code="OTP_EXPIRED",
+                status_code=400,
+            )
 
-            if otp_record.expires_at < now:
-                otp_record.is_used = True
-                await db.commit()
-                raise DomainException(
-                    message="کد تایید منقضی شده است.",
-                    code="OTP_EXPIRED",
-                    status_code=400,
-                )
-
-            if otp_record.attempts >= MAX_ATTEMPTS:
-                otp_record.is_used = True
-                await db.commit()
-                raise DomainException(
-                    message="تعداد تلاش‌های ناموفق بیش از حد مجاز است.",
-                    code="TOO_MANY_FAILED_ATTEMPTS",
-                    status_code=429,
-                )
-
-            if otp_record.code_hash != hash_otp(clean_code, phone.strip()):
-                otp_record.attempts += 1
-                await db.commit()
-                raise DomainException(
-                    message="کد تایید وارد شده نادرست است.",
-                    code="INVALID_OTP",
-                    status_code=400,
-                )
-
+        if otp_record.expires_at < now:
             otp_record.is_used = True
             await db.commit()
+            raise DomainException(
+                message="کد تایید منقضی شده است.",
+                code="OTP_EXPIRED",
+                status_code=400,
+            )
+
+        if otp_record.attempts >= MAX_ATTEMPTS:
+            otp_record.is_used = True
+            await db.commit()
+            raise DomainException(
+                message="تعداد تلاش‌های ناموفق بیش از حد مجاز است.",
+                code="TOO_MANY_FAILED_ATTEMPTS",
+                status_code=429,
+            )
+
+        if otp_record.code_hash != hash_otp(clean_code, phone.strip()):
+            otp_record.attempts += 1
+            await db.commit()
+            raise DomainException(
+                message="کد تایید وارد شده نادرست است.",
+                code="INVALID_OTP",
+                status_code=400,
+            )
+
+        otp_record.is_used = True
+        await db.commit()
 
         # Load or create user
         stmt = (

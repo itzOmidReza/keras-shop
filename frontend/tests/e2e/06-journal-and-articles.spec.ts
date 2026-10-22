@@ -1,5 +1,27 @@
 // frontend/tests/e2e/06-journal-and-articles.spec.ts
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
+
+async function loginAsSuperAdmin(page: Page, redirectUrl: string = '/account') {
+  await page.goto(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
+  await page.waitForLoadState('networkidle')
+
+  const phoneInput = page.locator('#login-phone-input')
+  await expect(phoneInput).toBeVisible({ timeout: 10000 })
+  await phoneInput.fill('09129990000')
+
+  const submitPhoneBtn = page.getByRole('button', { name: 'دریافت کد تایید' })
+  await submitPhoneBtn.click()
+
+  const otpInput = page.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+  await expect(otpInput).toBeVisible({ timeout: 10000 })
+  await otpInput.focus()
+  await page.keyboard.type('12345', { delay: 50 })
+
+  const verifyBtn = page.getByRole('button', { name: 'تایید و ورود به حساب' })
+  if (await verifyBtn.isVisible()) {
+    await verifyBtn.click()
+  }
+}
 
 test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
   test('should cleanly redirect /blog to /journal', async ({ page }) => {
@@ -80,12 +102,7 @@ test.describe('Unified Luxury Editorial Journal & Admin Articles Hub', () => {
 
   test('should manage articles in ops nexus hub (table, draft toggle, and create new article)', async ({ page }) => {
     // ۱. ورود مدیر ارشد
-    await page.goto('/login?redirect=/internal-ops-nexus/articles')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    await expect(adminBypassBtn).toBeVisible()
-    await adminBypassBtn.click()
+    await loginAsSuperAdmin(page, '/internal-ops-nexus/articles')
 
     await page.waitForURL('**/internal-ops-nexus/articles**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')

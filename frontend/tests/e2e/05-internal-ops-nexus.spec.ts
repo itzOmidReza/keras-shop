@@ -1,5 +1,27 @@
 // frontend/tests/e2e/05-internal-ops-nexus.spec.ts
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
+
+async function loginAsSuperAdmin(page: Page, redirectUrl: string = '/account') {
+  await page.goto(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
+  await page.waitForLoadState('networkidle')
+
+  const phoneInput = page.locator('#login-phone-input')
+  await expect(phoneInput).toBeVisible({ timeout: 10000 })
+  await phoneInput.fill('09129990000')
+
+  const submitPhoneBtn = page.getByRole('button', { name: 'دریافت کد تایید' })
+  await submitPhoneBtn.click()
+
+  const otpInput = page.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+  await expect(otpInput).toBeVisible({ timeout: 10000 })
+  await otpInput.focus()
+  await page.keyboard.type('12345', { delay: 50 })
+
+  const verifyBtn = page.getByRole('button', { name: 'تایید و ورود به حساب' })
+  if (await verifyBtn.isVisible()) {
+    await verifyBtn.click()
+  }
+}
 
 test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
   test('should conceal /internal-ops-nexus with a 404 error for unauthenticated visitors', async ({ page }) => {
@@ -16,13 +38,8 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
   })
 
   test('should allow super admin login, reveal privileged card in /account, and grant access to HQ Nexus command center', async ({ page }) => {
-    // ۱. ورود از طریق دکمه بای‌پاس مدیریت ارشد در صفحه ورود مستقل
-    await page.goto('/login?redirect=/account')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    await expect(adminBypassBtn).toBeVisible()
-    await adminBypassBtn.click()
+    // ۱. ورود مدیر ارشد با شماره موبایل و کد یک‌بار مصرف
+    await loginAsSuperAdmin(page, '/account')
 
     // ۲. هدایت به داشبورد حساب کاربری و مشاهده کارت فوق‌ممتاز
     await page.waitForURL('**/account', { timeout: 10000 })
@@ -93,12 +110,7 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
   test('should support full Product CRUD, Manual Order Entry, and Packing Slip in clean 4-pillar backoffice', async ({ page }) => {
     // ۱. ورود مستقیم مدیریت ارشد به بوم عملیات
-    await page.goto('/login?redirect=/internal-ops-nexus')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    await expect(adminBypassBtn).toBeVisible()
-    await adminBypassBtn.click()
+    await loginAsSuperAdmin(page, '/internal-ops-nexus')
 
     await page.waitForURL('**/internal-ops-nexus**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
@@ -137,13 +149,7 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
   test('should navigate to Store Settings hub, edit variables, and persist configuration', async ({ page }) => {
     // ۱. ورود مدیر ارشد
-    await page.goto('/login?redirect=/internal-ops-nexus/settings')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    if (await adminBypassBtn.isVisible()) {
-      await adminBypassBtn.click()
-    }
+    await loginAsSuperAdmin(page, '/internal-ops-nexus/settings')
 
     await page.waitForURL('**/internal-ops-nexus/settings**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
@@ -168,13 +174,7 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
   test('should navigate to Admin Reviews Desk, moderate status, and submit atelier reply', async ({ page }) => {
     // ۱. ورود مدیر ارشد و هدایت به میز نظرات
-    await page.goto('/login?redirect=/internal-ops-nexus/reviews')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    if (await adminBypassBtn.isVisible()) {
-      await adminBypassBtn.click()
-    }
+    await loginAsSuperAdmin(page, '/internal-ops-nexus/reviews')
 
     await page.waitForURL('**/internal-ops-nexus/reviews**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
@@ -212,13 +212,7 @@ test.describe('Stealth Super Admin Operations Nexus & Security Guard', () => {
 
   test('should navigate to Dynamic Taxonomy Hub, switch attribute tabs, and verify attribute workspace', async ({ page }) => {
     // ۱. ورود مدیر ارشد و هدایت به بخش ویژگی‌ها و دسته‌بندی
-    await page.goto('/login?redirect=/internal-ops-nexus/taxonomy')
-    await page.waitForLoadState('networkidle')
-
-    const adminBypassBtn = page.locator('[data-testid="login-admin-bypass"]')
-    if (await adminBypassBtn.isVisible()) {
-      await adminBypassBtn.click()
-    }
+    await loginAsSuperAdmin(page, '/internal-ops-nexus/taxonomy')
 
     await page.waitForURL('**/internal-ops-nexus/taxonomy**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')

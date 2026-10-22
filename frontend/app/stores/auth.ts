@@ -179,52 +179,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  /**
-   * ورود سریع آزمایشی در محیط توسعه با احراز هویت واقعی (Real OTP Auth)
-   * جهت دسترسی فوری به پیشخوان کاربری و تست امکانات با دریافت توکن معتبر از سرور
-   */
-  async function loginAsMockUser(): Promise<void> {
-    isLoading.value = true;
-    try {
-      await sendOtp('09121112233');
-      const ok = await verifyOtp('09121112233', '12345');
-      if (ok) {
-        toast.success('ورود حساب کاربری (سارا رادمنش) با موفقیت انجام شد.');
-      }
-    } catch (err) {
-      console.error('Failed to log in as demo user:', err);
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  /**
-   * ورود سریع مدیریت ارشد در محیط توسعه با احراز هویت واقعی (Real Super Admin Auth)
-   * جهت دسترسی فوری به مرکز فرماندهی و عملیات آتلیه (HQ Nexus)
-   */
-  async function loginAsSuperAdmin(): Promise<void> {
-    isLoading.value = true;
-    try {
-      await sendOtp('09129990000');
-      const ok = await verifyOtp('09129990000', '12345');
-      if (ok) {
-        toast.success('ورود به عنوان مدیریت ارشد آتلیه (Super Admin HQ Nexus) با موفقیت انجام شد.');
-      }
-    } catch (err) {
-      console.error('Failed to log in as super admin:', err);
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  // کمک‌کننده هدرهای احراز هویت
+  const getAuthHeaders = (): Record<string, string> => {
+    return token.value ? { Authorization: `Bearer ${token.value}` } : {};
+  };
 
   // ۵. اکشن‌های پروفایل و اطلاعات کاربر
   async function fetchProfile(): Promise<void> {
     if (!token.value) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${token.value}`,
-      };
-      const profile = await $fetch<User>('/api/user/profile', { headers });
+      const profile = await $fetch<User>('/api/user/profile', { headers: getAuthHeaders() });
       if (profile) {
         user.value = profile;
       }
@@ -238,6 +202,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const updated = await $fetch<User>('/api/user/profile', {
         method: 'PUT',
+        headers: getAuthHeaders(),
         body: payload,
       });
       user.value = updated;
@@ -253,8 +218,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ۶. اکشن‌های دفترچه نشانی‌ها
   async function fetchAddresses(): Promise<void> {
+    if (!token.value) {
+      addresses.value = [];
+      return;
+    }
     try {
-      const list = await $fetch<UserAddress[]>('/api/user/addresses');
+      const list = await $fetch<UserAddress[]>('/api/user/addresses', { headers: getAuthHeaders() });
       addresses.value = list || [];
     } catch {
       addresses.value = [];
@@ -266,6 +235,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const created = await $fetch<UserAddress>('/api/user/addresses', {
         method: 'POST',
+        headers: getAuthHeaders(),
         body: address,
       });
       if (created.isDefault) {
@@ -286,7 +256,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function deleteAddress(id: string): Promise<boolean> {
     try {
-      await $fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
+      await $fetch(`/api/user/addresses/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
       addresses.value = addresses.value.filter((a) => a.id !== id);
       toast.info('نشانی با موفقیت حذف شد.');
       return true;
@@ -301,7 +274,10 @@ export const useAuthStore = defineStore('auth', () => {
       a.isDefault = a.id === id;
     });
     try {
-      await $fetch(`/api/user/addresses/${id}/default`, { method: 'PUT' });
+      await $fetch(`/api/user/addresses/${id}/default`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+      });
     } catch {
       // استفاده از داده‌های محلی استور در صورت خطای شبکه
     }
@@ -310,8 +286,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ۷. اکشن‌های سوابق سفارش‌ها
   async function fetchOrders(): Promise<void> {
+    if (!token.value) {
+      orders.value = [];
+      return;
+    }
     try {
-      const list = await $fetch<UserOrderSummary[]>('/api/user/orders');
+      const list = await $fetch<UserOrderSummary[]>('/api/user/orders', { headers: getAuthHeaders() });
       orders.value = list || [];
     } catch {
       orders.value = [];
@@ -333,8 +313,6 @@ export const useAuthStore = defineStore('auth', () => {
     sendOtp,
     verifyOtp,
     logout,
-    loginAsMockUser,
-    loginAsSuperAdmin,
     fetchProfile,
     updateProfile,
     fetchAddresses,

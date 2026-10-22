@@ -2,8 +2,6 @@
 import {
   Edit2,
   CheckCircle2,
-  Sparkles,
-  Terminal,
   RefreshCw,
 } from '@lucide/vue'
 import {
@@ -19,18 +17,14 @@ withDefaults(
     countdown: number
     formattedCountdown: string
     otpTestId?: string
-    demoTestId?: string
-    adminTestId?: string
   }>(),
   {
     otpTestId: 'login-otp-input',
-    demoTestId: 'login-demo-btn-step2',
-    adminTestId: 'login-admin-bypass-step2',
   },
 )
 
 const emit = defineEmits<{
-  (e: 'backToPhone' | 'verify' | 'resend' | 'demoLogin' | 'adminLogin'): void
+  (e: 'backToPhone' | 'verify' | 'resend'): void
 }>()
 
 const otpCode = defineModel<string>('otpCode', { default: '' })
@@ -72,10 +66,6 @@ const otpCode = defineModel<string>('otpCode', { default: '' })
       <p v-if="otpError" class="text-[11px] text-destructive text-center font-medium pt-1">
         {{ otpError }}
       </p>
-
-      <p class="text-[11px] text-muted-foreground text-center">
-        کد تستی جهت ارزیابی سیستم: <span class="font-mono font-bold text-rose">12345</span> یا <span class="font-mono font-bold text-rose">1234</span>
-      </p>
     </div>
 
     <button
@@ -90,36 +80,6 @@ const otpCode = defineModel<string>('otpCode', { default: '' })
         <span>تایید و ورود به حساب</span>
       </template>
     </button>
-
-    <!-- دکمه ورود سریع آزمایشی در استپ ۲ -->
-    <div class="relative flex items-center justify-center my-1">
-      <div class="absolute inset-0 flex items-center">
-        <span class="w-full border-t border-sand" />
-      </div>
-      <span class="relative px-3 bg-white text-[11px] text-muted-foreground font-medium">یا</span>
-    </div>
-
-    <div class="space-y-2">
-      <button
-        type="button"
-        :data-testid="demoTestId"
-        class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-        @click="emit('demoLogin')"
-      >
-        <Sparkles class="w-3.5 h-3.5 text-rose" />
-        <span>ورود سریع آزمایشی (اکانت دمو)</span>
-      </button>
-
-      <button
-        type="button"
-        :data-testid="adminTestId"
-        class="w-full h-11 rounded-xl border border-amber-500/30 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-        @click="emit('adminLogin')"
-      >
-        <Terminal class="w-3.5 h-3.5 text-amber-400" />
-        <span>ورود مدیریت ارشد (Super Admin HQ)</span>
-      </button>
-    </div>
 
     <!-- تایمر ارسال مجدد -->
     <div class="flex items-center justify-center text-xs text-muted-foreground pt-1">

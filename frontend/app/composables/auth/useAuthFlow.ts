@@ -97,7 +97,7 @@ export function useAuthFlow(options: UseAuthFlowOptions = {}) {
     const cleanCode = toEn(otpCode.value.trim())
 
     if (cleanCode.length < 4 || cleanCode.length > 6) {
-      otpError.value = 'لطفاً کد تایید معتبر وارد کنید (کد تستی: ۱۲۳۴ یا ۱۲۳۴۵).'
+      otpError.value = 'لطفاً کد تایید ۵ رقمی را وارد کنید.'
       return
     }
 
@@ -110,7 +110,7 @@ export function useAuthFlow(options: UseAuthFlowOptions = {}) {
         navigateTo(options.redirectUrl)
       }
     } else {
-      otpError.value = 'کد تایید وارد شده صحیح نمی‌باشد (کد تستی: ۱۲۳۴۵ یا ۱۲۳۴).'
+      otpError.value = 'کد تایید وارد شده نادرست یا منقضی است.'
     }
   }
 
@@ -134,24 +134,6 @@ export function useAuthFlow(options: UseAuthFlowOptions = {}) {
     otpCode.value = ''
     otpError.value = ''
     phoneError.value = ''
-  }
-
-  const handleDemoLogin = () => {
-    authStore.loginAsMockUser()
-    if (options.onSuccess) {
-      options.onSuccess()
-    } else if (options.redirectUrl) {
-      navigateTo(options.redirectUrl)
-    }
-  }
-
-  const handleAdminLogin = () => {
-    authStore.loginAsSuperAdmin()
-    if (options.onSuccess) {
-      options.onSuccess()
-    } else if (options.redirectUrl) {
-      navigateTo(options.redirectUrl)
-    }
   }
 
   const resetFlow = () => {
@@ -193,8 +175,6 @@ export function useAuthFlow(options: UseAuthFlowOptions = {}) {
     handleVerifyOtp,
     handleResendOtp,
     handleBackToPhone,
-    handleDemoLogin,
-    handleAdminLogin,
     resetFlow,
   }
 }

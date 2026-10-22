@@ -33,13 +33,17 @@ async def request_otp(
     code = await auth_service.request_otp(db=db, phone=phone)
     is_mock = not settings.FARAZSMS_API_KEY or settings.FARAZSMS_API_KEY in ("MOCK_KEY", "") or settings.ENVIRONMENT != "production"
 
+    msg = "کد تأیید با موفقیت ارسال شد."
+    if settings.ENVIRONMENT != "production" and is_mock:
+        msg = f"کد تایید ۵ رقمی ارسال شد (کد تستی: {code})."
+
     return {
         "success": True,
-        "message": f"کد تایید ۵ رقمی با موفقیت ارسال شد (کد تستی: {code})." if is_mock else "کد تأیید با موفقیت ارسال شد.",
+        "message": msg,
         "expiresIn": 120,
         "expires_in_seconds": 120,
         "resend_after": 120,
-        "dev_code": code if is_mock else None,
+        "dev_code": code if (is_mock and settings.ENVIRONMENT != "production") else None,
     }
 
 

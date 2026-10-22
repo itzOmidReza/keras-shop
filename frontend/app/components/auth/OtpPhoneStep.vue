@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import { Phone, ArrowLeft, Sparkles, Terminal, ShieldCheck } from '@lucide/vue'
+import { Phone, ArrowLeft, ShieldCheck } from '@lucide/vue'
 
 withDefaults(
   defineProps<{
     phoneError: string
     isLoading: boolean
     requireTerms?: boolean
-    demoTestId?: string
-    adminTestId?: string
     phoneInputId?: string
   }>(),
   {
     requireTerms: false,
-    demoTestId: 'login-demo-btn',
-    adminTestId: 'login-admin-bypass',
     phoneInputId: 'login-phone-input',
   },
 )
 
 const emit = defineEmits<{
-  (e: 'submit' | 'demoLogin' | 'adminLogin'): void
+  (e: 'submit'): void
 }>()
 
 const phoneNumber = defineModel<string>('phoneNumber', { default: '' })
@@ -86,37 +82,6 @@ const acceptTerms = defineModel<boolean>('acceptTerms', { default: true })
         <ArrowLeft class="w-4 h-4" />
       </template>
     </button>
-
-    <!-- جداکننده یا -->
-    <div class="relative flex items-center justify-center my-4">
-      <div class="absolute inset-0 flex items-center">
-        <span class="w-full border-t border-sand" />
-      </div>
-      <span class="relative px-3 bg-white text-[11px] text-muted-foreground font-medium">یا</span>
-    </div>
-
-    <!-- دکمه‌های ورود سریع آزمایشی برای توسعه‌دهنده -->
-    <div class="space-y-2">
-      <button
-        type="button"
-        :data-testid="demoTestId"
-        class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-        @click="emit('demoLogin')"
-      >
-        <Sparkles class="w-3.5 h-3.5 text-rose" />
-        <span>ورود سریع آزمایشی (اکانت دمو سارا رادمنش)</span>
-      </button>
-
-      <button
-        type="button"
-        :data-testid="adminTestId"
-        class="w-full h-11 rounded-xl border border-amber-500/30 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-        @click="emit('adminLogin')"
-      >
-        <Terminal class="w-3.5 h-3.5 text-amber-400" />
-        <span>ورود مستقیم مدیریت ارشد (Super Admin HQ Nexus)</span>
-      </button>
-    </div>
 
     <!-- تضمین امنیتی -->
     <div class="pt-3 border-t border-sand/60 flex items-center gap-2 text-[11px] text-muted-foreground">

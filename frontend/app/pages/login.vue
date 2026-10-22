@@ -30,8 +30,6 @@ const {
   handleVerifyOtp,
   handleResendOtp,
   handleBackToPhone,
-  handleDemoLogin,
-  handleAdminLogin,
 } = useAuthFlow({
   redirectUrl: redirectUrl.value,
   requireTerms: true,
@@ -91,12 +89,8 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
               :phone-error="phoneError"
               :is-loading="authStore.isLoading"
               :require-terms="true"
-              demo-test-id="login-demo-btn"
-              admin-test-id="login-admin-bypass"
               phone-input-id="login-phone-input"
               @submit="handleSendOtp"
-              @demo-login="handleDemoLogin"
-              @admin-login="handleAdminLogin"
             />
           </div>
 
@@ -109,13 +103,9 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
               :countdown="countdown"
               :formatted-countdown="formattedCountdown"
               otp-test-id="login-otp-input"
-              demo-test-id="login-demo-btn-step2"
-              admin-test-id="login-admin-bypass-step2"
               @back-to-phone="handleBackToPhone"
               @verify="handleVerifyOtp"
               @resend="handleResendOtp"
-              @demo-login="handleDemoLogin"
-              @admin-login="handleAdminLogin"
             />
           </div>
         </div>

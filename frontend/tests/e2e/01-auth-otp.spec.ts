@@ -72,32 +72,53 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
     await expect(page.locator('body')).toContainText(/۰۹۱۲۱۲۳۴۵۶۷|09121234567/)
   })
 
-  test('should bypass authentication using demo account login on /account and open full dashboard', async ({ page }) => {
+  test('should display guest guard on /account when unauthenticated and allow login via OTP modal', async ({ page }) => {
     // ۱. مراجعه مستقیم به صفحه حساب کاربری در حالت مهمان
     await page.goto('/account')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveURL(/.*\/account/)
 
-    // ۲. بررسی وجود دکمه ورود سریع آزمایشی در کارت مهمان
-    const demoLoginBtn = page.locator('[data-testid="demo-login-btn"]')
-    await expect(demoLoginBtn).toBeVisible()
+    // ۲. بررسی وجود دکمه ورود با پیامک در کارت مهمان و عدم وجود دکمه دمو
+    await expect(page.locator('[data-testid="demo-login-btn"]')).not.toBeVisible()
+    const otpLoginBtn = page.getByRole('button', { name: /ورود یا عضویت با پیامک/i })
+    await expect(otpLoginBtn).toBeVisible()
     await expect(page.getByText('برای دسترسی به پیشخوان، رهگیری سفارش‌ها')).toBeVisible()
 
-    // ۳. کلیک روی دکمه ورود سریع آزمایشی
-    await demoLoginBtn.click()
+    // ۳. کلیک روی دکمه ورود با پیامک جهت باز شدن مدال ورود
+    await otpLoginBtn.click()
+    const modal = page.locator('div[role="dialog"]')
+    await expect(modal).toBeVisible()
 
-    // ۴. اطمینان از ناپدید شدن دکمه لاگین مهمان و رندر فوری داشبورد کاربر دمو سارا رادمنش
-    await expect(demoLoginBtn).not.toBeVisible()
-    await expect(page.locator('body')).toContainText('سارا رادمنش')
+    // ۴. وارد کردن شماره موبایل و دریافت OTP
+    const phoneInput = modal.locator('#auth-phone-input')
+    await phoneInput.fill('09121112233')
+    await modal.getByRole('button', { name: 'دریافت کد تایید' }).click()
+
+    // ۵. وارد کردن کد تایید ۵ رقمی
+    await expect(modal.getByText('تایید شماره موبایل')).toBeVisible()
+    const otpInput = modal.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+    if (await otpInput.isVisible()) {
+      await otpInput.focus()
+      await page.keyboard.type('12345', { delay: 50 })
+    } else {
+      await page.keyboard.type('12345', { delay: 50 })
+    }
+
+    const verifyBtn = modal.getByRole('button', { name: 'تایید و ورود به حساب' })
+    if (await verifyBtn.isVisible()) {
+      await verifyBtn.click()
+    }
+
+    // ۶. اطمینان از بسته شدن مدال و نمایش مشخصات کاربر
+    await expect(modal).not.toBeVisible({ timeout: 10000 })
     await expect(page.locator('body')).toContainText(/۰۹۱۲۱۱۱۲۲۳۳|09121112233/)
-    await expect(page.locator('body')).toContainText('sara.rad@example.com')
 
-    // ۵. بررسی بارگذاری تب‌های پیشخوان، سفارش‌ها و آدرس‌ها
+    // ۷. بررسی بارگذاری تب‌های پیشخوان، سفارش‌ها و آدرس‌ها
     await expect(page.getByRole('button', { name: /سفارش‌های من/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /دفترچه نشانی‌ها/i })).toBeVisible()
   })
 
-  test('should allow one-click demo login from AuthModal', async ({ page }) => {
+  test('should allow authentic OTP login from AuthModal', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
@@ -108,36 +129,68 @@ test.describe('SMS OTP Authentication & Customer Dashboard Flow', () => {
     const modal = page.locator('div[role="dialog"]')
     await expect(modal).toBeVisible()
 
-    // کلیک روی دکمه ورود سریع آزمایشی در مدال
-    const modalDemoBtn = modal.locator('[data-testid="modal-demo-login-btn"]')
-    await expect(modalDemoBtn).toBeVisible()
-    await modalDemoBtn.click()
+    // اطمینان از حذف دکمه‌های دمو در مدال
+    await expect(modal.locator('[data-testid="modal-demo-login-btn"]')).not.toBeVisible()
 
-    // انتظار هدایت به صفحه /account و نمایش مشخصات سارا رادمنش
+    // وارد کردن شماره و ورود با OTP
+    const phoneInput = modal.locator('#auth-phone-input')
+    await phoneInput.fill('09121112233')
+    await modal.getByRole('button', { name: 'دریافت کد تایید' }).click()
+
+    await expect(modal.getByText('تایید شماره موبایل')).toBeVisible()
+    const otpInput = modal.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+    if (await otpInput.isVisible()) {
+      await otpInput.focus()
+      await page.keyboard.type('12345', { delay: 50 })
+    } else {
+      await page.keyboard.type('12345', { delay: 50 })
+    }
+
+    const verifyBtn = modal.getByRole('button', { name: 'تایید و ورود به حساب' })
+    if (await verifyBtn.isVisible()) {
+      await verifyBtn.click()
+    }
+
+    // انتظار هدایت به صفحه /account و نمایش مشخصات کاربر
     await expect(page).toHaveURL(/.*\/account/)
     await expect(modal).not.toBeVisible()
-    await expect(page.locator('body')).toContainText('سارا رادمنش')
+    await expect(page.locator('body')).toContainText(/۰۹۱۲۱۱۱۲۲۳۳|09121112233/)
   })
 
-  test('should render standalone /login page, support demo login and preserve redirect query', async ({ page }) => {
+  test('should render standalone /login page, support authentic OTP login and preserve redirect query', async ({ page }) => {
     // ۱. باز کردن مسیر مستقل /login با پارامتر ریدایرکت
     await page.goto('/login?redirect=/account')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveURL(/.*\/login\?redirect=.+/)
 
-    // ۲. بررسی وجود عناصر ادیتوریال صفحه لاگین
+    // ۲. بررسی وجود عناصر ادیتوریال صفحه لاگین و عدم وجود دکمه‌های دمو
     await expect(page.locator('h1')).toContainText('ورود یا ثبت‌نام')
     await expect(page.getByText('باشگاه مشتریان کراس', { exact: true })).toBeVisible()
+    await expect(page.locator('[data-testid="login-demo-btn"]')).not.toBeVisible()
+    await expect(page.locator('[data-testid="login-admin-bypass"]')).not.toBeVisible()
 
-    const demoLoginBtn = page.locator('[data-testid="login-demo-btn"]')
-    await expect(demoLoginBtn).toBeVisible()
+    // ۳. ورود از طریق جریان واقعی شماره موبایل و کد یک‌بار مصرف
+    const phoneInput = page.locator('#login-phone-input')
+    await phoneInput.fill('09121112233')
+    await page.getByRole('button', { name: 'دریافت کد تایید' }).click()
 
-    // ۳. ورود سریع از طریق دکمه دمو
-    await demoLoginBtn.click()
+    await expect(page.getByText('تایید شماره موبایل')).toBeVisible()
+    const otpInput = page.locator('input[autocomplete="one-time-code"], [data-slot="input-otp"] input, input[inputmode="numeric"]').last()
+    if (await otpInput.isVisible()) {
+      await otpInput.focus()
+      await page.keyboard.type('12345', { delay: 50 })
+    } else {
+      await page.keyboard.type('12345', { delay: 50 })
+    }
+
+    const verifyBtn = page.getByRole('button', { name: 'تایید و ورود به حساب' })
+    if (await verifyBtn.isVisible()) {
+      await verifyBtn.click()
+    }
 
     // ۴. هدایت به آدرس تعیین‌شده در کوئری (/account) و نمایش داشبورد با سایدبار اختصاصی
     await expect(page).toHaveURL(/.*\/account/)
-    await expect(page.locator('body')).toContainText('سارا رادمنش')
+    await expect(page.locator('body')).toContainText(/۰۹۱۲۱۱۱۲۲۳۳|09121112233/)
     await expect(page.locator('h1')).toContainText('پیشخوان')
     const isDesktop = (page.viewportSize()?.width ?? 1280) >= 1024
     if (isDesktop) {

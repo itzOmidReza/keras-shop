@@ -13,7 +13,6 @@ import {
   InputOTPSlot,
 } from '~/components/ui/input-otp'
 import {
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   RefreshCw,
@@ -97,7 +96,7 @@ const handleVerifyOtp = async () => {
   const cleanCode = toEn(otpCode.value.trim())
 
   if (cleanCode.length < 4 || cleanCode.length > 6) {
-    otpError.value = 'لطفاً کد تایید ۵ رقمی را وارد کنید (کد تستی: ۱۲۳۴ یا ۱۲۳۴۵).'
+    otpError.value = 'لطفاً کد تایید ۵ رقمی را وارد کنید.'
     return
   }
 
@@ -110,14 +109,8 @@ const handleVerifyOtp = async () => {
     emit('update:open', false)
     emit('success')
   } else {
-    otpError.value = 'کد وارد شده صحیح نمی‌باشد (کد تستی: ۱۲۳۴۵ یا ۱۲۳۴).'
+    otpError.value = 'کد وارد شده صحیح نمی‌باشد.'
   }
-}
-
-const handleDemoLogin = () => {
-  authStore.loginAsMockUser()
-  emit('update:open', false)
-  emit('success')
 }
 
 // گوش دادن به تکمیل کد ۵ یا ۶ رقمی
@@ -209,10 +202,6 @@ const handleResendOtp = async () => {
           {{ otpError }}
         </p>
 
-        <p class="text-[11px] text-muted-foreground text-center">
-          کد تستی جهت ارزیابی سیستم: <span class="font-mono font-bold text-rose">12345</span> یا <span class="font-mono font-bold text-rose">1234</span>
-        </p>
-
         <button
           type="button"
           data-testid="checkout-otp-submit"
@@ -225,25 +214,6 @@ const handleResendOtp = async () => {
             <CheckCircle2 class="w-4 h-4" />
             <span>تایید و ادامه پرداخت</span>
           </template>
-        </button>
-
-        <!-- جداکننده یا -->
-        <div class="relative flex items-center justify-center my-2">
-          <div class="absolute inset-0 flex items-center">
-            <span class="w-full border-t border-sand" />
-          </div>
-          <span class="relative px-3 bg-paper text-[11px] text-muted-foreground font-medium">یا</span>
-        </div>
-
-        <!-- دکمه ورود سریع آزمایشی برای توسعه‌دهنده -->
-        <button
-          type="button"
-          data-testid="checkout-otp-bypass"
-          class="w-full h-11 rounded-xl border border-sand bg-sand/30 hover:bg-sand/60 text-ink font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
-          @click="handleDemoLogin"
-        >
-          <Sparkles class="w-3.5 h-3.5 text-rose" />
-          <span>ورود سریع آزمایشی (اکانت دمو)</span>
         </button>
 
         <!-- تایمر ارسال مجدد -->
