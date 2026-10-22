@@ -15,6 +15,8 @@ import {
   Save,
   Wand2,
   UploadCloud,
+  Search,
+  X,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import type { ArticleCategory, LinkedGarment, ProductListItem } from '~/types/domain'
@@ -47,6 +49,51 @@ const content = ref('')
 const pullQuote = ref('')
 const selectedProductIds = ref<number[]>([])
 const isSaving = ref(false)
+
+// جستجوی زنده محصولات با دیبانس ۳۰۰ میلی‌ثانیه
+const productSearchQuery = ref('')
+const debouncedProductSearch = ref('')
+let productSearchTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(productSearchQuery, (val) => {
+  if (productSearchTimer) clearTimeout(productSearchTimer)
+  productSearchTimer = setTimeout(() => {
+    debouncedProductSearch.value = val.trim().toLowerCase()
+  }, 300)
+})
+
+onUnmounted(() => {
+  if (productSearchTimer) clearTimeout(productSearchTimer)
+})
+
+// کالاهای انتخاب‌شده برای چیپ‌های بالا
+const selectedGarments = computed(() => {
+  return availableProducts.value
+    .filter(p => selectedProductIds.value.includes(p.id))
+    .map(p => ({
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      price: p.price ?? p.base_price,
+      image: p.images[0]?.url || '',
+      badge: p.badge,
+    }))
+})
+
+// کالاهای فیلترشده جستجو (حداکثر ۸ مورد برای روان ماندن رندرینگ DOM)
+const searchedProducts = computed(() => {
+  const q = debouncedProductSearch.value
+  let list = availableProducts.value
+  if (q) {
+    list = list.filter(
+      p =>
+        p.title.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q) ||
+        String(p.id).includes(q)
+    )
+  }
+  return list.slice(0, 8)
+})
 
 const coverFileInput = ref<HTMLInputElement | null>(null)
 const isDraggingCover = ref(false)
@@ -125,11 +172,6 @@ const autoGenerateSlug = () => {
     .toLowerCase()
     .replace(/[\s\-_]+/g, '-')
     .replace(/[^\w\u0600-\u06FF-]/g, '')
-}
-
-// انتخاب سریع تصاویر پیشنهادی کاور
-const selectPresetCover = (url: string) => {
-  coverImage.value = url
 }
 
 // ضمیمه یا لغو انتخاب کالای فروشگاه
@@ -399,47 +441,106 @@ const handleSave = async (targetStatus: 'published' | 'draft') => {
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
               <ShoppingBag class="w-4 h-4 text-amber-500" />
-              <span>محصولات متصل به استایل (Shop the Story)</span>
+              <span>محصولات متصل به استایل</span>
             </h2>
             <span class="text-xs font-mono font-bold text-slate-500">
-              {{ selectedProductIds.length }} آیتم انتخاب‌شده
+              {{ toFa(selectedProductIds.length) }} آیتم انتخاب‌شده
             </span>
           </div>
 
-          <p class="text-xs text-slate-500">
-            با انتخاب لباس‌های زیر، ویجت خرید مستقیم در انتهای مقاله برای مشتریان فعال می‌گردد.
+          <p class="text-xs text-slate-500 leading-relaxed">
+            با الصاق لباس‌های زیر، ویجت تعاملی خرید آیتم‌های این استایل در انتهای مقاله برای خوانندگان فعال می‌گردد.
           </p>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto p-1" data-testid="linked-products-picker">
-            <div
-              v-for="product in availableProducts"
-              :key="product.id"
-              class="flex items-center gap-3 p-2.5 rounded-xl border transition-all cursor-pointer text-start"
-              :class="[
-                selectedProductIds.includes(product.id)
-                  ? 'border-amber-400 bg-amber-50/50'
-                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60',
-              ]"
-              @click="toggleProductLink(product.id)"
-            >
-              <img
-                :src="product.images[0]?.url"
-                :alt="product.title"
-                class="w-12 h-12 rounded-lg object-cover shrink-0"
-              >
-              <div class="flex-1 min-w-0">
-                <span class="text-xs font-bold text-slate-800 block truncate">{{ product.title }}</span>
-                <span class="text-[11px] text-slate-500 font-mono block">{{ formatToman(product.price ?? product.base_price) }}</span>
-              </div>
+          <!-- چیپ‌های محصولات انتخاب‌شده در بالای انتخابگر -->
+          <div v-if="selectedGarments.length > 0" class="space-y-1.5 pb-2">
+            <span class="text-[11px] font-bold text-slate-600 block">لباس‌های پیوست‌شده به این مقاله:</span>
+            <div class="flex flex-wrap gap-2">
               <div
-                class="w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0"
+                v-for="garment in selectedGarments"
+                :key="garment.id"
+                class="inline-flex items-center gap-2 ps-1 pe-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/80 text-xs font-bold text-slate-800 shadow-2xs animate-in fade-in zoom-in-95 duration-150"
+              >
+                <img
+                  v-if="garment.image"
+                  :src="garment.image"
+                  :alt="garment.title"
+                  class="w-6 h-6 rounded-lg object-cover bg-white border border-amber-200"
+                >
+                <span class="max-w-44 truncate">{{ garment.title }}</span>
+                <button
+                  type="button"
+                  class="w-4 h-4 rounded-full hover:bg-amber-200/70 text-slate-500 hover:text-slate-800 inline-flex items-center justify-center transition-colors cursor-pointer"
+                  :title="`حذف ${garment.title}`"
+                  @click="toggleProductLink(garment.id)"
+                >
+                  <X class="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- نوار جستجوی کالا با دیبانس ۳۰۰ میلی‌ثانیه -->
+          <div class="relative">
+            <input
+              v-model="productSearchQuery"
+              type="text"
+              placeholder="جستجو در کاتالوگ لباس‌ها با نام یا کد کالا..."
+              class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl ps-9 pe-9 py-2.5 text-xs text-slate-800 focus:outline-hidden transition-all placeholder:text-slate-400"
+            >
+            <Search class="w-4 h-4 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
+            <button
+              v-if="productSearchQuery"
+              type="button"
+              class="w-5 h-5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 absolute end-3 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer"
+              @click="productSearchQuery = ''"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </div>
+
+          <!-- لیست نتایج کاتالوگ (محدود به ۸ قلم جهت بهینگی رندر DOM) -->
+          <div class="space-y-1.5" data-testid="linked-products-picker">
+            <div
+              v-if="searchedProducts.length === 0"
+              class="py-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200"
+            >
+              محصولی متناسب با عبارت جستجو در کاتالوگ یافت نشد.
+            </div>
+            <div
+              v-else
+              class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-64 overflow-y-auto p-1 scroll-smooth"
+            >
+              <div
+                v-for="product in searchedProducts"
+                :key="product.id"
+                class="flex items-center gap-3 p-2.5 rounded-xl border transition-all cursor-pointer text-start active:scale-[0.99]"
                 :class="[
                   selectedProductIds.includes(product.id)
-                    ? 'bg-amber-500 border-amber-500 text-white'
-                    : 'border-slate-300 bg-white text-transparent',
+                    ? 'border-amber-400 bg-amber-50/60 shadow-2xs'
+                    : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/70',
                 ]"
+                @click="toggleProductLink(product.id)"
               >
-                <Check class="w-3.5 h-3.5" />
+                <img
+                  :src="product.images[0]?.url"
+                  :alt="product.title"
+                  class="w-11 h-11 rounded-lg object-cover shrink-0 border border-slate-200/80 bg-white"
+                >
+                <div class="flex-1 min-w-0">
+                  <span class="text-xs font-bold text-slate-800 block truncate">{{ product.title }}</span>
+                  <span class="text-[11px] text-slate-500 font-mono block mt-0.5">{{ formatToman(product.price ?? product.base_price) }}</span>
+                </div>
+                <div
+                  class="w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0"
+                  :class="[
+                    selectedProductIds.includes(product.id)
+                      ? 'bg-amber-500 border-amber-500 text-white'
+                      : 'border-slate-300 bg-white text-transparent',
+                  ]"
+                >
+                  <Check class="w-3.5 h-3.5" />
+                </div>
               </div>
             </div>
           </div>
@@ -504,43 +605,32 @@ const handleSave = async (targetStatus: 'published' | 'draft') => {
               <label class="block text-xs font-bold text-slate-700">
                 آدرس URL تصویر:
               </label>
-              <button
-                type="button"
-                class="text-[11px] font-bold text-amber-600 hover:text-amber-700 cursor-pointer"
-                @click="coverFileInput?.click()"
-              >
-                انتخاب از دستگاه
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="coverImage"
+                  type="button"
+                  class="text-[11px] font-bold text-rose hover:underline cursor-pointer"
+                  @click="coverImage = ''"
+                >
+                  حذف تصویر
+                </button>
+                <button
+                  type="button"
+                  class="text-[11px] font-bold text-amber-600 hover:text-amber-700 cursor-pointer"
+                  @click="coverFileInput?.click()"
+                >
+                  انتخاب از دستگاه
+                </button>
+              </div>
             </div>
             <input
               v-model="coverImage"
               type="text"
               data-testid="article-cover-input"
-              placeholder="https://images.unsplash.com/..."
-              class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden font-mono text-start"
+              placeholder="https://example.com/cover.webp"
+              class="w-full bg-slate-50 border border-slate-200 focus:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden font-mono text-start placeholder:text-slate-400"
               dir="ltr"
             >
-          </div>
-
-          <!-- گالری تصاویر پیشنهادی آماده -->
-          <div class="space-y-2 pt-2 border-t border-slate-100">
-            <span class="text-[11px] font-bold text-slate-600 block">تصاویر پیشنهادی آتلیه:</span>
-            <div class="grid grid-cols-3 gap-2">
-              <button
-                v-for="(preset, idx) in PRESET_ARTICLE_COVERS"
-                :key="idx"
-                type="button"
-                class="overflow-hidden rounded-lg aspect-square border-2 transition-all cursor-pointer relative group"
-                :class="[
-                  coverImage === preset.url
-                    ? 'border-amber-500 scale-102 ring-2 ring-amber-200'
-                    : 'border-transparent hover:border-slate-300',
-                ]"
-                @click="selectPresetCover(preset.url)"
-              >
-                <img :src="preset.url" :alt="preset.title" class="w-full h-full object-cover">
-              </button>
-            </div>
           </div>
         </section>
 
