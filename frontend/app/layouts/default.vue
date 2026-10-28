@@ -5,13 +5,13 @@ useSchemaOrg([
   defineOrganization({
     name: 'کراس',
     alternateName: 'Keras Atelier',
-    url: 'https://keras.ir',
+    url: 'https://kerass.ir',
     logo: '/logo.svg',
     description: 'آتلیه تخصصی طراحی و تولید پوشاک ورزشی و لایف‌استایل زنانه کراس',
   }),
   defineWebSite({
     name: 'فروشگاه اینترنتی کراس',
-    url: 'https://keras.ir',
+    url: 'https://kerass.ir',
     description: 'خرید آنلاین انواع لگینگ، تاپ ورزشی، شومیز، شال و پوشاک تخصصی زنانه',
   }),
 ])

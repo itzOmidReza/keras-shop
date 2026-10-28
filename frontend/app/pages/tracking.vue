@@ -5,7 +5,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/tracking',
+      href: 'https://kerass.ir/tracking',
     },
   ],
 })

@@ -18,7 +18,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/fabric-standards',
+      href: 'https://kerass.ir/fabric-standards',
     },
   ],
 })

@@ -18,7 +18,7 @@ export const defaultSiteSettings: SiteSettings = {
     supportPhoneRaw: '02188884422',
     inquiryMobile: '09120000000',
     whatsappNumber: '09120000000',
-    officialEmail: 'care@keras.ir',
+    officialEmail: 'care@kerass.ir',
     atelierAddress: 'تهران، جردن، خیابان سعیدی، پلاک ۲۴',
     workingHours: 'شنبه تا پنج‌شنبه: ۹ الی ۱۸',
   },

@@ -27,7 +27,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: () => `https://keras.ir/products/${slug.value}`,
+      href: () => `https://kerass.ir/products/${slug.value}`,
     },
   ],
 })

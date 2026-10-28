@@ -4,7 +4,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/careers',
+      href: 'https://kerass.ir/careers',
     },
   ],
 })

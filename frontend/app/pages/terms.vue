@@ -11,7 +11,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/terms',
+      href: 'https://kerass.ir/terms',
     },
   ],
 })

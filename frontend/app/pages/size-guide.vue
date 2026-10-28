@@ -22,7 +22,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/size-guide',
+      href: 'https://kerass.ir/size-guide',
     },
   ],
 })

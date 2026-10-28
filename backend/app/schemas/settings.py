@@ -17,7 +17,7 @@ class SiteContactSettings(BaseModel):
     supportPhoneRaw: str = "02188884422"
     inquiryMobile: str = "09120000000"
     whatsappNumber: str = "09120000000"
-    officialEmail: str = "care@keras.ir"
+    officialEmail: str = "care@kerass.ir"
     atelierAddress: str = "تهران، جردن، خیابان سعیدی، پلاک ۲۴"
     workingHours: str = "شنبه تا پنج‌شنبه: ۹ الی ۱۸"
 

@@ -71,7 +71,7 @@ export default defineNuxtConfig({
 
   // ۵. سئو و سورس تصاویر
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://keras.local',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://kerass.ir',
     name: 'کراس',
     defaultLocale: 'fa',
     indexable: false,
@@ -91,7 +91,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     backendUrl: process.env.BACKEND_URL || 'http://127.0.0.1:8000',
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://keras.local',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://kerass.ir',
       apiBase: '/api',
     },
   },

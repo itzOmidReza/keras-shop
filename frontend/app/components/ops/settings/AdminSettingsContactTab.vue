@@ -90,7 +90,7 @@ const social = defineModel<SiteSocialSettings>('social', { required: true })
             v-model="contact.officialEmail"
             type="email"
             dir="ltr"
-            placeholder="care@keras.ir"
+            placeholder="care@kerass.ir"
             class="h-10 w-full rounded-xl border border-sand bg-sand/15 px-3 text-xs text-ink focus:border-rose focus:bg-white focus:outline-none transition-all text-start"
           >
         </div>

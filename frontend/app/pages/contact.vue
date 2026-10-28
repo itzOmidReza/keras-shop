@@ -20,7 +20,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/contact',
+      href: 'https://kerass.ir/contact',
     },
   ],
 })
@@ -48,8 +48,8 @@ const contactInfo = computed(() => [
   {
     icon: Mail,
     title: 'مکاتبه الکترونیک',
-    value: settings.value.contact.officialEmail || 'care@keras.ir',
-    link: `mailto:${settings.value.contact.officialEmail || 'care@keras.ir'}`,
+    value: settings.value.contact.officialEmail || 'care@kerass.ir',
+    link: `mailto:${settings.value.contact.officialEmail || 'care@kerass.ir'}`,
     description: 'پاسخگویی تضمینی ظرف حداکثر ۴ ساعت کاری',
   },
   {

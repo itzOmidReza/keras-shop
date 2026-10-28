@@ -7,7 +7,7 @@ export const siteConfig = {
     phone: "۰۲۱-۸۸۸۸۴۴۲۲",
     phoneRaw: "02188884422",
     supportHours: "شنبه تا پنج‌شنبه: ۹ الی ۱۸",
-    email: "care@keras.ir",
+    email: "care@kerass.ir",
     address: "تهران، جردن، خیابان سعیدی",
   },
   socials: {

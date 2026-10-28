@@ -15,7 +15,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/privacy',
+      href: 'https://kerass.ir/privacy',
     },
   ],
 })

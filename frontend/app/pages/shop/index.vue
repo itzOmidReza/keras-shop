@@ -14,7 +14,7 @@ useHead({
       rel: 'canonical',
       href: () => {
         const page = route.query.page ? `?page=${route.query.page}` : ''
-        return `https://keras.ir/shop${page}`
+        return `https://kerass.ir/shop${page}`
       },
     },
   ],

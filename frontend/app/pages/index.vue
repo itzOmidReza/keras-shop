@@ -6,7 +6,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: 'https://keras.ir/',
+      href: 'https://kerass.ir/',
     },
   ],
 })

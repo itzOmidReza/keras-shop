@@ -270,7 +270,7 @@ onMounted(() => {
         <div class="space-y-1">
           <div class="text-lg font-black tracking-tight">آتلیه تخصصی پوشاک ورزشی کراس (KERAS)</div>
           <div class="text-xs text-slate-700">صورت‌حساب فروش کالا و خدمات الکترونیکی</div>
-          <div class="text-[11px] text-slate-600">تهران، خیابان فرشته، پلاک ۲۴ • وب‌سایت: keras.ir • تلفن: ۰۲۱-۲۲۰۱۸۸۹۹</div>
+          <div class="text-[11px] text-slate-600">تهران، خیابان فرشته، پلاک ۲۴ • وب‌سایت: kerass.ir • تلفن: ۰۲۱-۲۲۰۱۸۸۹۹</div>
         </div>
 
         <div class="text-end space-y-1 text-xs">
