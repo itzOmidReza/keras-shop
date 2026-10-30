@@ -1,4 +1,7 @@
+<!-- frontend/app/components/catalog/filters/FilterSizeSelector.vue -->
 <script setup lang="ts">
+import { AVAILABLE_SIZES } from '~/composables/catalog/useCatalogFilters'
+import { useTaxonomyStore } from '~/stores/taxonomy'
 
 const props = defineProps<{
   modelValue: string[]
@@ -9,6 +12,13 @@ const emit = defineEmits<{
 }>()
 
 const taxonomyStore = useTaxonomyStore()
+
+const sizesList = computed(() => {
+  if (taxonomyStore.sizes && taxonomyStore.sizes.length > 0) {
+    return taxonomyStore.sizes.map(s => s.name)
+  }
+  return AVAILABLE_SIZES
+})
 
 function toggleSize(size: string) {
   const current = [...props.modelValue]
@@ -23,24 +33,29 @@ function toggleSize(size: string) {
 </script>
 
 <template>
-  <div class="space-y-2.5 border-t border-sand/60 pt-4">
-    <h4 class="text-xs font-bold text-ink">
-      سایزبندی
-    </h4>
-    <div class="flex flex-wrap gap-2">
+  <div class="space-y-3 border-t border-neutral-100 pt-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-xs font-bold text-neutral-900 uppercase tracking-wider">
+        سایزبندی
+      </h3>
+      <span v-if="modelValue.length > 0" class="text-[11px] text-neutral-500 font-medium font-mono">
+        {{ modelValue.join('، ') }}
+      </span>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
       <button
-        v-for="size in taxonomyStore.sizes"
-        :key="size.id || size.name"
+        v-for="size in sizesList"
+        :key="size"
         type="button"
-        class="h-9 min-w-9 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center justify-center shadow-2xs"
+        class="h-10 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer border flex items-center justify-center tracking-wide"
         :class="[
-          modelValue.includes(size.name)
-            ? 'border-rose bg-rose text-white shadow-xs'
-            : 'border-sand bg-white text-ink hover:border-sand/80 hover:bg-sand/20',
+          modelValue.includes(size)
+            ? 'border-neutral-900 bg-neutral-900 text-white shadow-xs font-bold'
+            : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50',
         ]"
-        @click="toggleSize(size.name)"
+        @click="toggleSize(size)"
       >
-        {{ size.name }}
+        {{ size }}
       </button>
     </div>
   </div>

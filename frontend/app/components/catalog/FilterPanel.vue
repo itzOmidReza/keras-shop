@@ -1,6 +1,6 @@
 <!-- frontend/app/components/catalog/FilterPanel.vue -->
 <script setup lang="ts">
-import { ArrowLeft, RotateCcw } from '@lucide/vue'
+import { ArrowLeft } from '@lucide/vue'
 import { toFa } from '~/utils/format'
 import type { FilterState } from '~/composables/catalog/useCatalogFilters'
 
@@ -9,6 +9,7 @@ export type { FilterState }
 const props = withDefaults(
   defineProps<{
     modelValue: FilterState
+    totalItems?: number
     minPrice?: number
     maxPrice?: number
     apparelCount?: number
@@ -16,6 +17,7 @@ const props = withDefaults(
     categoryCounts?: Record<string, number>
   }>(),
   {
+    totalItems: 0,
     minPrice: 300000,
     maxPrice: 5500000,
     apparelCount: 16,
@@ -35,7 +37,6 @@ const emit = defineEmits<{
 const {
   draftFilters,
   draftActiveCount,
-  hasUnappliedChanges,
   setDivision,
   setCategories,
   setSizes,
@@ -59,77 +60,35 @@ const {
 </script>
 
 <template>
-  <div class="relative flex flex-col overflow-x-hidden">
-    <!-- نوار ابزار چسبان بالای دراور: اعمال فیلترها و حذف همه -->
-    <div
-      class="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-5 pt-4 pb-3.5 border-b border-sand/80 shadow-2xs space-y-2.5"
-      :class="{ 'ring-1 ring-rose/30 shadow-xs': hasUnappliedChanges }"
-    >
-      <!-- وضعیت بصری تغییرات اعمال نشده -->
-      <div
-        v-if="hasUnappliedChanges"
-        class="flex items-center justify-between text-[11px] font-bold text-rose animate-in fade-in slide-in-from-top-1 duration-200"
-      >
-        <span class="inline-flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-rose animate-pulse" />
-          <span>تغییرات جدید آماده اعمال است</span>
-        </span>
-        <span class="text-2xs font-normal text-muted-foreground">برای اعمال کلیک کنید</span>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <!-- دکمه اصلی: اعمال فیلترها -->
-        <button
-          type="button"
-          data-testid="apply-filters-btn"
-          class="flex-1 h-10 px-3.5 rounded-xl font-bold text-xs flex items-center justify-between transition-all cursor-pointer shadow-xs active:scale-98"
-          :class="[
-            hasUnappliedChanges
-              ? 'bg-rose text-white hover:bg-rose/90 shadow-rose/20 ring-2 ring-rose/30'
-              : 'bg-ink text-paper hover:bg-ink/90',
-          ]"
-          :aria-label="`اعمال فیلترها و مشاهده محصولات${draftActiveCount > 0 ? ` (${toFa(draftActiveCount)})` : ''}`"
-          @click="applyFilters"
-        >
-          <span class="flex items-center gap-1.5 min-w-0 truncate">
-            <span>اعمال فیلترها</span>
-            <span
-              v-if="draftActiveCount > 0"
-              class="rounded-full bg-white/20 text-white px-2 py-0.5 text-[10px] font-bold"
-            >
-              {{ toFa(draftActiveCount) }}
-            </span>
-          </span>
-          <ArrowLeft class="w-4 h-4 shrink-0" />
-        </button>
-
-        <!-- دکمه فرعی: حذف همه / بازنشانی -->
-        <button
+  <div class="relative flex flex-col h-full justify-between bg-white overflow-hidden text-start">
+    <!-- هدر مینیمال ادیتوریال بالای دراور -->
+    <header class="flex items-center justify-between px-6 py-4.5 border-b border-neutral-100 bg-white shrink-0">
+      <div class="flex items-center gap-2.5">
+        <h2 class="text-base font-bold text-neutral-900 tracking-tight">
+          فیلترها
+        </h2>
+        <span
           v-if="draftActiveCount > 0"
-          type="button"
-          data-testid="reset-filters-btn"
-          class="h-10 px-3 rounded-xl border border-sand bg-sand/20 hover:bg-sand/50 text-ink text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-2xs hover:text-rose active:scale-98"
-          title="حذف همه"
-          aria-label="حذف همه"
-          @click="resetAllFilters"
+          class="rounded-full bg-neutral-900 text-white text-[10px] font-bold px-2 py-0.5"
         >
-          <RotateCcw class="w-3.5 h-3.5" />
-          <span class="text-xs">حذف همه</span>
-        </button>
+          {{ toFa(draftActiveCount) }}
+        </span>
       </div>
-    </div>
 
-    <!-- بدنه فیلترها: دقیقاً ۴ بخش اصلی بدون گزینه‌های غیرضروری -->
-    <div class="p-5 space-y-6">
-      <!-- چیپ‌های فیلترهای فعال پیش‌نویس -->
-      <FilterActiveChips
-        :model-value="draftFilters"
-        :min-price="props.minPrice"
-        :max-price="props.maxPrice"
-        @update:model-value="draftFilters = $event"
-        @reset="resetAllFilters"
-      />
+      <!-- دکمه پاک کردن همه فیلترها با رعایت فاصله از دکمه بستن گوشه -->
+      <button
+        v-if="draftActiveCount > 0"
+        type="button"
+        data-testid="reset-filters-btn"
+        class="text-xs text-neutral-500 hover:text-rose transition-colors cursor-pointer font-medium me-8"
+        @click="resetAllFilters"
+      >
+        پاک کردن همه
+      </button>
+    </header>
 
+    <!-- بدنه اسکرول‌پذیر فیلترها (۴ بخش استاندارد آتلیه) -->
+    <div class="flex-1 overflow-y-auto px-6 py-6 space-y-7">
       <!-- ۱. شاخه اصلی و آکاردئون دسته‌بندی‌ها -->
       <FilterDivisionAccordion
         :division="draftFilters.division"
@@ -161,5 +120,19 @@ const {
         @update:model-value="setPriceRange"
       />
     </div>
+
+    <!-- فوتر چسبان با دکمه باوقار مشاهده نتایج -->
+    <footer class="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-neutral-100 p-4 shrink-0 z-20">
+      <button
+        type="button"
+        data-testid="apply-filters-btn"
+        class="w-full h-12 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs sm:text-sm transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99] flex items-center justify-center gap-2"
+        :aria-label="`مشاهده نتایج (${toFa(totalItems)} کالا)`"
+        @click="applyFilters"
+      >
+        <span>مشاهده نتایج ({{ toFa(totalItems) }} کالا)</span>
+        <ArrowLeft class="w-4 h-4" />
+      </button>
+    </footer>
   </div>
 </template>

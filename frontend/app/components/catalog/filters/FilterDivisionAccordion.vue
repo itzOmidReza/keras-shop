@@ -1,4 +1,6 @@
+<!-- frontend/app/components/catalog/filters/FilterDivisionAccordion.vue -->
 <script setup lang="ts">
+import { Check } from '@lucide/vue'
 import { toFa } from '~/utils/format'
 import {
   Accordion,
@@ -6,8 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '~/components/ui/accordion'
-import { Checkbox } from '~/components/ui/checkbox'
-import { Label } from '~/components/ui/label'
 import {
   AVAILABLE_DIVISIONS,
   APPAREL_CATEGORIES,
@@ -64,23 +64,25 @@ function toggleCategory(slug: ProductCategory) {
 </script>
 
 <template>
-  <div class="space-y-3 border-t border-sand/60 pt-4">
+  <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h4 class="text-xs font-bold text-ink">
-        شاخه و دسته‌بندی‌ها
-      </h4>
-      <span class="text-[10px] text-muted-foreground">شامل {{ toFa(apparelCount + accessoriesCount) }} کالا</span>
+      <h3 class="text-xs font-bold text-neutral-900 uppercase tracking-wider">
+        دسته‌بندی‌ها
+      </h3>
+      <span class="text-[11px] text-neutral-400 font-mono">
+        {{ toFa(apparelCount + accessoriesCount) }} کالا
+      </span>
     </div>
 
-    <!-- کنترل تب شاخه اصلی -->
-    <div class="grid grid-cols-3 gap-1 rounded-xl bg-sand/30 p-1 border border-sand/60">
+    <!-- کنترل تب‌های شاخه اصلی با استایل مینیمال سوئیسی -->
+    <div class="grid grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1 border border-neutral-200/60">
       <button
         type="button"
-        class="rounded-lg py-1.5 text-xs font-bold transition-all cursor-pointer"
+        class="rounded-lg py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer flex items-center justify-center"
         :class="[
           !division
-            ? 'bg-white text-ink shadow-2xs'
-            : 'text-muted-foreground hover:text-ink',
+            ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+            : 'text-neutral-500 hover:text-neutral-900',
         ]"
         @click="emit('update:division', null)"
       >
@@ -90,58 +92,65 @@ function toggleCategory(slug: ProductCategory) {
         v-for="div in AVAILABLE_DIVISIONS"
         :key="div.id"
         type="button"
-        class="rounded-lg py-1.5 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+        class="rounded-lg py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer flex items-center justify-center gap-1"
         :class="[
           division === div.id
-            ? 'bg-rose text-white shadow-2xs'
-            : 'text-muted-foreground hover:text-ink',
+            ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+            : 'text-neutral-500 hover:text-neutral-900',
         ]"
         @click="emit('update:division', division === div.id ? null : div.id)"
       >
         <span>{{ div.label }}</span>
-        <span class="text-[10px] opacity-80">({{ toFa(div.count) }})</span>
+        <span class="text-[10px] text-neutral-400 font-mono">({{ toFa(div.count) }})</span>
       </button>
     </div>
 
-    <!-- آکاردئون اختصاصی پوشاک و اکسسوری با شمارنده‌های زنده -->
-    <Accordion type="multiple" :default-value="['apparel', 'accessories']" class="w-full">
+    <!-- لیست آکاردئونی بدون چک‌باکس‌های ضمخت -->
+    <Accordion type="multiple" :default-value="['apparel', 'accessories']" class="w-full space-y-1">
       <!-- بخش پوشاک -->
       <AccordionItem
         v-if="!division || division === 'apparel'"
         value="apparel"
-        class="border-b border-sand/50"
+        class="border-b border-neutral-100 last:border-b-0"
       >
-        <AccordionTrigger class="py-2.5 text-xs font-bold text-ink hover:no-underline text-start">
+        <AccordionTrigger class="py-2.5 text-xs font-bold text-neutral-800 hover:text-neutral-900 hover:no-underline text-start">
           <div class="flex items-center gap-2">
-            <span>پوشاک (Apparel)</span>
-            <span class="rounded-full bg-sand/60 text-muted-foreground px-2 py-0.5 text-[10px] font-bold">
-              {{ toFa(apparelCount) }} کالا
+            <span>پوشاک</span>
+            <span class="text-[10px] text-neutral-400 font-mono">
+              ({{ toFa(apparelCount) }})
             </span>
           </div>
         </AccordionTrigger>
-        <AccordionContent class="pt-1 pb-3 space-y-2">
-          <div
+        <AccordionContent class="pt-1 pb-3 space-y-1">
+          <button
             v-for="cat in apparelCategories"
             :key="cat.slug"
-            class="flex items-center justify-between"
+            type="button"
+            class="w-full flex items-center justify-between py-2 px-2.5 rounded-lg transition-all cursor-pointer text-start group"
+            :class="[
+              categories.includes(cat.slug)
+                ? 'bg-neutral-100 text-neutral-900 font-bold'
+                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 font-normal',
+            ]"
+            @click="toggleCategory(cat.slug)"
           >
-            <div class="flex items-center gap-2">
-              <Checkbox
-                :id="`cat-${cat.slug}`"
-                :checked="categories.includes(cat.slug)"
-                @update:checked="() => toggleCategory(cat.slug)"
-              />
-              <Label
-                :for="`cat-${cat.slug}`"
-                class="text-xs font-medium cursor-pointer text-ink select-none"
+            <div class="flex items-center gap-2.5">
+              <span
+                class="w-4 h-4 rounded-xs border flex items-center justify-center transition-all shrink-0"
+                :class="[
+                  categories.includes(cat.slug)
+                    ? 'bg-neutral-900 border-neutral-900 text-white'
+                    : 'border-neutral-300 bg-white group-hover:border-neutral-400',
+                ]"
               >
-                {{ cat.label }}
-              </Label>
+                <Check v-if="categories.includes(cat.slug)" class="w-3 h-3 stroke-[2.5]" />
+              </span>
+              <span class="text-xs transition-colors">{{ cat.label }}</span>
             </div>
-            <span class="text-[10px] text-muted-foreground font-medium">
-              {{ toFa(categoryCounts[cat.slug] || 0) }}
+            <span class="text-[11px] font-mono text-neutral-400 group-hover:text-neutral-600">
+              ({{ toFa(categoryCounts[cat.slug] || 0) }})
             </span>
-          </div>
+          </button>
         </AccordionContent>
       </AccordionItem>
 
@@ -149,39 +158,46 @@ function toggleCategory(slug: ProductCategory) {
       <AccordionItem
         v-if="!division || division === 'accessories'"
         value="accessories"
-        class="border-b border-sand/50"
+        class="border-b border-neutral-100 last:border-b-0"
       >
-        <AccordionTrigger class="py-2.5 text-xs font-bold text-ink hover:no-underline text-start">
+        <AccordionTrigger class="py-2.5 text-xs font-bold text-neutral-800 hover:text-neutral-900 hover:no-underline text-start">
           <div class="flex items-center gap-2">
-            <span>اکسسوری و شال‌ها (Accessories)</span>
-            <span class="rounded-full bg-sand/60 text-muted-foreground px-2 py-0.5 text-[10px] font-bold">
-              {{ toFa(accessoriesCount) }} کالا
+            <span>اکسسوری و شال‌ها</span>
+            <span class="text-[10px] text-neutral-400 font-mono">
+              ({{ toFa(accessoriesCount) }})
             </span>
           </div>
         </AccordionTrigger>
-        <AccordionContent class="pt-1 pb-3 space-y-2">
-          <div
+        <AccordionContent class="pt-1 pb-3 space-y-1">
+          <button
             v-for="cat in accessoryCategories"
             :key="cat.slug"
-            class="flex items-center justify-between"
+            type="button"
+            class="w-full flex items-center justify-between py-2 px-2.5 rounded-lg transition-all cursor-pointer text-start group"
+            :class="[
+              categories.includes(cat.slug)
+                ? 'bg-neutral-100 text-neutral-900 font-bold'
+                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 font-normal',
+            ]"
+            @click="toggleCategory(cat.slug)"
           >
-            <div class="flex items-center gap-2">
-              <Checkbox
-                :id="`cat-${cat.slug}`"
-                :checked="categories.includes(cat.slug)"
-                @update:checked="() => toggleCategory(cat.slug)"
-              />
-              <Label
-                :for="`cat-${cat.slug}`"
-                class="text-xs font-medium cursor-pointer text-ink select-none"
+            <div class="flex items-center gap-2.5">
+              <span
+                class="w-4 h-4 rounded-xs border flex items-center justify-center transition-all shrink-0"
+                :class="[
+                  categories.includes(cat.slug)
+                    ? 'bg-neutral-900 border-neutral-900 text-white'
+                    : 'border-neutral-300 bg-white group-hover:border-neutral-400',
+                ]"
               >
-                {{ cat.label }}
-              </Label>
+                <Check v-if="categories.includes(cat.slug)" class="w-3 h-3 stroke-[2.5]" />
+              </span>
+              <span class="text-xs transition-colors">{{ cat.label }}</span>
             </div>
-            <span class="text-[10px] text-muted-foreground font-medium">
-              {{ toFa(categoryCounts[cat.slug] || 0) }}
+            <span class="text-[11px] font-mono text-neutral-400 group-hover:text-neutral-600">
+              ({{ toFa(categoryCounts[cat.slug] || 0) }})
             </span>
-          </div>
+          </button>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

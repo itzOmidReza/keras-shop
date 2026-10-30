@@ -1,12 +1,9 @@
 <!-- frontend/app/components/catalog/CatalogFilterDrawer.vue -->
 <script setup lang="ts">
-import { SlidersHorizontal } from '@lucide/vue'
-import { toFa } from '~/utils/format'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetHeader,
   SheetTitle,
 } from '~/components/ui/sheet'
 import type { FilterState } from '~/components/catalog/FilterPanel.vue'
@@ -31,35 +28,23 @@ const emit = defineEmits<{
     <SheetContent
       v-if="open"
       side="start"
-      class="w-full sm:max-w-md md:max-w-lg p-0 bg-paper border-sand overflow-y-auto overflow-x-hidden flex flex-col justify-between"
+      class="w-full sm:max-w-md p-0 bg-white border-neutral-200 flex flex-col h-full shadow-2xl overflow-hidden"
     >
-      <div class="space-y-0">
-        <SheetHeader class="text-start px-5 py-4 border-b border-sand bg-white/60 backdrop-blur-xs">
-          <SheetTitle class="text-base font-bold text-ink flex items-center justify-between">
-            <span class="flex items-center gap-2">
-              <SlidersHorizontal class="w-4 h-4 text-rose" />
-              <span>فیلترهای کاتالوگ</span>
-            </span>
-            <span class="text-xs font-normal text-muted-foreground font-mono">
-              {{ toFa(totalItems) }} کالا
-            </span>
-          </SheetTitle>
-          <SheetDescription class="sr-only">
-            پنل فیلتر پیشرفته کاتالوگ پوشاک و اکسسوری کراس
-          </SheetDescription>
-        </SheetHeader>
+      <SheetTitle class="sr-only">فیلترهای کاتالوگ کراس</SheetTitle>
+      <SheetDescription class="sr-only">
+        پنل فیلتر کاتالوگ پوشاک و اکسسوری فروشگاه کراس
+      </SheetDescription>
 
-        <!-- پنل فیلتر همراه با نوار استیکی مشترک اعمال فیلترها و ریست -->
-        <FilterPanel
-          :model-value="modelValue"
-          :min-price="minPrice"
-          :max-price="maxPrice"
-          @update:model-value="val => emit('update:modelValue', val)"
-          @reset="emit('reset')"
-          @applied="emit('update:open', false)"
-        />
-      </div>
+      <!-- پنل فیلتر همراه با هدر مینیمال، بدنه اسکرول‌پذیر و فوتر استیکی اعمال نتایج -->
+      <FilterPanel
+        :model-value="modelValue"
+        :total-items="totalItems"
+        :min-price="minPrice"
+        :max-price="maxPrice"
+        @update:model-value="val => emit('update:modelValue', val)"
+        @reset="emit('reset')"
+        @applied="emit('update:open', false)"
+      />
     </SheetContent>
   </Sheet>
 </template>
-
