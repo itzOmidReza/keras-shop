@@ -1,4 +1,4 @@
-import type { ProductFilters, ProductSeason, ProductDivision, ProductCategory } from '~/types/domain'
+import type { ProductFilters, ProductDivision, ProductCategory } from '~/types/domain'
 import type { FilterState } from '~/composables/catalog/useCatalogFilters'
 
 export const DEFAULT_MIN_PRICE = 300000
@@ -15,7 +15,6 @@ export const BRAND_LABELS: Record<string, string> = {
 }
 
 export function isFiltersEqual(a: FilterState, b: FilterState): boolean {
-  if (a.season !== b.season) return false
   if (a.division !== b.division) return false
   if (a.line !== b.line) return false
   if (a.brand !== b.brand) return false
@@ -36,7 +35,6 @@ export async function useShopCatalog() {
 
   const parseFiltersFromQuery = (): FilterState => {
     const q = route.query
-    const season = q.season && typeof q.season === 'string' ? (q.season as ProductSeason) : null
     const division = q.division && typeof q.division === 'string' ? (q.division as ProductDivision) : null
     const line = q.line === 'move' || q.line === 'calm' ? q.line : null
     const brand = q.brand && typeof q.brand === 'string' ? q.brand : null
@@ -49,7 +47,6 @@ export async function useShopCatalog() {
     const max = q.max_price ? Number(q.max_price) : DEFAULT_MAX_PRICE
 
     return {
-      season,
       division,
       line,
       brand,
@@ -82,7 +79,6 @@ export async function useShopCatalog() {
     if (route.query.q && typeof route.query.q === 'string' && route.query.q.trim()) {
       params.q = route.query.q.trim()
     }
-    if (filters.value.season) params.season = filters.value.season
     if (filters.value.division) params.division = filters.value.division
     if (filters.value.line) params.line = filters.value.line
     if (route.query.badge && typeof route.query.badge === 'string') {
@@ -107,7 +103,6 @@ export async function useShopCatalog() {
     if (route.query.q) count++
     if (route.query.badge) count++
     if (filters.value.brand || route.query.brand) count++
-    if (filters.value.season) count++
     if (filters.value.division) count++
     if (filters.value.line) count++
     count += filters.value.categories.length
@@ -136,7 +131,6 @@ export async function useShopCatalog() {
     } else if (route.query.brand && typeof route.query.brand === 'string') {
       nextQuery.brand = route.query.brand
     }
-    if (filters.value.season) nextQuery.season = filters.value.season
     if (filters.value.division) nextQuery.division = filters.value.division
     if (filters.value.line) nextQuery.line = filters.value.line
     if (filters.value.categories.length > 0) nextQuery.category = filters.value.categories.join(',')
@@ -266,7 +260,6 @@ export async function useShopCatalog() {
 
   const resetFilters = () => {
     filters.value = {
-      season: null,
       division: null,
       line: null,
       brand: null,

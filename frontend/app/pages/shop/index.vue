@@ -55,9 +55,6 @@ const activeBrandQuery = computed<string | null>(() => {
 })
 
 // متدهای حذف تک‌تک معیارهای فیلتر فعال از نوار بالای گرید
-const removeSeason = () => {
-  filters.value.season = null
-}
 const removeDivision = () => {
   filters.value.division = null
 }
@@ -125,7 +122,6 @@ const resetPrice = () => {
           :min-price="DEFAULT_MIN_PRICE"
           :max-price="DEFAULT_MAX_PRICE"
           :active-count="activeFilterCount"
-          @remove-season="removeSeason"
           @remove-division="removeDivision"
           @remove-brand="removeBrand"
           @remove-category="removeCategory"

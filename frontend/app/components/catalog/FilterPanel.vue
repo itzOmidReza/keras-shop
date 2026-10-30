@@ -1,6 +1,7 @@
 <!-- frontend/app/components/catalog/FilterPanel.vue -->
 <script setup lang="ts">
 import { ArrowLeft, RotateCcw } from '@lucide/vue'
+import { toFa } from '~/utils/format'
 import type { FilterState } from '~/composables/catalog/useCatalogFilters'
 
 export type { FilterState }
@@ -35,10 +36,8 @@ const {
   draftFilters,
   draftActiveCount,
   hasUnappliedChanges,
-  setSeason,
   setDivision,
   setCategories,
-  setBrand,
   setSizes,
   setColors,
   setPriceRange,
@@ -61,7 +60,7 @@ const {
 
 <template>
   <div class="relative flex flex-col overflow-x-hidden">
-    <!-- نوار ابزار چسبان بالای سایدبار: اعمال فیلترها و حذف همه -->
+    <!-- نوار ابزار چسبان بالای دراور: اعمال فیلترها و حذف همه -->
     <div
       class="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-5 pt-4 pb-3.5 border-b border-sand/80 shadow-2xs space-y-2.5"
       :class="{ 'ring-1 ring-rose/30 shadow-xs': hasUnappliedChanges }"
@@ -120,9 +119,9 @@ const {
       </div>
     </div>
 
-    <!-- بدنه فیلترها -->
+    <!-- بدنه فیلترها: دقیقاً ۴ بخش اصلی بدون گزینه‌های غیرضروری -->
     <div class="p-5 space-y-6">
-      <!-- هدر و چیپ‌های فیلترهای فعال -->
+      <!-- چیپ‌های فیلترهای فعال پیش‌نویس -->
       <FilterActiveChips
         :model-value="draftFilters"
         :min-price="props.minPrice"
@@ -131,13 +130,7 @@ const {
         @reset="resetAllFilters"
       />
 
-      <!-- ۱. فصل و کالکشن -->
-      <FilterSeasonSelector
-        :model-value="draftFilters.season"
-        @update:model-value="setSeason"
-      />
-
-      <!-- ۲. شاخه اصلی و آکاردئون دسته‌بندی‌ها -->
+      <!-- ۱. شاخه اصلی و آکاردئون دسته‌بندی‌ها -->
       <FilterDivisionAccordion
         :division="draftFilters.division"
         :categories="draftFilters.categories"
@@ -148,25 +141,19 @@ const {
         @update:categories="setCategories"
       />
 
-      <!-- ۳. برندهای همکار -->
-      <FilterBrandPills
-        :model-value="draftFilters.brand"
-        @update:model-value="setBrand"
-      />
-
-      <!-- ۴. سایزبندی -->
+      <!-- ۲. سایزبندی -->
       <FilterSizeSelector
         :model-value="draftFilters.sizes"
         @update:model-value="setSizes"
       />
 
-      <!-- ۵. رنگ‌بندی طبیعی -->
+      <!-- ۳. رنگ‌بندی طبیعی -->
       <FilterColorSwatches
         :model-value="draftFilters.colors"
         @update:model-value="setColors"
       />
 
-      <!-- ۶. اسلایدر قیمت -->
+      <!-- ۴. اسلایدر محدوده قیمت -->
       <FilterPriceSlider
         :model-value="draftFilters.priceRange"
         :min-price="props.minPrice"

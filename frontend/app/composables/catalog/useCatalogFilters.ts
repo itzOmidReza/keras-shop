@@ -1,8 +1,7 @@
-import type { ProductDivision, ProductCategory, ProductSeason } from '~/types/domain'
+import type { ProductDivision, ProductCategory } from '~/types/domain'
 import { toast } from 'vue-sonner'
 
 export interface FilterState {
-  season: ProductSeason | null
   division: ProductDivision | null
   categories: ProductCategory[]
   sizes: string[]
@@ -10,18 +9,6 @@ export interface FilterState {
   priceRange: [number, number]
   line?: 'move' | 'calm' | null
   brand?: string | null
-}
-
-export interface SeasonOption {
-  id: ProductSeason
-  label: string
-  badge?: string
-}
-
-export interface BrandOption {
-  slug: string
-  fa: string
-  en: string
 }
 
 export interface DivisionOption {
@@ -40,22 +27,6 @@ export interface ColorOption {
   bgClass: string
   checkClass: string
 }
-
-export const AVAILABLE_SEASONS: SeasonOption[] = [
-  { id: 'fall-1405', label: 'پاییز ۱۴۰۵', badge: 'جدید' },
-  { id: 'winter-1405', label: 'زمستان ۱۴۰۵' },
-  { id: 'spring-1406', label: 'بهار ۱۴۰۶', badge: 'پیش‌نمایش' },
-  { id: 'summer-1405', label: 'تابستان ۱۴۰۵', badge: 'آرشیو' },
-]
-
-export const PARTNER_BRANDS: BrandOption[] = [
-  { slug: 'keras-atelier', fa: 'کراس آتلیه', en: 'Keras Atelier' },
-  { slug: 'toteme', fa: 'توتِم', en: 'Totême' },
-  { slug: 'massimo-dutti', fa: 'ماسیمو دوتی', en: 'Massimo Dutti' },
-  { slug: 'cos', fa: 'کاس', en: 'COS' },
-  { slug: 'zara', fa: 'زارا', en: 'Zara' },
-  { slug: 'mango', fa: 'منگو', en: 'Mango' },
-]
 
 export const AVAILABLE_DIVISIONS: DivisionOption[] = [
   { id: 'apparel', label: 'پوشاک', count: 16 },
@@ -100,37 +71,12 @@ export function getCategoryLabel(slug: string): string {
   return found ? found.label : slug
 }
 
-export function getSeasonLabel(season: ProductSeason): string {
-  try {
-    const store = useTaxonomyStore()
-    const foundInStore = store.seasons.find(s => s.slug === season)
-    if (foundInStore) return foundInStore.name
-  } catch {
-    // Pinia not yet initialized
-  }
-  const found = AVAILABLE_SEASONS.find(s => s.id === season)
-  return found ? found.label : season
-}
-
-export function getBrandLabel(brandSlug: string): string {
-  try {
-    const store = useTaxonomyStore()
-    const foundInStore = store.brands.find(b => b.slug === brandSlug)
-    if (foundInStore) return foundInStore.name
-  } catch {
-    // Pinia not yet initialized
-  }
-  const found = PARTNER_BRANDS.find(b => b.slug === brandSlug)
-  return found ? found.fa : brandSlug
-}
-
 export function countActiveFilters(
   state: FilterState,
   minPrice: number,
   maxPrice: number,
 ): number {
   let count = 0
-  if (state.season) count++
   if (state.division) count++
   if (state.brand) count++
   count += state.categories.length
@@ -144,7 +90,6 @@ export function countActiveFilters(
 
 export function cloneFilterState(state: FilterState): FilterState {
   return {
-    season: state.season,
     division: state.division,
     line: state.line,
     brand: state.brand,
@@ -156,7 +101,6 @@ export function cloneFilterState(state: FilterState): FilterState {
 }
 
 export function areFiltersEqual(a: FilterState, b: FilterState): boolean {
-  if (a.season !== b.season) return false
   if (a.division !== b.division) return false
   if (a.line !== b.line) return false
   if (a.brand !== b.brand) return false
@@ -190,7 +134,7 @@ export function useCatalogFilters(options: UseCatalogFiltersOptions) {
   // حالت پیش‌نویس موقت فیلترها قبل از اعمال قطعی
   const draftFilters = ref<FilterState>(cloneFilterState(modelValue.value))
 
-  // همگام‌سازی پیش‌نویس با تغییرات خارجی (مانند تغییر URL، یا پاک کردن فیلترها از بیرون)
+  // همگام‌سازی پیش‌نویس با تغییرات خارجی
   watch(
     modelValue,
     (newVal) => {
@@ -212,16 +156,8 @@ export function useCatalogFilters(options: UseCatalogFiltersOptions) {
   )
 
   // ویرایشگرهای فیلدها در پیش‌نویس
-  const setSeason = (val: ProductSeason | null) => {
-    draftFilters.value.season = val
-  }
-
   const setDivision = (val: ProductDivision | null) => {
     draftFilters.value.division = val
-  }
-
-  const setBrand = (val: string | null) => {
-    draftFilters.value.brand = val
   }
 
   const setCategories = (val: ProductCategory[]) => {
@@ -241,16 +177,8 @@ export function useCatalogFilters(options: UseCatalogFiltersOptions) {
   }
 
   // متدهای حذف آیتم‌های تکی در پیش‌نویس
-  const removeSeason = () => {
-    draftFilters.value.season = null
-  }
-
   const removeDivision = () => {
     draftFilters.value.division = null
-  }
-
-  const removeBrand = () => {
-    draftFilters.value.brand = null
   }
 
   const removeCategory = (slug: ProductCategory) => {
@@ -292,7 +220,6 @@ export function useCatalogFilters(options: UseCatalogFiltersOptions) {
   // بازنشانی کامل (Reset All)
   const resetAllFilters = () => {
     const emptyState: FilterState = {
-      season: null,
       division: null,
       line: null,
       brand: null,
@@ -320,16 +247,12 @@ export function useCatalogFilters(options: UseCatalogFiltersOptions) {
     draftFilters,
     draftActiveCount,
     hasUnappliedChanges,
-    setSeason,
     setDivision,
-    setBrand,
     setCategories,
     setSizes,
     setColors,
     setPriceRange,
-    removeSeason,
     removeDivision,
-    removeBrand,
     removeCategory,
     removeSize,
     removeColor,

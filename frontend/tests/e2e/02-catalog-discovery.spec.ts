@@ -7,16 +7,16 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/فروشگاه|کاتالوگ/i)
 
-    // ۲. فیلتر کردن بر اساس لاین Move با باز کردن دراور فیلترها (مشترک در دسکتاپ و موبایل)
+    // ۲. فیلتر کردن بر اساس شاخه پوشاک با باز کردن دراور فیلترها (مشترک در دسکتاپ و موبایل)
     const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
     await expect(filterDrawerBtn).toBeVisible()
     await filterDrawerBtn.click()
     await page.waitForTimeout(300)
 
-    // کلیک روی دکمه کالکشن پاییز ۱۴۰۵ در فیلتر فصل
-    const seasonFilterBtn = page.getByRole('button', { name: /پاییز ۱۴۰۵/ }).first()
-    await expect(seasonFilterBtn).toBeVisible()
-    await seasonFilterBtn.click()
+    // کلیک روی دکمه شاخه پوشاک در فیلتر
+    const divisionFilterBtn = page.getByRole('button', { name: /پوشاک/ }).first()
+    await expect(divisionFilterBtn).toBeVisible()
+    await divisionFilterBtn.click()
 
     // اعمال فیلترها از طریق دکمه استیکی پنل فیلترها
     const applyBtn = page.locator('[data-testid="apply-filters-btn"]').filter({ visible: true })
@@ -24,7 +24,7 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await applyBtn.click()
 
     // بررسی به‌روزرسانی URL
-    await expect(page).toHaveURL(/.*season=fall-1405/)
+    await expect(page).toHaveURL(/.*division=apparel/)
 
     // اطمینان از بسته شدن دراور کشویی فیلترها پس از اعمال
     await expect(page.locator('[role="dialog"]')).not.toBeVisible()
@@ -112,23 +112,23 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await page2Btn.click()
     await expect(page).toHaveURL(/.*page=2/)
 
-    // فیلتر کردن کالکشن زمستان با باز کردن دراور فیلترها
+    // فیلتر کردن شاخه اکسسوری با باز کردن دراور فیلترها
     const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
     await expect(filterDrawerBtn).toBeVisible()
     await filterDrawerBtn.click()
     await page.waitForTimeout(300)
 
-    const winterBtn = page.getByRole('button', { name: /زمستان ۱۴۰۵/ }).first()
-    await expect(winterBtn).toBeVisible()
-    await winterBtn.click()
+    const accessoryBtn = page.getByRole('button', { name: /اکسسوری/ }).first()
+    await expect(accessoryBtn).toBeVisible()
+    await accessoryBtn.click()
 
     // اعمال فیلترها از طریق دکمه استیکی پنل فیلترها
-    const applyWinterBtn = page.locator('[data-testid="apply-filters-btn"]').filter({ visible: true })
-    await expect(applyWinterBtn).toBeVisible()
-    await applyWinterBtn.click()
+    const applyAccessoryBtn = page.locator('[data-testid="apply-filters-btn"]').filter({ visible: true })
+    await expect(applyAccessoryBtn).toBeVisible()
+    await applyAccessoryBtn.click()
 
     // بررسی اینکه فیلتر اعمال شده و صفحه به ۱ ریست شده و page=2 از URL حذف شده است
-    await expect(page).toHaveURL(/.*season=winter-1405/)
+    await expect(page).toHaveURL(/.*division=accessories/)
     await expect(page).not.toHaveURL(/.*page=2/)
   })
 
@@ -142,14 +142,14 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await filterDrawerBtn.click()
     await page.waitForTimeout(300)
 
-    // ۲. انتخاب فیلتر فصل پاییز در وضعیت پیش‌نویس
-    const seasonBtn = page.getByRole('button', { name: /پاییز ۱۴۰۵/ }).first()
-    await expect(seasonBtn).toBeVisible()
-    await seasonBtn.click()
+    // ۲. انتخاب فیلتر شاخه پوشاک در وضعیت پیش‌نویس
+    const divisionBtn = page.getByRole('button', { name: /پوشاک/ }).first()
+    await expect(divisionBtn).toBeVisible()
+    await divisionBtn.click()
 
     // ۳. تأیید عدم جهش و عدم تغییر زودهنگام URL پیش از فشردن دکمه اعمال
     await page.waitForTimeout(200)
-    expect(page.url()).not.toContain('season=fall-1405')
+    expect(page.url()).not.toContain('division=apparel')
 
     // ۴. اعمال صریح با فشردن دکمه اعمال فیلترها
     const applyBtn = page.locator('[data-testid="apply-filters-btn"]').filter({ visible: true })
@@ -157,7 +157,7 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await applyBtn.click()
 
     // ۵. بررسی همگام‌سازی کوئری URL پس از اعمال
-    await expect(page).toHaveURL(/.*season=fall-1405/)
+    await expect(page).toHaveURL(/.*division=apparel/)
 
     // ۶. تست دکمه بازنشانی / حذف همه
     await expect(filterDrawerBtn).toBeVisible()
@@ -169,6 +169,6 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await resetBtn.click()
 
     // ۷. بررسی حذف پارامتر فیلتر از URL و بازگشت به حالت بدون فیلتر
-    await expect(page).not.toHaveURL(/.*season=fall-1405/)
+    await expect(page).not.toHaveURL(/.*division=apparel/)
   })
 })

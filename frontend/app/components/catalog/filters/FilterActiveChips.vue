@@ -4,8 +4,6 @@ import { formatToman, toFa } from '~/utils/format'
 import {
   type FilterState,
   getCategoryLabel,
-  getSeasonLabel,
-  getBrandLabel,
   countActiveFilters,
 } from '~/composables/catalog/useCatalogFilters'
 import type { ProductCategory } from '~/types/domain'
@@ -25,16 +23,8 @@ const activeCount = computed(() =>
   countActiveFilters(props.modelValue, props.minPrice, props.maxPrice),
 )
 
-function removeSeason() {
-  emit('update:modelValue', { ...props.modelValue, season: null })
-}
-
 function removeDivision() {
   emit('update:modelValue', { ...props.modelValue, division: null })
-}
-
-function removeBrand() {
-  emit('update:modelValue', { ...props.modelValue, brand: null })
 }
 
 function removeCategory(slug: ProductCategory) {
@@ -94,24 +84,8 @@ function resetPrice() {
       </button>
     </div>
 
-    <!-- چیپ‌های فیلترهای فعال -->
+    <!-- چیپ‌های فیلترهای فعال پیش‌نویس -->
     <div v-if="activeCount > 0" class="flex flex-wrap gap-1.5 pb-2 border-b border-sand/60">
-      <!-- چیپ فصل -->
-      <span
-        v-if="modelValue.season"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
-      >
-        <span>فصل: {{ getSeasonLabel(modelValue.season) }}</span>
-        <button
-          type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
-          aria-label="حذف فیلتر فصل"
-          @click="removeSeason"
-        >
-          <X class="w-3 h-3" />
-        </button>
-      </span>
-
       <!-- چیپ شاخه اصلی -->
       <span
         v-if="modelValue.division"
@@ -123,22 +97,6 @@ function resetPrice() {
           class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
           aria-label="حذف فیلتر شاخه"
           @click="removeDivision"
-        >
-          <X class="w-3 h-3" />
-        </button>
-      </span>
-
-      <!-- چیپ برند -->
-      <span
-        v-if="modelValue.brand"
-        class="inline-flex items-center gap-1 rounded-lg bg-sand/60 px-2 py-1 text-[11px] font-bold text-ink"
-      >
-        <span>برند: {{ getBrandLabel(modelValue.brand) }}</span>
-        <button
-          type="button"
-          class="text-muted-foreground hover:text-rose cursor-pointer transition-colors"
-          aria-label="حذف فیلتر برند"
-          @click="removeBrand"
         >
           <X class="w-3 h-3" />
         </button>

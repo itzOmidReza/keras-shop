@@ -5,8 +5,6 @@ import { formatToman, toFa } from '~/utils/format'
 import {
   type FilterState,
   getCategoryLabel,
-  getSeasonLabel,
-  getBrandLabel,
 } from '~/composables/catalog/useCatalogFilters'
 import { BRAND_LABELS } from '~/composables/catalog/useShopCatalog'
 import type { ProductCategory } from '~/types/domain'
@@ -22,7 +20,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  removeSeason: []
   removeDivision: []
   removeBrand: []
   removeCategory: [slug: ProductCategory]
@@ -37,7 +34,7 @@ const emit = defineEmits<{
 const resolvedBrandLabel = computed(() => {
   const b = props.filters.brand || props.brandQuery
   if (!b) return null
-  return BRAND_LABELS[b] || getBrandLabel(b) || b
+  return BRAND_LABELS[b] || b
 })
 </script>
 
@@ -83,22 +80,6 @@ const resolvedBrandLabel = computed(() => {
       </button>
     </span>
 
-    <!-- فصل -->
-    <span
-      v-if="filters.season"
-      class="inline-flex items-center gap-1.5 rounded-lg bg-sand/70 border border-sand px-2.5 py-1 text-xs text-ink font-medium transition-all"
-    >
-      <span>فصل: {{ getSeasonLabel(filters.season) }}</span>
-      <button
-        type="button"
-        class="text-muted-foreground hover:text-rose cursor-pointer transition-colors p-0.5 rounded-xs"
-        aria-label="حذف فیلتر فصل"
-        @click="emit('removeSeason')"
-      >
-        <X class="w-3.5 h-3.5" />
-      </button>
-    </span>
-
     <!-- شاخه -->
     <span
       v-if="filters.division"
@@ -115,7 +96,7 @@ const resolvedBrandLabel = computed(() => {
       </button>
     </span>
 
-    <!-- برند -->
+    <!-- برند (در صورت ورود از طریق پیوندهای مارکی صفحه اصلی) -->
     <span
       v-if="resolvedBrandLabel"
       class="inline-flex items-center gap-1.5 rounded-lg bg-sand/70 border border-sand px-2.5 py-1 text-xs text-ink font-medium transition-all"
