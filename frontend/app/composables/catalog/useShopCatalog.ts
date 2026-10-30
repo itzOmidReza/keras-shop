@@ -73,7 +73,7 @@ export async function useShopCatalog() {
     typeof route.query.sort === 'string' ? route.query.sort : 'bestseller',
   )
   const currentPage = ref<number>(parsePageFromQuery())
-  const isMobileFilterOpen = ref(false)
+  const isFilterDrawerOpen = ref(false)
 
   const apiFilters = computed<ProductFilters>(() => {
     const params: ProductFilters = {
@@ -277,7 +277,7 @@ export async function useShopCatalog() {
     }
     sort.value = 'bestseller'
     currentPage.value = 1
-    isMobileFilterOpen.value = false
+    isFilterDrawerOpen.value = false
     const next: Record<string, string> = {}
     router.replace({ query: next })
   }
@@ -286,7 +286,8 @@ export async function useShopCatalog() {
     filters,
     sort,
     currentPage,
-    isMobileFilterOpen,
+    isFilterDrawerOpen,
+    isMobileFilterOpen: isFilterDrawerOpen,
     pending,
     products,
     totalItems,

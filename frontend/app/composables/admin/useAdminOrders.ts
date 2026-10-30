@@ -9,9 +9,6 @@ import type {
 } from '~/types/domain'
 import {
   ORDER_STATUS_CONFIG,
-  PIPELINE_STATUSES,
-  SHIPPING_CARRIERS,
-  getOrderStatusBadge,
 } from '~/utils/orders'
 
 export type AdminOrderStatusTab = 'all' | 'processing' | 'shipped' | 'delivered' | 'archived'

@@ -1,20 +1,17 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
-  test('should filter products by collection line and navigate via search autocomplete', async ({ page, isMobile }) => {
+  test('should filter products by collection line and navigate via search autocomplete', async ({ page }) => {
     // ۱. ناوبری به صفحه فروشگاه
     await page.goto('/shop')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/فروشگاه|کاتالوگ/i)
 
-    // ۲. فیلتر کردن بر اساس لاین Move
-    if (isMobile) {
-      // در حالت موبایل، ابتدا دراور فیلترها را باز می‌کنیم
-      const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
-      await expect(filterDrawerBtn).toBeVisible()
-      await filterDrawerBtn.click()
-      await page.waitForTimeout(300)
-    }
+    // ۲. فیلتر کردن بر اساس لاین Move با باز کردن دراور فیلترها (مشترک در دسکتاپ و موبایل)
+    const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
+    await expect(filterDrawerBtn).toBeVisible()
+    await filterDrawerBtn.click()
+    await page.waitForTimeout(300)
 
     // کلیک روی دکمه کالکشن پاییز ۱۴۰۵ در فیلتر فصل
     const seasonFilterBtn = page.getByRole('button', { name: /پاییز ۱۴۰۵/ }).first()
@@ -29,10 +26,8 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     // بررسی به‌روزرسانی URL
     await expect(page).toHaveURL(/.*season=fall-1405/)
 
-    // اطمینان از بسته شدن دراور فیلتر در موبایل
-    if (isMobile) {
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible()
-    }
+    // اطمینان از بسته شدن دراور کشویی فیلترها پس از اعمال
+    await expect(page.locator('[role="dialog"]')).not.toBeVisible()
 
     // ۳. استفاده از جست‌وجوی زنده ادیتوریال در هدر
     const searchTrigger = page.getByRole('button', { name: 'جست‌وجو' }).first()
@@ -84,7 +79,7 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await expect(productCards.first()).toBeVisible()
   })
 
-  test('should handle 12-item pagination, page 2 URL sync, and reset to page 1 on filter modification', async ({ page, isMobile }) => {
+  test('should handle 12-item pagination, page 2 URL sync, and reset to page 1 on filter modification', async ({ page }) => {
     // ۱. ناوبری به صفحه فروشگاه
     await page.goto('/shop')
     await page.waitForLoadState('networkidle')
@@ -117,13 +112,11 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await page2Btn.click()
     await expect(page).toHaveURL(/.*page=2/)
 
-    // فیلتر کردن کالکشن زمستان (در موبایل ابتدا دراور باز می‌شود)
-    if (isMobile) {
-      const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
-      await expect(filterDrawerBtn).toBeVisible()
-      await filterDrawerBtn.click()
-      await page.waitForTimeout(300)
-    }
+    // فیلتر کردن کالکشن زمستان با باز کردن دراور فیلترها
+    const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
+    await expect(filterDrawerBtn).toBeVisible()
+    await filterDrawerBtn.click()
+    await page.waitForTimeout(300)
 
     const winterBtn = page.getByRole('button', { name: /زمستان ۱۴۰۵/ }).first()
     await expect(winterBtn).toBeVisible()
@@ -139,17 +132,15 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await expect(page).not.toHaveURL(/.*page=2/)
   })
 
-  test('should buffer filter choices in draft state until explicit apply and support reset all', async ({ page, isMobile }) => {
+  test('should buffer filter choices in draft state until explicit apply and support reset all', async ({ page }) => {
     // ۱. بارگذاری کاتالوگ فروشگاه
     await page.goto('/shop')
     await page.waitForLoadState('networkidle')
 
-    if (isMobile) {
-      const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
-      await expect(filterDrawerBtn).toBeVisible()
-      await filterDrawerBtn.click()
-      await page.waitForTimeout(300)
-    }
+    const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
+    await expect(filterDrawerBtn).toBeVisible()
+    await filterDrawerBtn.click()
+    await page.waitForTimeout(300)
 
     // ۲. انتخاب فیلتر فصل پاییز در وضعیت پیش‌نویس
     const seasonBtn = page.getByRole('button', { name: /پاییز ۱۴۰۵/ }).first()
@@ -169,12 +160,9 @@ test.describe('Catalog Discovery, Filtering & Live Search Flow', () => {
     await expect(page).toHaveURL(/.*season=fall-1405/)
 
     // ۶. تست دکمه بازنشانی / حذف همه
-    if (isMobile) {
-      const filterDrawerBtn = page.getByRole('button', { name: /فیلترها/i })
-      await expect(filterDrawerBtn).toBeVisible()
-      await filterDrawerBtn.click()
-      await page.waitForTimeout(300)
-    }
+    await expect(filterDrawerBtn).toBeVisible()
+    await filterDrawerBtn.click()
+    await page.waitForTimeout(300)
 
     const resetBtn = page.locator('[data-testid="reset-filters-btn"]').filter({ visible: true })
     await expect(resetBtn).toBeVisible()
