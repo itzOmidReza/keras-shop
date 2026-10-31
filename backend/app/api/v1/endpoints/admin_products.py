@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_db, require_admin
 from app.core.exceptions import DomainException
+from app.services.storage import storage_service
 from app.models.enums import FulfillmentType
 from app.models.order import OrderItem
 from app.models.product import Product, ProductVariant
@@ -279,19 +280,8 @@ async def upload_admin_product_image(
             status_code=400,
         )
 
-    target_dir = Path(__file__).resolve().parents[5] / "public" / "images" / "products"
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    original_stem = Path(file.filename).stem.lower()
-    safe_stem = re.sub(r"[^a-z0-9_-]", "-", original_stem)
-    safe_stem = re.sub(r"-+", "-", safe_stem).strip("-") or "product"
-
-    unique_suffix = f"{int(time.time() * 1000)}-{uuid.uuid4().hex[:8]}"
-    filename = f"{safe_stem}-{unique_suffix}.webp"
-    target_path = target_dir / filename
-
     content = await file.read()
-    with open(target_path, "wb") as f:
-        f.write(content)
+    filename = storage_service.generate_safe_filename(file.filename, default_stem="product")
+    url = await storage_service.upload_file(content, filename, subfolder="products")
 
-    return {"url": f"/images/products/{filename}"}
+    return {"url": url}

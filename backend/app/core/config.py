@@ -73,6 +73,17 @@ class Settings(BaseSettings):
     FARAZSMS_PATTERN_CODE: str = ""
     FARAZSMS_CODE_VARIABLE: str = "code"
 
+    # Download / Media Storage Server
+    STORAGE_ENABLED: bool = False
+    STORAGE_TYPE: str = "ftp"  # "ftp" or "local"
+    STORAGE_HOST: str = ""
+    STORAGE_PORT: int = 21
+    STORAGE_USERNAME: str = ""
+    STORAGE_PASSWORD: str = ""
+    STORAGE_BASE_PATH: str = "public_html/products"
+    STORAGE_CDN_URL: str = "https://dl.kerass.ir"
+
+
     model_config = SettingsConfigDict(
         env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",

@@ -78,7 +78,7 @@ export default defineNuxtConfig({
   },
 
   image: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com', 'dl.kerass.ir', '3264450144.cloudydl.com'],
     provider: 'none',
   },
   // خاموش کردن چک آنلاین فونت یا رندرهای خارجی سئو در محیط لوکال و حذف تگ‌های منسوخ توییتر
@@ -92,6 +92,7 @@ export default defineNuxtConfig({
     backendUrl: process.env.BACKEND_URL || 'http://127.0.0.1:8000',
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://kerass.ir',
+      cdnUrl: process.env.NUXT_PUBLIC_CDN_URL || 'https://dl.kerass.ir',
       apiBase: '/api',
     },
   },
