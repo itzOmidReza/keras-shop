@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.models.article import JournalArticle
+from app.models.product import Product
+from app.schemas.product import parse_images
 from app.schemas.article import (
     JournalArticleResponse,
     ArticleAuthorSchema,
@@ -32,8 +34,47 @@ def _article_lookup_filter(identifier: str):
     return or_(*conditions)
 
 
-def _map_article(a: JournalArticle) -> JournalArticleResponse:
+async def _resolve_linked_products_map(
+    slugs: List[str], db: AsyncSession
+) -> Dict[str, LinkedGarmentSchema]:
+    if not slugs:
+        return {}
+    stmt = select(Product).where(Product.slug.in_(slugs))
+    res = await db.execute(stmt)
+    products = res.scalars().all()
+    out: Dict[str, LinkedGarmentSchema] = {}
+    for p in products:
+        images = parse_images(p.images)
+        img_url = ""
+        if images:
+            first_img = images[0]
+            if isinstance(first_img, dict):
+                img_url = first_img.get("url", "")
+            else:
+                img_url = getattr(first_img, "url", "")
+        price_toman = int(p.base_price_rial // 10)
+        out[p.slug] = LinkedGarmentSchema(
+            id=p.numeric_id or p.id,
+            title=p.title,
+            slug=p.slug,
+            price=price_toman,
+            image=img_url,
+            badge=p.badge,
+        )
+    return out
+
+
+def _map_article(
+    a: JournalArticle, linked_map: Optional[Dict[str, LinkedGarmentSchema]] = None
+) -> JournalArticleResponse:
     sections = [ArticleSectionSchema(**s) for s in (a.sections or [])]
+    slugs = a.linked_product_slugs or []
+    linked_products: List[LinkedGarmentSchema] = []
+    if linked_map:
+        for s in slugs:
+            if s in linked_map:
+                linked_products.append(linked_map[s])
+
     return JournalArticleResponse(
         id=a.id,
         title=a.title,
@@ -48,8 +89,8 @@ def _map_article(a: JournalArticle) -> JournalArticleResponse:
         featured=a.featured,
         status=a.status,
         sections=sections,
-        linkedProductSlugs=a.linked_product_slugs or [],
-        linkedProducts=[],
+        linkedProductSlugs=slugs,
+        linkedProducts=linked_products,
     )
 
 
@@ -80,7 +121,14 @@ async def list_articles(
     stmt = stmt.order_by(JournalArticle.created_at.desc())
     res = await db.execute(stmt)
     articles = res.scalars().all()
-    return [_map_article(a) for a in articles]
+
+    all_slugs: set = set()
+    for a in articles:
+        if a.linked_product_slugs:
+            all_slugs.update(a.linked_product_slugs)
+
+    linked_map = await _resolve_linked_products_map(list(all_slugs), db)
+    return [_map_article(a, linked_map) for a in articles]
 
 
 @router.post(
@@ -112,6 +160,14 @@ async def create_article(
     author_name = payload.get("authorName") or (payload.get("author", {}) if isinstance(payload.get("author"), dict) else {}).get("name") or "ادیتور آتلیه کراس"
     author_role = payload.get("authorRole") or (payload.get("author", {}) if isinstance(payload.get("author"), dict) else {}).get("role") or "تیم تحریریه کراس"
 
+    linked_slugs = payload.get("linkedProductSlugs")
+    if not linked_slugs and payload.get("linkedProducts"):
+        linked_slugs = [
+            item.get("slug") if isinstance(item, dict) else str(item)
+            for item in payload.get("linkedProducts", [])
+            if (isinstance(item, dict) and item.get("slug")) or isinstance(item, str)
+        ]
+
     article = JournalArticle(
         title=title,
         slug=slug,
@@ -131,12 +187,14 @@ async def create_article(
                 "pullQuote": payload.get("pullQuote"),
             }
         ],
-        linked_product_slugs=payload.get("linkedProductSlugs") or [],
+        linked_product_slugs=linked_slugs or [],
     )
     db.add(article)
     await db.commit()
     await db.refresh(article)
-    return _map_article(article)
+
+    linked_map = await _resolve_linked_products_map(article.linked_product_slugs or [], db)
+    return _map_article(article, linked_map)
 
 
 @router.get(
@@ -156,7 +214,8 @@ async def get_article_by_slug(
     if not article:
         raise DomainException(message="Article not found", code="ARTICLE_NOT_FOUND", status_code=404)
 
-    return _map_article(article)
+    linked_map = await _resolve_linked_products_map(article.linked_product_slugs or [], db)
+    return _map_article(article, linked_map)
 
 
 @router.put(
@@ -211,9 +270,20 @@ async def update_article(
                 "pullQuote": payload.get("pullQuote"),
             }
         ]
+    if "linkedProductSlugs" in payload:
+        article.linked_product_slugs = payload["linkedProductSlugs"]
+    elif "linkedProducts" in payload:
+        article.linked_product_slugs = [
+            item.get("slug") if isinstance(item, dict) else str(item)
+            for item in payload.get("linkedProducts", [])
+            if (isinstance(item, dict) and item.get("slug")) or isinstance(item, str)
+        ]
+
     await db.commit()
     await db.refresh(article)
-    return _map_article(article)
+
+    linked_map = await _resolve_linked_products_map(article.linked_product_slugs or [], db)
+    return _map_article(article, linked_map)
 
 
 @router.delete(

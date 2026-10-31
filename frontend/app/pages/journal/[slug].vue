@@ -5,11 +5,14 @@ import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const slug = computed(() => String(route.params.slug))
-const { getArticleBySlug } = useJournalArticles()
+const { fetchArticleBySlug } = useJournalArticles()
 
-const article = computed(() => getArticleBySlug(slug.value))
+const { data: article, error } = await useAsyncData(
+  `journal-article-${slug.value}`,
+  () => fetchArticleBySlug(slug.value),
+)
 
-if (!article.value) {
+if (error.value || !article.value) {
   throw createError({
     statusCode: 404,
     statusMessage: 'مقاله مورد نظر در ژورنال کراس یافت نشد.',

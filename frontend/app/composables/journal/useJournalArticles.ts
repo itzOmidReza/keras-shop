@@ -84,6 +84,31 @@ export function useJournalArticles() {
     return sharedJournalArticles.value.find(article => article.slug === slug)
   }
 
+  const fetchArticleBySlug = async (slug: string): Promise<JournalArticle | null> => {
+    const cached = sharedJournalArticles.value.find(a => a.slug === slug)
+    if (cached && cached.sections && cached.sections.length > 0 && cached.linkedProducts !== undefined) {
+      return cached
+    }
+
+    try {
+      const article = await $fetch<JournalArticle>(`/api/articles/${slug}`)
+      if (article) {
+        const idx = sharedJournalArticles.value.findIndex(
+          a => a.slug === slug || String(a.id) === String(article.id),
+        )
+        if (idx !== -1) {
+          sharedJournalArticles.value[idx] = article
+        } else {
+          sharedJournalArticles.value.push(article)
+        }
+        return article
+      }
+    } catch (err) {
+      console.error(`Failed to fetch article ${slug} from API:`, err)
+    }
+    return cached || null
+  }
+
   const handleSubscribe = () => {
     const email = newsletterEmail.value.trim()
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -110,6 +135,8 @@ export function useJournalArticles() {
     searchQuery,
     newsletterEmail,
     filteredArticles,
+    fetchArticles,
+    fetchArticleBySlug,
     getArticleBySlug,
     handleSubscribe,
   }

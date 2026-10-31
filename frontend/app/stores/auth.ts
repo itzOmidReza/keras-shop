@@ -320,6 +320,7 @@ export const useAuthStore = defineStore('auth', () => {
     deleteAddress,
     setDefaultAddress,
     fetchOrders,
+    getAuthHeaders,
   };
 });
 

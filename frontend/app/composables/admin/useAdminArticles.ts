@@ -111,6 +111,7 @@ export function useAdminArticles() {
         body: payload,
       })
       sharedJournalArticles.value.unshift(created)
+      refreshNuxtData(['home-journal-articles', 'journal-articles-list'])
       toast.success(
         payload.status === 'published'
           ? 'مقاله با موفقیت در پایگاه داده منتشر شد.'
@@ -191,6 +192,7 @@ export function useAdminArticles() {
       if (index !== -1) {
         sharedJournalArticles.value[index] = updated
       }
+      refreshNuxtData(['home-journal-articles', 'journal-articles-list'])
       toast.success('تغییرات مقاله با موفقیت ذخیره شد.')
       return true
     } catch {
@@ -248,6 +250,7 @@ export function useAdminArticles() {
       }
 
       sharedJournalArticles.value[index] = updated
+      refreshNuxtData(['home-journal-articles', 'journal-articles-list'])
       toast.success('تغییرات مقاله با موفقیت ذخیره شد.')
       return true
     }
@@ -266,6 +269,7 @@ export function useAdminArticles() {
     }
 
     const deleted = sharedJournalArticles.value.splice(index, 1)[0]
+    refreshNuxtData(['home-journal-articles', 'journal-articles-list'])
     if (deleted) {
       toast.success(`مقاله «${deleted.title}» با موفقیت حذف شد.`)
     }
@@ -286,6 +290,7 @@ export function useAdminArticles() {
       // fallback
     }
     article.status = nextStatus
+    refreshNuxtData(['home-journal-articles', 'journal-articles-list'])
     toast.success(
       article.status === 'published'
         ? `مقاله «${article.title}» منتشر شد.`

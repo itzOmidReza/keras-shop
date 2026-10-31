@@ -508,7 +508,7 @@ export interface ArticleAuthor {
 }
 
 export interface LinkedGarment {
-  id: number;
+  id: number | string;
   title: string;
   slug: string;
   price: number;
@@ -525,7 +525,7 @@ export interface ArticleSection {
 }
 
 export interface JournalArticle {
-  id: number;
+  id: number | string;
   title: string;
   slug: string;
   category: ArticleCategory;

@@ -7,68 +7,41 @@ import {
   ArrowLeft,
   Sparkles,
 } from '@lucide/vue'
+import type { JournalArticle } from '~/types/domain'
 
-interface JournalArticle {
-  id: number
-  title: string
-  excerpt: string
-  category: string
-  categoryColor: string
-  readTime: string
-  date: string
-  image: string
-  imageAlt: string
-  slug: string
+const { publishedArticles, fetchArticles } = useJournalArticles()
+
+const { data: homeArticles } = await useAsyncData(
+  'home-journal-articles',
+  async () => {
+    await fetchArticles()
+    return publishedArticles.value.slice(0, 3)
+  },
+)
+
+const articles = computed<JournalArticle[]>(() => {
+  if (homeArticles.value && homeArticles.value.length > 0) {
+    return homeArticles.value
+  }
+  return publishedArticles.value.slice(0, 3)
+})
+
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'style-guide':
+      return 'bg-rose/10 text-rose'
+    case 'fabric-care':
+      return 'bg-sage/10 text-sage'
+    case 'drop-story':
+      return 'bg-sand/80 text-ink'
+    default:
+      return 'bg-sand/70 text-ink'
+  }
 }
-
-const articles: JournalArticle[] = [
-  {
-    id: 1,
-    title: 'راهنمای جامع استایل چندلایه پاییز: تلفیق هوشمندانه گرما و وقار',
-    excerpt:
-      'هنر چیدمان لایه‌های پاییزی با ترکیب دقیق شومیز لینن اسلپ، بافت یقه اسکی آلپاکا و پالتوی فوتر پشمی برای خلق سیلوئتی کشیده، اصیل و متناسب.',
-    category: 'هنر استایلینگ',
-    categoryColor: 'bg-rose/10 text-rose',
-    readTime: '۵ دقیقه',
-    date: 'مهر ۱۴۰۵',
-    image:
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
-    imageAlt: 'استایل ادیتوریال چندلایه پاییزی با شومیز و پالتو',
-    slug: 'the-art-of-autumn-layering',
-  },
-  {
-    id: 2,
-    title: 'اصالت الیاف لوکس: راهنمای نگهداری ابدی کشمیر و پشم مرینوس',
-    excerpt:
-      'راز لطافت ابریشمی و ماندگاری دهه‌ها در شست‌وشوی دستی با آب سرد، خشک کردن افقی با دانه‌های چوب سدر و حفظ بافت طبیعی و متراکم منسوجات دست‌بافت.',
-    category: 'دانش منسوجات',
-    categoryColor: 'bg-sage/10 text-sage',
-    readTime: '۴ دقیقه',
-    date: 'شهریور ۱۴۰۵',
-    image:
-      'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
-    imageAlt: 'بافت ظریف الیاف طبیعی کشمیر و مرینوس',
-    slug: 'cashmere-and-merino-care-guide',
-  },
-  {
-    id: 3,
-    title: 'مانیفست اسکارف و باندانا: لمس جادویی در استایل مینیمال',
-    excerpt:
-      'تکنیک‌های جذاب گره زدن اسکارف تویل ابریشمی، استایل کردن دستمال سر ژاکارد و اکسسوری مو برای روح بخشیدن به آرام‌ترین ست‌های تک‌رنگ مونوکروم.',
-    category: 'اکسسوری و ترند',
-    categoryColor: 'bg-sand/70 text-ink',
-    readTime: '۳ دقیقه',
-    date: 'مهر ۱۴۰۵',
-    image:
-      'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=800&q=80',
-    imageAlt: 'استایل اسکارف ابریشمی ظریف روی مو و گردن',
-    slug: 'silk-scarf-minimalist-styling',
-  },
-]
 </script>
 
 <template>
-  <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
+  <section v-if="articles.length > 0" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
     <div class="space-y-8 sm:space-y-10">
       <!-- هدر بخش ژورنال ادیتوریال با تیتر و پیوند آرشیو -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand/70 pb-5">
@@ -105,8 +78,8 @@ const articles: JournalArticle[] = [
             <!-- تصویر شاخص مقاله با زوم روان هاور -->
             <NuxtLink :to="`/journal/${article.slug}`" class="block relative overflow-hidden rounded-2xl aspect-[16/10] bg-sand/30 mb-4">
               <img
-                :src="article.image"
-                :alt="article.imageAlt"
+                :src="article.coverImage"
+                :alt="article.title"
                 class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 loading="lazy"
               >
@@ -114,9 +87,9 @@ const articles: JournalArticle[] = [
               <!-- برچسب دسته‌بندی روی تصویر -->
               <span
                 class="absolute top-3 end-3 px-3 py-1 rounded-full text-[11px] font-bold backdrop-blur-md shadow-2xs"
-                :class="article.categoryColor"
+                :class="getCategoryColor(article.category)"
               >
-                {{ article.category }}
+                {{ article.categoryLabel }}
               </span>
             </NuxtLink>
 

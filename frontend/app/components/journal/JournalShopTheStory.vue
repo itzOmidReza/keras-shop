@@ -8,11 +8,12 @@ defineProps<{
 }>()
 
 const cartStore = useCartStore()
-const addedIds = ref<number[]>([])
+const addedIds = ref<(number | string)[]>([])
 
 const handleAddToCart = (product: LinkedGarment) => {
+  const numericId = typeof product.id === 'number' ? product.id : (parseInt(String(product.id), 10) || 1)
   cartStore.addItem({
-    productId: product.id,
+    productId: numericId,
     title: product.title,
     price: product.price,
     image: product.image,

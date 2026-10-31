@@ -15,14 +15,14 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggleStatus: [id: number]
-  delete: [id: number]
+  toggleStatus: [id: string | number]
+  delete: [id: string | number]
   resetFilters: []
 }>()
 
-const confirmDeleteId = ref<number | null>(null)
+const confirmDeleteId = ref<string | number | null>(null)
 
-const handleDelete = (id: number) => {
+const handleDelete = (id: string | number) => {
   if (confirmDeleteId.value === id) {
     emit('delete', id)
     confirmDeleteId.value = null

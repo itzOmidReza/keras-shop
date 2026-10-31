@@ -47,7 +47,7 @@ const coverImage = ref('')
 const excerpt = ref('')
 const content = ref('')
 const pullQuote = ref('')
-const selectedProductIds = ref<number[]>([])
+const selectedProductIds = ref<(number | string)[]>([])
 const isSaving = ref(false)
 
 // جستجوی زنده محصولات با دیبانس ۳۰۰ میلی‌ثانیه
@@ -175,7 +175,7 @@ const autoGenerateSlug = () => {
 }
 
 // ضمیمه یا لغو انتخاب کالای فروشگاه
-const toggleProductLink = (productId: number) => {
+const toggleProductLink = (productId: number | string) => {
   if (selectedProductIds.value.includes(productId)) {
     selectedProductIds.value = selectedProductIds.value.filter(id => id !== productId)
   } else {

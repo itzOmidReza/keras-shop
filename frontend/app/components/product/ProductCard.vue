@@ -47,10 +47,13 @@ const quickAddSize = (size: string, event: Event) => {
 }
 
 // استخراج تصویر اول و دوم برای هاور موشن مینیمال
-const getImageUrl = (img: any): string => {
+const getImageUrl = (img: unknown): string => {
   if (!img) return ''
   if (typeof img === 'string') return img
-  return img.url || ''
+  if (typeof img === 'object' && img !== null && 'url' in img) {
+    return String((img as { url: unknown }).url || '')
+  }
+  return ''
 }
 
 const primaryImage = computed(() => {

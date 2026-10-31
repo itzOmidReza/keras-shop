@@ -12,10 +12,13 @@ const props = defineProps<{
 }>()
 
 const activeIndex = ref(0)
-const getImageUrl = (img: any): string => {
+const getImageUrl = (img: unknown): string => {
   if (!img) return ''
   if (typeof img === 'string') return img
-  return img.url || ''
+  if (typeof img === 'object' && img !== null && 'url' in img) {
+    return String((img as { url: unknown }).url || '')
+  }
+  return ''
 }
 
 const currentImage = computed(() => getImageUrl(props.images[activeIndex.value]) || getImageUrl(props.images[0]) || '/placeholder.jpg')
