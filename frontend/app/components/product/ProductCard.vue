@@ -47,12 +47,18 @@ const quickAddSize = (size: string, event: Event) => {
 }
 
 // استخراج تصویر اول و دوم برای هاور موشن مینیمال
+const getImageUrl = (img: any): string => {
+  if (!img) return ''
+  if (typeof img === 'string') return img
+  return img.url || ''
+}
+
 const primaryImage = computed(() => {
-  return props.product.images?.[0]?.url || '/placeholder.jpg'
+  return getImageUrl(props.product.images?.[0]) || '/placeholder.jpg'
 })
 
 const hoverImage = computed(() => {
-  return props.product.images?.[1]?.url || primaryImage.value
+  return getImageUrl(props.product.images?.[1]) || primaryImage.value
 })
 
 const productBadge = computed(() => {

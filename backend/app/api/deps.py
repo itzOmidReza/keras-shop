@@ -2,7 +2,7 @@ from typing import Optional
 
 import jwt
 import redis.asyncio as aioredis
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,10 +34,16 @@ def get_redis() -> Redis:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_bearer),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    token = credentials.credentials
+    token = credentials.credentials if credentials else (request.cookies.get("auth_token") or request.cookies.get("keras_auth_token"))
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token required.",
+        )
     try:
         payload = decode_token(token)
         if payload.get("type") != "access":

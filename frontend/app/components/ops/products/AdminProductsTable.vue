@@ -84,8 +84,8 @@ const getCategoryLabel = (category: string) => {
             <td class="p-3.5">
               <div class="flex items-center gap-3">
                 <img
-                  v-if="product.images[0]?.url"
-                  :src="product.images[0].url"
+                  v-if="product.images?.[0]"
+                  :src="typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url"
                   :alt="product.title"
                   class="w-11 h-14 rounded-lg object-cover border border-slate-200 shrink-0"
                 >

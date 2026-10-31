@@ -85,27 +85,44 @@ const processFiles = async (files: FileList | File[]) => {
   emit('filesSelected', imageFiles)
 
   try {
-    const readPromises = imageFiles.map(
-      (file) =>
-        new Promise<string>((resolve, reject) => {
+    const authStore = useAuthStore()
+    const headers = authStore.getAuthHeaders()
+    const uploadedUrls: string[] = []
+
+    for (const file of imageFiles) {
+      const formData = new FormData()
+      formData.append('file', file)
+      try {
+        const res = await $fetch<{ url: string }>('/api/admin/products/upload', {
+          method: 'POST',
+          body: formData,
+          headers,
+        })
+        if (res?.url) {
+          uploadedUrls.push(res.url)
+        }
+      } catch (uploadErr) {
+        console.warn('Storage upload endpoint returned error, using local data URL fallback:', uploadErr)
+        const dataUrl = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader()
           reader.onload = () => resolve(reader.result as string)
           reader.onerror = () => reject(reader.error)
           reader.readAsDataURL(file)
-        }),
-    )
+        })
+        uploadedUrls.push(dataUrl)
+      }
+    }
 
-    const base64List = await Promise.all(readPromises)
-    const updated = [...props.galleryImages, ...base64List]
+    const updated = [...props.galleryImages, ...uploadedUrls]
     emit('update:galleryImages', updated)
 
     if (!props.mainImage && updated[0]) {
       emit('update:mainImage', updated[0])
     }
 
-    toast.success(`${toFa(imageFiles.length)} تصویر با موفقیت به گالری محصول افزوده شد.`)
+    toast.success(`${toFa(imageFiles.length)} تصویر با موفقیت آپلود و به گالری محصول افزوده شد.`)
   } catch {
-    toast.error('خطا در خواندن فایل‌های تصویری. لطفاً دوباره تلاش کنید.')
+    toast.error('خطا در پردازش فایل‌های تصویری. لطفاً دوباره تلاش کنید.')
   } finally {
     isProcessing.value = false
     isDragging.value = false

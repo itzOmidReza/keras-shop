@@ -5,22 +5,44 @@ from typing import List, Optional, Union, Dict, Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-def parse_images(raw: Optional[Union[str, List[Any]]]) -> List[Any]:
-    """Parse product images from string/JSON/list."""
+def parse_images(raw: Optional[Union[str, List[Any]]]) -> List[Dict[str, Any]]:
+    """Parse product images from string/JSON/list ensuring list of image dicts with url."""
     if not raw:
         return []
+    items = []
     if isinstance(raw, list):
-        return raw
-    raw = raw.strip()
-    if raw.startswith("["):
-        try:
-            parsed = json.loads(raw)
-            if isinstance(parsed, list):
-                return parsed
-        except (ValueError, TypeError):
-            pass
-    return [{"id": idx + 1, "url": part.strip(), "alt": "", "kind": "photo", "position": idx + 1}
-            for idx, part in enumerate(raw.split(",")) if part.strip()]
+        items = raw
+    elif isinstance(raw, str):
+        raw = raw.strip()
+        if raw.startswith("["):
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    items = parsed
+            except (ValueError, TypeError):
+                items = []
+        if not items and raw:
+            items = [part.strip() for part in raw.split(",") if part.strip()]
+
+    result = []
+    for idx, it in enumerate(items):
+        if isinstance(it, dict) and "url" in it and it["url"]:
+            result.append({
+                "id": it.get("id") or (idx + 1),
+                "url": str(it["url"]),
+                "alt": it.get("alt") or "",
+                "kind": it.get("kind") or "photo",
+                "position": it.get("position") or (idx + 1),
+            })
+        elif isinstance(it, str) and it.strip():
+            result.append({
+                "id": idx + 1,
+                "url": it.strip(),
+                "alt": "",
+                "kind": "photo",
+                "position": idx + 1,
+            })
+    return result
 
 
 class ProductImageSchema(BaseModel):

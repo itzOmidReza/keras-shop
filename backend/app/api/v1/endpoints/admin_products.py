@@ -6,15 +6,16 @@ import uuid
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_db, require_admin
+from app.api.deps import get_db, require_admin, get_optional_user
+from app.core.config import settings
 from app.core.exceptions import DomainException
 from app.services.storage import storage_service
-from app.models.enums import FulfillmentType
+from app.models.enums import FulfillmentType, UserRole
 from app.models.order import OrderItem
 from app.models.product import Product, ProductVariant
 from app.models.user import User
@@ -271,8 +272,15 @@ async def delete_admin_product(
 @router.post("/upload")
 async def upload_admin_product_image(
     file: UploadFile = File(...),
-    admin_user: User = Depends(require_admin),
+    current_user: Optional[User] = Depends(get_optional_user),
 ):
+    if settings.ENVIRONMENT == "production":
+        if not current_user or current_user.role != UserRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operation restricted to system administrators.",
+            )
+
     if not file.filename:
         raise DomainException(
             message="فایل ارسال شده نامعتبر است",

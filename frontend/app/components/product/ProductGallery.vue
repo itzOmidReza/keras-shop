@@ -12,7 +12,13 @@ const props = defineProps<{
 }>()
 
 const activeIndex = ref(0)
-const currentImage = computed(() => props.images[activeIndex.value]?.url || props.images[0]?.url || '/placeholder.jpg')
+const getImageUrl = (img: any): string => {
+  if (!img) return ''
+  if (typeof img === 'string') return img
+  return img.url || ''
+}
+
+const currentImage = computed(() => getImageUrl(props.images[activeIndex.value]) || getImageUrl(props.images[0]) || '/placeholder.jpg')
 
 const displayBadge = computed(() => {
   if (props.badge) return props.badge
@@ -41,7 +47,7 @@ const displayBadge = computed(() => {
         @click="activeIndex = idx"
       >
         <NuxtImg
-          :src="img.url"
+          :src="getImageUrl(img)"
           :alt="img.alt || title"
           class="w-full h-full object-cover"
           loading="lazy"
