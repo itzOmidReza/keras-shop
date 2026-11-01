@@ -1,0 +1,16 @@
+node_modules/
+.output/
+.nuxt/
+.nitro/
+.cache/
+.git/
+.gitignore
+.dockerignore
+.env
+.env.*
+!.env.example
+tests/
+playwright-report/
+test-results/
+*.log
+

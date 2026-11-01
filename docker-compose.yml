@@ -1,0 +1,120 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: keras-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sage_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kerash#shop}
+      POSTGRES_DB: ${POSTGRES_DB:-keras_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sage_user} -d ${POSTGRES_DB:-keras_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - keras_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: keras-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - keras_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: keras-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SECRET_KEY: ${SECRET_KEY:-change_this_to_a_super_secret_32_char_long_string_for_production_security}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,https://kerass.ir}
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-sage_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kerash#shop}
+      POSTGRES_DB: ${POSTGRES_DB:-keras_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sage_user}:${POSTGRES_PASSWORD:-kerash#shop}@postgres:5432/${POSTGRES_DB:-keras_db}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      STORAGE_ENABLED: ${STORAGE_ENABLED:-false}
+      STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      STORAGE_CDN_URL: ${STORAGE_CDN_URL:-https://dl.kerass.ir}
+    volumes:
+      - backend_media:/app/public/images
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - keras_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: keras-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+      PORT: 3000
+      BACKEND_URL: http://backend:8000
+      NUXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-http://localhost:3000}
+      NUXT_PUBLIC_CDN_URL: ${STORAGE_CDN_URL:-https://dl.kerass.ir}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - keras_network
+
+volumes:
+  postgres_data:
+    name: keras_postgres_data
+  redis_data:
+    name: keras_redis_data
+  backend_media:
+    name: keras_backend_media
+
+networks:
+  keras_network:
+    name: keras_network
+    driver: bridge
+
