@@ -12,6 +12,13 @@ const props = defineProps<{
 }>()
 
 const activeIndex = ref(0)
+const isImageLoading = ref(true)
+const failedIndices = ref<Set<number>>(new Set())
+
+watch(activeIndex, () => {
+  isImageLoading.value = true
+})
+
 const getImageUrl = (img: unknown): string => {
   if (!img) return ''
   if (typeof img === 'string') return img
@@ -21,7 +28,40 @@ const getImageUrl = (img: unknown): string => {
   return ''
 }
 
-const currentImage = computed(() => getImageUrl(props.images[activeIndex.value]) || getImageUrl(props.images[0]) || '/placeholder.jpg')
+const currentImage = computed(() => {
+  if (failedIndices.value.has(activeIndex.value)) {
+    return '/placeholder.jpg'
+  }
+  const candidate = getImageUrl(props.images[activeIndex.value]) || getImageUrl(props.images[0])
+  return candidate || '/placeholder.jpg'
+})
+
+const onMainImageLoad = () => {
+  isImageLoading.value = false
+}
+
+const handleMainImageError = (event: Event | string) => {
+  isImageLoading.value = false
+  failedIndices.value.add(activeIndex.value)
+  if (typeof event === 'object' && event !== null && 'target' in event) {
+    const target = event.target as HTMLImageElement
+    if (target && target.src !== '/placeholder.jpg') {
+      target.srcset = ''
+      target.src = '/placeholder.jpg'
+    }
+  }
+}
+
+const handleThumbError = (idx: number, event: Event | string) => {
+  failedIndices.value.add(idx)
+  if (typeof event === 'object' && event !== null && 'target' in event) {
+    const target = event.target as HTMLImageElement
+    if (target && target.src !== '/placeholder.jpg') {
+      target.srcset = ''
+      target.src = '/placeholder.jpg'
+    }
+  }
+}
 
 const displayBadge = computed(() => {
   if (props.badge) return props.badge
@@ -50,10 +90,11 @@ const displayBadge = computed(() => {
         @click="activeIndex = idx"
       >
         <NuxtImg
-          :src="getImageUrl(img)"
+          :src="failedIndices.has(idx) ? '/placeholder.jpg' : (getImageUrl(img) || '/placeholder.jpg')"
           :alt="img.alt || title"
           class="w-full h-full object-cover"
           loading="lazy"
+          @error="handleThumbError(idx, $event)"
         />
         <span
           v-if="img.kind === 'transparency_test'"
@@ -64,17 +105,28 @@ const displayBadge = computed(() => {
 
     <!-- تصویر اصلی بزرگ ادیتوریال -->
     <div class="relative flex-1 aspect-3/4 md:aspect-4/5 rounded-2xl overflow-hidden bg-sand/20 border border-sand/60">
+      <!-- شیمر لودینگ و اسکلتون زمینه -->
+      <div
+        v-show="isImageLoading"
+        class="absolute inset-0 z-0 bg-sand/30 animate-pulse flex items-center justify-center pointer-events-none"
+        aria-hidden="true"
+      >
+        <div class="w-8 h-8 rounded-full border-2 border-sand border-t-rose/70 animate-spin opacity-40" />
+      </div>
+
       <NuxtImg
         :src="currentImage"
         :alt="title"
         priority
-        class="w-full h-full object-cover object-center transition-all duration-300"
+        class="w-full h-full object-cover object-center transition-all duration-300 relative z-1"
+        @load="onMainImageLoad"
+        @error="handleMainImageError"
       />
 
       <!-- بج کالکشن / فصل -->
       <span
         v-if="displayBadge"
-        class="absolute top-4 inset-s-4 bg-paper/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-ink shadow-xs border border-sand/50"
+        class="absolute top-4 inset-s-4 z-2 bg-paper/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-ink shadow-xs border border-sand/50"
       >
         {{ displayBadge }}
       </span>
@@ -82,7 +134,7 @@ const displayBadge = computed(() => {
       <!-- برچسب تست شفافیت -->
       <div
         v-if="images[activeIndex]?.kind === 'transparency_test'"
-        class="absolute bottom-4 inset-s-4 inline-flex items-center gap-2 rounded-full bg-ink/85 px-3 py-1.5 text-xs font-medium text-paper shadow-md backdrop-blur-sm"
+        class="absolute bottom-4 inset-s-4 z-2 inline-flex items-center gap-2 rounded-full bg-ink/85 px-3 py-1.5 text-xs font-medium text-paper shadow-md backdrop-blur-sm"
       >
         <Eye class="h-4 w-4 text-rose" />
         <span>تست عدم عبور نور (Squat-Proof)</span>

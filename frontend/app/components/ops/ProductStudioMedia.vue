@@ -102,25 +102,21 @@ const processFiles = async (files: FileList | File[]) => {
           uploadedUrls.push(res.url)
         }
       } catch (uploadErr) {
-        console.warn('Storage upload endpoint returned error, using local data URL fallback:', uploadErr)
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(reader.result as string)
-          reader.onerror = () => reject(reader.error)
-          reader.readAsDataURL(file)
-        })
-        uploadedUrls.push(dataUrl)
+        console.error('Storage upload endpoint returned error:', uploadErr)
+        toast.error(`خطا در آپلود تصویر «${file.name}» روی سرور`)
       }
     }
 
-    const updated = [...props.galleryImages, ...uploadedUrls]
-    emit('update:galleryImages', updated)
+    if (uploadedUrls.length > 0) {
+      const updated = [...props.galleryImages, ...uploadedUrls]
+      emit('update:galleryImages', updated)
 
-    if (!props.mainImage && updated[0]) {
-      emit('update:mainImage', updated[0])
+      if (!props.mainImage && updated[0]) {
+        emit('update:mainImage', updated[0])
+      }
+
+      toast.success(`${toFa(uploadedUrls.length)} تصویر با موفقیت آپلود و به گالری محصول افزوده شد.`)
     }
-
-    toast.success(`${toFa(imageFiles.length)} تصویر با موفقیت آپلود و به گالری محصول افزوده شد.`)
   } catch {
     toast.error('خطا در پردازش فایل‌های تصویری. لطفاً دوباره تلاش کنید.')
   } finally {
@@ -151,8 +147,13 @@ const handleAddUrl = () => {
   const url = newImageUrl.value.trim()
   if (!url) return
 
-  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:image')) {
-    toast.error('نشانی اینترنتی تصویر باید با http:// یا https:// آغاز شود.')
+  if (url.startsWith('data:image')) {
+    toast.error('ثبت مستقیم کد Base64 مجاز نیست. لطفاً فایل عکس را در دراپ‌زون بارگذاری کنید.')
+    return
+  }
+
+  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+    toast.error('نشانی اینترنتی تصویر باید با / یا http:// یا https:// آغاز شود.')
     return
   }
 

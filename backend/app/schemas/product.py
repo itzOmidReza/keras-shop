@@ -2,11 +2,11 @@ import json
 from datetime import datetime
 from typing import List, Optional, Union, Dict, Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, field_validator
 
 
 def parse_images(raw: Optional[Union[str, List[Any]]]) -> List[Dict[str, Any]]:
-    """Parse product images from string/JSON/list ensuring list of image dicts with url."""
+    """Parse product images from string/JSON/list ensuring list of image dicts with valid url (rejecting raw base64)."""
     if not raw:
         return []
     items = []
@@ -26,21 +26,32 @@ def parse_images(raw: Optional[Union[str, List[Any]]]) -> List[Dict[str, Any]]:
 
     result = []
     for idx, it in enumerate(items):
+        url_val = ""
+        alt_val = ""
+        kind_val = "photo"
+        pos_val = idx + 1
+        img_id = idx + 1
+
         if isinstance(it, dict) and "url" in it and it["url"]:
-            result.append({
-                "id": it.get("id") or (idx + 1),
-                "url": str(it["url"]),
-                "alt": it.get("alt") or "",
-                "kind": it.get("kind") or "photo",
-                "position": it.get("position") or (idx + 1),
-            })
+            url_val = str(it["url"]).strip()
+            alt_val = it.get("alt") or ""
+            kind_val = it.get("kind") or "photo"
+            pos_val = it.get("position") or (idx + 1)
+            img_id = it.get("id") or (idx + 1)
         elif isinstance(it, str) and it.strip():
+            url_val = it.strip()
+
+        # Reject or sanitize massive raw data URLs
+        if url_val.startswith("data:image"):
+            continue
+
+        if url_val:
             result.append({
-                "id": idx + 1,
-                "url": it.strip(),
-                "alt": "",
-                "kind": "photo",
-                "position": idx + 1,
+                "id": img_id,
+                "url": url_val,
+                "alt": alt_val,
+                "kind": kind_val,
+                "position": pos_val,
             })
     return result
 
@@ -53,6 +64,13 @@ class ProductImageSchema(BaseModel):
     position: Optional[int] = 1
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if v and v.strip().startswith("data:image"):
+            raise ValueError("Raw base64 data URLs are not allowed. Please upload image to storage.")
+        return v
 
 
 class ProductFabricSchema(BaseModel):

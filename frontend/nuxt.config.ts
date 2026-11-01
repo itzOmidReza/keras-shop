@@ -99,7 +99,7 @@ export default defineNuxtConfig({
 
   // ۷. قوانین رندرینگ و کش صفحات (SWR / CSR)
   routeRules: {
-
+    '/images/**': { proxy: `${process.env.BACKEND_URL || 'http://127.0.0.1:8000'}/images/**` },
     '/': { swr: 300 },
     '/shop/**': { swr: 300 },
     '/products/**': { swr: 300 }, // تغییر از /p/** به مسیر جدید سئو

@@ -507,6 +507,11 @@ async def create_product(
     if not img_urls and payload.get("mainImage"):
         img_urls = [payload.get("mainImage")]
 
+    # Sanitize and purge any raw base64 data URLs
+    clean_img_urls = [str(u).strip() for u in img_urls if u and not str(u).strip().startswith("data:image")]
+    if not clean_img_urls:
+        clean_img_urls = ["/placeholder.jpg"]
+
     is_active = bool(payload.get("is_active", payload.get("isPublished", True)))
 
     product = Product(
@@ -515,7 +520,7 @@ async def create_product(
         slug=slug,
         description=payload.get("description") or f"{title} — طراحی اختصاصی در آتلیه مد کراس",
         category_id=category_id,
-        images=json.dumps(img_urls),
+        images=json.dumps(clean_img_urls),
         base_price_rial=price * _TOMAN,
         compare_at_price_rial=compare_at * _TOMAN if compare_at else None,
         is_active=is_active,
@@ -627,8 +632,9 @@ async def update_product(
     if "images" in payload or "galleryImages" in payload:
         images_raw = payload.get("images") or payload.get("galleryImages") or []
         img_urls = [it["url"] if isinstance(it, dict) and "url" in it else str(it) for it in images_raw if it]
-        if img_urls:
-            product.images = json.dumps(img_urls)
+        clean_img_urls = [str(u).strip() for u in img_urls if u and not str(u).strip().startswith("data:image")]
+        if clean_img_urls:
+            product.images = json.dumps(clean_img_urls)
 
     await db.commit()
     await db.refresh(product)

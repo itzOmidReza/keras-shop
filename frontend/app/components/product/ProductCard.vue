@@ -88,6 +88,16 @@ const productBadgeClass = computed(() => {
   }
   return 'bg-paper/85 text-ink border border-sand'
 })
+
+const handleImageError = (event: Event | string) => {
+  if (typeof event === 'object' && event !== null && 'target' in event) {
+    const target = event.target as HTMLImageElement
+    if (target && target.src !== '/placeholder.jpg') {
+      target.srcset = ''
+      target.src = '/placeholder.jpg'
+    }
+  }
+}
 </script>
 
 <template>
@@ -103,6 +113,7 @@ const productBadgeClass = computed(() => {
         :alt="product.title"
         :loading="priority ? 'eager' : 'lazy'"
         class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        @error="handleImageError"
       />
 
       <!-- تصویر ثانویه برای هاور -->
@@ -112,6 +123,7 @@ const productBadgeClass = computed(() => {
         :alt="product.title"
         loading="lazy"
         class="absolute inset-0 h-full w-full object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        @error="handleImageError"
       />
 
       <!-- بج فصل یا کالکشن کالا -->
