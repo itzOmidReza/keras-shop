@@ -4,13 +4,20 @@ import {
   ArrowRight,
   Save,
   Sparkles,
-  Upload,
+  UploadCloud,
   Search,
   X,
   MapPin,
   Check,
   Layers,
   Percent,
+  Trash2,
+  Plus,
+  Link2,
+  Tag,
+  ChevronDown,
+  ChevronUp,
+  ShoppingBag,
 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { toFa, formatToman } from '~/utils/format'
@@ -49,7 +56,7 @@ const linkedItems = ref<FormLookItem[]>([])
 
 // Populate existing items in edit mode
 if (props.initialLookbook?.items) {
-  linkedItems.value = props.initialLookbook.items.map((it) => ({
+  linkedItems.value = props.initialLookbook.items.map(it => ({
     productId: it.id,
     productSlug: it.slug,
     title: it.title,
@@ -60,10 +67,10 @@ if (props.initialLookbook?.items) {
   }))
 }
 
-// Active item currently selected for hotspot positioning
-const activePinIndex = ref<number>(0)
+// Active item currently selected / focused
+const activePinIndex = ref<number | null>(null)
 
-// Product catalog search
+// Catalog products state
 const catalogProducts = ref<Product[]>([])
 const searchQuery = ref('')
 const debouncedQuery = ref('')
@@ -89,6 +96,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (searchTimer) clearTimeout(searchTimer)
+  if (popoverSearchTimer) clearTimeout(popoverSearchTimer)
 })
 
 const filteredCatalog = computed(() => {
@@ -116,8 +124,10 @@ const toggleProduct = (prod: Product) => {
 
   if (existingIdx !== -1) {
     linkedItems.value.splice(existingIdx, 1)
-    if (activePinIndex.value >= linkedItems.value.length) {
-      activePinIndex.value = Math.max(0, linkedItems.value.length - 1)
+    if (activePinIndex.value === existingIdx) {
+      activePinIndex.value = null
+    } else if (activePinIndex.value !== null && activePinIndex.value > existingIdx) {
+      activePinIndex.value--
     }
   } else {
     if (linkedItems.value.length >= 6) {
@@ -125,7 +135,7 @@ const toggleProduct = (prod: Product) => {
       return
     }
 
-    const defaultY = 30 + linkedItems.value.length * 20
+    const defaultY = Math.min(85, 30 + linkedItems.value.length * 18)
     const defaultX = 50
 
     linkedItems.value.push({
@@ -142,43 +152,212 @@ const toggleProduct = (prod: Product) => {
 }
 
 const removeLinkedItem = (index: number) => {
+  const item = linkedItems.value[index]
   linkedItems.value.splice(index, 1)
-  if (activePinIndex.value >= linkedItems.value.length) {
-    activePinIndex.value = Math.max(0, linkedItems.value.length - 1)
+  if (activePinIndex.value === index) {
+    activePinIndex.value = null
+  } else if (activePinIndex.value !== null && activePinIndex.value > index) {
+    activePinIndex.value--
+  }
+  toast.info(`«${item?.title || 'آیتم'}» از ست حذف شد.`)
+}
+
+// ----------------------------------------------------
+// 1. Cover Image Native Dropzone & Controls
+// ----------------------------------------------------
+const coverFileInput = ref<HTMLInputElement | null>(null)
+const isDraggingCover = ref(false)
+const showUrlInput = ref(false)
+const isUploadingCover = ref(false)
+
+const handleCoverFile = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    toast.error('لطفاً یک فایل تصویری معتبر (JPG, PNG, WebP) انتخاب نمایید.')
+    return
+  }
+
+  isUploadingCover.value = true
+
+  // Fast client-side preview via FileReader
+  const reader = new FileReader()
+  reader.onload = () => {
+    coverImage.value = reader.result as string
+    toast.success('تصویر کاور با موفقیت بارگذاری شد.')
+  }
+  reader.readAsDataURL(file)
+
+  // Background upload to backend if authenticated
+  try {
+    const authStore = useAuthStore()
+    const headers = authStore.getAuthHeaders()
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await $fetch<{ url: string }>('/api/admin/products/upload', {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+    if (res?.url) {
+      coverImage.value = res.url
+    }
+  } catch (err) {
+    console.warn('Storage upload endpoint returned error, using local data URL fallback:', err)
+  } finally {
+    isUploadingCover.value = false
+    if (coverFileInput.value) coverFileInput.value.value = ''
   }
 }
 
-// Hotspot click handler on cover image
-const imageContainerRef = ref<HTMLDivElement | null>(null)
+const handleCoverFileChange = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  if (input.files?.[0]) {
+    handleCoverFile(input.files[0])
+  }
+}
 
-const handleImageClick = (e: MouseEvent) => {
-  if (!imageContainerRef.value || linkedItems.value.length === 0) return
+const handleCoverDrop = (e: DragEvent) => {
+  isDraggingCover.value = false
+  if (e.dataTransfer?.files?.[0]) {
+    handleCoverFile(e.dataTransfer.files[0])
+  }
+}
+
+const removeCoverImage = () => {
+  coverImage.value = ''
+  if (coverFileInput.value) coverFileInput.value.value = ''
+}
+
+// ----------------------------------------------------
+// 2. Click-to-Tag Visual Hotspot Workflow
+// ----------------------------------------------------
+const imageContainerRef = ref<HTMLDivElement | null>(null)
+const pendingHotspot = ref<{ x: number; y: number } | null>(null)
+const isTaggingModalOpen = ref(false)
+const popoverSearchQuery = ref('')
+const popoverDebouncedQuery = ref('')
+let popoverSearchTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(popoverSearchQuery, (val) => {
+  if (popoverSearchTimer) clearTimeout(popoverSearchTimer)
+  popoverSearchTimer = setTimeout(() => {
+    popoverDebouncedQuery.value = val.trim().toLowerCase()
+  }, 300)
+})
+
+const popoverFilteredCatalog = computed(() => {
+  if (!popoverDebouncedQuery.value) return catalogProducts.value.slice(0, 10)
+  const q = popoverDebouncedQuery.value
+  return catalogProducts.value
+    .filter(
+      p =>
+        p.title.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q),
+    )
+    .slice(0, 10)
+})
+
+const handleCanvasClick = (e: MouseEvent) => {
+  if (!imageContainerRef.value || !coverImage.value) return
 
   const rect = imageContainerRef.value.getBoundingClientRect()
-  const clickX = e.clientX - rect.left
-  const clickY = e.clientY - rect.top
+  // RTL coordinate: distance from the right edge in percentage
+  const clickFromRight = rect.right - e.clientX
+  const pctX = Math.round(((clickFromRight / rect.width) * 100) * 10) / 10
+  const pctY = Math.round(((e.clientY - rect.top) / rect.height) * 100 * 10) / 10
 
-  // Percentage from 0 to 100
-  const pctX = Math.round(((clickX / rect.width) * 100) * 10) / 10
-  const pctY = Math.round(((clickY / rect.height) * 100) * 10) / 10
+  const boundedX = Math.max(3, Math.min(97, pctX))
+  const boundedY = Math.max(3, Math.min(97, pctY))
 
-  const targetIdx = activePinIndex.value
-  if (linkedItems.value[targetIdx]) {
-    linkedItems.value[targetIdx].hotspot_x = Math.max(2, Math.min(98, pctX))
-    linkedItems.value[targetIdx].hotspot_y = Math.max(2, Math.min(98, pctY))
-    toast.success(`نقطه «${linkedItems.value[targetIdx].title}» تنظیم شد.`)
+  // If a pin is currently active, clicking on canvas repositions that pin
+  if (activePinIndex.value !== null) {
+    const activeItem = linkedItems.value[activePinIndex.value]
+    if (activeItem) {
+      activeItem.hotspot_x = boundedX
+      activeItem.hotspot_y = boundedY
+      toast.success(`موقعیت پین «${activeItem.title}» تغییر یافت.`)
+      return
+    }
+  }
+
+  // Otherwise start a new pending hotspot & open product picker
+  pendingHotspot.value = { x: boundedX, y: boundedY }
+  popoverSearchQuery.value = ''
+  popoverDebouncedQuery.value = ''
+  isTaggingModalOpen.value = true
+}
+
+const selectProductForHotspot = (prod: Product) => {
+  if (!pendingHotspot.value) return
+
+  if (linkedItems.value.length >= 6) {
+    toast.warning('حداکثر ۶ قلم کالا را می‌توانید در یک ست متصل نمایید.')
+    cancelPendingHotspot()
+    return
+  }
+
+  const existingIdx = linkedItems.value.findIndex(
+    it => String(it.productId) === String(prod.id) || it.productSlug === prod.slug,
+  )
+
+  if (existingIdx !== -1) {
+    const existingItem = linkedItems.value[existingIdx]
+    if (existingItem) {
+      existingItem.hotspot_x = pendingHotspot.value.x
+      existingItem.hotspot_y = pendingHotspot.value.y
+      activePinIndex.value = existingIdx
+      toast.info(`موقعیت «${prod.title}» روی تصویر به‌روزرسانی شد.`)
+    }
+  } else {
+    linkedItems.value.push({
+      productId: prod.id,
+      productSlug: prod.slug,
+      title: prod.title,
+      price: prod.price ?? prod.base_price,
+      image: prod.images?.[0]?.url || '',
+      hotspot_x: pendingHotspot.value.x,
+      hotspot_y: pendingHotspot.value.y,
+    })
+    activePinIndex.value = linkedItems.value.length - 1
+    toast.success(`«${prod.title}» روی تصویر نشانه‌گذاری و به ست افزوده شد.`)
+  }
+
+  cancelPendingHotspot()
+}
+
+const cancelPendingHotspot = () => {
+  pendingHotspot.value = null
+  isTaggingModalOpen.value = false
+}
+
+const handlePinClick = (idx: number, e: MouseEvent) => {
+  e.stopPropagation()
+  if (activePinIndex.value === idx) {
+    activePinIndex.value = null
+  } else {
+    activePinIndex.value = idx
   }
 }
 
-// Preset cover images
-const presetCovers = [
-  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80',
-  'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1000&q=80',
-  'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80',
-  'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1000&q=80',
-]
+// ----------------------------------------------------
+// 3. Live Pricing Calculations
+// ----------------------------------------------------
+const bundleTotalPrice = computed(() => {
+  return linkedItems.value.reduce((sum, it) => sum + (it.price || 0), 0)
+})
 
-// Submit handler
+const bundleDiscountedPrice = computed(() => {
+  const discount = Number(discountPercent.value) || 0
+  return Math.round((bundleTotalPrice.value * (100 - discount)) / 100)
+})
+
+const bundleDiscountAmount = computed(() => {
+  return bundleTotalPrice.value - bundleDiscountedPrice.value
+})
+
+// ----------------------------------------------------
+// 4. Submit handler
+// ----------------------------------------------------
 const handleSubmit = async () => {
   if (!title.value.trim()) {
     toast.error('لطفاً عنوان ست را وارد نمایید.')
@@ -186,7 +365,7 @@ const handleSubmit = async () => {
   }
 
   if (!coverImage.value.trim()) {
-    toast.error('لطفاً آدرس یا تصویر کاور ست را انتخاب نمایید.')
+    toast.error('لطفاً تصویر کاور ست را بارگذاری نمایید.')
     return
   }
 
@@ -225,7 +404,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="space-y-6 max-w-5xl mx-auto pb-20" dir="rtl" data-testid="lookbook-form">
+  <div class="space-y-6 max-w-5xl mx-auto pb-20 font-sans" dir="rtl" data-testid="lookbook-form">
     <!-- هدر فرم با دکمه بازگشت و دکمه ذخیره -->
     <div class="flex items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
       <div class="flex items-center gap-3">
@@ -238,7 +417,7 @@ const handleSubmit = async () => {
         </NuxtLink>
         <div>
           <h1 class="text-base sm:text-lg font-bold text-slate-900">
-            {{ isEditMode ? 'ویرایش ست استایل ادیتوریال' : 'طراحی و ساخت ست جدید (Lookbook)' }}
+            {{ isEditMode ? 'ویرایش ست استایل ادیتوریال' : 'طراحی و ساخت ست جدید' }}
           </h1>
           <p class="text-xs text-slate-500">
             پیکربندی اقلام مکمل، هات‌اسپات‌های تعاملی و درصد تخفیف پکیج
@@ -259,7 +438,7 @@ const handleSubmit = async () => {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- ستون اطلاعات اصلی ست (راست) -->
+      <!-- ستون اطلاعات اصلی ست (راست: ۷ ستون) -->
       <div class="lg:col-span-7 space-y-6">
         <!-- کارت مشخصات عمومی -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
@@ -277,7 +456,7 @@ const handleSubmit = async () => {
               v-model="title"
               type="text"
               placeholder="مثال: استایل ادیتوریال پاییزه"
-              class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+              class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
               data-testid="lookbook-title-input"
             >
           </div>
@@ -291,7 +470,7 @@ const handleSubmit = async () => {
               v-model="tagline"
               type="text"
               placeholder="مثال: کالکشن جدید — پاییز ۱۴۰۵"
-              class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+              class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
               data-testid="lookbook-tagline-input"
             >
           </div>
@@ -305,7 +484,7 @@ const handleSubmit = async () => {
               v-model="description"
               rows="3"
               placeholder="توضیحاتی پیرامون هماهنگی بافت‌ها، فرم‌ها و رنگ‌های این ست بنویسید..."
-              class="w-full p-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all leading-relaxed"
+              class="w-full p-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all leading-relaxed"
               data-testid="lookbook-description-input"
             />
           </div>
@@ -323,7 +502,7 @@ const handleSubmit = async () => {
                   type="number"
                   min="0"
                   max="90"
-                  class="w-full h-10 ps-8 pe-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                  class="w-full h-10 ps-8 pe-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
                   data-testid="lookbook-discount-input"
                 >
                 <Percent class="w-3.5 h-3.5 text-slate-400 absolute start-2.5 top-3.5" />
@@ -339,7 +518,7 @@ const handleSubmit = async () => {
                 v-model.number="displayOrder"
                 type="number"
                 min="0"
-                class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
                 data-testid="lookbook-order-input"
               >
             </div>
@@ -366,52 +545,114 @@ const handleSubmit = async () => {
           </div>
         </div>
 
-        <!-- کارت تصویر کاور ست -->
+        <!-- کارت آپلود نیتیو دراپ‌زون تصویر کاور ست -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
-          <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-3">
-            <Upload class="w-4 h-4 text-amber-500" />
-            <span>تصویر کاور استایل ادیتوریال</span>
-          </h2>
-
-          <div class="space-y-1 text-start">
-            <label class="text-xs font-bold text-slate-700 block">
-              آدرس مستقیم تصویر کاور <span class="text-rose-500">*</span>
-            </label>
-            <input
-              v-model="coverImage"
-              type="url"
-              placeholder="https://images.unsplash.com/photo-..."
-              class="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all font-mono"
-              data-testid="lookbook-cover-input"
-            >
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <UploadCloud class="w-4 h-4 text-amber-500" />
+              <span>تصویر کاور استایل ادیتوریال</span>
+            </h2>
+            <div v-if="coverImage" class="flex items-center gap-2">
+              <button
+                type="button"
+                class="text-[11px] font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+                @click="coverFileInput?.click()"
+              >
+                تغییر تصویر
+              </button>
+              <span class="text-slate-300">|</span>
+              <button
+                type="button"
+                class="text-[11px] font-bold text-rose-500 hover:text-rose-600 cursor-pointer"
+                @click="removeCoverImage"
+              >
+                حذف تصویر
+              </button>
+            </div>
           </div>
 
-          <!-- کاورهای پیشنهادی فوری -->
-          <div class="space-y-1.5 text-start">
-            <span class="text-[11px] text-slate-500 block">تصاویر پیشنهادی پیش‌فرض:</span>
-            <div class="grid grid-cols-4 gap-2">
-              <button
-                v-for="(img, idx) in presetCovers"
-                :key="idx"
-                type="button"
-                class="rounded-xl overflow-hidden aspect-video border-2 transition-all cursor-pointer relative"
-                :class="coverImage === img ? 'border-amber-500 ring-2 ring-amber-500/30' : 'border-slate-200 opacity-70 hover:opacity-100'"
-                @click="coverImage = img"
+          <!-- ورودی مخفی فایل -->
+          <input
+            ref="coverFileInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="hidden"
+            @change="handleCoverFileChange"
+          >
+
+          <!-- ناحیه دراپ‌زون / پیش‌نمایش تصویر کاور -->
+          <div
+            v-if="!coverImage"
+            class="group relative border-2 border-dashed rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer select-none"
+            :class="[
+              isDraggingCover
+                ? 'border-amber-500 bg-amber-50/50'
+                : 'border-slate-200/90 hover:border-slate-400 bg-slate-50/40 hover:bg-slate-50',
+            ]"
+            @dragover.prevent="isDraggingCover = true"
+            @dragleave.prevent="isDraggingCover = false"
+            @drop.prevent="handleCoverDrop"
+            @click="coverFileInput?.click()"
+          >
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+              <UploadCloud class="w-6 h-6" />
+            </div>
+            <p class="text-xs font-bold text-slate-800 mb-1">
+              {{ isUploadingCover ? 'در حال بارگذاری فایل...' : 'کلیک کنید یا تصویر مدل استایل را به اینجا بکشید' }}
+            </p>
+            <p class="text-[11px] text-slate-400">
+              فرمت‌های مجاز: JPG, PNG, WebP — ترجیحاً ابعاد عمودی ۴:۵ یا استودیو مد
+            </p>
+          </div>
+
+          <!-- نمایش تصویر بارگذاری شده به همراه اطلاعات کوچک -->
+          <div v-else class="flex items-center gap-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/80">
+            <img
+              :src="coverImage"
+              alt="کاور انتخاب‌شده"
+              class="w-14 h-18 rounded-lg object-cover bg-slate-200 border border-slate-300 shrink-0"
+            >
+            <div class="min-w-0 flex-1 space-y-1">
+              <span class="text-xs font-bold text-slate-800 block truncate">کاور ادیتوریال فعال شد</span>
+              <span class="text-[11px] text-slate-500 block truncate">
+                اکنون می‌توانید در کادر سمت چپ مستقیماً روی لباس یا اکسسوری‌ها کلیک کرده و محصول متصل نمایید.
+              </span>
+            </div>
+          </div>
+
+          <!-- تاگل و ورودی آدرس مستقیم URL (در صورت تمایل به وارد کردن لینک اینترنتی) -->
+          <div class="pt-1">
+            <button
+              type="button"
+              class="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              @click="showUrlInput = !showUrlInput"
+            >
+              <Link2 class="w-3.5 h-3.5 text-slate-400" />
+              <span>یا وارد کردن آدرس مستقیم اینترنتی تصویر</span>
+              <ChevronDown v-if="!showUrlInput" class="w-3 h-3 text-slate-400" />
+              <ChevronUp v-else class="w-3 h-3 text-slate-400" />
+            </button>
+
+            <div v-if="showUrlInput" class="mt-2 space-y-1 text-start animate-in fade-in duration-150">
+              <input
+                v-model="coverImage"
+                type="url"
+                placeholder="https://images.unsplash.com/photo-..."
+                class="w-full h-9 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all font-mono"
+                data-testid="lookbook-cover-input"
               >
-                <img :src="img" class="w-full h-full object-cover">
-              </button>
             </div>
           </div>
         </div>
 
-        <!-- کارت انتخاب و اتصال محصولات کاتالوگ -->
+        <!-- کارت کاتالوگ و محصولات متصل -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
               <Layers class="w-4 h-4 text-amber-500" />
-              <span>انتخاب محصولات تشکیل‌دهنده ست ({{ toFa(linkedItems.length) }} آیتم)</span>
+              <span>محصولات تشکیل‌دهنده ست ({{ toFa(linkedItems.length) }} آیتم)</span>
             </h2>
-            <span class="text-[11px] text-slate-500">بین ۲ تا ۴ کالا پیشنهاد می‌شود</span>
+            <span class="text-[11px] text-slate-500">حداکثر ۶ محصول</span>
           </div>
 
           <!-- جستجوی زنده کاتالوگ -->
@@ -419,14 +660,14 @@ const handleSubmit = async () => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="جست‌وجوی کالا در کاتالوگ فروشگاه..."
-              class="w-full h-10 ps-10 pe-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+              placeholder="جست‌وجوی سریع کالا در کاتالوگ فروشگاه..."
+              class="w-full h-10 ps-10 pe-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
               data-testid="lookbook-product-search"
             >
             <Search class="w-4 h-4 text-slate-400 absolute start-3.5 top-3" />
           </div>
 
-          <!-- لیست پیشنهادات کاتالوگ -->
+          <!-- لیست پیشنهادات کاتالوگ جهت اتصال سریع -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1 border border-slate-100 rounded-xl bg-slate-50/30">
             <button
               v-for="prod in filteredCatalog"
@@ -457,53 +698,66 @@ const handleSubmit = async () => {
             </button>
           </div>
         </div>
+
+        <!-- کارت خلاصه مالی و تخفیف پکیج ست ادیتوریال -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+            <div class="flex items-center gap-2 text-xs font-bold">
+              <ShoppingBag class="w-4 h-4 text-amber-400" />
+              <span>محاسبه بلادرنگ قیمت و تخفیف پکیج</span>
+            </div>
+            <span class="text-[11px] font-mono text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+              {{ toFa(discountPercent) }}٪ تخفیف
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+              <span class="text-[11px] text-slate-400 block mb-1">مجموع قیمت تکی اقلام:</span>
+              <span class="font-bold text-slate-200 font-mono">{{ formatToman(bundleTotalPrice) }}</span>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+              <span class="text-[11px] text-emerald-400 block mb-1">میزان سود خریدار:</span>
+              <span class="font-bold text-emerald-400 font-mono">{{ formatToman(bundleDiscountAmount) }}-</span>
+            </div>
+            <div class="bg-amber-500/10 rounded-xl p-3 border border-amber-500/20">
+              <span class="text-[11px] text-amber-300 block mb-1">قیمت نهایی باندل:</span>
+              <span class="font-bold text-white text-sm font-mono">{{ formatToman(bundleDiscountedPrice) }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ستون پیش‌نمایش تصویر و تنظیم هات‌اسپات‌ها (چپ) -->
+      <!-- ستون بوم کلیک و نشانه‌گذاری هات‌اسپات (چپ: ۵ ستون) -->
       <div class="lg:col-span-5 space-y-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4 sticky top-20">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
               <MapPin class="w-4 h-4 text-amber-500" />
-              <span>موقعیت‌یابی هات‌اسپات‌ها (Interactive Pins)</span>
+              <span>نشانه‌گذاری قطعات استایل روی تصویر</span>
             </h2>
-            <span class="text-[11px] text-slate-500">برای نشاندن پین، روی عکس بزنید</span>
+            <span class="text-[11px] text-slate-500">کلیک روی تصویر</span>
           </div>
 
-          <!-- انتخاب محصول فعال برای پین‌گذاری -->
-          <div v-if="linkedItems.length > 0" class="space-y-1.5">
-            <label class="text-[11px] font-bold text-slate-600 block text-start">
-              محصول هدف برای نشانه‌گذاری:
-            </label>
-            <div class="flex flex-wrap gap-1.5">
-              <button
-                v-for="(it, idx) in linkedItems"
-                :key="idx"
-                type="button"
-                class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                :class="[
-                  activePinIndex === idx
-                    ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200',
-                ]"
-                @click="activePinIndex = idx"
-              >
-                <span class="w-4 h-4 rounded-full bg-amber-400 text-slate-900 text-[10px] flex items-center justify-center font-mono">
-                  {{ idx + 1 }}
-                </span>
-                <span class="truncate max-w-[120px]">{{ it.title }}</span>
-              </button>
+          <!-- پیام راهنمای تعاملی -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70 text-[11px] text-slate-600 space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-slate-800">
+              <Tag class="w-3.5 h-3.5 text-amber-600" />
+              <span>گردش‌کار سریع Instagram / Pinterest:</span>
             </div>
+            <p class="leading-relaxed">
+              روی هر نقطه‌ای از تصویر مدل کلیک کنید تا پنجره جستجو و اتصال سریع کالا برای آن نقطه باز شود.
+            </p>
           </div>
 
-          <!-- کانتینر تعاملی تصویر کاور جهت کلیک و پین‌گذاری -->
+          <!-- کانتینر تعاملی تصویر مدل -->
           <div
             v-if="coverImage"
             ref="imageContainerRef"
             class="relative rounded-2xl overflow-hidden aspect-[4/5] bg-slate-100 border border-slate-200 cursor-crosshair select-none group shadow-inner"
-            title="برای تغییر موقعیت پین محصول انتخاب‌شده کلیک کنید"
+            title="برای نشانه‌گذاری کالا روی تصویر کلیک کنید"
             data-testid="lookbook-hotspot-canvas"
-            @click="handleImageClick"
+            @click="handleCanvasClick"
           >
             <img
               :src="coverImage"
@@ -515,40 +769,159 @@ const handleSubmit = async () => {
             <div
               v-for="(it, idx) in linkedItems"
               :key="idx"
-              class="absolute -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none transition-all duration-150"
-              :style="{ left: `${it.hotspot_x}%`, top: `${it.hotspot_y}%` }"
+              class="absolute z-20 cursor-pointer transition-transform"
+              :style="{
+                top: `${it.hotspot_y}%`,
+                right: `${it.hotspot_x}%`,
+                transform: 'translate(50%, -50%)',
+              }"
+              @click="handlePinClick(idx, $event)"
             >
+              <!-- نشانگر پین دایره‌ای با انیمیشن و شماره -->
               <div
-                class="relative flex items-center justify-center w-7 h-7 rounded-full text-slate-900 font-mono text-xs font-bold shadow-lg border-2 border-white transition-transform"
-                :class="activePinIndex === idx ? 'bg-amber-400 scale-125 ring-4 ring-amber-400/40' : 'bg-white/95 scale-100'"
+                class="relative flex items-center justify-center w-8 h-8 rounded-full text-slate-900 font-mono text-xs font-bold shadow-lg border-2 border-white transition-all active:scale-95"
+                :class="[
+                  activePinIndex === idx
+                    ? 'bg-amber-400 scale-110 ring-4 ring-amber-400/40 text-slate-950'
+                    : 'bg-white/95 hover:scale-105 hover:bg-white',
+                ]"
               >
                 <span>{{ idx + 1 }}</span>
+                <span
+                  v-if="activePinIndex === idx"
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60 pointer-events-none"
+                />
               </div>
             </div>
 
-            <!-- راهنمای بالای تصویر -->
-            <div class="absolute top-2.5 inset-x-2.5 z-10 px-2.5 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-md text-white text-[10px] text-center pointer-events-none">
-              محصول شماره {{ activePinIndex + 1 }} فعال است. روی تصویر بزنید تا پین در آنجا قرار گیرد.
+            <!-- نشانگر موقت برای نقطه انتخاب‌شده جدید قبل از انتخاب کالا -->
+            <div
+              v-if="pendingHotspot"
+              class="absolute z-25 pointer-events-none"
+              :style="{
+                top: `${pendingHotspot.y}%`,
+                right: `${pendingHotspot.x}%`,
+                transform: 'translate(50%, -50%)',
+              }"
+            >
+              <div class="relative flex items-center justify-center w-8 h-8 rounded-full bg-amber-500 text-white text-xs font-bold shadow-xl border-2 border-white scale-110">
+                <Plus class="w-4 h-4 animate-spin-slow" />
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              </div>
+            </div>
+
+            <!-- پاپ‌اور گلس‌مورفیسم جستجو و انتخاب مستقیم کالا برای نقطه کلیک‌شده -->
+            <div
+              v-if="isTaggingModalOpen"
+              class="absolute inset-0 z-30 bg-slate-950/50 backdrop-blur-xs flex flex-col justify-end p-3 animate-in fade-in duration-150"
+              @click.stop
+            >
+              <div class="bg-white rounded-2xl p-4 shadow-2xl border border-slate-200 space-y-3 max-h-[85%] flex flex-col">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div class="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+                    <Tag class="w-4 h-4 text-amber-500" />
+                    <span>انتخاب کالا برای این نقطه</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="p-1 rounded-lg text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    @click="cancelPendingHotspot"
+                  >
+                    <X class="w-4 h-4" />
+                  </button>
+                </div>
+
+                <!-- ورودی جستجوی کالا برای هات‌اسپات -->
+                <div class="relative">
+                  <input
+                    v-model="popoverSearchQuery"
+                    type="text"
+                    autofocus
+                    placeholder="جستجوی کالا برای این نقطه..."
+                    class="w-full h-9 ps-9 pe-3 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                  >
+                  <Search class="w-3.5 h-3.5 text-slate-400 absolute start-3 top-2.5" />
+                </div>
+
+                <!-- نتایج فیلترشده در پاپ‌اور -->
+                <div class="overflow-y-auto space-y-1.5 flex-1 pe-1 max-h-48">
+                  <button
+                    v-for="prod in popoverFilteredCatalog"
+                    :key="prod.id"
+                    type="button"
+                    class="w-full flex items-center gap-2 p-1.5 rounded-xl border text-start transition-all cursor-pointer hover:bg-amber-50/60 hover:border-amber-200"
+                    :class="[
+                      isProductSelected(prod.id, prod.slug)
+                        ? 'border-amber-300 bg-amber-50/40 text-slate-900'
+                        : 'border-slate-100 bg-white text-slate-700',
+                    ]"
+                    @click="selectProductForHotspot(prod)"
+                  >
+                    <img
+                      :src="prod.images?.[0]?.url || '/placeholder.jpg'"
+                      class="w-8 h-10 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-200"
+                    >
+                    <div class="min-w-0 flex-1">
+                      <span class="text-xs font-bold block truncate">{{ prod.title }}</span>
+                      <span class="text-[10px] text-amber-700 font-bold block">{{ formatToman(prod.price ?? prod.base_price) }}</span>
+                    </div>
+                    <span
+                      v-if="isProductSelected(prod.id, prod.slug)"
+                      class="text-[10px] text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded font-bold"
+                    >
+                      جابجایی
+                    </span>
+                    <Plus v-else class="w-4 h-4 text-slate-400 shrink-0" />
+                  </button>
+
+                  <div v-if="popoverFilteredCatalog.length === 0" class="py-6 text-center text-xs text-slate-400">
+                    کالایی با این عنوان در فروشگاه یافت نشد.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div v-else class="aspect-[4/5] rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2">
-            <Upload class="w-8 h-8" />
-            <span class="text-xs font-medium">تصویر کاور را وارد کنید تا پیش‌نمایش هات‌اسپات فعال گردد.</span>
+          <!-- حالت عدم وجود تصویر -->
+          <div
+            v-else
+            class="aspect-[4/5] rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2 cursor-pointer hover:border-slate-300 transition-colors"
+            @click="coverFileInput?.click()"
+          >
+            <UploadCloud class="w-8 h-8 text-slate-300" />
+            <span class="text-xs font-bold text-slate-600">تصویر کاور را آپلود کنید</span>
+            <span class="text-[10px] text-slate-400">پس از بارگذاری تصویر، بوم تعاملی نشانه‌گذاری قطعات استایل فعال خواهد شد.</span>
           </div>
 
-          <!-- لیست محصولات متصل با مختصات و دکمه حذف -->
+          <!-- لیست قطعات نشانه‌گذاری شده همراه با مختصات دقیق و دکمه حذف -->
           <div v-if="linkedItems.length > 0" class="space-y-2 pt-2 border-t border-slate-100">
+            <label class="text-[11px] font-bold text-slate-600 block text-start">
+              قطعات متصل‌شده به تصویر:
+            </label>
+
             <div
               v-for="(it, idx) in linkedItems"
               :key="idx"
-              class="flex items-center justify-between p-2 rounded-xl border border-slate-100 bg-slate-50/60 text-xs"
+              class="flex items-center justify-between p-2.5 rounded-xl border text-xs transition-colors"
+              :class="[
+                activePinIndex === idx
+                  ? 'bg-amber-50/70 border-amber-300 ring-1 ring-amber-300/40'
+                  : 'bg-slate-50/60 border-slate-100 hover:bg-slate-50',
+              ]"
+              @click="activePinIndex = idx"
             >
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono text-[10px] flex items-center justify-center shrink-0">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-xs flex items-center justify-center shrink-0">
                   {{ idx + 1 }}
                 </span>
-                <span class="font-bold text-slate-800 truncate block max-w-[140px]">{{ it.title }}</span>
+                <img
+                  :src="it.image || '/placeholder.jpg'"
+                  class="w-7 h-9 rounded-md object-cover bg-slate-200 shrink-0 border border-slate-200"
+                >
+                <div class="min-w-0">
+                  <span class="font-bold text-slate-800 truncate block max-w-[130px]">{{ it.title }}</span>
+                  <span class="text-[10px] text-amber-700 font-bold block">{{ formatToman(it.price) }}</span>
+                </div>
               </div>
 
               <div class="flex items-center gap-2 shrink-0">
@@ -557,11 +930,11 @@ const handleSubmit = async () => {
                 </span>
                 <button
                   type="button"
-                  class="p-1 text-slate-400 hover:text-rose-600 transition-colors"
-                  title="حذف از ست"
-                  @click="removeLinkedItem(idx)"
+                  class="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                  title="حذف پین و کالا از ست"
+                  @click.stop="removeLinkedItem(idx)"
                 >
-                  <X class="w-3.5 h-3.5" />
+                  <Trash2 class="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
