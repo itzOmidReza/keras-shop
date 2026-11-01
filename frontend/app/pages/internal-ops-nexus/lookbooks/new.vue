@@ -16,3 +16,4 @@ useSeoMeta({
     <AdminLookbookForm :is-edit-mode="false" />
   </div>
 </template>
+

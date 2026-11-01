@@ -440,3 +440,4 @@ async def delete_lookbook(
         await db.delete(lb)
         await db.commit()
     return {"success": True, "message": "ست و استایل با موفقیت حذف گردید."}
+

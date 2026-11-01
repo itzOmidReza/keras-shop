@@ -116,3 +116,4 @@ class LookbookContractTests(unittest.TestCase):
             f"/api/admin/lookbooks/{lb_id}", headers=self.admin_headers
         )
         self.assertEqual(res_verify.status_code, 404)
+

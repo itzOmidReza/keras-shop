@@ -86,3 +86,4 @@ class StyleLookbookUpdateRequest(BaseModel):
     is_active: Optional[bool] = None
     display_order: Optional[int] = None
     items: Optional[List[LookbookItemInputSchema]] = None
+

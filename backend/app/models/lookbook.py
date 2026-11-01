@@ -16,3 +16,4 @@ class StyleLookbook(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True, nullable=False)
     display_order: Mapped[int] = mapped_column(Integer, default=0, index=True, nullable=False)
     items: Mapped[List[dict]] = mapped_column(JSON, default=list, nullable=False)
+
