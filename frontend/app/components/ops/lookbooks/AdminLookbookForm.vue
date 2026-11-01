@@ -37,6 +37,7 @@ const title = ref(props.initialLookbook?.title || '')
 const tagline = ref(props.initialLookbook?.tagline || props.initialLookbook?.subtitle || '')
 const description = ref(props.initialLookbook?.description || '')
 const coverImage = ref(props.initialLookbook?.cover_image || props.initialLookbook?.image || '')
+const coverPreview = ref<string>(coverImage.value)
 const discountPercent = ref(props.initialLookbook?.discount_percent ?? 10)
 const displayOrder = ref(props.initialLookbook?.display_order ?? 0)
 const isActive = ref(props.initialLookbook?.is_active ?? true)
@@ -170,6 +171,16 @@ const isDraggingCover = ref(false)
 const showUrlInput = ref(false)
 const isUploadingCover = ref(false)
 
+const onUrlInput = () => {
+  if (coverImage.value.trim()) {
+    coverPreview.value = coverImage.value.trim()
+  }
+}
+
+const handleImageError = () => {
+  console.warn('Cover preview image encountered load error, keeping persistent preview state.')
+}
+
 const handleCoverFile = async (file: File) => {
   if (!file.type.startsWith('image/')) {
     toast.error('لطفاً یک فایل تصویری معتبر (JPG, PNG, WebP) انتخاب نمایید.')
@@ -178,15 +189,16 @@ const handleCoverFile = async (file: File) => {
 
   isUploadingCover.value = true
 
-  // Fast client-side preview via FileReader
+  // Fast persistent client-side preview via FileReader (base64 Data URL)
   const reader = new FileReader()
   reader.onload = () => {
-    coverImage.value = reader.result as string
+    coverPreview.value = reader.result as string
     toast.success('تصویر کاور با موفقیت بارگذاری شد.')
   }
   reader.readAsDataURL(file)
 
-  // Background upload to backend if authenticated
+  // Background upload to backend if authenticated:
+  // sets coverImage quietly without touching coverPreview or unmounting the canvas
   try {
     const authStore = useAuthStore()
     const headers = authStore.getAuthHeaders()
@@ -224,6 +236,7 @@ const handleCoverDrop = (e: DragEvent) => {
 }
 
 const removeCoverImage = () => {
+  coverPreview.value = ''
   coverImage.value = ''
   if (coverFileInput.value) coverFileInput.value.value = ''
 }
@@ -258,7 +271,7 @@ const popoverFilteredCatalog = computed(() => {
 })
 
 const handleCanvasClick = (e: MouseEvent) => {
-  if (!imageContainerRef.value || !coverImage.value) return
+  if (!imageContainerRef.value || (!coverPreview.value && !coverImage.value)) return
 
   const rect = imageContainerRef.value.getBoundingClientRect()
   // RTL coordinate: distance from the right edge in percentage
@@ -364,7 +377,8 @@ const handleSubmit = async () => {
     return
   }
 
-  if (!coverImage.value.trim()) {
+  const finalCover = coverImage.value.trim() || coverPreview.value.trim()
+  if (!finalCover) {
     toast.error('لطفاً تصویر کاور ست را بارگذاری نمایید.')
     return
   }
@@ -378,7 +392,7 @@ const handleSubmit = async () => {
     title: title.value.trim(),
     tagline: tagline.value.trim() || undefined,
     description: description.value.trim(),
-    cover_image: coverImage.value.trim(),
+    cover_image: finalCover,
     discount_percent: Number(discountPercent.value) || 0,
     display_order: Number(displayOrder.value) || 0,
     is_active: isActive.value,
@@ -552,7 +566,7 @@ const handleSubmit = async () => {
               <UploadCloud class="w-4 h-4 text-amber-500" />
               <span>تصویر کاور استایل ادیتوریال</span>
             </h2>
-            <div v-if="coverImage" class="flex items-center gap-2">
+            <div v-if="coverPreview || coverImage" class="flex items-center gap-2">
               <button
                 type="button"
                 class="text-[11px] font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
@@ -582,7 +596,7 @@ const handleSubmit = async () => {
 
           <!-- ناحیه دراپ‌زون / پیش‌نمایش تصویر کاور -->
           <div
-            v-if="!coverImage"
+            v-if="!coverPreview && !coverImage"
             class="group relative border-2 border-dashed rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer select-none"
             :class="[
               isDraggingCover
@@ -608,9 +622,10 @@ const handleSubmit = async () => {
           <!-- نمایش تصویر بارگذاری شده به همراه اطلاعات کوچک -->
           <div v-else class="flex items-center gap-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/80">
             <img
-              :src="coverImage"
+              :src="coverPreview || coverImage"
               alt="کاور انتخاب‌شده"
               class="w-14 h-18 rounded-lg object-cover bg-slate-200 border border-slate-300 shrink-0"
+              @error="handleImageError"
             >
             <div class="min-w-0 flex-1 space-y-1">
               <span class="text-xs font-bold text-slate-800 block truncate">کاور ادیتوریال فعال شد</span>
@@ -640,6 +655,7 @@ const handleSubmit = async () => {
                 placeholder="https://images.unsplash.com/photo-..."
                 class="w-full h-9 px-3 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all font-mono"
                 data-testid="lookbook-cover-input"
+                @input="onUrlInput"
               >
             </div>
           </div>
@@ -752,7 +768,7 @@ const handleSubmit = async () => {
 
           <!-- کانتینر تعاملی تصویر مدل -->
           <div
-            v-if="coverImage"
+            v-if="coverPreview || coverImage"
             ref="imageContainerRef"
             class="relative rounded-2xl overflow-hidden aspect-[4/5] bg-slate-100 border border-slate-200 cursor-crosshair select-none group shadow-inner"
             title="برای نشانه‌گذاری کالا روی تصویر کلیک کنید"
@@ -760,9 +776,10 @@ const handleSubmit = async () => {
             @click="handleCanvasClick"
           >
             <img
-              :src="coverImage"
+              :src="coverPreview || coverImage"
               :alt="title"
               class="w-full h-full object-cover pointer-events-none"
+              @error="handleImageError"
             >
 
             <!-- پین‌های هات‌اسپات فعال روی تصویر -->
