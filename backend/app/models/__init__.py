@@ -27,6 +27,7 @@ from app.models.taxonomy import (
 from app.models.review import ProductReview
 from app.models.article import JournalArticle
 from app.models.campaign import Campaign, campaign_products, campaign_categories
+from app.models.lookbook import StyleLookbook
 
 __all__ = [
     "Base",
@@ -57,4 +58,5 @@ __all__ = [
     "Campaign",
     "campaign_products",
     "campaign_categories",
+    "StyleLookbook",
 ]

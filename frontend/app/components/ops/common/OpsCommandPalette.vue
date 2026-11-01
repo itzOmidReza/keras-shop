@@ -1,6 +1,6 @@
 <!-- frontend/app/components/ops/common/OpsCommandPalette.vue -->
 <script setup lang="ts">
-import { Search, Plus, Package, Truck, CreditCard, BookOpen, ArrowLeft } from '@lucide/vue'
+import { Search, Plus, Package, Truck, CreditCard, BookOpen, ArrowLeft, Sparkles } from '@lucide/vue'
 
 const props = defineProps<{
   open: boolean
@@ -19,7 +19,9 @@ const shortcuts = [
   { id: 'nav_orders', title: 'سفارش‌ها و ارسال مرسولات', icon: Truck, group: 'بخش‌ها', path: '/internal-ops-nexus/orders' },
   { id: 'nav_discounts', title: 'تخفیف‌ها و کدهای پروموشن', icon: CreditCard, group: 'بخش‌ها', path: '/internal-ops-nexus/discounts' },
   { id: 'nav_articles', title: 'مجله، مقالات و روایات ادیتوریال', icon: BookOpen, group: 'بخش‌ها', path: '/internal-ops-nexus/articles' },
+  { id: 'nav_lookbooks', title: 'ست‌ها و استایل‌های ادیتوریال (لوک‌بوک)', icon: Sparkles, group: 'بخش‌ها', path: '/internal-ops-nexus/lookbooks' },
   { id: 'act_new_product', title: 'افزودن محصول جدید به کاتالوگ', icon: Plus, group: 'عملیات سریع', path: '/internal-ops-nexus/products/new' },
+  { id: 'act_new_lookbook', title: 'طراحی ست جدید استایل (Lookbook)', icon: Plus, group: 'عملیات سریع', path: '/internal-ops-nexus/lookbooks/new' },
   { id: 'act_new_article', title: 'نگارش مقاله جدید برای ژورنال', icon: Plus, group: 'عملیات سریع', path: '/internal-ops-nexus/articles/new' },
 ]
 

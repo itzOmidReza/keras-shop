@@ -18,3 +18,6 @@ __pycache__/
 # Database dumps / sqlite
 *.sqlite3
 *.db
+
+# Local uploads
+public/

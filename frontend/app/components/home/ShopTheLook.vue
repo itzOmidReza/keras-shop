@@ -12,14 +12,21 @@ const {
   addEntireOutfitToCart,
 } = useShopTheLook()
 
-const activeLookId = ref(looks[0]?.id || 'look-autumn')
+const activeLookId = ref('')
+
+watchEffect(() => {
+  if (!activeLookId.value && looks.value.length > 0 && looks.value[0]) {
+    activeLookId.value = looks.value[0].id
+  }
+})
+
 const activeLook = computed(() => {
-  return looks.find(l => l.id === activeLookId.value) || looks[0]!
+  return looks.value.find(l => l.id === activeLookId.value) || looks.value[0] || null
 })
 </script>
 
 <template>
-  <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+  <section v-if="activeLook" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
     <div class="rounded-3xl border border-sand bg-white p-6 sm:p-10 shadow-xs space-y-8">
       <!-- هدر و انتخابگر چندگانه استایل‌ها (Multi-Look Switcher) -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-sand/70 pb-6">

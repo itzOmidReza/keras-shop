@@ -19,6 +19,7 @@ from app.api.v1.endpoints import (
     articles,
     reviews,
     search,
+    lookbooks,
 )
 
 # Root v1 router
@@ -42,6 +43,7 @@ api_v1_router.include_router(checkout_payment.router)
 api_v1_router.include_router(articles.router)
 api_v1_router.include_router(reviews.router)
 api_v1_router.include_router(search.router)
+api_v1_router.include_router(lookbooks.router)
 
 
 # Nuxt root API router (without /v1 prefix, directly mounted at /api/...)
@@ -65,3 +67,4 @@ api_direct_router.include_router(checkout_payment.router)
 api_direct_router.include_router(articles.router)
 api_direct_router.include_router(reviews.router)
 api_direct_router.include_router(search.router)
+api_direct_router.include_router(lookbooks.router)

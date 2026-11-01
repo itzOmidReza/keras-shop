@@ -543,6 +543,53 @@ export interface JournalArticle {
 }
 
 // -------------------------------------------------------------
+// Style Bundles & Lookbook Contracts
+// -------------------------------------------------------------
+
+export interface LookbookHotspot {
+  top: number;
+  right: number;
+}
+
+export interface LookbookItem {
+  id: number | string;
+  slug: string;
+  title: string;
+  price: number;
+  compareAtPrice?: number;
+  image: string;
+  inStock: boolean;
+  sizes: string[];
+  hotspot_x?: number;
+  hotspot_y?: number;
+  hotspot: LookbookHotspot;
+}
+
+export interface StyleLookbook {
+  id: string;
+  title: string;
+  subtitle: string;
+  tagline?: string;
+  description: string;
+  image: string;
+  cover_image: string;
+  discount_percent: number;
+  display_order: number;
+  is_active?: boolean;
+  items: LookbookItem[];
+  bundle_total_price: number;
+  discounted_price: number;
+  item_count?: number;
+  product_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Alias for backwards compatibility with existing components
+export type LookItem = LookbookItem;
+export type OutfitLook = StyleLookbook;
+
+// -------------------------------------------------------------
 // Store Settings & Site Configuration Contracts
 // -------------------------------------------------------------
 

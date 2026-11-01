@@ -293,4 +293,30 @@ describe('Full-Stack Contract & Real Backend Integration Suite', () => {
     expect(manualOrder.recipientName).toBe('مهسا امینیان')
     expect(manualOrder.totalAmount).toBe(4500000)
   })
+
+  it('11. Style Lookbooks & Bundles returns dynamic lookbooks with resolved relations and discounts', async () => {
+    const res = await fetch(`${BACKEND_URL}/api/lookbooks/public`)
+    expect(res.status).toBe(200)
+    const lookbooks = await res.json()
+    expect(Array.isArray(lookbooks)).toBe(true)
+    expect(lookbooks.length).toBeGreaterThan(0)
+
+    const lb = lookbooks[0]
+    expect(lb.id).toBeDefined()
+    expect(lb.title).toBeDefined()
+    expect(lb.cover_image).toBeDefined()
+    expect(lb.bundle_total_price).toBeGreaterThan(0)
+    expect(lb.discounted_price).toBeLessThanOrEqual(lb.bundle_total_price)
+    expect(Array.isArray(lb.items)).toBe(true)
+    expect(lb.items.length).toBeGreaterThan(0)
+
+    const item = lb.items[0]
+    expect(item.id).toBeDefined()
+    expect(item.slug).toBeDefined()
+    expect(item.title).toBeDefined()
+    expect(item.price).toBeGreaterThan(0)
+    expect(item.hotspot).toBeDefined()
+    expect(item.hotspot.top).toBeDefined()
+    expect(item.hotspot.right).toBeDefined()
+  })
 })

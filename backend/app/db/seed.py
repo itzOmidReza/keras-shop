@@ -20,6 +20,7 @@ from app.models.taxonomy import (
 from app.models.review import ProductReview
 from app.models.article import JournalArticle
 from app.models.coupon import Coupon
+from app.models.lookbook import StyleLookbook
 from app.models.enums import DiscountType
 
 _TOMAN = 10
@@ -109,24 +110,24 @@ async def seed_data():
         for col in tax_data.get("colors", []):
             slug = col["slug"]
             stmt = select(CustomColor).where(CustomColor.slug == slug)
-            if not (await session.execute(stmt)).scalar_one_or_none():
+            if not (await session.execute(stmt)).scalars().first():
                 session.add(CustomColor(name=col["name"], hex=col["hex"], slug=slug, is_system_default=col.get("isSystemDefault", False)))
 
         for sz in tax_data.get("sizes", []):
             stmt = select(CustomSize).where(CustomSize.name == sz["name"])
-            if not (await session.execute(stmt)).scalar_one_or_none():
+            if not (await session.execute(stmt)).scalars().first():
                 session.add(CustomSize(name=sz["name"], group=sz["group"], order=sz["order"], is_system_default=sz.get("isSystemDefault", False)))
 
         for br in tax_data.get("brands", []):
             slug = br["slug"]
             stmt = select(TaxonomyBrand).where(TaxonomyBrand.slug == slug)
-            if not (await session.execute(stmt)).scalar_one_or_none():
+            if not (await session.execute(stmt)).scalars().first():
                 session.add(TaxonomyBrand(name=br["name"], slug=slug, is_featured=br.get("isFeatured", False)))
 
         for sea in tax_data.get("seasons", []):
             slug = sea["slug"]
             stmt = select(TaxonomySeason).where(TaxonomySeason.slug == slug)
-            if not (await session.execute(stmt)).scalar_one_or_none():
+            if not (await session.execute(stmt)).scalars().first():
                 session.add(TaxonomySeason(name=sea["name"], slug=slug, is_current_drop=sea.get("isCurrentDrop", False)))
 
         categories_map = {}
@@ -327,6 +328,65 @@ async def seed_data():
                 session.add(sc)
         await session.commit()
         print(f"✅ Seeded Standard Boutique Coupons")
+
+        # 8. Seed Style Lookbooks & Bundles
+        initial_lookbooks = [
+            {
+                "title": "استایل ادیتوریال پاییزه",
+                "tagline": "کالکشن جدید — پاییز ۱۴۰۵",
+                "description": "ترکیب شومیز لینن اسلپ مدل کارن، شلوار واید لینن پاییزه و دستمال سر ژاکارد؛ هارمونی چشم‌نواز تنالیته شنی و خاکی برای استایل روزمره ادیتوریال.",
+                "cover_image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80",
+                "discount_percent": 10,
+                "display_order": 1,
+                "items": [
+                    {"product_id": "karen-slub-linen-blouse", "hotspot_x": 48.0, "hotspot_y": 38.0},
+                    {"product_id": "autumn-wide-leg-linen-pants", "hotspot_x": 48.0, "hotspot_y": 72.0},
+                    {"product_id": "cotton-jacquard-bandana", "hotspot_x": 50.0, "hotspot_y": 16.0},
+                ],
+            },
+            {
+                "title": "استایل لایه‌لایه گرم زمستانه",
+                "tagline": "کالکشن زمستان ۱۴۰۵",
+                "description": "هارمونی شیک پالتو فوتر پشمی آستردار با پلیور بافت کرکی یقه اسکی و شال پشمی ضخیم؛ گرما، راحتی و وقار مینیمال در روزهای خنک.",
+                "cover_image": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1000&q=80",
+                "discount_percent": 10,
+                "display_order": 2,
+                "items": [
+                    {"product_id": "long-lined-wool-fouter-coat", "hotspot_x": 50.0, "hotspot_y": 40.0},
+                    {"product_id": "fluffy-turtleneck-knit-sweater", "hotspot_x": 48.0, "hotspot_y": 60.0},
+                    {"product_id": "thick-knit-wool-long-scarf", "hotspot_x": 52.0, "hotspot_y": 22.0},
+                ],
+            },
+            {
+                "title": "ست اکسسوری و شال مکمل",
+                "tagline": "اکسسوری‌های دست‌ساز کراس",
+                "description": "هماهنگی شال بلند پشمی بافت ضخیم، اسکرانچی ابریشم طبیعی و دستمال سر ژاکارد برای تکمیل استایل‌های پاییزی و روزمره.",
+                "cover_image": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80",
+                "discount_percent": 10,
+                "display_order": 3,
+                "items": [
+                    {"product_id": "natural-silk-autumn-scrunchie", "hotspot_x": 52.0, "hotspot_y": 20.0},
+                    {"product_id": "thick-knit-wool-long-scarf", "hotspot_x": 48.0, "hotspot_y": 46.0},
+                    {"product_id": "cotton-jacquard-bandana", "hotspot_x": 50.0, "hotspot_y": 72.0},
+                ],
+            },
+        ]
+        for lb_data in initial_lookbooks:
+            stmt = select(StyleLookbook).where(StyleLookbook.title == lb_data["title"])
+            if not (await session.execute(stmt)).scalars().first():
+                lb = StyleLookbook(
+                    title=lb_data["title"],
+                    tagline=lb_data["tagline"],
+                    description=lb_data["description"],
+                    cover_image=lb_data["cover_image"],
+                    discount_percent=lb_data["discount_percent"],
+                    is_active=True,
+                    display_order=lb_data["display_order"],
+                    items=lb_data["items"],
+                )
+                session.add(lb)
+        await session.commit()
+        print(f"✅ Seeded Style Lookbooks & Bundles")
 
         print("🎉 Full Keras Seeding Complete!")
 

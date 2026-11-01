@@ -23,7 +23,7 @@ const {
 const swiperInstance = ref<SwiperType | null>(null)
 const activeIndex = ref(0)
 
-const toggleHotspotWithAutoplay = (itemId: number) => {
+const toggleHotspotWithAutoplay = (itemId: string | number) => {
   swiperInstance.value?.autoplay?.stop()
   toggleHotspot(itemId)
 }
@@ -51,7 +51,7 @@ const prevSlide = () => {
 </script>
 
 <template>
-  <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
+  <section v-if="looks.length > 0" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
     <div class="space-y-6 sm:space-y-8">
       <!-- هدر بخش خرید ست با استایل ادیتوریال -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand/70 pb-5">

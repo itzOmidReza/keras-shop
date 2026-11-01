@@ -3,6 +3,7 @@
 import {
   LayoutDashboard,
   Shirt,
+  Sparkles,
   Package,
   MessageSquareQuote,
   Tag,
@@ -62,6 +63,13 @@ const navItems = computed<NavItem[]>(() => [
     icon: Shirt,
     testId: 'ops-nav-products',
     legacyTestId: 'tab-view-products',
+  },
+  {
+    id: 'lookbooks',
+    title: 'ست‌ها و استایل‌ها',
+    path: '/internal-ops-nexus/lookbooks',
+    icon: Sparkles,
+    testId: 'ops-nav-lookbooks',
   },
   {
     id: 'orders',
@@ -133,6 +141,15 @@ const breadcrumb = computed(() => {
   }
   if (path.startsWith('/internal-ops-nexus/products')) {
     return 'محصولات و لباس‌ها'
+  }
+  if (path === '/internal-ops-nexus/lookbooks/new') {
+    return 'ست‌ها و استایل‌ها / ساخت ست جدید'
+  }
+  if (path.startsWith('/internal-ops-nexus/lookbooks/') && path.endsWith('/edit')) {
+    return 'ست‌ها و استایل‌ها / ویرایش ست'
+  }
+  if (path.startsWith('/internal-ops-nexus/lookbooks')) {
+    return 'ست‌ها و استایل‌ها'
   }
   if (path.startsWith('/internal-ops-nexus/orders')) {
     return 'سفارش‌ها و ارسال'

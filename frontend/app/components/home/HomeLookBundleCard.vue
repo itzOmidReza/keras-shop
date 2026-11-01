@@ -5,13 +5,13 @@ import type { OutfitLook } from '~/composables/home/useShopTheLook'
 
 defineProps<{
   look: OutfitLook
-  selectedSizes: Record<number, string>
+  selectedSizes: Record<string | number, string>
   regularTotal: number
   bundleTotal: number
 }>()
 
 const emit = defineEmits<{
-  (e: 'updateSize', itemId: number, size: string): void
+  (e: 'updateSize', itemId: string | number, size: string): void
   (e: 'addToCart', look: OutfitLook): void
 }>()
 </script>
