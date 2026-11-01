@@ -4,6 +4,64 @@ import type { StyleLookbook } from '~/types/domain'
 
 export const sharedAdminLookbooks = ref<StyleLookbook[]>([])
 
+type ApiErrorStructure = {
+  message?: string
+  detail?: string | Array<{ loc?: Array<string | number>; msg?: string }>
+  error?: {
+    message?: string
+    detail?: string
+    code?: string
+  }
+} | string
+
+function extractApiErrorMessage(err: unknown, fallback: string): string {
+  if (!err || typeof err !== 'object') return fallback
+  const anyErr = err as { data?: ApiErrorStructure; response?: { _data?: ApiErrorStructure }; message?: string }
+  const data = anyErr.data || anyErr.response?._data
+
+  if (data) {
+    if (typeof data === 'string' && data.trim()) {
+      return data.trim()
+    }
+    if (typeof data === 'object') {
+      if (data.error && typeof data.error === 'object') {
+        if (typeof data.error.message === 'string' && data.error.message.trim()) {
+          return data.error.message.trim()
+        }
+        if (typeof data.error.detail === 'string' && data.error.detail.trim()) {
+          return data.error.detail.trim()
+        }
+      }
+      if (typeof data.message === 'string' && data.message.trim()) {
+        return data.message.trim()
+      }
+      if (typeof data.detail === 'string' && data.detail.trim()) {
+        return data.detail.trim()
+      }
+      if (Array.isArray(data.detail)) {
+        const msgs = data.detail.map((item) => {
+          if (typeof item === 'string') return item
+          const field = Array.isArray(item.loc)
+            ? item.loc.filter(p => p !== 'body').join(' > ')
+            : ''
+          const msg = item.msg || ''
+          return field ? `${field}: ${msg}` : msg
+        }).filter(Boolean)
+
+        if (msgs.length > 0) {
+          return msgs.join(' — ')
+        }
+      }
+    }
+  }
+
+  if (typeof anyErr.message === 'string' && anyErr.message.trim()) {
+    return anyErr.message.trim()
+  }
+
+  return fallback
+}
+
 export function useAdminLookbooks() {
   const authStore = useAuthStore()
   const searchQuery = ref('')
@@ -110,7 +168,8 @@ export function useAdminLookbooks() {
       return created
     } catch (err) {
       console.error('Failed to create lookbook:', err)
-      toast.error('خطا در ثبت ست جدید. لطفاً ورودی‌ها را بررسی کنید.')
+      const errorMsg = extractApiErrorMessage(err, 'خطا در ثبت ست جدید. لطفاً ورودی‌ها را بررسی کنید.')
+      toast.error(errorMsg)
       return null
     } finally {
       isLoading.value = false
@@ -150,7 +209,8 @@ export function useAdminLookbooks() {
       return updated
     } catch (err) {
       console.error(`Failed to update lookbook ${id}:`, err)
-      toast.error('خطا در ویرایش ست.')
+      const errorMsg = extractApiErrorMessage(err, 'خطا در ویرایش ست.')
+      toast.error(errorMsg)
       return null
     } finally {
       isLoading.value = false
@@ -173,7 +233,8 @@ export function useAdminLookbooks() {
       return true
     } catch (err) {
       console.error(`Failed to delete lookbook ${id}:`, err)
-      toast.error('خطا در حذف ست.')
+      const errorMsg = extractApiErrorMessage(err, 'خطا در حذف ست.')
+      toast.error(errorMsg)
       return false
     } finally {
       isLoading.value = false

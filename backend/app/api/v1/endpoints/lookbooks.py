@@ -346,6 +346,13 @@ async def create_lookbook(
             status_code=400,
         )
 
+    if cover_image.startswith("data:image/"):
+        raise DomainException(
+            message="تصویر کاور باید ابتدا در سرور آپلود شود و نمی‌تواند به صورت Base64 مستقیم ارسال گردد.",
+            code="BASE64_NOT_ALLOWED",
+            status_code=400,
+        )
+
     items_data = [item.model_dump() for item in payload.items]
 
     lb = StyleLookbook(
@@ -401,7 +408,14 @@ async def update_lookbook(
     if payload.description is not None:
         lb.description = payload.description.strip()
     if payload.cover_image is not None:
-        lb.cover_image = payload.cover_image.strip()
+        clean_cover = payload.cover_image.strip()
+        if clean_cover.startswith("data:image/"):
+            raise DomainException(
+                message="تصویر کاور باید ابتدا در سرور آپلود شود و نمی‌تواند به صورت Base64 مستقیم ارسال گردد.",
+                code="BASE64_NOT_ALLOWED",
+                status_code=400,
+            )
+        lb.cover_image = clean_cover
     if payload.discount_percent is not None:
         lb.discount_percent = payload.discount_percent
     if payload.is_active is not None:

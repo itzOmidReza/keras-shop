@@ -139,6 +139,13 @@ async def handle_contact_submission(payload: ContactFormPayload):
         raise HTTPException(status_code=502, detail="سرویس پشتیبانی در دسترس نیست")
 
 from app.api.v1.router import api_v1_router, api_direct_router
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 app.include_router(api_v1_router, prefix="/api")
 app.include_router(api_direct_router, prefix="/api")
+
+public_images_dir = Path(__file__).resolve().parents[1] / "public" / "images"
+public_images_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/images", StaticFiles(directory=str(public_images_dir)), name="images")
+app.mount("/api/images", StaticFiles(directory=str(public_images_dir)), name="api_images")

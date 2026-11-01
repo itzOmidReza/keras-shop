@@ -170,10 +170,13 @@ const coverFileInput = ref<HTMLInputElement | null>(null)
 const isDraggingCover = ref(false)
 const showUrlInput = ref(false)
 const isUploadingCover = ref(false)
+const pendingCoverFile = ref<File | null>(null)
+const uploadCoverError = ref<string | null>(null)
 
 const onUrlInput = () => {
   if (coverImage.value.trim()) {
     coverPreview.value = coverImage.value.trim()
+    pendingCoverFile.value = null
   }
 }
 
@@ -181,24 +184,9 @@ const handleImageError = () => {
   console.warn('Cover preview image encountered load error, keeping persistent preview state.')
 }
 
-const handleCoverFile = async (file: File) => {
-  if (!file.type.startsWith('image/')) {
-    toast.error('لطفاً یک فایل تصویری معتبر (JPG, PNG, WebP) انتخاب نمایید.')
-    return
-  }
-
+const uploadFileToServer = async (file: File): Promise<string | null> => {
   isUploadingCover.value = true
-
-  // Fast persistent client-side preview via FileReader (base64 Data URL)
-  const reader = new FileReader()
-  reader.onload = () => {
-    coverPreview.value = reader.result as string
-    toast.success('تصویر کاور با موفقیت بارگذاری شد.')
-  }
-  reader.readAsDataURL(file)
-
-  // Background upload to backend if authenticated:
-  // sets coverImage quietly without touching coverPreview or unmounting the canvas
+  uploadCoverError.value = null
   try {
     const authStore = useAuthStore()
     const headers = authStore.getAuthHeaders()
@@ -210,14 +198,44 @@ const handleCoverFile = async (file: File) => {
       body: formData,
       headers,
     })
+
     if (res?.url) {
       coverImage.value = res.url
+      uploadCoverError.value = null
+      return res.url
     }
-  } catch (err) {
-    console.warn('Storage upload endpoint returned error, using local data URL fallback:', err)
+    throw new Error('پاسخ سرور فاقد آدرس فایل آپلود شده است.')
+  } catch (err: unknown) {
+    console.error('Storage upload endpoint returned error:', err)
+    uploadCoverError.value = 'خطا در بارگذاری فایل در فضای ذخیره‌سازی سرور.'
+    return null
   } finally {
     isUploadingCover.value = false
     if (coverFileInput.value) coverFileInput.value.value = ''
+  }
+}
+
+const handleCoverFile = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    toast.error('لطفاً یک فایل تصویری معتبر (JPG, PNG, WebP) انتخاب نمایید.')
+    return
+  }
+
+  pendingCoverFile.value = file
+
+  // Fast persistent client-side preview via FileReader (base64 Data URL)
+  const reader = new FileReader()
+  reader.onload = () => {
+    coverPreview.value = reader.result as string
+  }
+  reader.readAsDataURL(file)
+
+  // Start upload immediately in background
+  const url = await uploadFileToServer(file)
+  if (url) {
+    toast.success('تصویر کاور با موفقیت آپلود و آماده ذخیره شد.')
+  } else {
+    toast.warning('آپلود تصویر در پس‌زمینه با خطا مواجه شد؛ در زمان ذخیره مجدداً تلاش خواهد شد.')
   }
 }
 
@@ -238,6 +256,8 @@ const handleCoverDrop = (e: DragEvent) => {
 const removeCoverImage = () => {
   coverPreview.value = ''
   coverImage.value = ''
+  pendingCoverFile.value = null
+  uploadCoverError.value = null
   if (coverFileInput.value) coverFileInput.value.value = ''
 }
 
@@ -377,9 +397,34 @@ const handleSubmit = async () => {
     return
   }
 
-  const finalCover = coverImage.value.trim() || coverPreview.value.trim()
+  // If upload is currently in progress, wait for it
+  if (isUploadingCover.value) {
+    toast.info('در حال بارگذاری فایل کاور بر روی سرور... لطفاً چند لحظه شکیبا باشید.')
+    let waitAttempts = 0
+    while (isUploadingCover.value && waitAttempts < 30) {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      waitAttempts++
+    }
+  }
+
+  // If coverImage is not yet a server path/url but we have the pending file, upload synchronously now
+  if (!coverImage.value.trim() && pendingCoverFile.value) {
+    toast.info('در حال آپلود نهایی تصویر کاور به سرور...')
+    const uploadedUrl = await uploadFileToServer(pendingCoverFile.value)
+    if (!uploadedUrl) {
+      toast.error('آپلود تصویر کاور به سرور ناموفق بود. امکان ذخیره ست بدون آپلود معتبر فایل وجود ندارد.')
+      return
+    }
+  }
+
+  const finalCover = coverImage.value.trim()
   if (!finalCover) {
-    toast.error('لطفاً تصویر کاور ست را بارگذاری نمایید.')
+    toast.error('لطفاً ابتدا تصویر کاور ست را بارگذاری یا آدرس معتبر وارد نمایید.')
+    return
+  }
+
+  if (finalCover.startsWith('data:image/')) {
+    toast.error('تصویر کاور هنوز در سرور ذخیره نشده است. لطفاً چند لحظه بعد مجدداً تلاش کنید یا فایل را دوباره برگزینید.')
     return
   }
 
@@ -391,15 +436,15 @@ const handleSubmit = async () => {
   const payload = {
     title: title.value.trim(),
     tagline: tagline.value.trim() || undefined,
-    description: description.value.trim(),
+    description: description.value.trim() || undefined,
     cover_image: finalCover,
     discount_percent: Number(discountPercent.value) || 0,
     display_order: Number(displayOrder.value) || 0,
     is_active: isActive.value,
     items: linkedItems.value.map(it => ({
       product_id: it.productId,
-      hotspot_x: it.hotspot_x,
-      hotspot_y: it.hotspot_y,
+      hotspot_x: Math.round(Number(it.hotspot_x) * 10) / 10,
+      hotspot_y: Math.round(Number(it.hotspot_y) * 10) / 10,
     })),
   }
 
@@ -441,13 +486,13 @@ const handleSubmit = async () => {
 
       <button
         type="button"
-        :disabled="isSaving"
+        :disabled="isSaving || isUploadingCover"
         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs sm:text-sm font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer active:scale-98"
         data-testid="save-lookbook-button"
         @click="handleSubmit"
       >
         <Save class="w-4 h-4" />
-        <span>{{ isSaving ? 'در حال ذخیره...' : 'ذخیره ست' }}</span>
+        <span>{{ isSaving || isUploadingCover ? 'در حال ذخیره...' : 'ذخیره ست' }}</span>
       </button>
     </div>
 
